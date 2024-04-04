@@ -3,6 +3,10 @@ import logging
 from fastapi import FastAPI, HTTPException, Body
 from index_pipeline import get_sitemap_urls, extract_text_from_url
 
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 # Create an instance of FastAPI
 app = FastAPI()
 
@@ -110,7 +114,7 @@ async def ignite_expert():
         
         if extracted_h1:
             try:
-                print(f"extract: {url}")
+                logger.info(f"extract: {url}")
                 await update_or_insert_data(
                     url=url,
                     question=extracted_h1,
@@ -118,6 +122,6 @@ async def ignite_expert():
                     id=None
                 )
             except Exception as e:
-                print(f"Error: {e}")
-   
+                logger.error(f"Error: {e}")
+    logger.info("Done")
     return {"message": "Done"}
