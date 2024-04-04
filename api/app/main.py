@@ -75,6 +75,9 @@ async def update_or_insert_data(
     - **id**: The ID of the data record to update (optional).
 
     Returns the updated or inserted data record.
+
+    TODO:
+    - important: The upsert operation is currently not working because it is implemented by id, and not by url.
     """
     conn = await get_db_connection()
     try:
@@ -100,6 +103,24 @@ async def update_or_insert_data(
 
 @app.put("/ignite_expert", summary="Insert Data from faq.bsv.admin.ch", response_description="Insert Data from faq.bsv.admin.ch")
 async def ignite_expert():
+    """
+    Asynchronously retrieves and processes FAQ data from 'https://faq.bsv.admin.ch' to insert into the database.
+    
+    The endpoint 'https://faq.bsv.admin.ch/sitemap.xml' is utilized to discover all relevant FAQ URLs. For each URL, 
+    the method extracts the primary question (denoted by the 'h1' tag) and its corresponding answer (within an 'article' tag). 
+    Unnecessary boilerplate text such as 'Antwort\n', 'Rispondi\n', and 'Réponse\n' is removed for clarity and conciseness.
+    
+    Each extracted FAQ entry is then upserted (inserted or updated if already exists) into the database, with detailed 
+    logging to track the operation's progress and identify any errors. 
+    
+    Returns a confirmation message upon successful completion of the process.
+    
+    TODO:
+    - important: The upsert operation is currently not working because it is implemented by id, and not by url.
+    - Consider implementing error handling at a more granular level to retry failed insertions or updates, enhancing the robustness of the data ingestion process.
+    - Explore optimization opportunities in text extraction and processing to improve efficiency and reduce runtime, especially for large sitemaps.
+    - Evaluate the possibility of adding multi-language support to cater to all variations of FAQs provided in different languages.
+    """
     
     sitemap_url = 'https://faq.bsv.admin.ch/sitemap.xml'
     urls = get_sitemap_urls(sitemap_url)
