@@ -1,0 +1,86 @@
+services:
+ 
+  # db service
+  db:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    image: copilot-postgresql-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: chuck_norris
+    volumes:
+      - ./db/data:/var/lib/postgresql/data
+    networks:
+      - copilot-network
+
+  # support tool for db
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "8080:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: password
+    volumes:
+      - ./pgadmin/servers.json:/pgadmin4/servers.json
+    depends_on:
+      - db
+    networks:
+      - copilot-network
+
+  # fassade
+  fastapi:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    image: copilot-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api/app:/app    
+    networks: 
+      - copilot-network
+    depends_on:
+      - db
+      - chatbot
+
+  # frontend
+  streamlit:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: copilot-frontend
+    ports:
+      - "8501:8501" 
+    volumes:
+      - ./frontend/app:/app
+    networks: 
+      - copilot-network
+    depends_on:
+      - db
+      - chatbot
+      - fastapi
+
+  # LLM stuff
+  chatbot:
+    build:
+      context: ./chatbot
+      dockerfile: Dockerfile
+    image: copilot-chatbot
+    ports:
+      - "8009:8009"
+    volumes:
+      - ./chatbot/app:/app    
+    networks: 
+      - copilot-network
+    depends_on:
+      - db
+
+networks:
+  copilot-network:
+    driver: bridge
+ 

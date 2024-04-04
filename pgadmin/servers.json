@@ -1,0 +1,14 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "Chuck Norris DB",
+            "Group": "Servers",
+            "Host": "db",
+            "Port": 5432,
+            "MaintenanceDB": "chuck_norris",
+            "Username": "admin",
+            "Password": "password",
+            "SSLMode": "prefer"
+        }
+    }
+}
