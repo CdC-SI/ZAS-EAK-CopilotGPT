@@ -13,11 +13,11 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "main" ]
+    branches-ignore: []  # Alle Branches werden berücksichtigt
   pull_request:
-    branches: [ "main" ]
+    branches-ignore: []  # Alle Branches werden berücksichtigt
   schedule:
-    - cron: '24 10 * * 2'
+    - cron: '0 0 * * *'  # Einmal täglich um Mitternacht UTC
 
 jobs:
   analyze:
