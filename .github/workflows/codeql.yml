@@ -21,7 +21,7 @@ on:
 
 jobs:
   analyze:
-    name: Analyze (Python)
+    name: Analyze Python
     runs-on: ubuntu-latest
     timeout-minutes: 360
     permissions:
