@@ -1,7 +1,7 @@
 import asyncpg
 import logging
 from fastapi import FastAPI, HTTPException, Body
-from index_pipeline import get_sitemap_urls, extract_text_from_url
+from web_scraper import WebScraper
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -32,6 +32,7 @@ async def read_root():
     Returns a welcome message indicating that FastAPI is running.
     """
     return {"message": "Hello, FastAPI!"}
+
 
 @app.get("/search/", summary="Search Questions", response_description="List of matching questions")
 async def search_questions(question: str):
@@ -64,42 +65,54 @@ async def update_or_insert_data(
     url: str,
     question: str,
     answer: str,
+    language: str,
     id: int = Body(None)
 ):
     """
-    Update an existing data record or insert a new one.
+    Update an existing data record or insert a new one based on the presence of the question.
 
     - **url**: The URL associated with the data.
     - **question**: The question.
     - **answer**: The answer.
-    - **id**: The ID of the data record to update (optional).
+    - **language**: The language of the data.
 
     Returns the updated or inserted data record.
 
-    TODO:
-    - important: The upsert operation is currently not working because it is implemented by id, and not by url.
+    Note: The operation now checks for the presence of a question in the database to decide between insert and update.
     """
     conn = await get_db_connection()
     try:
-        if id:
-            # Update an existing record
-            await conn.execute(
-                "UPDATE data SET url = $1, question = $2, answer = $3 WHERE id = $4",
-                url, question, answer, id
-            )
-            return {"id": id, "url": url, "question": question, "answer": answer}
+        # Convert the search question to lowercase to perform a case-insensitive search
+        search_query = f"%{question.lower()}%"
+        # Check if a record with the same question exists
+        existing_row = await conn.fetchrow("SELECT * FROM data WHERE LOWER(question) LIKE $1", search_query)
+
+        if existing_row:
+            # Update the existing record
+            try:
+                await conn.execute(
+                    "UPDATE data SET url = $1, question = $2, answer = $3, language = $4 WHERE id = $5",
+                    url, question, answer, language, existing_row['id']
+                )
+                logger.info(f"Update: {url}")
+                return {"id": existing_row['id'], "url": url, "question": question, "answer": answer, "language": language}
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Update exception: {str(e)}")
         else:
             # Insert a new record
-            row = await conn.fetchrow(
-                "INSERT INTO data (url, question, answer) VALUES ($1, $2, $3) RETURNING id",
-                url, question, answer
-            )
-            return {"id": row["id"], "url": url, "question": question, "answer": answer}
+            try:
+                row = await conn.fetchrow(
+                    "INSERT INTO data (url, question, answer, language) VALUES ($1, $2, $3, $4) RETURNING id",
+                    url, question, answer, language
+                )
+                logger.info(f"Insert: {url}")
+                return {"id": row['id'], "url": url, "question": question, "answer": answer, "language": language}
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Insert exception: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         await conn.close()
-
 
 @app.put("/ignite_expert", summary="Insert Data from faq.bsv.admin.ch", response_description="Insert Data from faq.bsv.admin.ch")
 async def ignite_expert():
@@ -108,7 +121,7 @@ async def ignite_expert():
     
     The endpoint 'https://faq.bsv.admin.ch/sitemap.xml' is utilized to discover all relevant FAQ URLs. For each URL, 
     the method extracts the primary question (denoted by the 'h1' tag) and its corresponding answer (within an 'article' tag). 
-    Unnecessary boilerplate text such as 'Antwort\n', 'Rispondi\n', and 'Réponse\n' is removed for clarity and conciseness.
+    Unnecessary boilerplate text will be removed for clarity and conciseness.
     
     Each extracted FAQ entry is then upserted (inserted or updated if already exists) into the database, with detailed 
     logging to track the operation's progress and identify any errors. 
@@ -116,33 +129,40 @@ async def ignite_expert():
     Returns a confirmation message upon successful completion of the process.
     
     TODO:
-    - important: The upsert operation is currently not working because it is implemented by id, and not by url.
     - Consider implementing error handling at a more granular level to retry failed insertions or updates, enhancing the robustness of the data ingestion process.
     - Explore optimization opportunities in text extraction and processing to improve efficiency and reduce runtime, especially for large sitemaps.
-    - Evaluate the possibility of adding multi-language support to cater to all variations of FAQs provided in different languages.
     """
     
+    
+    logging.basicConfig(level=logging.INFO)
+    
     sitemap_url = 'https://faq.bsv.admin.ch/sitemap.xml'
-    urls = get_sitemap_urls(sitemap_url)
+    scraper = WebScraper(sitemap_url)
+    
+    scraper.logger.info(f"Beginne Datenextraktion für: {sitemap_url}")
+    urls = scraper.get_sitemap_urls()
     
     for url in urls:
-        extracted_h1 = extract_text_from_url(url, 'h1')
-        extracted_article = extract_text_from_url(url, 'article')
-        
+        extracted_h1 = scraper.extract_text_from_tag(url, 'h1')
+        extracted_article = scraper.extract_text_from_tag(url, 'article')
+        language = scraper.detect_language(url)
+
         # Efficient text processing
         for term in ['Antwort\n', 'Rispondi\n', 'Réponse\n']:
             extracted_article = extracted_article.replace(term, '')
-        
-        if extracted_h1:
+
+        if extracted_h1 and extracted_article:
             try:
                 logger.info(f"extract: {url}")
                 await update_or_insert_data(
                     url=url,
                     question=extracted_h1,
                     answer=extracted_article,
+                    language=language,
                     id=None
                 )
             except Exception as e:
                 logger.error(f"Error: {e}")
-    logger.info("Done")
-    return {"message": "Done"}
+
+    logger.info(f"Done! {len(urls)} wurden verarbeitet.")
+    return {"message": f"Done! {len(urls)} wurden verarbeitet."}
