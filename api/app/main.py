@@ -1,21 +1,43 @@
+import os
+from dotenv import load_dotenv
+
 import asyncpg
 import logging
 from fastapi import FastAPI, HTTPException, Body
+from fastapi.middleware.cors import CORSMiddleware
+
 from web_scraper import WebScraper
 
-
+# Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Create an instance of FastAPI
 app = FastAPI()
 
+# Load environment variables
+load_dotenv()
+CORS_ALLOWED_ORIGINS = os.environ["CORS_ALLOWED_ORIGINS"]
+POSTGRES_USER = os.environ["POSTGRES_USER"]
+POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
+POSTGRES_DB = os.environ["POSTGRES_DB"]
+POSTGRES_HOST = os.environ["POSTGRES_HOST"]
+
+# Setup CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[CORS_ALLOWED_ORIGINS],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Database connection parameters
 DB_PARAMS = {
-    "user": "admin",
-    "password": "password",
-    "database": "chuck_norris",
-    "host": "db"
+    "user": POSTGRES_USER,
+    "password": POSTGRES_PASSWORD,
+    "database": POSTGRES_DB,
+    "host": POSTGRES_HOST,
 }
 
 async def get_db_connection():
@@ -40,7 +62,7 @@ async def search_questions(question: str):
     Search for questions that contain the specified string, case-insensitive.
 
     - **question**: string to be searched within the questions.
-    
+
     Returns a list of questions that match the search criteria. If no matches are found, returns a 404 error.
     """
     conn = await get_db_connection()
@@ -118,30 +140,30 @@ async def update_or_insert_data(
 async def ignite_expert():
     """
     Asynchronously retrieves and processes FAQ data from 'https://faq.bsv.admin.ch' to insert into the database.
-    
-    The endpoint 'https://faq.bsv.admin.ch/sitemap.xml' is utilized to discover all relevant FAQ URLs. For each URL, 
-    the method extracts the primary question (denoted by the 'h1' tag) and its corresponding answer (within an 'article' tag). 
+
+    The endpoint 'https://faq.bsv.admin.ch/sitemap.xml' is utilized to discover all relevant FAQ URLs. For each URL,
+    the method extracts the primary question (denoted by the 'h1' tag) and its corresponding answer (within an 'article' tag).
     Unnecessary boilerplate text will be removed for clarity and conciseness.
-    
-    Each extracted FAQ entry is then upserted (inserted or updated if already exists) into the database, with detailed 
-    logging to track the operation's progress and identify any errors. 
-    
+
+    Each extracted FAQ entry is then upserted (inserted or updated if already exists) into the database, with detailed
+    logging to track the operation's progress and identify any errors.
+
     Returns a confirmation message upon successful completion of the process.
-    
+
     TODO:
     - Consider implementing error handling at a more granular level to retry failed insertions or updates, enhancing the robustness of the data ingestion process.
     - Explore optimization opportunities in text extraction and processing to improve efficiency and reduce runtime, especially for large sitemaps.
     """
-    
-    
+
+
     logging.basicConfig(level=logging.INFO)
-    
+
     sitemap_url = 'https://faq.bsv.admin.ch/sitemap.xml'
     scraper = WebScraper(sitemap_url)
-    
+
     scraper.logger.info(f"Beginne Datenextraktion für: {sitemap_url}")
     urls = scraper.get_sitemap_urls()
-    
+
     for url in urls:
         extracted_h1 = scraper.extract_text_from_tag(url, 'h1')
         extracted_article = scraper.extract_text_from_tag(url, 'article')
