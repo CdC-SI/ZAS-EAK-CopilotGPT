@@ -68,7 +68,7 @@ async def search_questions(question: str):
     conn = await get_db_connection()
     try:
         # Convert both the 'question' column and the search string to lowercase to perform a case-insensitive search
-        search_query = f"%{question.lower()}%"
+        search_query = f"{question.lower()}%"
         rows = await conn.fetch("SELECT * FROM data WHERE LOWER(question) LIKE $1", search_query)
         await conn.close()  # Close the database connection
 
