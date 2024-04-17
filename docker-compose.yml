@@ -77,6 +77,19 @@ services:
       - chatbot
       - fastapi
 
+  chatgpt-minimal:
+    build: ../chatgpt-minimal
+    image: chatgpt-minimal
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - REACT_APP_QUERY_AUTOCOMPLETE_API_URL=${REACT_APP_QUERY_AUTOCOMPLETE_API_URL}
+    networks:
+      - copilot-network
+
   # LLM stuff
   chatbot:
     build:
