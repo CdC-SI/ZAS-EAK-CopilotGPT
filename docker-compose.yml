@@ -15,7 +15,7 @@ services:
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     volumes:
       - ./db/data:/var/lib/postgresql/data
     networks:
@@ -28,7 +28,7 @@ services:
       - "8080:80"
     environment:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
-      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
     volumes:
       - ./pgadmin/servers.json:/pgadmin4/servers.json
     depends_on:
@@ -61,22 +61,6 @@ services:
       - chatbot
 
   # frontend
-  streamlit:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    image: copilot-frontend
-    ports:
-      - "8501:8501"
-    volumes:
-      - ./frontend/app:/app
-    networks:
-      - copilot-network
-    depends_on:
-      - db
-      - chatbot
-      - fastapi
-
   chatgpt-minimal:
     build: ../chatgpt-minimal
     image: chatgpt-minimal
