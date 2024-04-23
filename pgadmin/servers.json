@@ -1,13 +1,13 @@
 {
     "Servers": {
         "1": {
-            "Name": "Chuck Norris DB",
+            "Name": "Example DB",
             "Group": "Servers",
             "Host": "db",
             "Port": 5432,
-            "MaintenanceDB": "chuck_norris",
+            "MaintenanceDB": "pg_db",
             "Username": "admin",
-            "Password": "password",
+            "Password": "pg_password",
             "SSLMode": "prefer"
         }
     }
