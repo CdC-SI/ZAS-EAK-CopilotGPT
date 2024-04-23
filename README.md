@@ -9,7 +9,7 @@ This repository serves as a proof of concept (PoC), which is slated to conclude 
 
 ## Challenge Vision
 
-For a detailed overview of our project's vision and strategic alignment, see our [Vision Document](VISION.md).
+COMING SOON: a detailed overview of our project's vision and strategic alignment.
 
 ## Features
 
@@ -38,7 +38,7 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
    Begin by cloning the EAK-Copilot repository to your local machine to get the necessary project files.
 
    ```bash
-   git clone https://github.com/IhrRepository/eak-copilot.git
+   git clone https://github.com/CdC-SI/eak-copilot.git
    ```
 
    ```bash
@@ -48,15 +48,15 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
 2. **Build Docker Images**
 
     Build the Docker images using the Docker Compose configuration. This step compiles and prepares your Docker environment.
-   
+
    ```bash docker
     docker-compose build
     docker-compose up -d
     ```
 2. **Verifying the Installation**
-   
+
     Check the status of the containers to confirm everything is running as expected:
     ```bash
     docker-compose ps
     ```
-    After the containers are successfully started, verify that the application is running correctly by accessing it through your web browser. Navigate to http://localhost:PORT, replacing PORT with the port number specified in your docker-compose.yml.
+    After the containers are successfully started, verify that the application is running correctly by accessing it through your web browser. Navigate to http://localhost:3000, replacing PORT with the port number specified in your docker-compose.yml.
