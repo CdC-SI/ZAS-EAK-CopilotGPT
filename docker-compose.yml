@@ -58,7 +58,6 @@ services:
       - copilot-network
     depends_on:
       - db
-      - chatbot
 
   # frontend
   chatgpt-minimal:
@@ -73,6 +72,8 @@ services:
       - REACT_APP_QUERY_AUTOCOMPLETE_API_URL=${REACT_APP_QUERY_AUTOCOMPLETE_API_URL}
     networks:
       - copilot-network
+    depends_on:
+      - fastapi
 
   # LLM stuff
   chatbot:
@@ -86,8 +87,6 @@ services:
       - ./chatbot/app:/app
     networks:
       - copilot-network
-    depends_on:
-      - db
 
 networks:
   copilot-network:
