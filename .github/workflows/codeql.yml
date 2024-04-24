@@ -1,0 +1,51 @@
+# For most projects, this workflow file will not need changing; you simply need
+# to commit it to your repository.
+#
+# You may wish to alter this file to override the set of languages analyzed,
+# or to provide custom queries or build logic.
+#
+# ******** NOTE ********
+# We have attempted to detect the languages in your repository. Please check
+# the `language` matrix defined below to confirm you have the correct set of
+# supported CodeQL languages.
+#
+name: "CodeQL"
+
+on:
+  push:
+    branches-ignore: []  # Alle Branches werden berücksichtigt
+  pull_request:
+    branches-ignore: []  # Alle Branches werden berücksichtigt
+  schedule:
+    - cron: '0 0 * * *'  # Einmal täglich um Mitternacht UTC
+
+jobs:
+  analyze:
+    name: Analyze Python
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: 'python'
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        # Entfernen Sie die build-mode Zeile, wenn Sie nicht spezifisch für Python anpassen müssen
+        # build-mode: ${{ matrix.build-mode }}  # Diese Zeile können Sie entfernen, wenn Sie keine spezifischen Build-Modi für Python verwenden.
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"
