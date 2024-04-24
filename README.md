@@ -43,7 +43,15 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
    cd eak-copilot
    ```
 
-2. **Build Docker Images**
+2. **Setting Up Environment Variables**
+
+    To use EAK-Copilot, you need to set up some environment variables. Copy the `.env.example` file to a new file named `.env` and fill in the appropriate values:
+
+    ```bash
+    cp .env.example .env
+    ```
+
+3. **Build Docker Images**
 
     Build the Docker images using the Docker Compose configuration. This step compiles and prepares your Docker environment.
 
@@ -51,7 +59,7 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
     docker-compose build
     docker-compose up -d
     ```
-2. **Verifying the Installation**
+4. **Verifying the Installation**
 
     Check the status of the containers to confirm everything is running as expected:
     ```bash
