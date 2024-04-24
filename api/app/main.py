@@ -21,7 +21,7 @@ CORS_ALLOWED_ORIGINS = os.environ["CORS_ALLOWED_ORIGINS"]
 POSTGRES_USER = os.environ["POSTGRES_USER"]
 POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
 POSTGRES_DB = os.environ["POSTGRES_DB"]
-POSTGRES_HOST = os.environ["POSTGRES_HOST"]
+POSTGRES_HOST = "db"
 
 # Setup CORS
 app.add_middleware(
