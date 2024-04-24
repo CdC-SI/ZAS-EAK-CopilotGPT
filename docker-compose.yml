@@ -1,5 +1,7 @@
+version: '3.8'
+
 services:
- 
+
   # db service
   db:
     build:
@@ -8,10 +10,12 @@ services:
     image: copilot-postgresql-db
     ports:
       - "5432:5432"
+    env_file:
+      - .env
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: chuck_norris
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     volumes:
       - ./db/data:/var/lib/postgresql/data
     networks:
@@ -23,8 +27,8 @@ services:
     ports:
       - "8080:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: password
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
     volumes:
       - ./pgadmin/servers.json:/pgadmin4/servers.json
     depends_on:
@@ -40,29 +44,35 @@ services:
     image: copilot-api
     ports:
       - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=db
     volumes:
-      - ./api/app:/app    
-    networks: 
+      - ./api/app:/app
+    networks:
       - copilot-network
     depends_on:
       - db
-      - chatbot
 
   # frontend
-  streamlit:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    image: copilot-frontend
+  chatgpt-minimal:
+    build: ../chatgpt-minimal
+    image: chatgpt-minimal
     ports:
-      - "8501:8501" 
-    volumes:
-      - ./frontend/app:/app
-    networks: 
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - REACT_APP_QUERY_AUTOCOMPLETE_API_URL=${REACT_APP_QUERY_AUTOCOMPLETE_API_URL}
+    networks:
       - copilot-network
     depends_on:
-      - db
-      - chatbot
       - fastapi
 
   # LLM stuff
@@ -74,13 +84,10 @@ services:
     ports:
       - "8009:8009"
     volumes:
-      - ./chatbot/app:/app    
-    networks: 
+      - ./chatbot/app:/app
+    networks:
       - copilot-network
-    depends_on:
-      - db
 
 networks:
   copilot-network:
     driver: bridge
- 
