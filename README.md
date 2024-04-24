@@ -29,8 +29,6 @@ Before starting, ensure you have the following software installed on your comput
 
 Linux users may need to prepend `sudo` to Docker commands depending on their Docker configuration.
 
-### Installation Instructions
-
 ### Installation
 
 1. **Clone the Repository**
