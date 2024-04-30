@@ -39,7 +39,7 @@ def get_embedding(text):
 
 if __name__ == '__main__':
 
-    text = "Where is my broccoli?"
+    text = "Qu'est-ce qui change avec AVS 21?"
     embedding = get_embedding(text)[0]["embedding"]
 
     connection = create_db_connection()
@@ -53,7 +53,7 @@ if __name__ == '__main__':
             SELECT text,  1 - (embedding <=> '{embedding}') AS cosine_similarity
             FROM embeddings
             ORDER BY cosine_similarity desc
-            LIMIT 3
+            LIMIT 1
         """)
         for r in cursor.fetchall():
             print(f"Text: {r[0]}; Similarity: {r[1]}")
