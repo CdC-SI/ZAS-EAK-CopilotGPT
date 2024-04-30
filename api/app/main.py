@@ -79,13 +79,13 @@ async def rag(request: RAGRequest):
 
     try:
         cursor.execute(f"""
-            SELECT text,  1 - (embedding <=> '{query_embedding}') AS cosine_similarity
+            SELECT text, url,  1 - (embedding <=> '{query_embedding}') AS cosine_similarity
             FROM embeddings
             ORDER BY cosine_similarity desc
             LIMIT 1
         """)
         for r in cursor.fetchall():
-            print(f"Text: {r[0]}; Similarity: {r[1]}")
+            print(f"Text: {r[0]}; URL: {r[1]}; Similarity: {r[2]}")
     except Exception as error:
         print("Error: ", error)
     finally:
@@ -94,7 +94,7 @@ async def rag(request: RAGRequest):
         if connection:
             connection.close()
 
-    return {"response": r[0]}
+    return {"contextDocs": r[0], "sourceUrl": r[1]}
 
 @app.get("/", summary="Root Endpoint", response_description="Welcome Message")
 async def read_root():
