@@ -60,7 +60,8 @@ services:
 
   # frontend
   chatgpt-minimal:
-    build: ../chatgpt-minimal
+    build:
+      context: https://github.com/CdC-SI/chatgpt-minimal.git#feature/setup-baseline-rag
     image: chatgpt-minimal
     ports:
       - "3000:3000"
