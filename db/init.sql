@@ -10,8 +10,6 @@ CREATE TABLE embeddings (
   modified_at timestamptz DEFAULT now()  -- Timestamp when the record was last modified
 );
 
-CREATE INDEX idx_embeddings ON embeddings USING hnsw (embeddings);
-
 -- Erstelle eine Tabelle namens 'data' für die Verwaltung der Informationen
 CREATE TABLE data (
     id SERIAL PRIMARY KEY,
@@ -38,7 +36,7 @@ BEFORE UPDATE ON data
 FOR EACH ROW
 EXECUTE FUNCTION update_modified_at();
 
--- Einfügen von Chuck Norris Frage-Antwort-Paaren in die Tabelle 'data'
+-- Einfügen von EAK FAQ Frage-Antwort-Paaren in die Tabelle 'data'
 INSERT INTO data (url, question, answer, language) VALUES
 ('https://www.eak.admin.ch/eak/de/home/dokumentation/pensionierung/beitragspflicht.html', 'Wann endet meine AHV-Beitragspflicht?', 'Mit der Reform AHV 21 wird ein einheitliches Rentenalter von 65 Jahren für Mann und Frau eingeführt. Dieses bildet die Bezugsgrösse für die flexible Pensionierung und wird deshalb neu als Referenzalter bezeichnet. Die Beitragspflicht endet, wenn Sie das Referenzalter erreicht haben. Die Beitragspflicht bleibt auch im Falle einer frühzeitigen Pensionierung resp. eines Vorbezugs der AHV-Rente bis zum Erreichen des Referenzalters bestehen.', 'de'),
 ('https://www.eak.admin.ch/eak/de/home/dokumentation/pensionierung/beitragspflicht.html', 'Ich arbeite Teilzeit (weniger als 50 Prozent). Warum muss ich trotzdem AHV-Beiträge wie Nichterwerbstätige zahlen?', 'Die Beitragspflicht entfällt, wenn Ihre bereits bezahlten Beiträge den Mindestbeitrag (bei Verheirateten und in eingetragener Partnerschaft lebenden Personen den doppelten Mindestbeitrag) und die Hälfte der von Nichterwerbstätigen geschuldeten Beiträge erreichen. Für die Befreiung von der Beitragspflicht müssen beide Voraussetzungen erfüllt sein.', 'de'),
