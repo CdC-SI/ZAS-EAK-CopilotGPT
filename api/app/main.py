@@ -5,7 +5,10 @@ import asyncpg
 import logging
 from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
+
+import openai
 from pydantic import BaseModel
+import psycopg2
 
 from web_scraper import WebScraper
 
@@ -46,13 +49,52 @@ async def get_db_connection():
     conn = await asyncpg.connect(**DB_PARAMS)
     return conn
 
+def get_embedding(text):
+    response = openai.Embedding.create(
+        input=text,
+        engine="text-embedding-ada-002",
+    )
+    return response['data']
+
+def create_db_connection():
+    """Establish a database connection."""
+    try:
+        conn = psycopg2.connect(**DB_PARAMS)
+        return conn
+    except psycopg2.Error as e:
+        print(f"Unable to connect to the database: {e}")
+        return None
+
 class RAGRequest(BaseModel):
     query: str
 
-@app.post("/rag", summary="RAG Ednpoint", response_description="RAG Response")
+@app.post("/get_docs", summary="Retrieve context docs endpoint", response_description="Return context docs from semantic search")
 async def rag(request: RAGRequest):
 
-    return {"response": "TEST RAG RESPONSE"}
+    query_embedding = get_embedding(request.query)[0]["embedding"]
+
+    connection = create_db_connection()
+
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute(f"""
+            SELECT text,  1 - (embedding <=> '{query_embedding}') AS cosine_similarity
+            FROM embeddings
+            ORDER BY cosine_similarity desc
+            LIMIT 1
+        """)
+        for r in cursor.fetchall():
+            print(f"Text: {r[0]}; Similarity: {r[1]}")
+    except Exception as error:
+        print("Error: ", error)
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+    return {"response": r[0]}
 
 @app.get("/", summary="Root Endpoint", response_description="Welcome Message")
 async def read_root():
