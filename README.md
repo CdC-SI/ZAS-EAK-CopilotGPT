@@ -71,4 +71,17 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
     ```bash
     docker-compose ps
     ```
-    After the containers are successfully started, verify that the application is running correctly by accessing it through your web browser. Navigate to http://localhost:3000, replacing PORT with the port number specified in your docker-compose.yml.
+    After the containers are successfully started, verify that the application is running correctly by accessing it through your web browser.
+
+5. **Index vectorDB data**
+
+Create a virtualenv and run the following script to index some test data into the vectorDB.
+
+    ```bash
+        python3.11 -m venv venv_copilot
+        source venv_copilot/bin/activate
+        pip install -r db/requirements.txt
+        python3 db/app/test_insert_data.py
+    ```
+
+Navigate to http://localhost:3000 to access the EAK-Copilot.
