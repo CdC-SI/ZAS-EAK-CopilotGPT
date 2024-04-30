@@ -16,6 +16,12 @@ COMING SOON: a detailed overview of our project's vision and strategic alignment
 - **Automation of Routine Tasks:** Reduces monotonous research tasks and the finding of information, allowing employees to focus on more important tasks.
 - **Decision Support:** Provides real-time assistance in decision-making through advanced algorithms.
 
+## How it works
+
+The EAK-Copilot currently features:
+- **Question autosuggest**: High quality curated questions (from FAQ) are suggested in the chatbar based on the user input. Validated answers are then returned in the chat with the answer source.
+- **RAG**: When no known questions are found through autosuggest, RAG is initiated. A semantic similarity search will match the most relevant indexed documents in a vector database and an LLM will generate an answer based on these documents.
+
 ## Getting Started
 
 Here you will find instructions for installing and setting up EAK-Copilot:
