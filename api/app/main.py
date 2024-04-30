@@ -5,6 +5,7 @@ import asyncpg
 import logging
 from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 from web_scraper import WebScraper
 
@@ -45,6 +46,13 @@ async def get_db_connection():
     conn = await asyncpg.connect(**DB_PARAMS)
     return conn
 
+class RAGRequest(BaseModel):
+    query: str
+
+@app.post("/rag", summary="RAG Ednpoint", response_description="RAG Response")
+async def rag(request: RAGRequest):
+
+    return {"response": "TEST RAG RESPONSE"}
 
 @app.get("/", summary="Root Endpoint", response_description="Welcome Message")
 async def read_root():
