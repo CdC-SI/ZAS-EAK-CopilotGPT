@@ -10,6 +10,24 @@ This repository serves as a proof of concept (PoC), which is slated to conclude 
 ## Demo Video
 ![45-sec demo video that shows features autocomplete and RAG from the first prototype.](/demo-video.gif)
 
+## Updates
+
+### Version 0.3.0 - TBD
+- Confluence Adapter
+- Indexing Pipeline
+- Anonymization/De-Anonymization Module
+- Optimized RAG
+- OnPrem LLM
+
+### Version 0.2.0 (MVP1) - 31.05.2024
+- Survey Pipeline
+- GUI Styleguide Bundle
+
+### Version 0.1.0 - 01.05.2024
+- GUI
+- Autocomplete
+- Basic RAG
+
 ## Challenge Vision
 
 COMING SOON: a detailed overview of our project's vision and strategic alignment.
@@ -45,19 +63,25 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
    ```bash
    cd eak-copilot
    ```
+2. **Setting Up Environment Variables**
 
-2. **Build Docker Images**
+    To use EAK-Copilot, you need to set up some environment variables. Copy the ```.env.example``` file to a new file named ```.env``` and fill in the appropriate values:
 
-    Build the Docker images using the Docker Compose configuration. This step compiles and prepares your Docker environment.
-
-   ```bash docker
-    docker-compose build
-    docker-compose up -d
+    ```bash
+    cp .env.example .env
     ```
-2. **Verifying the Installation**
+
+3. **Build Docker Images**
+
+    Build the Docker images using the Docker Compose configuration. This step compiles and launches your Docker environment.
+
+    ```bash docker
+    docker-compose up --build -d
+    ```
+4. **Verifying the Installation**
 
     Check the status of the containers to confirm everything is running as expected:
     ```bash
     docker-compose ps
     ```
-    After the containers are successfully started, verify that the application is running correctly by accessing it through your web browser. Navigate to http://localhost:3000, replacing PORT with the port number specified in your docker-compose.yml.
+    After the containers are successfully started, verify that the application is running correctly by accessing it through your web browser at http://localhost:3000.
