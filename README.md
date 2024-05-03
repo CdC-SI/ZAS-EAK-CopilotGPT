@@ -84,4 +84,4 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
     ```bash
     docker-compose ps
     ```
-    After the containers are successfully started, verify that the application is running correctly by accessing it through your web browser at http://localhost:3000.
+    After the containers are successfully started, navigate to http://localhost:3000 in your web browser to access the EAK-Copilot.
