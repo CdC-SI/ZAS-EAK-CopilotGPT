@@ -2,7 +2,7 @@ name: ci
 on:
   push:
     branches:
-      - feature/103-investigate-2-3-documentation-tools
+      - feature/159-investigating-mkdocs
 permissions:
   contents: write
 jobs:
