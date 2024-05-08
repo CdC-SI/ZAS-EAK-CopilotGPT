@@ -1,9 +1,7 @@
-=================
-API documentation
-=================
+API
+===
 
-Web Scraper
-===========
+.. autosummary::
+   :toctree: generated
 
-.. autoclass:: WebScraper
-   :members:
+   WebScraper
