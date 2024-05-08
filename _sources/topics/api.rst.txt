@@ -1,7 +1,7 @@
 API
 ===
 
-.. automodule:: api.app
+.. automodule:: api.app.main
     :members:
 
 WebScraper
