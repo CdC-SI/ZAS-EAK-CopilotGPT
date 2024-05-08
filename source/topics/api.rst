@@ -1,7 +1,11 @@
 API
 ===
 
-.. autosummary::
-   :toctree: generated
+.. automodule:: api.app.main
+    :members:
 
-   WebScraper
+WebScraper
+==========
+
+.. autoclass:: WebScraper
+    :members:
