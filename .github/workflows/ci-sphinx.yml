@@ -1,9 +1,9 @@
 name: sphinx
-
 on:
   push:
     branches:
       - feature/161-investigating-sphinx
+
 
 jobs:
   build:
