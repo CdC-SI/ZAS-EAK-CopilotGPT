@@ -10,8 +10,7 @@ Welcome to EAK-Copilot's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   usage/installation
-   usage/quickstart
+   topics/api
 
 
 
