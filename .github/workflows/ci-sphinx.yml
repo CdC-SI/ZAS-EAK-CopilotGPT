@@ -20,7 +20,8 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install sphinx sphinx-rtd-theme BeautifulSoup4
+          pip install sphinx sphinx-rtd-theme
+          pip install -r api/requirements.txt
 
       - name: Build HTML
         run: |
