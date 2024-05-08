@@ -1,8 +1,10 @@
 API
 ===
 
-.. automodule:: api.app.main
-    :members:
+.. automodule:: api.app.main.app
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 WebScraper
 ==========
