@@ -54,8 +54,8 @@ def get_embedding(text):
 
     return response['data']
 
-@app.post("/init_embeddings/", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
-async def init_embeddings():
+@app.post("/init_vectordb/", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
+async def init_vectordb():
 
     texts = [
         ("Comment déterminer mon droit aux prestations complémentaires? Vous pouvez déterminer votre droit aux prestations de façon simple et rapide, grâce au calculateur de prestations complémentaires en ligne : www.ahv-iv.ch/r/calculateurpc\n\n Le calcul est effectué de façon tout à fait anonyme. Vos données ne sont pas enregistrées. Le résultat qui en ressort constitue une estimation provisoire fondée sur une méthode de calcul simplifiée. Il s’agit d’une estimation sans engagement, qui ne tient pas lieu de demande de prestation et n’implique aucun droit. Le calcul n’est valable que pour les personnes qui vivent à domicile. Si vous résidez dans un home, veuillez vous adresser à sa direction, qui vous fournira les renseignements appropriés au sujet des prestations complémentaires.", "https://www.ahv-iv.ch/p/5.02.f"),
