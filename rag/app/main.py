@@ -89,7 +89,7 @@ async def init_embeddings():
 
     return {"content": "RAG data indexed successfully"}
 
-@app.post("/get_docs", summary="Retrieve context docs endpoint", response_description="Return context docs from semantic search", status_code=200, response_model=ResponseBody)
+@app.post("/get_docs", summary="Retrieve context docs endpoint", response_description="Return context docs from semantic search", status_code=200)
 async def get_docs(request: RAGRequest):
 
     query_embedding = get_embedding(request.query)[0]["embedding"]
