@@ -36,12 +36,11 @@ services:
     networks:
       - copilot-network
 
-  # fassade
-  fastapi:
+  autocomplete:
     build:
-      context: ./api
+      context: ./autocomplete
       dockerfile: Dockerfile
-    image: copilot-api
+    image: copilot-autocomplete
     ports:
       - "8000:8000"
     env_file:
@@ -53,7 +52,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_HOST=db
     volumes:
-      - ./api/app:/app
+      - ./autocomplete/app:/app
     networks:
       - copilot-network
     depends_on:
@@ -74,20 +73,7 @@ services:
     networks:
       - copilot-network
     depends_on:
-      - fastapi
-
-  # LLM stuff
-  chatbot:
-    build:
-      context: ./chatbot
-      dockerfile: Dockerfile
-    image: copilot-chatbot
-    ports:
-      - "8009:8009"
-    volumes:
-      - ./chatbot/app:/app
-    networks:
-      - copilot-network
+      - autocomplete
 
 networks:
   copilot-network:
