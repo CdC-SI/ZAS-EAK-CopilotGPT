@@ -58,6 +58,27 @@ services:
     depends_on:
       - db
 
+  indexing:
+    build:
+      context: ./indexing
+      dockerfile: Dockerfile
+    image: copilot-indexing
+    ports:
+      - "8011:8011"
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=db
+    volumes:
+      - ./indexing/app:/app
+    networks:
+      - copilot-network
+    depends_on:
+      - db
+
   # frontend
   chatgpt-minimal:
     build:
