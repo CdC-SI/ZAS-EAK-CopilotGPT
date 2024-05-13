@@ -56,14 +56,14 @@ async def read_root():
     return {"message": "Hello, FastAPI!"}
 
 
-@app.get("/search/", summary="Search Questions", response_description="List of matching questions")
-async def search_questions(question: str):
+@app.get("/exact_match/", summary="Search Questions with exact match", response_description="List of matching questions")
+async def exact_match(question: str):
     """
-    Search for questions that contain the specified string, case-insensitive.
+    Search for questions that contain the exact specified string, case-insensitive.
 
     - **question**: string to be searched within the questions.
 
-    Returns a list of questions that match the search criteria. If no matches are found, returns a 404 error.
+    Returns a list of questions that exactly match the search criteria. If no matches are found, returns a 404 error.
     """
     conn = await get_db_connection()
     try:
@@ -81,6 +81,20 @@ async def search_questions(question: str):
     except Exception as e:
         await conn.close()
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/fuzzy_match/", summary="Search Questions with fuzzy match", response_description="List of matching questions")
+async def fuzzy_match():
+    """
+    Dummy endpoint for fuzzy match.
+    """
+    return {"message": "Fuzzy match test!"}
+
+@app.get("/semantic_similarity_match/", summary="Search Questions with semantic similarity match", response_description="List of matching questions")
+async def semantic_similarity_match():
+    """
+    Dummy endpoint for semantic_similarity match.
+    """
+    return {"message": "Semantic similarity match test!"}
 
 @app.put("/data/", summary="Update or Insert Data", response_description="Updated or Inserted Data")
 async def update_or_insert_data(
