@@ -187,7 +187,7 @@ async def update_or_insert_data(
         await conn.close()
 
 @app.put("/init_expert", summary="Insert Data from faq.bsv.admin.ch", response_description="Insert Data from faq.bsv.admin.ch")
-async def ignite_expert():
+async def init_expert():
     """
     Asynchronously retrieves and processes FAQ data from 'https://faq.bsv.admin.ch' to insert into the database.
 
