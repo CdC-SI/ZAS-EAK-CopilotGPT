@@ -118,7 +118,7 @@ async def get_docs(request: RAGRequest):
     return {"contextDocs": res[0], "sourceUrl": res[1], "cosineSimilarity": res[2]}
 
 @app.get("/embed", summary="Embedding endpoint", response_description="Welcome Message")
-async def crawl_data():
+async def embed():
     """
     Dummy endpoint for text embedding.
     """
