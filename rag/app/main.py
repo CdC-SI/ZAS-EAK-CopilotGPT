@@ -105,8 +105,8 @@ async def get_docs(request: RAGRequest):
             ORDER BY cosine_similarity desc
             LIMIT 1
         """)
-        for r in cursor.fetchall():
-            print(f"Text: {r[0]}; URL: {r[1]}; Similarity: {r[2]}")
+        for res in cursor.fetchall():
+            print(f"Text: {res[0]}; URL: {res[1]}; Similarity: {res[2]}")
     except (Exception, psycopg2.Error) as error:
         raise HTTPException(status_code=500, detail="Error while performing semantic search") from error
     finally:
@@ -115,4 +115,4 @@ async def get_docs(request: RAGRequest):
         if connection:
             connection.close()
 
-    return {"contextDocs": r[0], "sourceUrl": r[1]}
+    return {"contextDocs": res[0], "sourceUrl": res[1], "cosineSimilarity": res[2]}
