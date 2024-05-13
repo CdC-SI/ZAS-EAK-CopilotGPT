@@ -8,7 +8,7 @@ from datetime import datetime
 import logging
 from fastapi import FastAPI, HTTPException
 
-from models import ResponseBody
+from models import ResponseBody, RAGRequest
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -43,8 +43,7 @@ def create_db_connection():
         conn = psycopg2.connect(**DB_PARAMS)
         return conn
     except psycopg2.Error as e:
-        print(f"Unable to connect to the database: {e}")
-        return None
+        raise HTTPException(status_code=500, detail="Database connection failed") from e
 
 # Function to get embeddings for a text
 def get_embedding(text):
@@ -52,6 +51,7 @@ def get_embedding(text):
         input=text,
         engine="text-embedding-ada-002",
     )
+
     return response['data']
 
 @app.post("/init_embeddings/", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
@@ -68,8 +68,6 @@ async def init_embeddings():
     embeddings = get_embedding([x[0] for x in texts])
 
     connection = create_db_connection()
-    if connection is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
 
     cursor = connection.cursor()
 
@@ -90,3 +88,31 @@ async def init_embeddings():
             connection.close()
 
     return {"content": "RAG data indexed successfully"}
+
+@app.post("/get_docs", summary="Retrieve context docs endpoint", response_description="Return context docs from semantic search", status_code=200, response_model=ResponseBody)
+async def get_docs(request: RAGRequest):
+
+    query_embedding = get_embedding(request.query)[0]["embedding"]
+
+    connection = create_db_connection()
+
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute(f"""
+            SELECT text, url,  1 - (embedding <=> '{query_embedding}') AS cosine_similarity
+            FROM embeddings
+            ORDER BY cosine_similarity desc
+            LIMIT 1
+        """)
+        for r in cursor.fetchall():
+            print(f"Text: {r[0]}; URL: {r[1]}; Similarity: {r[2]}")
+    except (Exception, psycopg2.Error) as error:
+        raise HTTPException(status_code=500, detail="Error while performing semantic search") from error
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+    return {"contextDocs": r[0], "sourceUrl": r[1]}
