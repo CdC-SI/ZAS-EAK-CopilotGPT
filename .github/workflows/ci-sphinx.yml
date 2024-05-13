@@ -20,7 +20,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install sphinx sphinx-rtd-theme
+          pip install sphinx furo
           pip install -r api/requirements.txt
 
       - name: Build HTML
