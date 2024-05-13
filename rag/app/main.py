@@ -123,3 +123,10 @@ async def embed():
     Dummy endpoint for text embedding.
     """
     return {"message": "Embed data test!"}
+
+@app.get("/rerank", summary="Reranking endpoint", response_description="Welcome Message")
+async def rerank():
+    """
+    Dummy endpoint for retrieved docs reranking.
+    """
+    return {"message": "Rerank test!"}
