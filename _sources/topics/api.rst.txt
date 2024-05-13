@@ -1,13 +1,7 @@
 API
-===
+###
 
-.. automodule:: api.app.main.app
+.. automodule:: api.app.app
    :members:
    :undoc-members:
    :show-inheritance:
-
-WebScraper
-==========
-
-.. autoclass:: api.app.web_scraper.WebScraper
-    :members:
