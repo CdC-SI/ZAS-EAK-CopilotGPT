@@ -75,6 +75,29 @@ services:
     depends_on:
       - fastapi
 
+  # RAG
+  rag:
+    build:
+      context: ./rag
+      dockerfile: Dockerfile
+    image: copilot-rag
+    ports:
+      - "8010:8010"
+    env_file:
+      - .env
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=db
+    volumes:
+      - ./rag/app:/app
+    networks:
+      - copilot-network
+    depends_on:
+      - db
+
   # LLM stuff
   chatbot:
     build:
