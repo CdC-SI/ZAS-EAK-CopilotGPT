@@ -37,6 +37,10 @@ COMING SOON: a detailed overview of our project's vision and strategic alignment
 - **Automation of Routine Tasks:** Reduces monotonous research tasks and the finding of information, allowing employees to focus on more important tasks.
 - **Decision Support:** Provides real-time assistance in decision-making through advanced algorithms.
 
+## How To Contribute
+
+Please check the ```CONTRIBUTORS.md``` file to contribute to the EAK-Copilot project.
+
 ## Getting Started
 
 Here you will find instructions for installing and setting up EAK-Copilot:
