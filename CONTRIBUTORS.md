@@ -1,6 +1,64 @@
 ## Open-Source Collaboration Best Practices
 Please refer yourself to the [best practices document](https://portal.collab.admin.ch/sites/602-eak-copilot/_layouts/15/WopiFrame.aspx?sourcedoc=%7B7AC07C75-D5A2-4107-BE9C-EF376BCCE416%7D&file=Open-Source%20project%20Collaboration%20%E2%80%93%20Best%20Practices%20Updated.pptx&action=default&IsList=1&ListId=%7BCDF81277-FBCD-4EB8-B449-D6E0BE5A98C9%7D&ListItemId=21) for guidelines on how to contribute to this project.
 
+## Issue Template
+
+Please use the following template to submit an issue:
+
+```
+**Issue Title**
+
+Setup /get_docs endpoint in backend with FastAPI.
+
+**Description**
+
+Setup a document retrieval endpoint in backend.
+
+Do a semantic similarity match (cosine similarity) on indexed documents in postgres vector DB.
+
+Takes as input a user query such as: {"query": query} and returns a response such as {"contextDocs": docs, "sourceUrl": url}.
+
+Will be called from the frontend when a user inputs a query that doesn't match an autocomplete suggestion.
+
+**Steps to Reproduce**
+
+For a feature, skip this step. For a bug, detail the steps to reproduce the bug.
+
+    Go to '...'
+    Click on '....'
+    Scroll down to '....'
+    See error
+
+**Expected Behavior**
+
+For a feature, skip this step. For a bug, describe what you expected to happen when following the steps above.
+
+**Actual Behavior**
+
+For a feature, skip this step. For a bug, describe what actually happened. Include screenshots or animated GIFs if applicable.
+
+**Possible Solution**
+
+For a feature, skip this step. For a bug, include any suggestions on a fix or a reason for the bug.
+
+**Context**
+
+For a feature, skip this step. For a bug, provide any context or additional information that might be helpful. This can include the environment in which the issue occurred (device, OS, browser, specific software versions).
+
+**Your Environment**
+
+For a feature, skip this step. For a bug, specify any relevant details about your setup:
+
+    Version used:
+    Operating System and version:
+    Browser and version:
+    Other relevant software or hardware:
+
+**Logs and Additional Information**
+
+For a feature, skip this step. For a bug, include any error logs or any other information that might be relevant. You can format error logs or code snippets using Markdown code blocks.
+```
+
 ## PR Template
 
 Please use the following template to create a Pull Request:
