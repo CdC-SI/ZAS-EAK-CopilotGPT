@@ -4,10 +4,11 @@ from dotenv import load_dotenv
 import psycopg2
 import openai
 from datetime import datetime
-from pydantic import BaseModel
 
 import logging
-from fastapi import FastAPI, Response, HTTPException
+from fastapi import FastAPI, HTTPException
+
+from models import ResponseBody
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -52,9 +53,6 @@ def get_embedding(text):
         engine="text-embedding-ada-002",
     )
     return response['data']
-
-class ResponseBody(BaseModel):
-    content: str
 
 @app.post("/init_embeddings/", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
 async def init_embeddings():
