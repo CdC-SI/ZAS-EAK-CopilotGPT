@@ -1,5 +1,8 @@
-Documenting
+Guidelines
 ###########
+
+Sphinx docstrings
+*****************
 
 Our documentation relies on `Sphinx <https://www.sphinx-doc.org/>`_ to generate comprehensible description of modules and class.
 To help making it easier to maintain, please follow the `Sphinx docstring format <https://www.sphinx-doc.org/en/master/usage/domains/python.html>`_ when contributing to the project.
@@ -25,7 +28,7 @@ A typical Sphinx docstring is structured as following.
 
 
 An example class with docstrings
-********************************
+================================
 
 The following example is taken from `Sphinx-RTD-Tutorial <https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html>`_ documentation.
 It displays a typical class documentation. The docstrings are written for a ``SimpleBleDevice`` defined within a ``simpleble`` module.
