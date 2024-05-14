@@ -194,3 +194,10 @@ It displays a typical class documentation. The docstrings are written for a ``Si
                   (self.addr, self.addrType, self.rssi))
             for (adtype, desc, value) in self.data:
                 print("  %s = %s" % (desc, value))
+
+
+main.py files
+*************
+
+To allow Sphinx to automatically document your files, main files should be prevented from running when building the documentation.
+Thus, runnable commands should be written under a ``if __name__ == "__main__":``.
