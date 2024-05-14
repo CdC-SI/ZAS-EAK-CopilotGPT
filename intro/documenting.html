@@ -455,6 +455,11 @@ It displays a typical class documentation. The docstrings are written for a <cod
 </pre></div>
 </div>
 </section>
+<section id="main-py-files">
+<h2>main.py files<a class="headerlink" href="#main-py-files" title="Link to this heading">¶</a></h2>
+<p>To allow Sphinx to automatically document your files, main files should be prevented from running when building the documentation.
+Thus, runnable commands should be written under a <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">&quot;__main__&quot;:</span></code>.</p>
+</section>
 </section>
 
         </article>
@@ -514,6 +519,7 @@ It displays a typical class documentation. The docstrings are written for a <cod
             <ul>
 <li><a class="reference internal" href="#">Documenting</a><ul>
 <li><a class="reference internal" href="#an-example-class-with-docstrings">An example class with docstrings</a></li>
+<li><a class="reference internal" href="#main-py-files">main.py files</a></li>
 </ul>
 </li>
 </ul>
