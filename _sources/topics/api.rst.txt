@@ -1,7 +1,5 @@
 API
 ###
 
-.. automodule:: api.app.app
+.. automodule:: api.app.main
    :members:
-   :undoc-members:
-   :show-inheritance:
