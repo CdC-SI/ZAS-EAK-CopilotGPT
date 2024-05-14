@@ -35,3 +35,9 @@ The current project serves as a proof of concept (PoC), which is slated to concl
    topics/webscraper
    topics/autocomplete
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Links
+   :hidden:
+
+   🚀 Github <https://github.com/CdC-SI/eak-copilot>
