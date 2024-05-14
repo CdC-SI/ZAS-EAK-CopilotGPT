@@ -1,5 +1,5 @@
 API
 ###
 
-.. automodule:: api.app.main
+.. automodule:: main
    :members:

@@ -6,7 +6,7 @@ import logging
 from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.app.web_scraper import WebScraper
+from web_scraper import WebScraper
 
 # Create an instance of FastAPI
 app = FastAPI()

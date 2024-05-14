@@ -1,5 +1,5 @@
 WebScraper
 ##########
 
-.. autoclass:: api.app.web_scraper.WebScraper
+.. autoclass:: web_scraper.WebScraper
     :members:
