@@ -199,7 +199,7 @@ It displays a typical class documentation. The docstrings are written for a ``Si
 main.py files specification
 ***************************
 
-To allow Sphinx to automatically document your files, main files should be prevented from running when building the documentation.
+To allow Sphinx to automatically document main.py files, those files should be prevented from running when building the documentation.
 Thus, runnable commands should be written under
 
 .. code-block:: python
