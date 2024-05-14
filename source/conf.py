@@ -12,7 +12,6 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../api'))
 sys.path.insert(0, os.path.abspath('..'))
 
 
@@ -35,6 +34,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
 ]
+autodoc_mock_imports = ["fastapi"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
