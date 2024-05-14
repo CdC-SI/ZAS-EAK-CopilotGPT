@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Updates" href="updates.html" /><link rel="prev" title="Getting Started" href="start.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>Documenting - ZAS/EAK-Copilot documentation</title>
+        <title>Guidelines - ZAS/EAK-Copilot documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -236,9 +236,8 @@
   <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">EAK-Copilot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Documenting</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Guidelines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="updates.html">Updates</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
@@ -246,6 +245,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../topics/api.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../topics/webscraper.html">WebScraper</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../topics/autocomplete.html">AutoComplete</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../topics/surveypipeline.html">SurveyPipeline</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Links</span></p>
 <ul>
@@ -270,12 +270,12 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="https://github.com/CdC-SI/eak-copilot/blob/feature/161-investigating-sphinx//source/intro/documenting.rst?plain=true" title="View this page">
+  <a class="muted-link" href="https://github.com/CdC-SI/eak-copilot/blob/feature/161-investigating-sphinx//source/intro/guidelines.rst?plain=true" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
 </div><div class="edit-this-page">
-  <a class="muted-link" href="https://github.com/CdC-SI/eak-copilot/edit/feature/161-investigating-sphinx//source/intro/documenting.rst" title="Edit this page">
+  <a class="muted-link" href="https://github.com/CdC-SI/eak-copilot/edit/feature/161-investigating-sphinx//source/intro/guidelines.rst" title="Edit this page">
     <svg><use href="#svg-pencil"></use></svg>
     <span class="visually-hidden">Edit this page</span>
   </a>
@@ -294,8 +294,10 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="documenting">
-<h1>Documenting<a class="headerlink" href="#documenting" title="Link to this heading">¶</a></h1>
+          <section id="guidelines">
+<h1>Guidelines<a class="headerlink" href="#guidelines" title="Link to this heading">¶</a></h1>
+<section id="sphinx-docstrings">
+<h2>Sphinx docstrings<a class="headerlink" href="#sphinx-docstrings" title="Link to this heading">¶</a></h2>
 <p>Our documentation relies on <a class="reference external" href="https://www.sphinx-doc.org/">Sphinx</a> to generate comprehensible description of modules and class.
 To help making it easier to maintain, please follow the <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/domains/python.html">Sphinx docstring format</a> when contributing to the project.</p>
 <p>A typical Sphinx docstring is structured as following.</p>
@@ -317,7 +319,7 @@ To help making it easier to maintain, please follow the <a class="reference exte
 <li><p>The pair <code class="docutils literal notranslate"><span class="pre">:return:</span></code> and <code class="docutils literal notranslate"><span class="pre">:rtype:</span></code> options are used to describe any <strong>values returned</strong> by our code.</p></li>
 </ul>
 <section id="an-example-class-with-docstrings">
-<h2>An example class with docstrings<a class="headerlink" href="#an-example-class-with-docstrings" title="Link to this heading">¶</a></h2>
+<h3>An example class with docstrings<a class="headerlink" href="#an-example-class-with-docstrings" title="Link to this heading">¶</a></h3>
 <p>The following example is taken from <a class="reference external" href="https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html">Sphinx-RTD-Tutorial</a> documentation.
 It displays a typical class documentation. The docstrings are written for a <code class="docutils literal notranslate"><span class="pre">SimpleBleDevice</span></code> defined within a <code class="docutils literal notranslate"><span class="pre">simpleble</span></code> module.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SimpleBleDevice</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -485,6 +487,7 @@ It displays a typical class documentation. The docstrings are written for a <cod
 </pre></div>
 </div>
 </section>
+</section>
 <section id="main-py-files-specification">
 <h2>main.py files specification<a class="headerlink" href="#main-py-files-specification" title="Link to this heading">¶</a></h2>
 <p>To allow Sphinx to automatically document main.py files, those files should be prevented from running when building the documentation.
@@ -550,8 +553,11 @@ Thus, runnable commands should be written under</p>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Documenting</a><ul>
+<li><a class="reference internal" href="#">Guidelines</a><ul>
+<li><a class="reference internal" href="#sphinx-docstrings">Sphinx docstrings</a><ul>
 <li><a class="reference internal" href="#an-example-class-with-docstrings">An example class with docstrings</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#main-py-files-specification">main.py files specification</a></li>
 </ul>
 </li>

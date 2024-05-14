@@ -21,9 +21,8 @@ The current project serves as a proof of concept (PoC), which is slated to concl
    :hidden:
 
    intro/intro
-   intro/features
    intro/start
-   intro/documenting
+   intro/guidelines
    intro/updates
 
 .. toctree::
@@ -34,6 +33,7 @@ The current project serves as a proof of concept (PoC), which is slated to concl
    topics/api
    topics/webscraper
    topics/autocomplete
+   topics/surveypipeline
 
 .. toctree::
    :maxdepth: 2
