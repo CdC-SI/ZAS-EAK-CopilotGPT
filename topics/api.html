@@ -264,17 +264,17 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="module-api.app.main">
-<span id="api"></span><h1>API<a class="headerlink" href="#module-api.app.main" title="Link to this heading">¶</a></h1>
+          <section id="module-main">
+<span id="api"></span><h1>API<a class="headerlink" href="#module-main" title="Link to this heading">¶</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="api.app.main.get_db_connection">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">api.app.main.</span></span><span class="sig-name descname"><span class="pre">get_db_connection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#api.app.main.get_db_connection" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="main.get_db_connection">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">get_db_connection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#main.get_db_connection" title="Link to this definition">¶</a></dt>
 <dd><p>Establish a database connection.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="api.app.main.ignite_expert">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">api.app.main.</span></span><span class="sig-name descname"><span class="pre">ignite_expert</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#api.app.main.ignite_expert" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="main.ignite_expert">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">ignite_expert</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#main.ignite_expert" title="Link to this definition">¶</a></dt>
 <dd><p>Asynchronously retrieves and processes FAQ data from ‘<a class="reference external" href="https://faq.bsv.admin.ch">https://faq.bsv.admin.ch</a>’ to insert into the database.</p>
 <p>The endpoint ‘<a class="reference external" href="https://faq.bsv.admin.ch/sitemap.xml">https://faq.bsv.admin.ch/sitemap.xml</a>’ is utilized to discover all relevant FAQ URLs. For each URL,
 the method extracts the primary question (denoted by the ‘h1’ tag) and its corresponding answer (within an ‘article’ tag).
@@ -288,15 +288,15 @@ logging to track the operation’s progress and identify any errors.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="api.app.main.read_root">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">api.app.main.</span></span><span class="sig-name descname"><span class="pre">read_root</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#api.app.main.read_root" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="main.read_root">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">read_root</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#main.read_root" title="Link to this definition">¶</a></dt>
 <dd><p>Root endpoint.</p>
 <p>Returns a welcome message indicating that FastAPI is running.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="api.app.main.search_questions">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">api.app.main.</span></span><span class="sig-name descname"><span class="pre">search_questions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#api.app.main.search_questions" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="main.search_questions">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">search_questions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#main.search_questions" title="Link to this definition">¶</a></dt>
 <dd><p>Search for questions that contain the specified string, case-insensitive.</p>
 <ul class="simple">
 <li><p><strong>question</strong>: string to be searched within the questions.</p></li>
@@ -305,8 +305,8 @@ logging to track the operation’s progress and identify any errors.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="api.app.main.update_or_insert_data">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">api.app.main.</span></span><span class="sig-name descname"><span class="pre">update_or_insert_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">answer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Body</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#api.app.main.update_or_insert_data" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="main.update_or_insert_data">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">update_or_insert_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">answer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Body</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#main.update_or_insert_data" title="Link to this definition">¶</a></dt>
 <dd><p>Update an existing data record or insert a new one based on the presence of the question.</p>
 <ul class="simple">
 <li><p><strong>url</strong>: The URL associated with the data.</p></li>
@@ -376,11 +376,11 @@ logging to track the operation’s progress and identify any errors.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">API</a><ul>
-<li><a class="reference internal" href="#api.app.main.get_db_connection"><code class="docutils literal notranslate"><span class="pre">get_db_connection()</span></code></a></li>
-<li><a class="reference internal" href="#api.app.main.ignite_expert"><code class="docutils literal notranslate"><span class="pre">ignite_expert()</span></code></a></li>
-<li><a class="reference internal" href="#api.app.main.read_root"><code class="docutils literal notranslate"><span class="pre">read_root()</span></code></a></li>
-<li><a class="reference internal" href="#api.app.main.search_questions"><code class="docutils literal notranslate"><span class="pre">search_questions()</span></code></a></li>
-<li><a class="reference internal" href="#api.app.main.update_or_insert_data"><code class="docutils literal notranslate"><span class="pre">update_or_insert_data()</span></code></a></li>
+<li><a class="reference internal" href="#main.get_db_connection"><code class="docutils literal notranslate"><span class="pre">get_db_connection()</span></code></a></li>
+<li><a class="reference internal" href="#main.ignite_expert"><code class="docutils literal notranslate"><span class="pre">ignite_expert()</span></code></a></li>
+<li><a class="reference internal" href="#main.read_root"><code class="docutils literal notranslate"><span class="pre">read_root()</span></code></a></li>
+<li><a class="reference internal" href="#main.search_questions"><code class="docutils literal notranslate"><span class="pre">search_questions()</span></code></a></li>
+<li><a class="reference internal" href="#main.update_or_insert_data"><code class="docutils literal notranslate"><span class="pre">update_or_insert_data()</span></code></a></li>
 </ul>
 </li>
 </ul>
