@@ -7,5 +7,5 @@ The current project serves as a proof of concept (PoC), which is slated to concl
 
 |
 
-.. image:: demo-video.gif
-   :width: 840
+.. image:: ../_static/img/demo-video.gif
+   :width: 800

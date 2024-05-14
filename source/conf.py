@@ -50,9 +50,36 @@ exclude_patterns = []
 # a list of builtin themes.
 #
 html_theme = 'furo'
+html_theme_options = {
+    "source_repository": "https://github.com/CdC-SI/eak-copilot",
+    "source_branch": "main",
+    "source_directory": "feature/161-investigating-sphinx/",
+    "light_css_variables": {
+        "color-brand-primary": "rgb(31, 41, 55)",
+        "color-brand-content": "#d8232a",
+        "color-brand-visited": "var(--color-brand-content)",
+        "color-link--visited--hover": "rgb(153, 25, 30)",
+        "color-link--hover": "rgb(153, 25, 30)",
+    },
+    "dark_css_variables": {
+        "color-brand-primary": "white",
+        "color-brand-content": "#d8232a",
+        "color-brand-visited": "var(--color-brand-content)",
+        "color-background-primary": "#1c2834",
+        "color-background-secondary": "#263645",
+        "color-sidebar-item-background--hover": "#2f4356",
+        "color-link--visited--hover": "rgb(153, 25, 30)",
+        "color-link--hover": "rgb(153, 25, 30)",
+    },
+}
+
+html_css_files = [
+    'css/custom.css',
+]
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
-html_favicon = "_static/favicon.ico"
+html_favicon = "_static/img/favicon.ico"
+html_title = "ZAS/EAK-Copilot documentation"
