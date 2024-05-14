@@ -8,12 +8,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from web_scraper import WebScraper
 
-# Create an instance of FastAPI
-app = FastAPI()
-
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+# Create an instance of FastAPI
+app = FastAPI()
 
 async def get_db_connection():
     """Establish a database connection."""
