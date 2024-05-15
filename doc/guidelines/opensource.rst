@@ -2,8 +2,11 @@
 Open-Source collaboration
 #########################
 
-* **Github** is a platform for version control and collaboration.
-* An **open source** software has public source code that anyone can inspect, modify, and enhance.
+What is GitHub?
+    **Github** is a platform for version control and collaboration.
+
+What is Open Source?
+    An **open source** software has public source code that anyone can inspect, modify, and enhance.
 
 Workflow
 ========
@@ -42,16 +45,17 @@ Create issues
 
 .. _create-epics:
 
-Create EPICs
-============
+Creating EPICs and Managing Issues
+==================================
 
 .. admonition:: What is an EPIC?
     :class: hint
 
     An EPIC is a larger body of work that can be broken down into smaller tasks (issues), typically used to group related features or improvements.
 
-#. Use a GitHub issue to represent the EPIC (name it **"EPIC: name_of_epic"**).
-#. Provide a detailed description that outlines the objectives, potential tasks, and expected outcomes.
+Creating an EPIC
+    #. Use a GitHub issue to represent the EPIC (name it **"EPIC: name_of_epic"**).
+    #. Provide a detailed description that outlines the objectives, potential tasks, and expected outcomes.
 
 Incorporating issues into an EPIC
     #. Create individual issues for tasks that fall under the EPIC’s scope.
@@ -110,18 +114,20 @@ Use Github or Git command line
 
 .. _commit:
 
-Commit
-======
-
-And link it to issues.
+Commit (and link to issues)
+===========================
 
 .. admonition:: What is a commit?
     :class: hint
 
     A commit records changes to one or more files in your branch.
 
-#. Make changes in your branch, then run ``git add`` and ``git commit –m "your_commit_ message"`` with a descriptive message.
-#. Use keywords in your commit message to link the commit to an issue (e.g., "fixes #123", "closes #124").
+#. Make changes in your branch
+#. Run ``git add``
+#. Run ``git commit –m "your_commit_ message"`` with a descriptive message.
+
+Linking Commits to Issues
+    Use keywords in your commit message to link the commit to an issue (e.g., "fixes #123", "closes #124").
 
     This automatically closes the issue when the commit is merged into the default branch (after review).
 
@@ -156,8 +162,7 @@ Pull Request
 
     * Review your changes before submitting a PR.
     * Request review from maintainers or other contributors.
-    * Configure at least one acceptation of review before merge and close issue.
-    * Anyone can review code if he/she feels comfortable with it.
+    * Ensure at least one acceptance of review before merge and close issue.
     * Use ``fixes`` for bugfix, ``closes`` for feature.
 
 .. seealso::
@@ -176,6 +181,7 @@ Other contributors review your changes, suggest improvements, or approve the cha
 
 * Be open to feedback and ready to make further changes.
 * Respond to comments to explain decisions if necessary.
+* Anyone can review code if they feel comfortable with it.
 
 .. admonition:: Best practices
     :class: important
@@ -210,7 +216,7 @@ Merge branch
 Close issues
 ============
 
-An issue is closed after the related changes are merged and the problem has been solved.
+Issues should be closed after the related changes are merged and the problem has been solved.
 
 * Use the GitHub interface to close the issue, often automatically linked by mentioning in the PR (e.g., "fixes #123").
 
