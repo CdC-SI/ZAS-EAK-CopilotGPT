@@ -520,12 +520,14 @@ It displays a typical class documentation. The docstrings are written for a <cod
 </div>
 </section>
 </section>
-<section id="main-py-specification">
-<h2>main.py specification<a class="headerlink" href="#main-py-specification" title="Link to this heading">¶</a></h2>
-<p>To allow Sphinx to automatically document main.py files, those files should be prevented from running when building the documentation.
-Thus, runnable commands should be written under</p>
+<section id="scripts-documentation">
+<h2>Scripts documentation<a class="headerlink" href="#scripts-documentation" title="Link to this heading">¶</a></h2>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>If you document a script, make sure to protect their main routine with the condition</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
 </pre></div>
+</div>
 </div>
 </section>
 </section>
@@ -590,7 +592,7 @@ Thus, runnable commands should be written under</p>
 <li><a class="reference internal" href="#an-example-class-with-docstrings">An example class with docstrings</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#main-py-specification">main.py specification</a></li>
+<li><a class="reference internal" href="#scripts-documentation">Scripts documentation</a></li>
 </ul>
 </li>
 </ul>
