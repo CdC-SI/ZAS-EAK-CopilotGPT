@@ -1,22 +1,22 @@
-.sidebar-tree .reference:hover {
+.sidebar-tree .reference:hover, .sidebar-tree .icon:hover {
     border-right: 3px solid var(--color-brand-content);
     transition-property: border-right;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 500ms;
 }
 
-.sidebar-tree a:hover {
+.sidebar-tree a:hover, .sidebar-tree a:hover {
     color: var(--color-brand-content) !important;
     transition-property: border-right;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 500ms;
 }
 
-.sidebar-tree .current-page {
+.sidebar-tree .current>.reference, .sidebar-tree .current>.icon {
     border-right: 3px solid var(--color-brand-content);
 }
 
-.sidebar-tree .reference {
+.sidebar-tree .reference, .sidebar-tree .icon {
     border-right: 3px solid var(--color-background-secondary);
 }
 
