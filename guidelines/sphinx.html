@@ -214,7 +214,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -320,7 +320,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -328,14 +328,74 @@
         <article role="main" id="furo-main-content">
           <section id="updating-documentation">
 <h1>Updating documentation<a class="headerlink" href="#updating-documentation" title="Link to this heading">¶</a></h1>
+<section id="build-the-website-locally">
+<h2>Build the website locally<a class="headerlink" href="#build-the-website-locally" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>Prerequisites</dt><dd><ul class="simple">
+<li><p>Python 3.9+</p></li>
+</ul>
+</dd>
+</dl>
+<ol class="arabic">
+<li><dl>
+<dt>Clone the repository</dt><dd><p>Begin by cloning the EAK-Copilot repository to your local machine to get the necessary project files.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">git clone https://github.com/CdC-SI/eak-copilot.git</span>
+<span class="go">cd eak-copilot</span>
+<span class="go">cd doc</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>Install dependencies</dt><dd><p>The <code class="docutils literal notranslate"><span class="pre">requirement.txt</span></code> contains Sphinx and several Sphinx extension packages that we use within the project.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install -r requirements.txt</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>Run the build</dt><dd><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sphinx-build -M html doc _build</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</li>
+</ol>
+<p>An <code class="docutils literal notranslate"><span class="pre">index.html</span></code> document can now be found in the <code class="docutils literal notranslate"><span class="pre">_build/html/</span></code> directory. You can open it with your favorite browser and start exploring!</p>
+</section>
+<section id="documentation-folder-structure">
+<h2>Documentation folder structure<a class="headerlink" href="#documentation-folder-structure" title="Link to this heading">¶</a></h2>
+<p>Files related to the documentation can be found inside the <code class="docutils literal notranslate"><span class="pre">doc/</span></code> directory.</p>
+<p>Currently, our repository is structured as follows.</p>
+<div class="line-block">
+<div class="line">eak-copilot</div>
+<div class="line">├── doc</div>
+<div class="line">│   ├── _static</div>
+<div class="line">│   │   ├ css</div>
+<div class="line">│   │   └ img</div>
+<div class="line">│   ├── guidelines</div>
+<div class="line">│   │   └ …</div>
+<div class="line">│   ├── intro</div>
+<div class="line">│   │   └ …</div>
+<div class="line">│   ├── topics</div>
+<div class="line">│   │   └ …</div>
+<div class="line">│   ├── conf.py</div>
+<div class="line">│   ├── index.py</div>
+<div class="line">│   └── requirements.txt</div>
+<div class="line">└── …</div>
+<div class="line"><br /></div>
+<div class="line"><br /></div>
+</div>
 <div class="admonition-todo admonition" id="id1">
 <p class="admonition-title">Todo</p>
 <ul class="simple">
-<li><p>How to build sphinx website locally</p></li>
 <li><p>Introduction to reStructuredText (.rst) format</p></li>
-<li><p>Documentation folder structure</p></li>
+<li><p>Documentation folder structure (in progress)</p></li>
 </ul>
 </div>
+</section>
 </section>
 
         </article>
@@ -381,8 +441,28 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Updating documentation</a><ul>
+<li><a class="reference internal" href="#build-the-website-locally">Build the website locally</a></li>
+<li><a class="reference internal" href="#documentation-folder-structure">Documentation folder structure</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
