@@ -1,6 +1,14 @@
 Documentation Standards
 #######################
 
+.. attention::
+
+    If you document a script, make sure to protect their main routine with the condition
+
+    .. code-block:: python
+
+        if __name__ == "__main__":
+
 Sphinx docstrings
 =================
 
@@ -197,15 +205,3 @@ It displays a typical class documentation. The docstrings are written for a ``Si
                   (self.addr, self.addrType, self.rssi))
             for (adtype, desc, value) in self.data:
                 print("  %s = %s" % (desc, value))
-
-
-Scripts documentation
-=====================
-
-.. attention::
-
-    If you document a script, make sure to protect their main routine with the condition
-
-    .. code-block:: python
-
-        if __name__ == "__main__":

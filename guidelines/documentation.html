@@ -328,6 +328,13 @@
         <article role="main" id="furo-main-content">
           <section id="documentation-standards">
 <h1>Documentation Standards<a class="headerlink" href="#documentation-standards" title="Link to this heading">¶</a></h1>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>If you document a script, make sure to protect their main routine with the condition</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
 <section id="sphinx-docstrings">
 <h2>Sphinx docstrings<a class="headerlink" href="#sphinx-docstrings" title="Link to this heading">¶</a></h2>
 <p>Our documentation relies on <a class="reference external" href="https://www.sphinx-doc.org/">Sphinx</a> to generate comprehensible description of modules and class.
@@ -520,16 +527,6 @@ It displays a typical class documentation. The docstrings are written for a <cod
 </div>
 </section>
 </section>
-<section id="scripts-documentation">
-<h2>Scripts documentation<a class="headerlink" href="#scripts-documentation" title="Link to this heading">¶</a></h2>
-<div class="admonition attention">
-<p class="admonition-title">Attention</p>
-<p>If you document a script, make sure to protect their main routine with the condition</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-</pre></div>
-</div>
-</div>
-</section>
 </section>
 
         </article>
@@ -592,7 +589,6 @@ It displays a typical class documentation. The docstrings are written for a <cod
 <li><a class="reference internal" href="#an-example-class-with-docstrings">An example class with docstrings</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#scripts-documentation">Scripts documentation</a></li>
 </ul>
 </li>
 </ul>
