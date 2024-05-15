@@ -6,6 +6,8 @@ import logging
 from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 
+from pyxdameraulevenshtein import damerau_levenshtein_distance
+
 from web_scraper import WebScraper
 
 # Setup logging
@@ -83,11 +85,55 @@ async def exact_match(question: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/fuzzy_match/", summary="Search Questions with fuzzy match", response_description="List of matching questions")
-async def fuzzy_match():
+async def fuzzy_match(question: str):
     """
-    Dummy endpoint for fuzzy match.
+    Search for questions with fuzzy match (levenstein-damerau distance) based on threshold, case-insensitive.
+
+    - **question**: string to be searched within the questions.
+
+    Returns a list of questions that match the search criteria if within the specified threshold. If no matches are found, returns a 404 error.
     """
-    return {"message": "Fuzzy match test!"}
+    conn = await get_db_connection()
+    try:
+        # Fetch all rows from the database
+        rows = await conn.fetch("SELECT * FROM data")
+        await conn.close()  # Close the database connection
+
+        # Convert the question to lowercase
+        question = question.lower()
+
+        # Perform fuzzy matching
+        matches = []
+        for row in rows:
+            # Convert the 'question' column to lowercase
+            row_question = row['question'].lower()
+
+            # Calculate the Levenshtein-Damerau distance
+            #distance = fuzz.ratio(question, row_question)
+            print("QUESTION: ", question)
+            print("ROW_QUESTION: ", row_question)
+
+            distance = damerau_levenshtein_distance(question, row_question)
+            print("DISTANCE: ", distance)
+
+            # If the distance is above a certain threshold, add the row to the matches
+            if distance <= 5:
+                matches.append(row)
+
+        print("MATCHES: ", matches)
+
+        if not matches:
+            raise HTTPException(status_code=404, detail="Question not found")
+
+        # Convert the results to a list of dictionaries
+        matches = [dict(row) for row in matches]
+        return matches
+
+    except Exception as e:
+        await conn.close()
+        raise HTTPException(status_code=500, detail=str(e))
+
+    #return {"message": "Fuzzy match test!"}
 
 @app.get("/semantic_similarity_match/", summary="Search Questions with semantic similarity match", response_description="List of matching questions")
 async def semantic_similarity_match():
