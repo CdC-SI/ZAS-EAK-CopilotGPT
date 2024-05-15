@@ -48,7 +48,7 @@ async def get_db_connection():
     return conn
 
 
-@app.get("/", summary="Root Endpoint", response_description="Welcome Message")
+@app.get("/autocomplete/", summary="Root Endpoint", response_description="Welcome Message")
 async def read_root():
     """
     Root endpoint.
@@ -58,7 +58,7 @@ async def read_root():
     return {"message": "Hello, FastAPI!"}
 
 
-@app.get("/exact_match/", summary="Search Questions with exact match", response_description="List of matching questions")
+@app.get("/autocomplete/exact_match/", summary="Search Questions with exact match", response_description="List of matching questions")
 async def exact_match(question: str):
     """
     Search for questions that contain the exact specified string, case-insensitive.
@@ -84,7 +84,7 @@ async def exact_match(question: str):
         await conn.close()
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/fuzzy_match/", summary="Search Questions with fuzzy match", response_description="List of matching questions")
+@app.get("/autocomplete/fuzzy_match/", summary="Search Questions with fuzzy match", response_description="List of matching questions")
 async def fuzzy_match(question: str):
     """
     Search for questions with fuzzy match (levenstein-damerau distance) based on threshold, case-insensitive.
@@ -135,14 +135,14 @@ async def fuzzy_match(question: str):
 
     #return {"message": "Fuzzy match test!"}
 
-@app.get("/semantic_similarity_match/", summary="Search Questions with semantic similarity match", response_description="List of matching questions")
+@app.get("/autocomplete/semantic_similarity_match/", summary="Search Questions with semantic similarity match", response_description="List of matching questions")
 async def semantic_similarity_match():
     """
     Dummy endpoint for semantic_similarity match.
     """
     return {"message": "Semantic similarity match test!"}
 
-@app.put("/data/", summary="Update or Insert Data", response_description="Updated or Inserted Data")
+@app.put("/autocomplete/data/", summary="Update or Insert Data", response_description="Updated or Inserted Data")
 async def update_or_insert_data(
     url: str,
     question: str,
@@ -196,7 +196,7 @@ async def update_or_insert_data(
     finally:
         await conn.close()
 
-@app.put("/init_expert", summary="Insert Data from faq.bsv.admin.ch", response_description="Insert Data from faq.bsv.admin.ch")
+@app.put("/autocomplete/init_expert", summary="Insert Data from faq.bsv.admin.ch", response_description="Insert Data from faq.bsv.admin.ch")
 async def init_expert():
     """
     Asynchronously retrieves and processes FAQ data from 'https://faq.bsv.admin.ch' to insert into the database.
