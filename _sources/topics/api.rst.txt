@@ -1,2 +1,6 @@
 API
 ###
+
+.. todo::
+
+    ``api`` (facade)
