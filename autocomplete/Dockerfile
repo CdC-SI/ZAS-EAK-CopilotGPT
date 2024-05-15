@@ -4,6 +4,13 @@ FROM python:3.9-slim
 # Setze das Arbeitsverzeichnis im Container
 WORKDIR /app
 
+# Installieren Sie gcc und andere Build-Abhängigkeiten
+RUN apt-get update && apt-get install -y \
+    gcc \
+    build-essential \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Kopiere die Anforderungen in den Container und installiere sie
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
