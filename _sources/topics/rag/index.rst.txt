@@ -1,0 +1,7 @@
+RAG
+###
+
+.. toctree::
+   :hidden:
+
+   retrieval

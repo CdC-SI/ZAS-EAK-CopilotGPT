@@ -3,14 +3,14 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="WebScraper" href="webscraper.html" /><link rel="prev" title="Updates" href="../intro/updates.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Indexing Pipeline" href="indexing/index.html" /><link rel="prev" title="Updating documentation" href="../guidelines/sphinx.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
         <title>API - ZAS/EAK-Copilot documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=ba933f0d" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=d270bd51" />
     
     
 
@@ -213,7 +213,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -237,15 +237,46 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../intro/intro.html">EAK-Copilot</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../intro/start.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../intro/guidelines.html">Guidelines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../intro/updates.html">Updates</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<p class="caption" role="heading"><span class="caption-text">Guidelines</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guidelines/opensource.html">Open-Source collaboration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guidelines/documentation.html">Documentation Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guidelines/sphinx.html">Updating documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
 <ul class="current">
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="webscraper.html">WebScraper</a></li>
-<li class="toctree-l1"><a class="reference internal" href="autocomplete.html">AutoComplete</a></li>
-<li class="toctree-l1"><a class="reference internal" href="surveypipeline.html">SurveyPipeline</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="indexing/index.html">Indexing Pipeline</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Indexing Pipeline</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="indexing/crawler.html">Crawler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="indexing/scraper.html">Scraper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="indexing/parser.html">Parser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="indexing/chunker.html">Chunker</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="survey/index.html">SurveyPipeline</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of SurveyPipeline</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="survey/api.html">Survey pipeline API</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="rag/index.html">RAG</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of RAG</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="rag/retrieval.html">RetrievalPipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="chatbot/index.html">Chatbot</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Chatbot</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="chatbot/generation.html">GenerationPipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="autocomplete/index.html">Autocomplete</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Autocomplete</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="autocomplete/exactmatch.html">Exact match</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autocomplete/fuzzysearch.html">Fuzzy Search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autocomplete/similaritysearch.html">Similarity Search</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="gui/index.html">GUI</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of GUI</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="gui/gui.html">GUI</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Links</span></p>
 <ul>
@@ -288,66 +319,14 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="module-main">
-<span id="api"></span><h1>API<a class="headerlink" href="#module-main" title="Link to this heading">¶</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="main.get_db_connection">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">get_db_connection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#main.get_db_connection" title="Link to this definition">¶</a></dt>
-<dd><p>Establish a database connection.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="main.ignite_expert">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">ignite_expert</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#main.ignite_expert" title="Link to this definition">¶</a></dt>
-<dd><p>Asynchronously retrieves and processes FAQ data from ‘<a class="reference external" href="https://faq.bsv.admin.ch">https://faq.bsv.admin.ch</a>’ to insert into the database.</p>
-<p>The endpoint ‘<a class="reference external" href="https://faq.bsv.admin.ch/sitemap.xml">https://faq.bsv.admin.ch/sitemap.xml</a>’ is utilized to discover all relevant FAQ URLs. For each URL,
-the method extracts the primary question (denoted by the ‘h1’ tag) and its corresponding answer (within an ‘article’ tag).
-Unnecessary boilerplate text will be removed for clarity and conciseness.</p>
-<p>Each extracted FAQ entry is then upserted (inserted or updated if already exists) into the database, with detailed
-logging to track the operation’s progress and identify any errors.</p>
-<p>Returns a confirmation message upon successful completion of the process.</p>
-<p>TODO:
-- Consider implementing error handling at a more granular level to retry failed insertions or updates, enhancing the robustness of the data ingestion process.
-- Explore optimization opportunities in text extraction and processing to improve efficiency and reduce runtime, especially for large sitemaps.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="main.read_root">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">read_root</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#main.read_root" title="Link to this definition">¶</a></dt>
-<dd><p>Root endpoint.</p>
-<p>Returns a welcome message indicating that FastAPI is running.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="main.search_questions">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">search_questions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#main.search_questions" title="Link to this definition">¶</a></dt>
-<dd><p>Search for questions that contain the specified string, case-insensitive.</p>
-<ul class="simple">
-<li><p><strong>question</strong>: string to be searched within the questions.</p></li>
-</ul>
-<p>Returns a list of questions that match the search criteria. If no matches are found, returns a 404 error.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="main.update_or_insert_data">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">update_or_insert_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">answer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Body</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#main.update_or_insert_data" title="Link to this definition">¶</a></dt>
-<dd><p>Update an existing data record or insert a new one based on the presence of the question.</p>
-<ul class="simple">
-<li><p><strong>url</strong>: The URL associated with the data.</p></li>
-<li><p><strong>question</strong>: The question.</p></li>
-<li><p><strong>answer</strong>: The answer.</p></li>
-<li><p><strong>language</strong>: The language of the data.</p></li>
-</ul>
-<p>Returns the updated or inserted data record.</p>
-<p>Note: The operation now checks for the presence of a question in the database to decide between insert and update.</p>
-</dd></dl>
-
+          <section id="api">
+<h1>API<a class="headerlink" href="#api" title="Link to this heading">¶</a></h1>
 </section>
 
         </article>
@@ -355,23 +334,23 @@ logging to track the operation’s progress and identify any errors.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="webscraper.html">
+          <a class="next-page" href="indexing/index.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">WebScraper</div>
+                <div class="title">Indexing Pipeline</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../intro/updates.html">
+          <a class="prev-page" href="../guidelines/sphinx.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Updates</div>
+                <div class="title">Updating documentation</div>
                 
               </div>
             </a>
@@ -393,31 +372,8 @@ logging to track the operation’s progress and identify any errors.</p>
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">API</a><ul>
-<li><a class="reference internal" href="#main.get_db_connection"><code class="docutils literal notranslate"><span class="pre">get_db_connection()</span></code></a></li>
-<li><a class="reference internal" href="#main.ignite_expert"><code class="docutils literal notranslate"><span class="pre">ignite_expert()</span></code></a></li>
-<li><a class="reference internal" href="#main.read_root"><code class="docutils literal notranslate"><span class="pre">read_root()</span></code></a></li>
-<li><a class="reference internal" href="#main.search_questions"><code class="docutils literal notranslate"><span class="pre">search_questions()</span></code></a></li>
-<li><a class="reference internal" href="#main.update_or_insert_data"><code class="docutils literal notranslate"><span class="pre">update_or_insert_data()</span></code></a></li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>
