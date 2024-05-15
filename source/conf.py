@@ -52,7 +52,7 @@ exclude_patterns = []
 html_theme = 'furo'
 html_theme_options = {
     "source_repository": "https://github.com/CdC-SI/eak-copilot",
-    "source_branch": "feature/161-investigating-sphinx/",
+    "source_branch": "main/",
     "source_directory": "source/",
     "light_css_variables": {
         "color-brand-primary": "rgb(31, 41, 55)",
