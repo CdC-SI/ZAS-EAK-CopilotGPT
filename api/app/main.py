@@ -15,31 +15,6 @@ logger = logging.getLogger(__name__)
 # Create an instance of FastAPI
 app = FastAPI()
 
-# Load environment variables
-load_dotenv()
-CORS_ALLOWED_ORIGINS = os.environ["CORS_ALLOWED_ORIGINS"]
-POSTGRES_USER = os.environ["POSTGRES_USER"]
-POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
-POSTGRES_DB = os.environ["POSTGRES_DB"]
-POSTGRES_HOST = "db"
-
-# Setup CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[CORS_ALLOWED_ORIGINS],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Database connection parameters
-DB_PARAMS = {
-    "user": POSTGRES_USER,
-    "password": POSTGRES_PASSWORD,
-    "database": POSTGRES_DB,
-    "host": POSTGRES_HOST,
-}
-
 async def get_db_connection():
     """Establish a database connection."""
     conn = await asyncpg.connect(**DB_PARAMS)
@@ -188,3 +163,30 @@ async def ignite_expert():
 
     logger.info(f"Done! {len(urls)} wurden verarbeitet.")
     return {"message": f"Done! {len(urls)} wurden verarbeitet."}
+
+if __name__ == "__main__":
+
+    # Load environment variables
+    load_dotenv()
+    CORS_ALLOWED_ORIGINS = os.environ["CORS_ALLOWED_ORIGINS"]
+    POSTGRES_USER = os.environ["POSTGRES_USER"]
+    POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
+    POSTGRES_DB = os.environ["POSTGRES_DB"]
+    POSTGRES_HOST = "db"
+
+    # Setup CORS
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[CORS_ALLOWED_ORIGINS],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    # Database connection parameters
+    DB_PARAMS = {
+        "user": POSTGRES_USER,
+        "password": POSTGRES_PASSWORD,
+        "database": POSTGRES_DB,
+        "host": POSTGRES_HOST,
+    }
