@@ -1,4 +1,4 @@
-WebScraper
+Scraper
 ##########
 
 .. autoclass:: web_scraper.WebScraper

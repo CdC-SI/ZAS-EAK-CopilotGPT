@@ -1,5 +1,6 @@
 API
 ###
 
-.. automodule:: main
-   :members:
+.. todo::
+
+    ``api`` (facade)
