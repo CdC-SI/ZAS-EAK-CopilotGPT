@@ -6,3 +6,4 @@ requests==2.31.0
 beautifulsoup4==4.12.3
 lxml==5.2.2
 pyxDamerauLevenshtein==1.8.0
+asyncio==3.4.3
