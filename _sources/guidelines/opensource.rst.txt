@@ -19,10 +19,13 @@ Workflow
 #. :ref:`Merge branch <merge-branch>`
 #. :ref:`Close issues <close-issues>`
 
+Tutorial
+========
+
 .. _create-issues:
 
 Create issues
-=============
+-------------
 
 .. admonition:: What are issues?
     :class: hint
@@ -31,7 +34,7 @@ Create issues
 
 #. Identify a need or a problem in the project or EPIC.
 #. Go to the project’s `Issues tab <https://github.com/CdC-SI/eak-copilot/issues>`_ and click "New issue", or go to the `project board <https://github.com/orgs/CdC-SI/projects/2>`_ and create a new issue in the backlog or the current sprint’s backlog.
-#. Provide a clear, concise title and a detailed description.
+#. Provide a clear, concise title and a detailed :ref:`description <issue-template>`.
 #. If you are going to work on this issue, assign yourself to the issue immediately, else place the issue in the backlog (current sprint or general backlog) or in the current sprint’s "Ready" tab.
 #. Additionally, add a label, priority, size, sprint iteration and milestone.
 
@@ -46,7 +49,7 @@ Create issues
 .. _create-epics:
 
 Create EPICs and manage issues
-==================================
+------------------------------
 
 .. admonition:: What is an EPIC?
     :class: hint
@@ -73,7 +76,7 @@ Incorporating issues into an EPIC
 .. _pick-issue:
 
 Pick up an issue
-================
+----------------
 
 #. Browse the current sprint's "Ready" tab for unassigned issues.
 #. Assign yourself to the issue.
@@ -90,7 +93,7 @@ Pick up an issue
 .. _create-branch:
 
 Create a branch
-===============
+---------------
 
 .. admonition:: What is a branch?
     :class: hint
@@ -115,7 +118,7 @@ Use Github or Git command line
 .. _commit:
 
 Commit (and link to issues)
-===========================
+---------------------------
 
 .. admonition:: What is a commit?
     :class: hint
@@ -146,7 +149,7 @@ Linking Commits to Issues
 .. _pull-request:
 
 Pull Request
-============
+------------
 
 .. admonition:: What is a Pull Request (PR)?
     :class: hint
@@ -155,7 +158,7 @@ Pull Request
 
 #. Push your branch to GitHub.
 #. Open a pull request via the GitHub interface.
-#. Provide a context and link the issue you are addressing.
+#. Provide a :ref:`context <pr-template>` and link the issue you are addressing.
 
 .. admonition:: Best practices
     :class: important
@@ -175,7 +178,7 @@ Pull Request
 .. _code-review:
 
 Code review and feedback
-========================
+------------------------
 
 Other contributors review your changes, suggest improvements, or approve the changes.
 
@@ -194,7 +197,7 @@ Other contributors review your changes, suggest improvements, or approve the cha
 .. _merge-branch:
 
 Merge branch
-============
+------------
 
 .. admonition:: What is merging?
     :class: hint
@@ -214,7 +217,7 @@ Merge branch
 .. _close-issues:
 
 Close issues
-============
+------------
 
 Issues should be closed after the related changes are merged and the problem has been solved.
 
@@ -225,3 +228,125 @@ Issues should be closed after the related changes are merged and the problem has
 
     * Confirm the issue is fully resolved before closing.
     * Provide a closing comment to explain the resolution.
+
+|
+
+Templates
+=========
+
+
+.. _issue-template:
+
+Issue
+-----
+
+Please use the following template to :ref:`submit an issue <create-issues>`.
+
+.. code::
+
+    **Issue Title**
+
+    Setup /get_docs endpoint in backend with FastAPI.
+
+    **Description**
+
+    Setup a document retrieval endpoint in backend.
+
+    Do a semantic similarity match (cosine similarity) on indexed documents in postgres vector DB.
+
+    Takes as input a user query such as: {"query": query} and returns a response such as {"contextDocs": docs, "sourceUrl": url}.
+
+    Will be called from the frontend when a user inputs a query that doesn't match an autocomplete suggestion.
+
+    **Steps to Reproduce**
+
+    For a feature, skip this step. For a bug, detail the steps to reproduce the bug.
+
+        Go to '...'
+        Click on '....'
+        Scroll down to '....'
+        See error
+
+    **Expected Behavior**
+
+    For a feature, skip this step. For a bug, describe what you expected to happen when following the steps above.
+
+    **Actual Behavior**
+
+    For a feature, skip this step. For a bug, describe what actually happened. Include screenshots or animated GIFs if applicable.
+
+    **Possible Solution**
+
+    For a feature, skip this step. For a bug, include any suggestions on a fix or a reason for the bug.
+
+    **Context**
+
+    For a feature, skip this step. For a bug, provide any context or additional information that might be helpful. This can include the environment in which the issue occurred (device, OS, browser, specific software versions).
+
+    **Your Environment**
+
+    For a feature, skip this step. For a bug, specify any relevant details about your setup:
+
+        Version used:
+        Operating System and version:
+        Browser and version:
+        Other relevant software or hardware:
+
+    **Logs and Additional Information**
+
+    For a feature, skip this step. For a bug, include any error logs or any other information that might be relevant. You can format error logs or code snippets using Markdown code blocks.
+
+
+.. _pr-template:
+
+Pull Request
+------------
+
+Please use the following template to :ref:`create a Pull Request <pull-request>`.
+
+.. code::
+
+    **Overview**
+
+    Added a simple RAG functionality to the EAK-Copilot.
+
+    **Issue Reference:**
+
+        - EPIC: setup baseline RAG #79
+        - install postgres vectorDB extension #105
+        - index baseline vector data in vectorDB #107
+        - setup base retriever #97
+        - setup /get_docs endpoint in backend #134
+        - integrate rag to frontend #110
+        - display RAG source URL in chat conversation #135
+        - update README #112
+
+    **Changes Made**
+
+        - Added rag/app/main.py to implement the /init_expert and /get_docs endpoints.
+        - Added rag/app/models.py to implement the ResponseBody and RAGRequest model classes.
+        - Added rag/app/test_semantic_search.py to run a simple semantic search query.
+        - Added rag/Dockerfile to build the rag image.
+        - Added rag/requirements.txt.
+        - Updated docker-compose.yml to include the rag service.
+        - Updated .env.example to include the postgresql port number.
+        - Updated the README.md.
+
+    **Testing**
+
+        - Tested endpoints manually through swagger docs at localhost:8010/docs.
+        - Removed the db/data folder to index docs from scratch.
+        - Ran rag/app/test_semantic_search.py.
+
+    **Screenshots**
+
+    ![Eg. A GUI change](/screenshot.png)
+
+    **Additional Notes**
+
+        - Crawling/Scraping/Indexing of fedlex.ch, ahv-iv.ch, zas.admin.ch and bsv.admin.ch will be implemented in a future sprint. For the moment only dummy data is indexed.
+        - Auto data crawling/scraping/indexing will be configured from the main config.yaml file in the future (for the moment this process is manual).
+
+    **Requested Reviewers**
+
+    @tabee
