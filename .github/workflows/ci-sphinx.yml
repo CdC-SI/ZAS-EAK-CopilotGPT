@@ -2,7 +2,7 @@ name: sphinx
 on:
   push:
     branches:
-      - feature/161-investigating-sphinx
+      - main
 permissions:
   contents: write
 jobs:
