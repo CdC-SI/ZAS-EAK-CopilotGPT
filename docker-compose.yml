@@ -81,7 +81,7 @@ services:
   # frontend
   chatgpt-minimal:
     build:
-      context: https://github.com/CdC-SI/chatgpt-minimal.git#feature/setup-baseline-rag
+      context: ../chatgpt-minimal
     image: chatgpt-minimal
     ports:
       - "3000:3000"
@@ -93,7 +93,7 @@ services:
     networks:
       - copilot-network
     depends_on:
-      - fastapi
+      - autocomplete
 
   # RAG
   rag:
@@ -117,19 +117,6 @@ services:
       - copilot-network
     depends_on:
       - db
-
-  # LLM stuff
-  chatbot:
-    build:
-      context: ./chatbot
-      dockerfile: Dockerfile
-    image: copilot-chatbot
-    ports:
-      - "8009:8009"
-    volumes:
-      - ./chatbot/app:/app
-    networks:
-      - copilot-network
 
 networks:
   copilot-network:
