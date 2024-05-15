@@ -6,6 +6,7 @@ import logging
 from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
+import httpx
 
 from pyxdameraulevenshtein import damerau_levenshtein_distance
 
@@ -109,6 +110,25 @@ async def get_fuzzy_match(question: str):
         print(f"Error in get_exact_match: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+async def get_semantic_similarity_match(question: str):
+    """
+    Search for questions with cosine (semantic) similarity using an embedding model, case-insensitive. If combined results of get_exact_match() and get_fuzzy_match() return less than 1 result, this method is called after every new "space" character in the question (user query) is added as well as when a "?" character is added at the end of the question.
+
+    - **question**: string to be searched within the questions.
+
+    Returns a top_k list of questions that match the search criteria based on cosine similarity.
+    """
+    async with httpx.AsyncClient() as client:
+        response = await client.get("http://rag:8010/embed", params={"question": question})
+
+    # Ensure the request was successful
+    response.raise_for_status()
+
+    # Get the resulting vector from the response
+    vector = response.json()
+
+    return None
+
 @app.get("/autocomplete/", summary="Facade for autocomplete", response_description="List of matching questions")
 async def autocomplete(question: str):
     exact_match_results, fuzzy_match_results = await asyncio.gather(
@@ -134,11 +154,8 @@ async def fuzzy_match(question: str):
     return await get_fuzzy_match(question)
 
 @app.get("/autocomplete/semantic_similarity_match/", summary="Search Questions with semantic similarity match", response_description="List of matching questions")
-async def semantic_similarity_match():
-    """
-    Dummy endpoint for semantic_similarity match.
-    """
-    return {"message": "Semantic similarity match test!"}
+async def semantic_similarity_match(question: str):
+    return await get_semantic_similarity_match(question)
 
 @app.put("/autocomplete/data/", summary="Update or Insert Data", response_description="Updated or Inserted Data")
 async def update_or_insert_data(
