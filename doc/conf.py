@@ -34,6 +34,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.todo',
+    "sphinx_copybutton",
 ]
 autodoc_mock_imports = ["fastapi"]
 todo_include_todos = True
