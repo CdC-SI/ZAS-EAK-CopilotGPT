@@ -27,17 +27,17 @@ release = '0.1.0'
 
 # -- General configuration ---------------------------------------------------
 
-# Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
-# ones.
+# Add any Sphinx extension module
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.todo',
     "sphinx_copybutton",
+    "myst_parser",
 ]
 autodoc_mock_imports = ["fastapi"]
 todo_include_todos = True
+myst_enable_extensions = ["deflist"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

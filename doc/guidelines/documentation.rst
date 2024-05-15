@@ -199,12 +199,13 @@ It displays a typical class documentation. The docstrings are written for a ``Si
                 print("  %s = %s" % (desc, value))
 
 
-main.py specification
+Scripts documentation
 =====================
 
-To allow Sphinx to automatically document main.py files, those files should be prevented from running when building the documentation.
-Thus, runnable commands should be written under
+.. attention::
 
-.. code-block:: python
+    If you document a script, make sure to protect their main routine with the condition
 
-    if __name__ == "__main__":
+    .. code-block:: python
+
+        if __name__ == "__main__":

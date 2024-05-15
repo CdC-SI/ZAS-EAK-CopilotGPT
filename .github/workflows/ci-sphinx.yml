@@ -20,7 +20,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install sphinx furo sphinx-copybutton
+          pip install -r doc/requirements.txt
           pip install -r api/requirements.txt
 
       - name: Build HTML
