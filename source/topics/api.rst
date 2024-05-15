@@ -1,5 +1,2 @@
 API
 ###
-
-.. automodule:: main
-   :members:

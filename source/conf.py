@@ -13,6 +13,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../api/app'))
+# sys.path.insert(0, os.path.abspath('../other/app/path'))
 
 # -- Project information -----------------------------------------------------
 

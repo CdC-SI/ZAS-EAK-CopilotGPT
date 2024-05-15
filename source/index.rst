@@ -22,18 +22,29 @@ The current project serves as a proof of concept (PoC), which is slated to concl
 
    intro/intro
    intro/start
-   intro/guidelines
    intro/updates
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents
+   :caption: Guidelines
+   :hidden:
+
+   guidelines/opensource
+   guidelines/documentation
+   guidelines/sphinx
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Documentation
    :hidden:
 
    topics/api
-   topics/webscraper
-   topics/autocomplete
-   topics/surveypipeline
+   topics/indexing/index
+   topics/survey/index
+   topics/rag/index
+   topics/chatbot/index
+   topics/autocomplete/index
+   topics/gui/index
 
 .. toctree::
    :maxdepth: 2
