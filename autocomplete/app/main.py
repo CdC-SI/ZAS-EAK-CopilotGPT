@@ -5,6 +5,7 @@ import asyncpg
 import logging
 from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
+import asyncio
 
 from pyxdameraulevenshtein import damerau_levenshtein_distance
 
@@ -47,25 +48,13 @@ async def get_db_connection():
     conn = await asyncpg.connect(**DB_PARAMS)
     return conn
 
-
-@app.get("/autocomplete/", summary="Root Endpoint", response_description="Welcome Message")
-async def read_root():
-    """
-    Root endpoint.
-
-    Returns a welcome message indicating that FastAPI is running.
-    """
-    return {"message": "Hello, FastAPI!"}
-
-
-@app.get("/autocomplete/exact_match/", summary="Search Questions with exact match", response_description="List of matching questions")
-async def exact_match(question: str):
+async def get_exact_match(question: str):
     """
     Search for questions that contain the exact specified string, case-insensitive.
 
     - **question**: string to be searched within the questions.
 
-    Returns a list of questions that exactly match the search criteria. If no matches are found, returns a 404 error.
+    Returns a list of questions that exactly match the search criteria.
     """
     conn = await get_db_connection()
     try:
@@ -74,24 +63,20 @@ async def exact_match(question: str):
         rows = await conn.fetch("SELECT * FROM data WHERE LOWER(question) LIKE $1", search_query)
         await conn.close()  # Close the database connection
 
-        if not rows:
-            raise HTTPException(status_code=404, detail="Question not found")
-
         # Convert the results to a list of dictionaries
-        questions = [dict(row) for row in rows]
-        return questions
+        matches = [dict(row) for row in rows]
+        return matches
     except Exception as e:
         await conn.close()
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/autocomplete/fuzzy_match/", summary="Search Questions with fuzzy match", response_description="List of matching questions")
-async def fuzzy_match(question: str):
+async def get_fuzzy_match(question: str):
     """
     Search for questions with fuzzy match (levenstein-damerau distance) based on threshold, case-insensitive.
 
     - **question**: string to be searched within the questions.
 
-    Returns a list of questions that match the search criteria if within the specified threshold. If no matches are found, returns a 404 error.
+    Returns a list of questions that match the search criteria if within the specified threshold.
     """
     conn = await get_db_connection()
     try:
@@ -109,21 +94,11 @@ async def fuzzy_match(question: str):
             row_question = row['question'].lower()
 
             # Calculate the Levenshtein-Damerau distance
-            #distance = fuzz.ratio(question, row_question)
-            print("QUESTION: ", question)
-            print("ROW_QUESTION: ", row_question)
-
             distance = damerau_levenshtein_distance(question, row_question)
-            print("DISTANCE: ", distance)
 
             # If the distance is above a certain threshold, add the row to the matches
             if distance <= 5:
                 matches.append(row)
-
-        print("MATCHES: ", matches)
-
-        if not matches:
-            raise HTTPException(status_code=404, detail="Question not found")
 
         # Convert the results to a list of dictionaries
         matches = [dict(row) for row in matches]
@@ -131,9 +106,32 @@ async def fuzzy_match(question: str):
 
     except Exception as e:
         await conn.close()
+        print(f"Error in get_exact_match: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-    #return {"message": "Fuzzy match test!"}
+@app.get("/autocomplete/", summary="Facade for autocomplete", response_description="List of matching questions")
+async def autocomplete(question: str):
+    exact_match_results, fuzzy_match_results = await asyncio.gather(
+        get_exact_match(question),
+        get_fuzzy_match(question)
+    )
+
+    # Combine the results
+    combined_matches = exact_match_results + fuzzy_match_results
+
+    # Remove duplicates
+    unique_matches = []
+    [unique_matches.append(i) for i in combined_matches if i not in unique_matches]
+
+    return unique_matches
+
+@app.get("/autocomplete/exact_match/", summary="Search Questions with exact match", response_description="List of matching questions")
+async def exact_match(question: str):
+    return await get_exact_match(question)
+
+@app.get("/autocomplete/fuzzy_match/", summary="Search Questions with fuzzy match", response_description="List of matching questions")
+async def fuzzy_match(question: str):
+    return await get_fuzzy_match(question)
 
 @app.get("/autocomplete/semantic_similarity_match/", summary="Search Questions with semantic similarity match", response_description="List of matching questions")
 async def semantic_similarity_match():
@@ -214,8 +212,6 @@ async def init_expert():
     - Consider implementing error handling at a more granular level to retry failed insertions or updates, enhancing the robustness of the data ingestion process.
     - Explore optimization opportunities in text extraction and processing to improve efficiency and reduce runtime, especially for large sitemaps.
     """
-
-
     logging.basicConfig(level=logging.INFO)
 
     sitemap_url = 'https://faq.bsv.admin.ch/sitemap.xml'
