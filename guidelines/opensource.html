@@ -328,10 +328,12 @@
         <article role="main" id="furo-main-content">
           <section id="open-source-collaboration">
 <h1>Open-Source collaboration<a class="headerlink" href="#open-source-collaboration" title="Link to this heading">¶</a></h1>
-<ul class="simple">
-<li><p><strong>Github</strong> is a platform for version control and collaboration.</p></li>
-<li><p>An <strong>open source</strong> software has public source code that anyone can inspect, modify, and enhance.</p></li>
-</ul>
+<dl class="simple">
+<dt>What is GitHub?</dt><dd><p><strong>Github</strong> is a platform for version control and collaboration.</p>
+</dd>
+<dt>What is Open Source?</dt><dd><p>An <strong>open source</strong> software has public source code that anyone can inspect, modify, and enhance.</p>
+</dd>
+</dl>
 <section id="workflow">
 <h2>Workflow<a class="headerlink" href="#workflow" title="Link to this heading">¶</a></h2>
 <ol class="arabic simple">
@@ -369,17 +371,18 @@
 <div class="line"><br /></div>
 </div>
 </section>
-<section id="create-epics">
-<span id="id2"></span><h2>Create EPICs<a class="headerlink" href="#create-epics" title="Link to this heading">¶</a></h2>
+<section id="creating-epics-and-managing-issues">
+<span id="create-epics"></span><h2>Creating EPICs and Managing Issues<a class="headerlink" href="#creating-epics-and-managing-issues" title="Link to this heading">¶</a></h2>
 <div class="hint admonition">
 <p class="admonition-title">What is an EPIC?</p>
 <p>An EPIC is a larger body of work that can be broken down into smaller tasks (issues), typically used to group related features or improvements.</p>
 </div>
-<ol class="arabic simple">
+<dl class="simple">
+<dt>Creating an EPIC</dt><dd><ol class="arabic simple">
 <li><p>Use a GitHub issue to represent the EPIC (name it <strong>“EPIC: name_of_epic”</strong>).</p></li>
 <li><p>Provide a detailed description that outlines the objectives, potential tasks, and expected outcomes.</p></li>
 </ol>
-<dl class="simple">
+</dd>
 <dt>Incorporating issues into an EPIC</dt><dd><ol class="arabic simple">
 <li><p>Create individual issues for tasks that fall under the EPIC’s scope.</p></li>
 <li><p>Link issues to the EPIC by mentioning the task’s issue number (eg. #123) in each EPIC description.</p></li>
@@ -438,21 +441,22 @@
 <div class="line"><br /></div>
 </div>
 </section>
-<section id="commit">
-<span id="id3"></span><h2>Commit<a class="headerlink" href="#commit" title="Link to this heading">¶</a></h2>
-<p>And link it to issues.</p>
+<section id="commit-and-link-to-issues">
+<span id="commit"></span><h2>Commit (and link to issues)<a class="headerlink" href="#commit-and-link-to-issues" title="Link to this heading">¶</a></h2>
 <div class="hint admonition">
 <p class="admonition-title">What is a commit?</p>
 <p>A commit records changes to one or more files in your branch.</p>
 </div>
-<ol class="arabic">
-<li><p>Make changes in your branch, then run <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">add</span></code> and <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">–m</span> <span class="pre">&quot;your_commit_</span> <span class="pre">message&quot;</span></code> with a descriptive message.</p></li>
-<li><p>Use keywords in your commit message to link the commit to an issue (e.g., “fixes #123”, “closes #124”).</p>
-<blockquote>
-<div><p>This automatically closes the issue when the commit is merged into the default branch (after review).</p>
-</div></blockquote>
-</li>
+<ol class="arabic simple">
+<li><p>Make changes in your branch</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">add</span></code></p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">–m</span> <span class="pre">&quot;your_commit_</span> <span class="pre">message&quot;</span></code> with a descriptive message.</p></li>
 </ol>
+<dl>
+<dt>Linking Commits to Issues</dt><dd><p>Use keywords in your commit message to link the commit to an issue (e.g., “fixes #123”, “closes #124”).</p>
+<p>This automatically closes the issue when the commit is merged into the default branch (after review).</p>
+</dd>
+</dl>
 <div class="important admonition">
 <p class="admonition-title">Best practices</p>
 <ul class="simple">
@@ -469,7 +473,7 @@
 </div>
 </section>
 <section id="pull-request">
-<span id="id4"></span><h2>Pull Request<a class="headerlink" href="#pull-request" title="Link to this heading">¶</a></h2>
+<span id="id2"></span><h2>Pull Request<a class="headerlink" href="#pull-request" title="Link to this heading">¶</a></h2>
 <div class="hint admonition">
 <p class="admonition-title">What is a Pull Request (PR)?</p>
 <p>A way to propose changes from your branch to the main project.</p>
@@ -484,8 +488,7 @@
 <ul class="simple">
 <li><p>Review your changes before submitting a PR.</p></li>
 <li><p>Request review from maintainers or other contributors.</p></li>
-<li><p>Configure at least one acceptation of review before merge and close issue.</p></li>
-<li><p>Anyone can review code if he/she feels comfortable with it.</p></li>
+<li><p>Ensure at least one acceptance of review before merge and close issue.</p></li>
 <li><p>Use <code class="docutils literal notranslate"><span class="pre">fixes</span></code> for bugfix, <code class="docutils literal notranslate"><span class="pre">closes</span></code> for feature.</p></li>
 </ul>
 </div>
@@ -506,6 +509,7 @@
 <ul class="simple">
 <li><p>Be open to feedback and ready to make further changes.</p></li>
 <li><p>Respond to comments to explain decisions if necessary.</p></li>
+<li><p>Anyone can review code if they feel comfortable with it.</p></li>
 </ul>
 <div class="important admonition">
 <p class="admonition-title">Best practices</p>
@@ -519,7 +523,7 @@
 </div>
 </section>
 <section id="merge-branch">
-<span id="id5"></span><h2>Merge branch<a class="headerlink" href="#merge-branch" title="Link to this heading">¶</a></h2>
+<span id="id3"></span><h2>Merge branch<a class="headerlink" href="#merge-branch" title="Link to this heading">¶</a></h2>
 <div class="hint admonition">
 <p class="admonition-title">What is merging?</p>
 <blockquote>
@@ -541,8 +545,8 @@
 </div>
 </section>
 <section id="close-issues">
-<span id="id6"></span><h2>Close issues<a class="headerlink" href="#close-issues" title="Link to this heading">¶</a></h2>
-<p>An issue is closed after the related changes are merged and the problem has been solved.</p>
+<span id="id4"></span><h2>Close issues<a class="headerlink" href="#close-issues" title="Link to this heading">¶</a></h2>
+<p>Issues should be closed after the related changes are merged and the problem has been solved.</p>
 <ul class="simple">
 <li><p>Use the GitHub interface to close the issue, often automatically linked by mentioning in the PR (e.g., “fixes #123”).</p></li>
 </ul>
@@ -614,10 +618,10 @@
 <li><a class="reference internal" href="#">Open-Source collaboration</a><ul>
 <li><a class="reference internal" href="#workflow">Workflow</a></li>
 <li><a class="reference internal" href="#create-issues">Create issues</a></li>
-<li><a class="reference internal" href="#create-epics">Create EPICs</a></li>
+<li><a class="reference internal" href="#creating-epics-and-managing-issues">Creating EPICs and Managing Issues</a></li>
 <li><a class="reference internal" href="#pick-up-an-issue">Pick up an issue</a></li>
 <li><a class="reference internal" href="#create-a-branch">Create a branch</a></li>
-<li><a class="reference internal" href="#commit">Commit</a></li>
+<li><a class="reference internal" href="#commit-and-link-to-issues">Commit (and link to issues)</a></li>
 <li><a class="reference internal" href="#pull-request">Pull Request</a></li>
 <li><a class="reference internal" href="#code-review-and-feedback">Code review and feedback</a></li>
 <li><a class="reference internal" href="#merge-branch">Merge branch</a></li>
