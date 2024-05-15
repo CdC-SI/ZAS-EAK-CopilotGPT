@@ -45,7 +45,7 @@ Create issues
 
 .. _create-epics:
 
-Creating EPICs and managing issues
+Create EPICs and manage issues
 ==================================
 
 .. admonition:: What is an EPIC?
