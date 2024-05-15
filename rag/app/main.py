@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from typing import List, Union
 
 import psycopg2
 import openai
@@ -46,12 +47,11 @@ def create_db_connection():
         raise HTTPException(status_code=500, detail="Database connection failed") from e
 
 # Function to get embeddings for a text
-def get_embedding(text):
+def get_embedding(text: Union[List[str], str]):
     response = openai.Embedding.create(
         input=text,
         engine="text-embedding-ada-002",
     )
-
     return response['data']
 
 @app.post("/init_vectordb/", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
@@ -117,12 +117,20 @@ async def get_docs(request: RAGRequest):
 
     return {"contextDocs": res[0], "sourceUrl": res[1], "cosineSimilarity": res[2]}
 
-@app.get("/embed", summary="Embedding endpoint", response_description="Welcome Message")
-async def embed():
+@app.get("/embed", summary="Embedding endpoint", response_description="A dictionary with embeddings for the input text")
+async def embed(text: str):
     """
-    Dummy endpoint for text embedding.
+    This endpoint takes a string or list of strings, computes their embeddings using the `get_embedding` function,
+    and returns the embeddings in a dictionary.
+
+    Args:
+        text (str): The text for which to compute the embeddings.
+
+    Returns:
+        dict: A dictionary with a single key 'data', and the computed OpenAI embeddings object as the value.
     """
-    return {"message": "Embed data test!"}
+    embeddings = get_embedding(text)
+    return {"data": embeddings}
 
 @app.get("/rerank", summary="Reranking endpoint", response_description="Welcome Message")
 async def rerank():
