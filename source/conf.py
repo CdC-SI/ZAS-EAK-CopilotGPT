@@ -13,6 +13,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../api/app'))
+# sys.path.insert(0, os.path.abspath('../other/app/path'))
 
 # -- Project information -----------------------------------------------------
 
@@ -32,8 +33,10 @@ release = '0.1.0'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
+    'sphinx.ext.todo',
 ]
 autodoc_mock_imports = ["fastapi"]
+todo_include_todos = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -52,7 +55,7 @@ exclude_patterns = []
 html_theme = 'furo'
 html_theme_options = {
     "source_repository": "https://github.com/CdC-SI/eak-copilot",
-    "source_branch": "feature/161-investigating-sphinx/",
+    "source_branch": "main/",
     "source_directory": "source/",
     "light_css_variables": {
         "color-brand-primary": "rgb(31, 41, 55)",
