@@ -186,6 +186,7 @@ Other contributors review your changes, suggest improvements, or approve the cha
 |
 
 .. _merge-branch:
+
 Merge branch
 ============
 
