@@ -35,8 +35,8 @@ A typical Sphinx docstring is structured as following.
 * The pair ``:return:`` and ``:rtype:`` options are used to describe any **values returned** by our code.
 
 
-An example class with docstrings
---------------------------------
+Example
+-------
 
 The following example is taken from `Sphinx-RTD-Tutorial <https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html>`_ documentation.
 It displays a typical class documentation. The docstrings are written for a ``SimpleBleDevice`` defined within a ``simpleble`` module.
