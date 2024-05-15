@@ -3,10 +3,10 @@ Open-Source collaboration
 #########################
 
 What is GitHub?
-    **Github** is a platform for version control and collaboration.
+    Github is a platform for version control and collaboration.
 
 What is Open Source?
-    An **open source** software has public source code that anyone can inspect, modify, and enhance.
+    An open source software has public source code that anyone can inspect, modify, and enhance.
 
 Workflow
 ========
@@ -45,7 +45,7 @@ Create issues
 
 .. _create-epics:
 
-Creating EPICs and Managing Issues
+Creating EPICs and managing issues
 ==================================
 
 .. admonition:: What is an EPIC?
