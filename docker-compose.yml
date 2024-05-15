@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-
   # db service
   db:
     build:
@@ -82,7 +81,7 @@ services:
   # frontend
   chatgpt-minimal:
     build:
-      context: ../chatgpt-minimal
+      context: https://github.com/CdC-SI/chatgpt-minimal.git#feature/setup-baseline-rag
     image: chatgpt-minimal
     ports:
       - "3000:3000"
@@ -94,7 +93,43 @@ services:
     networks:
       - copilot-network
     depends_on:
-      - autocomplete
+      - fastapi
+
+  # RAG
+  rag:
+    build:
+      context: ./rag
+      dockerfile: Dockerfile
+    image: copilot-rag
+    ports:
+      - "8010:8010"
+    env_file:
+      - .env
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=db
+    volumes:
+      - ./rag/app:/app
+    networks:
+      - copilot-network
+    depends_on:
+      - db
+
+  # LLM stuff
+  chatbot:
+    build:
+      context: ./chatbot
+      dockerfile: Dockerfile
+    image: copilot-chatbot
+    ports:
+      - "8009:8009"
+    volumes:
+      - ./chatbot/app:/app
+    networks:
+      - copilot-network
 
 networks:
   copilot-network:
