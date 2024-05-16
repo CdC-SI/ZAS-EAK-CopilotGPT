@@ -70,7 +70,7 @@ async def init_rag_vectordb():
 
             # Make POST request to the RAG service to get the question embedding
             async with httpx.AsyncClient() as client:
-                response = await client.post("http://rag:8010/embed", json={"text": text[0]})
+                response = await client.post("http://rag:8010/rag/embed", json={"text": text[0]})
 
             # Ensure the request was successful
             response.raise_for_status()
@@ -118,7 +118,7 @@ async def init_faq_vectordb():
 
             # Make POST request to the RAG service to get the question embedding
             async with httpx.AsyncClient() as client:
-                response = await client.post("http://rag:8010/embed", json={"text": text[1]})
+                response = await client.post("http://rag:8010/rag/embed", json={"text": text[1]})
 
             # Ensure the request was successful
             response.raise_for_status()
@@ -142,21 +142,22 @@ async def init_faq_vectordb():
 
     return {"content": "FAQ data indexed successfully"}
 
-@app.post("/rag/get_docs", summary="Retrieve context docs endpoint", response_description="Return context docs from semantic search", status_code=200)
-async def get_docs(request: RAGRequest):
+@app.post("/rag/docs", summary="Retrieve context docs endpoint", response_description="Return context docs from semantic search", status_code=200)
+async def docs(request: RAGRequest):
+
+    conn = await get_db_connection()
+
     try:
 
         # Make POST request to the RAG service to get the question embedding
         async with httpx.AsyncClient() as client:
-            response = await client.post("http://rag:8010/embed", json={"text": request.query})
+            response = await client.post("http://rag:8010/rag/embed", json={"text": request.query})
 
         # Ensure the request was successful
         response.raise_for_status()
 
         # Get the resulting embedding vector from the response
         query_embedding = response.json()["data"][0]["embedding"]
-
-        conn = await get_db_connection()
 
         # Only retrieve 1 document at the moment. Will implement multi-doc retrieval later
         docs = await conn.fetch(f"""
