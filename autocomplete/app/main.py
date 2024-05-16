@@ -69,7 +69,7 @@ async def get_exact_match(question: str):
         return matches
     except Exception as e:
         await conn.close()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 async def get_fuzzy_match(question: str):
     """
@@ -107,7 +107,7 @@ async def get_fuzzy_match(question: str):
 
     except Exception as e:
         await conn.close()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 async def get_semantic_similarity_match(question: str):
     """
@@ -149,7 +149,7 @@ async def get_semantic_similarity_match(question: str):
 
     except Exception as e:
         await conn.close()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 @app.get("/autocomplete/", summary="Facade for autocomplete", response_description="List of matching questions")
 async def autocomplete(question: str):
@@ -217,7 +217,7 @@ async def update_or_insert_data(
                 logger.info(f"Update: {url}")
                 return {"id": existing_row['id'], "url": url, "question": question, "answer": answer, "language": language}
             except Exception as e:
-                raise HTTPException(status_code=500, detail=f"Update exception: {str(e)}")
+                raise HTTPException(status_code=500, detail=f"Update exception: {str(e)}") from e
         else:
             # Insert a new record
             try:
@@ -228,9 +228,9 @@ async def update_or_insert_data(
                 logger.info(f"Insert: {url}")
                 return {"id": row['id'], "url": url, "question": question, "answer": answer, "language": language}
             except Exception as e:
-                raise HTTPException(status_code=500, detail=f"Insert exception: {str(e)}")
+                raise HTTPException(status_code=500, detail=f"Insert exception: {str(e)}") from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         await conn.close()
 
