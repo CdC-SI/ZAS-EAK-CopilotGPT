@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS vector;
 
--- Create a new table with additional metadata fields
+-- Create a table 'embeddings' for storing embeddings and associated text for RAG
 CREATE TABLE embeddings (
   id SERIAL PRIMARY KEY,
   embedding vector(1536),   -- A vector of dimension 1536
@@ -8,6 +8,18 @@ CREATE TABLE embeddings (
   url text,                 -- URL associated with the vector
   created_at timestamptz DEFAULT now(),  -- Timestamp when the record was created
   modified_at timestamptz DEFAULT now()  -- Timestamp when the record was last modified
+);
+
+-- Create a table 'faq_embeddings' for storing FAQ question embeddings
+CREATE TABLE faq_embeddings (
+    id SERIAL PRIMARY KEY,
+    url VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    question TEXT NOT NULL,
+    answer TEXT NOT NULL,
+    language VARCHAR(2) DEFAULT 'de',
+    embedding vector(1536)
 );
 
 -- Erstelle eine Tabelle namens 'data' für die Verwaltung der Informationen
