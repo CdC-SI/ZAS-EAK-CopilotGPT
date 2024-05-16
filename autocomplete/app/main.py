@@ -111,11 +111,12 @@ async def get_fuzzy_match(question: str):
 
 async def get_semantic_similarity_match(question: str):
     """
-    Search for questions with cosine (semantic) similarity using an embedding model, case-insensitive. If combined results of get_exact_match() and get_fuzzy_match() return less than 1 result, this method is called after every new "space" character in the question (user query) is added as well as when a "?" character is added at the end of the question.
+    Search for questions with cosine (semantic) similarity using an embedding model, case-insensitive.
 
     - **question**: string to be searched within the questions.
 
-    Returns a top_k list of questions that match the search criteria based on cosine similarity.
+    Returns a list of 5 most similar questions based on cosine similarity.
+    TO BE IMPLEMENTED: Returns a top_k list of questions that match the search criteria based on cosine similarity.
     """
     conn = await get_db_connection()
 
@@ -152,14 +153,24 @@ async def get_semantic_similarity_match(question: str):
 
 @app.get("/autocomplete/", summary="Facade for autocomplete", response_description="List of matching questions")
 async def autocomplete(question: str):
-    exact_match_results, fuzzy_match_results, semantic_similarity_match_results = await asyncio.gather(
+    """
+     If combined results of get_exact_match() and get_fuzzy_match() return less than 5 results, this method is called after every new "space" character in the question (user query) is added as well as when a "?" character is added at the end of the question.
+    """
+    exact_match_results, fuzzy_match_results = await asyncio.gather(
         get_exact_match(question),
         get_fuzzy_match(question),
-        get_semantic_similarity_match(question)
     )
 
     # Combine the results
-    combined_matches = exact_match_results + fuzzy_match_results + semantic_similarity_match_results
+    combined_matches = exact_match_results + fuzzy_match_results
+
+    # If the combined results from exact match and fuzzy match are less than 5, get semantic similarity matches
+    if len(combined_matches) < 5 and (question[-1] == " " or question[-1] == "?"):
+
+        semantic_similarity_match_results = await get_semantic_similarity_match(question)
+
+        # Combine the results
+        combined_matches += semantic_similarity_match_results
 
     # Remove duplicates
     unique_matches = []
