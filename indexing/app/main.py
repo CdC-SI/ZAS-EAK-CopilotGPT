@@ -1,5 +1,6 @@
 import logging
-from fastapi import FastAPI
+from fastapi import FastAPI, status
+from fastapi.responses import Response
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -13,39 +14,39 @@ async def crawl_data():
     """
     Dummy endpoint for data crawling.
     """
-    return {"message": "Crawl data test!"}
+    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 @app.get("/scrap_data", summary="Scraping Endpoint", response_description="Welcome Message")
 async def scrap_data():
     """
     Dummy endpoint for data scraping.
     """
-    return {"message": "Scrap data test!"}
+    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 @app.get("/index_data", summary="Indexing Endpoint", response_description="Welcome Message")
 async def index_data():
     """
     Dummy endpoint for data indexing.
     """
-    return {"message": "Index data test!"}
+    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 @app.get("/parse_faq_data", summary="FAQ Parsing Endpoint", response_description="Welcome Message")
 async def parse_faq_data():
     """
     Dummy endpoint for FAQ data parsing.
     """
-    return {"message": "Parsing FAQ data test!"}
+    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 @app.get("/parse_rag_data", summary="Parsing Endpoint", response_description="Welcome Message")
 async def parse_rag_data():
     """
     Dummy endpoint for data parsing (RAG).
     """
-    return {"message": "Parsing RAG data test!"}
+    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 @app.get("/chunk_rag_data", summary="Chunking Endpoint", response_description="Welcome Message")
 async def chunk_rag_data():
     """
     Dummy endpoint for data chunking (RAG).
     """
-    return {"message": "Chunking data test!"}
+    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)

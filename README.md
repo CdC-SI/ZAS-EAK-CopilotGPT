@@ -44,8 +44,8 @@ COMING SOON: a detailed overview of our project's vision and strategic alignment
 ## How it works
 
 The EAK-Copilot currently features:
-- **Question autosuggest**: High quality curated questions (from FAQ) are suggested in the chatbar based on the user input. Validated answers are then returned in the chat with the answer source.
-- **RAG**: When no known questions are found through autosuggest, RAG is initiated. A semantic similarity search will match the most relevant indexed documents in a vector database and an LLM will generate an answer based on these documents.
+- **Question autosuggest**: High quality curated questions (from FAQ) are suggested in the chatbar based on the user input. Validated answers with sources are then returned in the chat. Autocomplete currently supports exact match, fuzzy match and semantic similarity match.
+- **RAG**: When no known question/answer pairs are found through autosuggest, RAG is initiated. A semantic similarity search will match the most relevant indexed documents in a vector database and an LLM will generate an answer based on these documents, providing the source of the answer.
 
 ## Getting Started
 
@@ -97,15 +97,12 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
     ```
     After the containers are successfully started, verify that the application is running correctly by accessing it through your web browser.
 
-5. **Index vectorDB data**
+5. **Index sample vectorDB data**
 
-Create a virtualenv and run the following script to index some test data into the vectorDB.
+    To index some sample data into the vectorDB, navigate to ```localhost:8010/docs``` and make a request to the ```/rag/init_rag_vectordb/``` and ```/rag/init_faq_vectordb/``` endpoints. This will enable autocomplete with semantic similarity search and RAG to run on this test data.
 
-    ```bash
-        python3.11 -m venv venv_copilot
-        source venv_copilot/bin/activate
-        pip install -r db/requirements.txt
-        python3 db/app/test_insert_data.py
-    ```
+    To index more extensive FAQ data from https://faq.bsv.admin.ch, navigate to ```localhost:8000/docs``` and make a request to the ```/autocomplete/init_expert/``` endpoint.
 
-Navigate to http://localhost:3000 to access the EAK-Copilot.
+    NOTE: Future updates to the config.yaml file will enable automatic data indexing, eliminating the need for manual intervention.
+
+    Navigate to http://localhost:3000 to access the EAK-Copilot.
