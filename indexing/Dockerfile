@@ -12,4 +12,4 @@ RUN pip install -r requirements.txt
 COPY . .
 
 # Standardbefehl, der ausgeführt wird, wenn der Container gestartet wird
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8010"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8011"]

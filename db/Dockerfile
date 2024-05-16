@@ -1,4 +1,4 @@
-FROM postgres:latest
+FROM ankane/pgvector
 
 # Fügen von benutzerdefinierten Konfigurationsdateien hinzu, falls erforderlich
 COPY ./custom_postgres.conf /etc/postgresql/postgresql.conf

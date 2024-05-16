@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-
   # db service
   db:
     build:
@@ -36,12 +35,11 @@ services:
     networks:
       - copilot-network
 
-  # fassade
-  fastapi:
+  autocomplete:
     build:
-      context: ./api
-      dockerfile: Dockerfile
-    image: copilot-api
+      context: .
+      dockerfile: ./autocomplete/Dockerfile
+    image: copilot-autocomplete
     ports:
       - "8000:8000"
     env_file:
@@ -53,7 +51,28 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_HOST=db
     volumes:
-      - ./api/app:/app
+      - .:/app
+    networks:
+      - copilot-network
+    depends_on:
+      - db
+
+  indexing:
+    build:
+      context: ./indexing
+      dockerfile: Dockerfile
+    image: copilot-indexing
+    ports:
+      - "8011:8011"
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=db
+    volumes:
+      - ./indexing/app:/app
     networks:
       - copilot-network
     depends_on:
@@ -62,7 +81,7 @@ services:
   # frontend
   chatgpt-minimal:
     build:
-      context: https://github.com/CdC-SI/chatgpt-minimal.git#main
+      context: ../chatgpt-minimal
     image: chatgpt-minimal
     ports:
       - "3000:3000"
@@ -74,20 +93,30 @@ services:
     networks:
       - copilot-network
     depends_on:
-      - fastapi
+      - autocomplete
 
-  # LLM stuff
-  chatbot:
+  # RAG
+  rag:
     build:
-      context: ./chatbot
-      dockerfile: Dockerfile
-    image: copilot-chatbot
+      context: .
+      dockerfile: ./rag/Dockerfile
+    image: copilot-rag
     ports:
-      - "8009:8009"
+      - "8010:8010"
+    env_file:
+      - .env
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=db
     volumes:
-      - ./chatbot/app:/app
+      - .:/app
     networks:
       - copilot-network
+    depends_on:
+      - db
 
 networks:
   copilot-network:
