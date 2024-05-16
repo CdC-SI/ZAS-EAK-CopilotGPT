@@ -4,8 +4,8 @@ CREATE EXTENSION IF NOT EXISTS vector;
 CREATE TABLE embeddings (
   id SERIAL PRIMARY KEY,
   embedding vector(1536),   -- A vector of dimension 1536
-  text text,                 -- Text associated with the vector
-  url text,                 -- URL associated with the vector
+  text text NOT NULL,                 -- Text associated with the vector
+  url text NOT NULL,                 -- URL associated with the vector
   created_at timestamptz DEFAULT now(),  -- Timestamp when the record was created
   modified_at timestamptz DEFAULT now()  -- Timestamp when the record was last modified
 );
@@ -13,7 +13,7 @@ CREATE TABLE embeddings (
 -- Create a table 'faq_embeddings' for storing FAQ question embeddings
 CREATE TABLE faq_embeddings (
     id SERIAL PRIMARY KEY,
-    url VARCHAR(255) NOT NULL,
+    url text NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     question TEXT NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE faq_embeddings (
 -- Erstelle eine Tabelle namens 'data' für die Verwaltung der Informationen
 CREATE TABLE data (
     id SERIAL PRIMARY KEY,
-    url VARCHAR(255) NOT NULL,
+    url text NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     question TEXT NOT NULL,
