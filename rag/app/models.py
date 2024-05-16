@@ -5,3 +5,6 @@ class ResponseBody(BaseModel):
 
 class RAGRequest(BaseModel):
     query: str
+
+class EmbeddingRequest):
+    text: str
