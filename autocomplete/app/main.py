@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 
 import asyncpg
+import psycopg2
 import logging
 from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
@@ -48,6 +49,14 @@ async def get_db_connection():
     """Establish a database connection."""
     conn = await asyncpg.connect(**DB_PARAMS)
     return conn
+
+def create_db_connection():
+    """Establish a database connection."""
+    try:
+        conn = psycopg2.connect(**DB_PARAMS)
+        return conn
+    except psycopg2.Error as e:
+        raise HTTPException(status_code=500, detail="Database connection failed") from e
 
 async def get_exact_match(question: str):
     """
@@ -107,7 +116,6 @@ async def get_fuzzy_match(question: str):
 
     except Exception as e:
         await conn.close()
-        print(f"Error in get_exact_match: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 async def get_semantic_similarity_match(question: str):
@@ -118,26 +126,58 @@ async def get_semantic_similarity_match(question: str):
 
     Returns a top_k list of questions that match the search criteria based on cosine similarity.
     """
-    async with httpx.AsyncClient() as client:
-        response = await client.get("http://rag:8010/embed", params={"question": question})
+    conn = create_db_connection()
 
-    # Ensure the request was successful
-    response.raise_for_status()
+    cursor = conn.cursor()
 
-    # Get the resulting vector from the response
-    vector = response.json()
+    try:
+        # Make GET request to the RAG service to get the embedding
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f"http://rag:8010/embed?text={question}")
 
-    return None
+        # Ensure the request was successful
+        response.raise_for_status()
+
+        # Get the resulting embedding vector from the response
+        question_embedding = response.json()["data"][0]["embedding"]
+
+        cursor.execute(f"""
+            SELECT question, answer, url,  1 - (embedding <=> '{question_embedding}') AS cosine_similarity
+            FROM faq_embeddings
+            ORDER BY cosine_similarity desc
+            LIMIT 5
+        """)
+
+        matches = cursor.fetchall()
+
+        #psycopg2.Record()
+
+        # Convert the results to a list of dictionaries
+        matches = [{"question": row[0],
+                    "answer": row[1],
+                    "url": row[2]} for row in matches]
+
+        return matches
+
+    except (Exception, psycopg2.Error) as error:
+        conn.close()
+        raise HTTPException(status_code=500, detail="Error while performing semantic search") from error
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 @app.get("/autocomplete/", summary="Facade for autocomplete", response_description="List of matching questions")
 async def autocomplete(question: str):
-    exact_match_results, fuzzy_match_results = await asyncio.gather(
+    exact_match_results, fuzzy_match_results, semantic_similarity_match_results = await asyncio.gather(
         get_exact_match(question),
-        get_fuzzy_match(question)
+        get_fuzzy_match(question),
+        get_semantic_similarity_match(question)
     )
 
     # Combine the results
-    combined_matches = exact_match_results + fuzzy_match_results
+    combined_matches = exact_match_results + fuzzy_match_results + semantic_similarity_match_results
 
     # Remove duplicates
     unique_matches = []
