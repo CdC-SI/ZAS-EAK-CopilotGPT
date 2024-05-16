@@ -1,9 +1,8 @@
 Indexing Pipeline
 #################
 
-.. todo::
-
-    ``indexingPipeline``
+.. automodule:: indexing.app.main
+   :members:
 
 .. toctree::
    :hidden:
