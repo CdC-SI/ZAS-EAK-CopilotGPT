@@ -99,10 +99,10 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
 
 5. **Index sample vectorDB data**
 
-To index some sample data into the vectorDB, navigate to ```localhost:8010/docs``` and make a request to the ```/rag/init_rag_vectordb/``` and ```/rag/init_faq_vectordb/``` endpoints. This will enable autocomplete with semantic similarity search and RAG to run on this test data.
+    To index some sample data into the vectorDB, navigate to ```localhost:8010/docs``` and make a request to the ```/rag/init_rag_vectordb/``` and ```/rag/init_faq_vectordb/``` endpoints. This will enable autocomplete with semantic similarity search and RAG to run on this test data.
 
-To index more extensive FAQ data from https://faq.bsv.admin.ch, navigate to ```localhost:8000/docs``` and make a request to the ```/autocomplete/init_expert/``` endpoint.
+    To index more extensive FAQ data from https://faq.bsv.admin.ch, navigate to ```localhost:8000/docs``` and make a request to the ```/autocomplete/init_expert/``` endpoint.
 
-NOTE: Future updates to the config.yaml file will enable automatic data indexing, eliminating the need for manual intervention.
+    NOTE: Future updates to the config.yaml file will enable automatic data indexing, eliminating the need for manual intervention.
 
-Navigate to http://localhost:3000 to access the EAK-Copilot.
+    Navigate to http://localhost:3000 to access the EAK-Copilot.
