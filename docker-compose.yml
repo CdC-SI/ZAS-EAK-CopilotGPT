@@ -37,8 +37,8 @@ services:
 
   autocomplete:
     build:
-      context: ./autocomplete
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./autocomplete/Dockerfile
     image: copilot-autocomplete
     ports:
       - "8000:8000"
@@ -51,7 +51,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_HOST=db
     volumes:
-      - ./autocomplete/app:/app
+      - .:/app
     networks:
       - copilot-network
     depends_on:
@@ -98,8 +98,8 @@ services:
   # RAG
   rag:
     build:
-      context: ./rag
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./rag/Dockerfile
     image: copilot-rag
     ports:
       - "8010:8010"
@@ -112,7 +112,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_HOST=db
     volumes:
-      - ./rag/app:/app
+      - .:/app
     networks:
       - copilot-network
     depends_on:

@@ -1,6 +1,3 @@
-import os
-from dotenv import load_dotenv
-
 import asyncpg
 import logging
 from fastapi import FastAPI, HTTPException, Body
@@ -10,7 +7,7 @@ import httpx
 
 from pyxdameraulevenshtein import damerau_levenshtein_distance
 
-from web_scraper import WebScraper
+from autocomplete.app.web_scraper import WebScraper
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -19,13 +16,8 @@ logger = logging.getLogger(__name__)
 # Create an instance of FastAPI
 app = FastAPI()
 
-# Load environment variables
-load_dotenv()
-CORS_ALLOWED_ORIGINS = os.environ["CORS_ALLOWED_ORIGINS"]
-POSTGRES_USER = os.environ["POSTGRES_USER"]
-POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
-POSTGRES_DB = os.environ["POSTGRES_DB"]
-POSTGRES_HOST = "db"
+# Load env variables
+from config import DB_PARAMS, CORS_ALLOWED_ORIGINS
 
 # Setup CORS
 app.add_middleware(
@@ -35,14 +27,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Database connection parameters
-DB_PARAMS = {
-    "user": POSTGRES_USER,
-    "password": POSTGRES_PASSWORD,
-    "database": POSTGRES_DB,
-    "host": POSTGRES_HOST,
-}
 
 async def get_db_connection():
     """Establish a database connection."""

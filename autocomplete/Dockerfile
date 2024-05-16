@@ -12,11 +12,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Kopiere die Anforderungen in den Container und installiere sie
-COPY requirements.txt requirements.txt
+COPY autocomplete/requirements.txt .
 RUN pip install -r requirements.txt
 
 # Kopiere den Rest des Codes in den Container
 COPY . .
 
+# Set pythonpath
+ENV PYTHONPATH="/app"
+
 # Standardbefehl, der ausgeführt wird, wenn der Container gestartet wird
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "autocomplete.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
