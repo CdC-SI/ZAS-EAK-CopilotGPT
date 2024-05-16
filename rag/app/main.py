@@ -75,7 +75,7 @@ async def init_rag_vectordb():
 
     return {"content": "RAG data indexed successfully"}
 
-@app.post("rag/init_faq_vectordb/", summary="Insert Embedding data for FAQ autocomplete semantic similarity search", response_description="Insert Embedding data for FAQ semantic similarity search", status_code=200, response_model=ResponseBody)
+@app.post("/rag/init_faq_vectordb/", summary="Insert Embedding data for FAQ autocomplete semantic similarity search", response_description="Insert Embedding data for FAQ semantic similarity search", status_code=200, response_model=ResponseBody)
 async def init_faq_vectordb():
 
     texts = [
