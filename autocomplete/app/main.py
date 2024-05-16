@@ -120,9 +120,9 @@ async def get_semantic_similarity_match(question: str):
     conn = await get_db_connection()
 
     try:
-        # Make GET request to the RAG service to get the embedding
+        # Make POST request to the /embed API endpoint to get the embedding
         async with httpx.AsyncClient() as client:
-            response = await client.get(f"http://rag:8010/embed?text={question}")
+            response = await client.post("http://rag:8010/embed", json={"text": question})
 
         # Ensure the request was successful
         response.raise_for_status()
@@ -138,7 +138,6 @@ async def get_semantic_similarity_match(question: str):
         """)
 
         await conn.close() # Close the database connection
-
 
         # Convert the results to a list of dictionaries
         matches = [{"question": row[0],
