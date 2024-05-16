@@ -123,7 +123,7 @@ async def get_semantic_similarity_match(question: str):
     try:
         # Make POST request to the /embed API endpoint to get the embedding
         async with httpx.AsyncClient() as client:
-            response = await client.post("http://rag:8010/embed", json={"text": question})
+            response = await client.post("http://rag:8010/rag/embed", json={"text": question})
 
         # Ensure the request was successful
         response.raise_for_status()
