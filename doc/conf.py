@@ -57,7 +57,7 @@ html_theme = 'furo'
 html_theme_options = {
     "source_repository": "https://github.com/CdC-SI/eak-copilot",
     "source_branch": "main/",
-    "source_directory": "source/",
+    "source_directory": "doc/",
     "light_css_variables": {
         "color-brand-primary": "rgb(31, 41, 55)",
         "color-brand-content": "#d8232a",
