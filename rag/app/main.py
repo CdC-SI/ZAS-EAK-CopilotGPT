@@ -1,9 +1,6 @@
-import os
-from dotenv import load_dotenv
 from typing import List, Union
 
 import asyncpg
-import openai
 from datetime import datetime
 
 import logging
@@ -11,7 +8,7 @@ from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import Response
 import httpx
 
-from models import ResponseBody, RAGRequest, EmbeddingRequest
+from rag.app.models import ResponseBody, RAGRequest, EmbeddingRequest
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -21,23 +18,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 # Load env variables
-load_dotenv()
-OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
-openai.api_key = OPENAI_API_KEY
-POSTGRES_USER = os.environ["POSTGRES_USER"]
-POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
-POSTGRES_DB = os.environ["POSTGRES_DB"]
-POSTGRES_HOST = os.environ["POSTGRES_HOST"]
-POSTGRES_PORT = os.environ["POSTGRES_PORT"]
-
-# Database connection parameters
-DB_PARAMS = {
-    "user": POSTGRES_USER,
-    "password": POSTGRES_PASSWORD,
-    "database": POSTGRES_DB,
-    "host": POSTGRES_HOST,
-    "port": POSTGRES_PORT,
-}
+from config import DB_PARAMS, openai
 
 # Function to create a db connection
 async def get_db_connection():
