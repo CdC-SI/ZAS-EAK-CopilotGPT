@@ -52,7 +52,7 @@ def get_embedding(text: Union[List[str], str]):
     )
     return response['data']
 
-@app.post("/init_rag_vectordb/", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
+@app.post("/rag/init_rag_vectordb/", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
 async def init_rag_vectordb():
 
     texts = [
@@ -93,7 +93,7 @@ async def init_rag_vectordb():
 
     return {"content": "RAG data indexed successfully"}
 
-@app.post("/init_faq_vectordb/", summary="Insert Embedding data for FAQ autocomplete semantic similarity search", response_description="Insert Embedding data for FAQ semantic similarity search", status_code=200, response_model=ResponseBody)
+@app.post("rag/init_faq_vectordb/", summary="Insert Embedding data for FAQ autocomplete semantic similarity search", response_description="Insert Embedding data for FAQ semantic similarity search", status_code=200, response_model=ResponseBody)
 async def init_faq_vectordb():
 
     texts = [
@@ -142,7 +142,7 @@ async def init_faq_vectordb():
 
     return {"content": "FAQ data indexed successfully"}
 
-@app.post("/get_docs", summary="Retrieve context docs endpoint", response_description="Return context docs from semantic search", status_code=200)
+@app.post("/rag/get_docs", summary="Retrieve context docs endpoint", response_description="Return context docs from semantic search", status_code=200)
 async def get_docs(request: RAGRequest):
     try:
 
@@ -177,7 +177,7 @@ async def get_docs(request: RAGRequest):
 
     return {"contextDocs": docs["text"], "sourceUrl": docs["url"], "cosineSimilarity": docs["cosine_similarity"]}
 
-@app.post("/embed", summary="Embedding endpoint", response_description="A dictionary with embeddings for the input text")
+@app.post("/rag/embed", summary="Embedding endpoint", response_description="A dictionary with embeddings for the input text")
 async def embed(text_input: EmbeddingRequest):
     try:
         embedding = get_embedding(text_input.text)
@@ -186,7 +186,7 @@ async def embed(text_input: EmbeddingRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/rerank", summary="Reranking endpoint", response_description="Welcome Message")
+@app.get("/rag/rerank", summary="Reranking endpoint", response_description="Welcome Message")
 async def rerank():
     """
     Dummy endpoint for retrieved docs reranking.
