@@ -7,7 +7,8 @@ import openai
 from datetime import datetime
 
 import logging
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, status
+from fastapi.responses import Response
 import httpx
 
 from models import ResponseBody, RAGRequest, EmbeddingRequest
@@ -192,4 +193,4 @@ async def rerank():
     """
     Dummy endpoint for retrieved docs reranking.
     """
-    return {"message": "Rerank test!"}
+    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
