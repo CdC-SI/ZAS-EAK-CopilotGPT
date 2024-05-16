@@ -11,6 +11,7 @@ RUN pip install -r requirements.txt
 # Kopiere den Rest des Codes in den Container
 COPY . .
 
+# set pythonpath
 ENV PYTHONPATH="/app"
 
 # Standardbefehl, der ausgeführt wird, wenn der Container gestartet wird
