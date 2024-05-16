@@ -2,7 +2,7 @@ name: sphinx
 on:
   push:
     branches:
-      - feature/161-investigating-sphinx
+      - main
 permissions:
   contents: write
 jobs:
@@ -20,12 +20,12 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install sphinx sphinx-rtd-theme
+          pip install -r doc/requirements.txt
           pip install -r api/requirements.txt
 
       - name: Build HTML
         run: |
-          sphinx-build source _build
+          sphinx-build doc _build
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
