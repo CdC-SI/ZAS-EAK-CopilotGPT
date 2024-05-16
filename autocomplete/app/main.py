@@ -228,7 +228,7 @@ async def update_or_insert_data(
     finally:
         await conn.close()
 
-@app.put("/autocomplete/init_expert", summary="Insert Data from faq.bsv.admin.ch", response_description="Insert Data from faq.bsv.admin.ch")
+@app.put("/autocomplete/init_expert/", summary="Insert Data from faq.bsv.admin.ch", response_description="Insert Data from faq.bsv.admin.ch")
 async def init_expert():
     """
     Asynchronously retrieves and processes FAQ data from 'https://faq.bsv.admin.ch' to insert into the database.
