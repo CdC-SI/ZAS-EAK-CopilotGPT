@@ -14,6 +14,7 @@ rag:
     model: text-embedding-ada-002
   retrieval:
     top_k: 1
+    metric: cosine_similarity
   llm:
     model: gpt-4o
     max_output_tokens: 512
