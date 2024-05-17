@@ -12,7 +12,7 @@ RUN pip install -r requirements.txt
 COPY . .
 
 # set pythonpath
-ENV PYTHONPATH="/app"
+ENV PYTHONPATH="/app:/app/config"
 
 # Standardbefehl, der ausgeführt wird, wenn der Container gestartet wird
 CMD ["uvicorn", "rag.app.main:app", "--host", "0.0.0.0", "--port", "8010"]

@@ -19,7 +19,7 @@ RUN pip install -r requirements.txt
 COPY . .
 
 # Set pythonpath
-ENV PYTHONPATH="/app"
+ENV PYTHONPATH="/app:/app/config"
 
 # Standardbefehl, der ausgeführt wird, wenn der Container gestartet wird
 CMD ["uvicorn", "autocomplete.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
