@@ -1,4 +1,4 @@
-name: sphinx-test
+name: sphinx-build-test
 on:
   push:
     branches-ignore: []
