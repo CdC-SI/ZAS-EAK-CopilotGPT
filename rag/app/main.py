@@ -1,8 +1,6 @@
 import logging
-from typing import List, Union
 from datetime import datetime
 
-import asyncpg
 from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import Response
 import httpx
@@ -11,8 +9,10 @@ from rag.app.models import ResponseBody, RAGRequest, EmbeddingRequest
 
 # Load env variables
 from config.base_config import rag_config
-from config.db_config import DB_PARAMS
-from config.openai_config import openai
+
+# Load utility functions
+from utils.embedding import get_embedding
+from utils.db import get_db_connection
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -20,24 +20,6 @@ logger = logging.getLogger(__name__)
 
 # Create an instance of FastAPI
 app = FastAPI()
-
-# Function to create a db connection
-async def get_db_connection():
-    """Establish a database connection."""
-    conn = await asyncpg.connect(**DB_PARAMS)
-    return conn
-
-# Function to get embeddings for a text
-def get_embedding(text: Union[List[str], str]):
-    model = rag_config["embedding"]["model"]
-    if model == "text-embedding-ada-002":
-        response = openai.Embedding.create(
-            input=text,
-            engine=model,
-        )
-        return response['data']
-    else:
-        raise NotImplementedError("Model not supported")
 
 @app.post("/rag/init_rag_vectordb/", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
 async def init_rag_vectordb():
