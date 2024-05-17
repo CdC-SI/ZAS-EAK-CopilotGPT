@@ -11,7 +11,6 @@ from autocomplete.app.web_scraper import WebScraper
 
 # Load env variables
 from config.base_config import autocomplete_config
-from config.db_config import DB_PARAMS
 from config.network_config import CORS_ALLOWED_ORIGINS
 
 # Load utility functions
@@ -126,7 +125,6 @@ async def get_semantic_similarity_match(question: str):
 
         # Get the resulting embedding vector from the response
         question_embedding = response.json()["data"][0]["embedding"]
-
 
         # Fetch the most similar questions based on cosine similarity
         similarity_metric = autocomplete_config["semantic_similarity_match"]["metric"]
