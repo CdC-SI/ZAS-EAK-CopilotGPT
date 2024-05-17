@@ -1,13 +1,19 @@
-import asyncpg
 import logging
+
+import asyncio
+import asyncpg
 from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
-import asyncio
 import httpx
 
 from pyxdameraulevenshtein import damerau_levenshtein_distance
 
 from autocomplete.app.web_scraper import WebScraper
+
+# Load env variables
+from config.base_config import autocomplete_config
+from config.db_config import DB_PARAMS
+from config.network_config import CORS_ALLOWED_ORIGINS
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -15,9 +21,6 @@ logger = logging.getLogger(__name__)
 
 # Create an instance of FastAPI
 app = FastAPI()
-
-# Load env variables
-from config import DB_PARAMS, CORS_ALLOWED_ORIGINS
 
 # Setup CORS
 app.add_middleware(
@@ -45,7 +48,15 @@ async def get_exact_match(question: str):
     try:
         # Convert both the 'question' column and the search string to lowercase to perform a case-insensitive search
         search_query = f"%{question.lower()}%"
-        rows = await conn.fetch("SELECT * FROM data WHERE LOWER(question) LIKE $1", search_query)
+
+        # Fetch results from the database
+        max_results = autocomplete_config["exact_match"]["limit"]
+
+        if max_results == -1:
+            rows = await conn.fetch("SELECT * FROM data WHERE LOWER(question) LIKE $1", search_query)
+        else:
+            rows = await conn.fetch("SELECT * FROM data WHERE LOWER(question) LIKE $1 LIMIT $2", search_query, max_results)
+
         await conn.close()  # Close the database connection
 
         # Convert the results to a list of dictionaries
@@ -82,8 +93,12 @@ async def get_fuzzy_match(question: str):
             distance = damerau_levenshtein_distance(question, row_question)
 
             # If the distance is above a certain threshold, add the row to the matches
-            if distance <= 5:
+            threshold = autocomplete_config["fuzzy_match"]["threshold"]
+            if distance <= threshold:
                 matches.append(row)
+
+        max_results = autocomplete_config["fuzzy_match"]["limit"]
+        matches = matches[:max_results] if max_results != -1 else matches
 
         # Convert the results to a list of dictionaries
         matches = [dict(row) for row in matches]
@@ -115,12 +130,16 @@ async def get_semantic_similarity_match(question: str):
         # Get the resulting embedding vector from the response
         question_embedding = response.json()["data"][0]["embedding"]
 
+
+        # Fetch the most similar questions based on cosine similarity
+        similarity_metric = autocomplete_config["semantic_similarity_match"]["metric"]
+        max_results = autocomplete_config["semantic_similarity_match"]["limit"]
         matches = await conn.fetch(f"""
-            SELECT question, answer, url,  1 - (embedding <=> '{question_embedding}') AS cosine_similarity
+            SELECT question, answer, url,  1 - (embedding <=> '{question_embedding}') AS {similarity_metric}
             FROM faq_embeddings
-            ORDER BY cosine_similarity desc
-            LIMIT 5
-        """)
+            ORDER BY {similarity_metric} desc
+            LIMIT $1
+        """, max_results)
 
         await conn.close() # Close the database connection
 
@@ -159,6 +178,10 @@ async def autocomplete(question: str):
     # Remove duplicates
     unique_matches = []
     [unique_matches.append(i) for i in combined_matches if i not in unique_matches]
+
+    # Truncate the list to max_results
+    max_results = autocomplete_config["results"]["limit"]
+    unique_matches = unique_matches[:max_results]
 
     return unique_matches
 
