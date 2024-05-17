@@ -1,4 +1,4 @@
-name: sphinx
+name: sphinx-build-deploy
 on:
   push:
     branches:
