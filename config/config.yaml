@@ -1,0 +1,25 @@
+autocomplete:
+  results:
+    limit: 4
+  exact_match:
+    limit: 10
+  fuzzy_match:
+    threshold: 5
+    limit: 10
+  semantic_similarity_match:
+    metric: cosine_similarity
+    limit: 10
+rag:
+  embedding:
+    model: text-embedding-ada-002
+  retrieval:
+    top_k: 1
+  llm:
+    model: gpt-4o
+    max_output_tokens: 512
+indexing:
+  dev-mode: true
+  faq:
+    auto-index: true
+  rag:
+    auto-index: true
