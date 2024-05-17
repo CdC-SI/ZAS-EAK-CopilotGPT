@@ -27,6 +27,7 @@ jobs:
 
       - name: Build HTML
         run: |
+          cp .env.example .env
           sphinx-build doc _build
 
       - name: Deploy to GitHub Pages
