@@ -1,7 +1,6 @@
 import logging
 
 import asyncio
-import asyncpg
 from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
@@ -14,6 +13,9 @@ from autocomplete.app.web_scraper import WebScraper
 from config.base_config import autocomplete_config
 from config.db_config import DB_PARAMS
 from config.network_config import CORS_ALLOWED_ORIGINS
+
+# Load utility functions
+from utils.db import get_db_connection
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -30,11 +32,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-async def get_db_connection():
-    """Establish a database connection."""
-    conn = await asyncpg.connect(**DB_PARAMS)
-    return conn
 
 async def get_exact_match(question: str):
     """
@@ -134,12 +131,20 @@ async def get_semantic_similarity_match(question: str):
         # Fetch the most similar questions based on cosine similarity
         similarity_metric = autocomplete_config["semantic_similarity_match"]["metric"]
         max_results = autocomplete_config["semantic_similarity_match"]["limit"]
-        matches = await conn.fetch(f"""
-            SELECT question, answer, url,  1 - (embedding <=> '{question_embedding}') AS {similarity_metric}
-            FROM faq_embeddings
-            ORDER BY {similarity_metric} desc
-            LIMIT $1
-        """, max_results)
+
+        if max_results == -1:
+            matches = await conn.fetch(f"""
+                SELECT question, answer, url,  1 - (embedding <=> '{question_embedding}') AS {similarity_metric}
+                FROM faq_embeddings
+                ORDER BY {similarity_metric} desc
+            """)
+        else:
+            matches = await conn.fetch(f"""
+                SELECT question, answer, url,  1 - (embedding <=> '{question_embedding}') AS {similarity_metric}
+                FROM faq_embeddings
+                ORDER BY {similarity_metric} desc
+                LIMIT $1
+            """, max_results)
 
         await conn.close() # Close the database connection
 
@@ -181,7 +186,8 @@ async def autocomplete(question: str):
 
     # Truncate the list to max_results
     max_results = autocomplete_config["results"]["limit"]
-    unique_matches = unique_matches[:max_results]
+    if max_results != -1:
+        unique_matches = unique_matches[:max_results]
 
     return unique_matches
 
