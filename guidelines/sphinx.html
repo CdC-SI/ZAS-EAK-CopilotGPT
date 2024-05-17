@@ -328,8 +328,8 @@
         <article role="main" id="furo-main-content">
           <section id="updating-documentation">
 <h1>Updating documentation<a class="headerlink" href="#updating-documentation" title="Link to this heading">¶</a></h1>
-<section id="build-the-website-locally">
-<h2>Build the website locally<a class="headerlink" href="#build-the-website-locally" title="Link to this heading">¶</a></h2>
+<section id="local-build">
+<h2>Local build<a class="headerlink" href="#local-build" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>Prerequisites</dt><dd><ul class="simple">
 <li><p>Python 3.9+</p></li>
@@ -341,7 +341,6 @@
 <dt>Clone the repository</dt><dd><p>Begin by cloning the EAK-Copilot repository to your local machine to get the necessary project files.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">git clone https://github.com/CdC-SI/eak-copilot.git</span>
 <span class="go">cd eak-copilot</span>
-<span class="go">cd doc</span>
 </pre></div>
 </div>
 </dd>
@@ -349,7 +348,10 @@
 </li>
 <li><dl>
 <dt>Install dependencies</dt><dd><p>The <code class="docutils literal notranslate"><span class="pre">requirement.txt</span></code> contains Sphinx and several Sphinx extension packages that we use within the project.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install -r requirements.txt</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install -r doc/requirements.txt</span>
+<span class="go">pip install -r autocomplete/requirements.txt</span>
+<span class="go">pip install -r indexing/requirements.txt</span>
+<span class="go">pip install -r rag/requirements.txt</span>
 </pre></div>
 </div>
 </dd>
@@ -365,29 +367,39 @@
 </ol>
 <p>An <code class="docutils literal notranslate"><span class="pre">index.html</span></code> document can now be found in the <code class="docutils literal notranslate"><span class="pre">_build/html/</span></code> directory. You can open it with your favorite browser and start exploring!</p>
 </section>
-<section id="documentation-folder-structure">
-<h2>Documentation folder structure<a class="headerlink" href="#documentation-folder-structure" title="Link to this heading">¶</a></h2>
+<section id="documentation-structure">
+<h2>Documentation structure<a class="headerlink" href="#documentation-structure" title="Link to this heading">¶</a></h2>
 <p>Files related to the documentation can be found inside the <code class="docutils literal notranslate"><span class="pre">doc/</span></code> directory.</p>
-<p>Currently, our repository is structured as follows.</p>
-<div class="line-block">
-<div class="line">eak-copilot</div>
-<div class="line">├── doc</div>
-<div class="line">│   ├── _static</div>
-<div class="line">│   │   ├ css</div>
-<div class="line">│   │   └ img</div>
-<div class="line">│   ├── guidelines</div>
-<div class="line">│   │   └ …</div>
-<div class="line">│   ├── intro</div>
-<div class="line">│   │   └ …</div>
-<div class="line">│   ├── topics</div>
-<div class="line">│   │   └ …</div>
-<div class="line">│   ├── conf.py</div>
-<div class="line">│   ├── index.py</div>
-<div class="line">│   └── requirements.txt</div>
-<div class="line">└── …</div>
-<div class="line"><br /></div>
-<div class="line"><br /></div>
+<p>Currently, our /doc folder is structured as follows.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>doc
+├── _static
+│   ├ css
+│   └ img
+├── guidelines
+│   ├ sphinx.rst &lt;--- you are here
+│   └ ...
+├── intro
+│   └ ...
+├── topics
+│   └ ...
+├── conf.py
+├── index.rst
+└── ...
+</pre></div>
 </div>
+<div class="line-block">
+<div class="line"><strong>conf.py</strong> is the Sphinx configuration files.</div>
+<div class="line"><strong>_static/</strong> contains custom static files, such as stylesheets or images.</div>
+</div>
+<p>All the remaining folders contains <code class="docutils literal notranslate"><span class="pre">.rst</span></code> or <code class="docutils literal notranslate"><span class="pre">.md</span></code> files only, each file represents a webpage.</p>
+<div class="line-block">
+<div class="line"><strong>index.rst</strong> is the website homepage.</div>
+<div class="line"><strong>intro/</strong> contains pages that introduce the Copilot project.</div>
+<div class="line"><strong>guidelines/</strong> contains tutorials and best practices guidelines.</div>
+<div class="line"><strong>topics/</strong> contains Copilot open sourced code documentation.</div>
+</div>
+<p>Especially, <strong>index.rst</strong> contains several “Toc trees” which define the architecture of the website and build the sidebar on the left.
+Each <code class="docutils literal notranslate"><span class="pre">toctree</span></code> defines a theme. Currently, the website is split into 3 of theme: Introduction (intro), Guidelines, and Documentation (topics).</p>
 <div class="admonition-todo admonition" id="id1">
 <p class="admonition-title">Todo</p>
 <ul class="simple">
@@ -454,8 +466,8 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Updating documentation</a><ul>
-<li><a class="reference internal" href="#build-the-website-locally">Build the website locally</a></li>
-<li><a class="reference internal" href="#documentation-folder-structure">Documentation folder structure</a></li>
+<li><a class="reference internal" href="#local-build">Local build</a></li>
+<li><a class="reference internal" href="#documentation-structure">Documentation structure</a></li>
 </ul>
 </li>
 </ul>

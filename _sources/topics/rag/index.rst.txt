@@ -1,9 +1,11 @@
 RAG
 ###
 
-.. todo::
+.. automodule:: rag.app.main
+   :members:
 
-    ``rag``
+.. automodule:: rag.app.models
+   :members:
 
 .. toctree::
    :hidden:
