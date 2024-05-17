@@ -59,8 +59,8 @@ services:
 
   indexing:
     build:
-      context: ./indexing
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./indexing/Dockerfile
     image: copilot-indexing
     ports:
       - "8011:8011"
@@ -72,7 +72,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_HOST=db
     volumes:
-      - ./indexing/app:/app
+      - .:/app
     networks:
       - copilot-network
     depends_on:
