@@ -1,7 +1,7 @@
 Autocomplete
 ############
 
-.. automodule:: main
+.. automodule:: autocomplete.app.main
    :members:
 
 .. toctree::
