@@ -1,14 +1,18 @@
+import logging
 from typing import List, Union
-
-import asyncpg
 from datetime import datetime
 
-import logging
+import asyncpg
 from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import Response
 import httpx
 
 from rag.app.models import ResponseBody, RAGRequest, EmbeddingRequest
+
+# Load env variables
+from config.base_config import rag_config
+from config.db_config import DB_PARAMS
+from config.openai_config import openai
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -16,9 +20,6 @@ logger = logging.getLogger(__name__)
 
 # Create an instance of FastAPI
 app = FastAPI()
-
-# Load env variables
-from config import DB_PARAMS, openai
 
 # Function to create a db connection
 async def get_db_connection():
@@ -28,11 +29,15 @@ async def get_db_connection():
 
 # Function to get embeddings for a text
 def get_embedding(text: Union[List[str], str]):
-    response = openai.Embedding.create(
-        input=text,
-        engine="text-embedding-ada-002",
-    )
-    return response['data']
+    model = rag_config["embedding"]["model"]
+    if model == "text-embedding-ada-002":
+        response = openai.Embedding.create(
+            input=text,
+            engine=model,
+        )
+        return response['data']
+    else:
+        raise NotImplementedError("Model not supported")
 
 @app.post("/rag/init_rag_vectordb/", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
 async def init_rag_vectordb():
@@ -141,13 +146,15 @@ async def docs(request: RAGRequest):
         # Get the resulting embedding vector from the response
         query_embedding = response.json()["data"][0]["embedding"]
 
-        # Only retrieve 1 document at the moment. Will implement multi-doc retrieval later
+        # Only supports retrieval of 1 document at the moment (set in /config/config.yaml). Will implement multi-doc retrieval later
+        top_k = rag_config["retrieval"]["top_k"]
+        similarity_metric = rag_config["retrieval"]["metric"]
         docs = await conn.fetch(f"""
-            SELECT text, url,  1 - (embedding <=> '{query_embedding}') AS cosine_similarity
+            SELECT text, url,  1 - (embedding <=> '{query_embedding}') AS {similarity_metric}
             FROM embeddings
-            ORDER BY cosine_similarity desc
-            LIMIT 1
-        """)
+            ORDER BY {similarity_metric} desc
+            LIMIT $1
+        """, top_k)
         docs = [dict(row) for row in docs][0]
 
     except Exception as e:
