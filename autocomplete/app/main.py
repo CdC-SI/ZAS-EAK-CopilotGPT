@@ -10,6 +10,7 @@ from pyxdameraulevenshtein import damerau_levenshtein_distance
 # Load env variables
 from config.base_config import autocomplete_config
 from config.network_config import CORS_ALLOWED_ORIGINS
+from config.pgvector_config import SIMILARITY_METRICS
 
 # Load utility functions
 from utils.db import get_db_connection
@@ -126,17 +127,18 @@ async def get_semantic_similarity_match(question: str):
 
         # Fetch the most similar questions based on cosine similarity
         similarity_metric = autocomplete_config["semantic_similarity_match"]["metric"]
+        similarity_metric_symbol = SIMILARITY_METRICS[similarity_metric]
         max_results = autocomplete_config["semantic_similarity_match"]["limit"]
 
         if max_results == -1:
             matches = await conn.fetch(f"""
-                SELECT question, answer, url,  1 - (embedding <=> '{question_embedding}') AS {similarity_metric}
+                SELECT question, answer, url,  1 - (embedding {similarity_metric_symbol} '{question_embedding}') AS {similarity_metric}
                 FROM faq_embeddings
                 ORDER BY {similarity_metric} desc
             """)
         else:
             matches = await conn.fetch(f"""
-                SELECT question, answer, url,  1 - (embedding <=> '{question_embedding}') AS {similarity_metric}
+                SELECT question, answer, url,  1 - (embedding {similarity_metric_symbol} '{question_embedding}') AS {similarity_metric}
                 FROM faq_embeddings
                 ORDER BY {similarity_metric} desc
                 LIMIT $1

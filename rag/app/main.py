@@ -8,6 +8,7 @@ import httpx
 # Load env variables
 from config.base_config import rag_config
 from config.network_config import CORS_ALLOWED_ORIGINS
+from config.pgvector_config import SIMILARITY_METRICS
 
 # Load utility functions
 from utils.embedding import get_embedding
@@ -52,8 +53,9 @@ async def docs(request: RAGRequest):
         # Only supports retrieval of 1 document at the moment (set in /config/config.yaml). Will implement multi-doc retrieval later
         top_k = rag_config["retrieval"]["top_k"]
         similarity_metric = rag_config["retrieval"]["metric"]
+        similarity_metric_symbol = SIMILARITY_METRICS[similarity_metric]
         docs = await conn.fetch(f"""
-            SELECT text, url,  1 - (embedding <=> '{query_embedding}') AS {similarity_metric}
+            SELECT text, url,  1 - (embedding {similarity_metric_symbol} '{query_embedding}') AS {similarity_metric}
             FROM embeddings
             ORDER BY {similarity_metric} desc
             LIMIT $1
