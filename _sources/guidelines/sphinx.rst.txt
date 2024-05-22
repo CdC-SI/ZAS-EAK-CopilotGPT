@@ -140,13 +140,9 @@ Normally, there are no heading levels assigned to specific character, but the re
     Part -- Number Signs above and below
     ####################################
 
-    with overline, for parts
-
     ************************************
     Chapter -- Asterisks above and below
     ************************************
-
-    with overline, for chapters
 
     Title -- Number Signs
     #####################
@@ -256,7 +252,7 @@ API documentation
 Markdown (MyST)
 ===============
 
-Although reStructuredText is the base language for Sphinx, through the `MyST extension <https://myst-parser.readthedocs.io/en/latest/intro.html>`_, it can also support ``.md`` files.
-You can use `.md` if you feel more comfortable with it.
+Although reStructuredText is the base language for Sphinx, through the `MyST extension <https://myst-parser.readthedocs.io/en/latest/intro.html>`_, it also supports ``.md`` files.
+You can use ``.md`` if you feel more comfortable with it.
 
-Read their documentation for Sphinx related functionalities, and also `Furo's documentation <https://pradyunsg.me/furo/reference/>`_` which specifies MyST functions in the second tab of their code blocks.
+Read their documentation for Sphinx related functionalities, and also `Furo's documentation <https://pradyunsg.me/furo/reference/>`_ which specifies MyST usages in the second tab of their code blocks.
