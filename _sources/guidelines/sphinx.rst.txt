@@ -1,4 +1,4 @@
-Updating documentation
+Sphinx documentation
 ######################
 
 Local build
@@ -87,8 +87,8 @@ Thus, there are 3 ``toctree`` defined in doc/index.rst, one for each theme, whos
 
         Introduction
         ├── guidelines/opensource (Open-Source collaboration)
-        ├── guidelines/documentation (Documentation Standards)
-        └── guidelines/sphinx (Updating documentation) <--- you are here
+        ├── guidelines/documentation (Documentation standards)
+        └── guidelines/sphinx (Sphinx documentation) <--- you are here
 
 .. tab:: Documentation
 
