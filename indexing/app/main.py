@@ -9,7 +9,7 @@ import httpx
 from config.base_config import indexing_config
 
 # Load utility functions
-from utils.db import get_db_connection
+from utils.db import get_db_connection, check_db_connection
 
 # Load models
 from rag.app.models import ResponseBody
@@ -20,15 +20,6 @@ logger = logging.getLogger(__name__)
 
 # Create an instance of FastAPI
 app = FastAPI()
-
-if indexing_config["dev-mode"]:
-    pass
-
-if indexing_config["faq"]["auto-index"]:
-    pass
-
-if indexing_config["rag"]["auto-index"]:
-    pass
 
 async def init_rag_vectordb():
 
@@ -126,44 +117,66 @@ async def index_rag_vectordb():
 async def index_faq_vectordb():
     return await init_faq_vectordb()
 
-@app.get("/crawl_data", summary="Crawling endpoint", response_description="Welcome Message")
+@app.get("/indexing/crawl_data/", summary="Crawling endpoint", response_description="Welcome Message")
 async def crawl_data():
     """
     Dummy endpoint for data crawling.
     """
     return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
-@app.get("/scrap_data", summary="Scraping Endpoint", response_description="Welcome Message")
+@app.get("/indexing/scrap_data/", summary="Scraping Endpoint", response_description="Welcome Message")
 async def scrap_data():
     """
     Dummy endpoint for data scraping.
     """
     return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
-@app.get("/index_data", summary="Indexing Endpoint", response_description="Welcome Message")
+@app.get("/indexing/index_data/", summary="Indexing Endpoint", response_description="Welcome Message")
 async def index_data():
     """
     Dummy endpoint for data indexing.
     """
     return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
-@app.get("/parse_faq_data", summary="FAQ Parsing Endpoint", response_description="Welcome Message")
+@app.get("/indexing/parse_faq_data/", summary="FAQ Parsing Endpoint", response_description="Welcome Message")
 async def parse_faq_data():
     """
     Dummy endpoint for FAQ data parsing.
     """
     return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
-@app.get("/parse_rag_data", summary="Parsing Endpoint", response_description="Welcome Message")
+@app.get("/indexing/parse_rag_data/", summary="Parsing Endpoint", response_description="Welcome Message")
 async def parse_rag_data():
     """
     Dummy endpoint for data parsing (RAG).
     """
     return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
-@app.get("/chunk_rag_data", summary="Chunking Endpoint", response_description="Welcome Message")
+@app.get("/indexing/chunk_rag_data/", summary="Chunking Endpoint", response_description="Welcome Message")
 async def chunk_rag_data():
     """
     Dummy endpoint for data chunking (RAG).
     """
     return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
+
+@app.on_event("startup")
+async def startup_event():
+    await check_db_connection(retries=10, delay=10)
+
+    if indexing_config["dev-mode"]:
+        pass
+
+    if indexing_config["faq"]["auto-index"]:
+        try:
+            logger.info("Auto-indexing FAQ data")
+            await init_faq_vectordb()
+        except Exception as e:
+            logger.error("Failed to index FAQ data: %s", e)
+
+    if indexing_config["rag"]["auto-index"]:
+        try:
+            logger.info("Auto-indexing RAG data")
+            await init_rag_vectordb()
+        except Exception as e:
+            logger.error("Failed to index RAG data: %s", e)
+
