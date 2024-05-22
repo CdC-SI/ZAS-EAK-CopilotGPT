@@ -1,14 +1,15 @@
+# Check ... to access documentation
 autocomplete:
   results:
-    limit: 4
+    limit: -1
   exact_match:
-    limit: 10
+    limit: -1
   fuzzy_match:
     threshold: 5
-    limit: 10
+    limit: -1
   semantic_similarity_match:
     metric: cosine_similarity
-    limit: 10
+    limit: -1
 rag:
   embedding:
     model: text-embedding-ada-002
@@ -19,8 +20,8 @@ rag:
     model: gpt-4o
     max_output_tokens: 512
 indexing:
-  dev-mode: true
+  dev_mode: true
   faq:
-    auto-index: true
+    auto_index: false
   rag:
-    auto-index: true
+    auto_index: false
