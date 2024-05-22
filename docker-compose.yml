@@ -19,6 +19,7 @@ services:
       - ./db/data:/var/lib/postgresql/data
     networks:
       - copilot-network
+    restart: "no"
 
   # support tool for db
   pgadmin:
@@ -34,6 +35,7 @@ services:
       - db
     networks:
       - copilot-network
+    restart: "no"
 
   autocomplete:
     build:
@@ -56,7 +58,9 @@ services:
       - copilot-network
     depends_on:
       - db
+    restart: "no"
 
+  # data indexing
   indexing:
     build:
       context: .
@@ -77,6 +81,7 @@ services:
       - copilot-network
     depends_on:
       - db
+    restart: "no"
 
   # frontend
   chatgpt-minimal:
@@ -94,6 +99,7 @@ services:
       - copilot-network
     depends_on:
       - autocomplete
+    restart: "no"
 
   # RAG
   rag:
@@ -117,6 +123,7 @@ services:
       - copilot-network
     depends_on:
       - db
+    restart: "no"
 
 networks:
   copilot-network:
