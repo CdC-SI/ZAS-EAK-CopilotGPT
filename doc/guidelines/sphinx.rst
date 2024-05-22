@@ -1,5 +1,5 @@
 Sphinx documentation
-######################
+####################
 
 Our documentation website is generated with the Sphinx framework and implements the Furo theme.
 
