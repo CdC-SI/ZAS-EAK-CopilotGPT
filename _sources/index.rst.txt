@@ -30,7 +30,7 @@ The current project serves as a proof of concept (PoC), which is slated to concl
    :hidden:
 
    guidelines/opensource
-   guidelines/documentation
+   guidelines/pydoc
    guidelines/sphinx
 
 .. toctree::
