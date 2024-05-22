@@ -41,6 +41,7 @@ extensions = [
     "sphinx_copybutton",
     "myst_parser",
     "sphinx_inline_tabs",
+    'sphinx.ext.napoleon',
 ]
 autodoc_mock_imports = ["fastapi"]
 todo_include_todos = True

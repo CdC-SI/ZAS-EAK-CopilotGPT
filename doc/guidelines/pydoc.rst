@@ -1,5 +1,5 @@
-Documentation standards
-#######################
+Python documentation
+####################
 
 .. attention::
 
@@ -13,7 +13,7 @@ Sphinx docstrings
 =================
 
 Our documentation relies on `Sphinx <https://www.sphinx-doc.org/>`_ to generate comprehensible description of modules and class.
-To help making it easier to maintain, please follow the `Sphinx docstring format <https://www.sphinx-doc.org/en/master/usage/domains/python.html>`_ when contributing to the project.
+To help making it easier to maintain, please follow the `Sphinx docstring format <https://www.sphinx-doc.org/en/master/usage/domains/python.html>`_ when contributing to the project with Python files.
 
 A typical Sphinx docstring is structured as following.
 

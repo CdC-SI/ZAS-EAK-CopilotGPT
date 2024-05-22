@@ -1,6 +1,11 @@
 Sphinx documentation
 ######################
 
+Our documentation website is generated with the Sphinx framework and implements the Furo theme.
+
+Here, you will find some documentation to get you started when contributing to this website.
+For further information, please refer to `Sphinx <https://www.sphinx-doc.org/en/master/index.html>`_ and `Furo <https://pradyunsg.me/furo/>`_ documentation.
+
 Local build
 ===========
 
