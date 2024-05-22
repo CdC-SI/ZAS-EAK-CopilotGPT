@@ -90,7 +90,13 @@ async def get_fuzzy_match(question: str):
             # If the distance is above a certain threshold, add the row to the matches
             threshold = autocomplete_config["fuzzy_match"]["threshold"]
             if distance <= threshold:
-                matches.append(row)
+                matches.append((distance, row))
+
+        # Sort the matches by distance in ascending order
+        matches = sorted(matches, key=lambda x: x[0])
+
+        # Extract the rows from the matches
+        matches = [match[1] for match in matches]
 
         max_results = autocomplete_config["fuzzy_match"]["limit"]
         matches = matches[:max_results] if max_results != -1 else matches
