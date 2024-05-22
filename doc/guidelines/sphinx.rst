@@ -16,7 +16,8 @@ Prerequisites
         cd eak-copilot
 
 #. Install dependencies
-    The ``requirement.txt`` contains Sphinx and several Sphinx extension packages that we use within the project.
+    ``doc/requirement.txt`` contains Sphinx and several Sphinx extension packages that we use within the project.
+    Other files contains packages required for building the Copilot project, and thus for building the Sphinx documentation.
 
     .. code-block:: console
 
