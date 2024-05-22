@@ -1,3 +1,5 @@
+import sys
+
 def check_env_vars(config):
 
     # Documentation
@@ -11,35 +13,48 @@ def check_env_vars(config):
 
     # Check environment variables for autocomplete
     if not config["autocomplete"]["results"]["limit"] == -1 or config["autocomplete"]["results"]["limit"] >= 1:
-        raise ValueError(f'Invalid value for "autocomplete.results.limit" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')
+        print(f'Invalid value for "autocomplete.results.limit" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')
+        sys.exit(1)
     if not config["autocomplete"]["exact_match"]["limit"] == -1 or config["autocomplete"]["exact_match"]["limit"] >= 1:
-        raise ValueError(f'Invalid value for "autocomplete.exact_match.limit" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')
+        print(f'Invalid value for "autocomplete.exact_match.limit" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')
+        sys.exit(1)
     if not config["autocomplete"]["fuzzy_match"]["threshold"] >= 1:
-        raise ValueError(f'Invalid value for "autocomplete.fuzzy_match.threshold" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')
+        print(f'Invalid value for "autocomplete.fuzzy_match.threshold" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')
+        sys.exit(1)
     if not config["autocomplete"]["fuzzy_match"]["limit"] == -1 or config["autocomplete"]["fuzzy_match"]["limit"] >= 1:
-        raise ValueError(f'Invalid value for "autocomplete.fuzzy_match.limit" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')
+        print(f'Invalid value for "autocomplete.fuzzy_match.limit" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')
+        sys.exit(1)
     if not config["autocomplete"]["semantic_similarity_match"]["limit"] == -1 or config["autocomplete"]["semantic_similarity_match"]["limit"] >= 1:
-        raise ValueError(f'Invalid value for "autocomplete.semantic_similarity_match.limit" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')
+        print(f'Invalid value for "autocomplete.semantic_similarity_match.limit" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')
+        sys.exit(1)
     if config["autocomplete"]["semantic_similarity_match"]["metric"] not in supported_similarity_metrics:
-        raise ValueError(f'Invalid value for "autocomplete.semantic_similarity_match.metric" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')
+        print(f'Invalid value for "autocomplete.semantic_similarity_match.metric" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')
+        sys.exit(1)
 
     # Check environment variables for rag
     if config["rag"]["embedding"]["model"] not in supported_embedding_models:
-        raise ValueError(f'Invalid value for "rag.embedding.model" in config/config.yaml. Please read the documentation at {documentation["openai_api"]} for more information.')
+        print(f'Invalid value for "rag.embedding.model" in config/config.yaml. Please read the documentation at {documentation["openai_api"]} for more information.')
+        sys.exit(1)
     if config["rag"]["retrieval"]["top_k"] != 1:
-        raise ValueError(f'Invalid value for "rag.retrieval.top_k" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information. NOTE: Will be extended soon to more than 1 retrieved document.')
+        print(f'Invalid value for "rag.retrieval.top_k" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information. NOTE: Will be extended soon to more than 1 retrieved document.')
+        sys.exit(1)
     if config["rag"]["retrieval"]["metric"] not in supported_similarity_metrics:
-        raise ValueError(f'Invalid value for "rag.retrieval.metric" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')
+        print(f'Invalid value for "rag.retrieval.metric" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')
+        sys.exit(1)
     if config["rag"]["llm"]["model"] not in supported_llm_models:
-        raise ValueError(f'Invalid value for "rag.retrieval.metric" in config/config.yaml. Please read the documentation at {documentation["openai_api"]}/embeddings for more information.')
+        print(f'Invalid value for "rag.retrieval.metric" in config/config.yaml. Please read the documentation at {documentation["openai_api"]}/embeddings for more information.')
+        sys.exit(1)
     if not config["rag"]["llm"]["max_output_tokens"] >= 1:
-        raise ValueError(f'Invalid value for "rag.llm.max_output_tokens" in config/config.yaml. Please read the documentation at {documentation["openai_api"]} for more information.')
+        print(f'Invalid value for "rag.llm.max_output_tokens" in config/config.yaml. Please read the documentation at {documentation["openai_api"]} for more information.')
+        sys.exit(1)
 
     # Check environment variables for indexing
-    if config["indexing"]["dev_mode"] not in [True, False]:
-        print(config["indexing"]["dev_mode"])
-        raise ValueError('Invalid value for "indexing.dev_mode" in config/config.yaml. Please read the documentation at https://cdc-si.github.io/eak-copilot/ for more information.')
-    if config["indexing"]["faq"]["auto_index"] not in [True, False]:
-        raise ValueError('Invalid value for "indexing.faq.auto_index" in config/config.yaml. Please read the documentation at https://cdc-si.github.io/eak-copilot/ for more information.')
-    if config["indexing"]["rag"]["auto_index"] not in [True, False]:
-        raise ValueError('Invalid value for "indexing.rag.auto_index" in config/config.yaml. Please read the documentation at https://cdc-si.github.io/eak-copilot/ for more information.')
+    if not isinstance (config["indexing"]["dev_mode"], bool):
+        print('Invalid value for "indexing.dev_mode" in config/config.yaml. Please read the documentation at https://cdc-si.github.io/eak-copilot/ for more information.')
+        sys.exit(1)
+    if not isinstance(config["indexing"]["faq"]["auto_index"], bool):
+        print('HHHHH Invalid value for "indexing.faq.auto_index" in config/config.yaml. Please read the documentation at https://cdc-si.github.io/eak-copilot/ for more information.')
+        sys.exit(1)
+    if not isinstance(config["indexing"]["rag"]["auto_index"], bool):
+        print('Invalid value for "indexing.rag.auto_index" in config/config.yaml. Please read the documentation at https://cdc-si.github.io/eak-copilot/ for more information.')
+        sys.exit(1)
