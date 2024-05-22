@@ -40,6 +40,7 @@ extensions = [
     'sphinx.ext.todo',
     "sphinx_copybutton",
     "myst_parser",
+    "sphinx_inline_tabs",
 ]
 autodoc_mock_imports = ["fastapi"]
 todo_include_todos = True
