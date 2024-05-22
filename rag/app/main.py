@@ -33,6 +33,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.post("/rag/process", summary="Process RAG query endpoint", response_description="Return result from processing RAG query", status_code=200)
+async def process_query(request: QueryRequest):
+    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
+
 @app.post("/rag/docs", summary="Retrieve context docs endpoint", response_description="Return context docs from semantic search", status_code=200)
 async def docs(request: RAGRequest):
 
