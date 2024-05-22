@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, status, Body
 from fastapi.responses import Response
 import httpx
 
@@ -10,6 +10,7 @@ from config.base_config import indexing_config
 
 # Load utility functions
 from utils.db import get_db_connection, check_db_connection
+from indexing.app.web_scraper import WebScraper
 
 # Load models
 from rag.app.models import ResponseBody
@@ -109,6 +110,109 @@ async def init_faq_vectordb():
 
     return {"content": "FAQ data indexed successfully"}
 
+async def update_or_insert_data(
+    url: str,
+    question: str,
+    answer: str,
+    language: str,
+    id: int = Body(None)
+):
+    """
+    Update an existing data record or insert a new one based on the presence of the question.
+
+    - **url**: The URL associated with the data.
+    - **question**: The question.
+    - **answer**: The answer.
+    - **language**: The language of the data.
+
+    Returns the updated or inserted data record.
+
+    Note: The operation now checks for the presence of a question in the database to decide between insert and update.
+    """
+    conn = await get_db_connection()
+    try:
+        # Convert the search question to lowercase to perform a case-insensitive search
+        search_query = f"%{question.lower()}%"
+        # Check if a record with the same question exists
+        existing_row = await conn.fetchrow("SELECT * FROM data WHERE LOWER(question) LIKE $1", search_query)
+
+        if existing_row:
+            # Update the existing record
+            try:
+                await conn.execute(
+                    "UPDATE data SET url = $1, question = $2, answer = $3, language = $4 WHERE id = $5",
+                    url, question, answer, language, existing_row['id']
+                )
+                logger.info(f"Update: {url}")
+                return {"id": existing_row['id'], "url": url, "question": question, "answer": answer, "language": language}
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Update exception: {str(e)}") from e
+        else:
+            # Insert a new record
+            try:
+                row = await conn.fetchrow(
+                    "INSERT INTO data (url, question, answer, language) VALUES ($1, $2, $3, $4) RETURNING id",
+                    url, question, answer, language
+                )
+                logger.info(f"Insert: {url}")
+                return {"id": row['id'], "url": url, "question": question, "answer": answer, "language": language}
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Insert exception: {str(e)}") from e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        await conn.close()
+
+async def init_expert():
+    """
+    Asynchronously retrieves and processes FAQ data from 'https://faq.bsv.admin.ch' to insert into the database.
+
+    The endpoint 'https://faq.bsv.admin.ch/sitemap.xml' is utilized to discover all relevant FAQ URLs. For each URL,
+    the method extracts the primary question (denoted by the 'h1' tag) and its corresponding answer (within an 'article' tag).
+    Unnecessary boilerplate text will be removed for clarity and conciseness.
+
+    Each extracted FAQ entry is then upserted (inserted or updated if already exists) into the database, with detailed
+    logging to track the operation's progress and identify any errors.
+
+    Returns a confirmation message upon successful completion of the process.
+
+    TODO:
+    - Consider implementing error handling at a more granular level to retry failed insertions or updates, enhancing the robustness of the data ingestion process.
+    - Explore optimization opportunities in text extraction and processing to improve efficiency and reduce runtime, especially for large sitemaps.
+    """
+    logging.basicConfig(level=logging.INFO)
+
+    sitemap_url = 'https://faq.bsv.admin.ch/sitemap.xml'
+    scraper = WebScraper(sitemap_url)
+
+    scraper.logger.info(f"Beginne Datenextraktion für: {sitemap_url}")
+    urls = scraper.get_sitemap_urls()
+
+    for url in urls:
+        extracted_h1 = scraper.extract_text_from_tag(url, 'h1')
+        extracted_article = scraper.extract_text_from_tag(url, 'article')
+        language = scraper.detect_language(url)
+
+        # Efficient text processing
+        for term in ['Antwort\n', 'Rispondi\n', 'Réponse\n']:
+            extracted_article = extracted_article.replace(term, '')
+
+        if extracted_h1 and extracted_article:
+            try:
+                logger.info(f"extract: {url}")
+                await update_or_insert_data(
+                    url=url,
+                    question=extracted_h1,
+                    answer=extracted_article,
+                    language=language,
+                    id=None
+                )
+            except Exception as e:
+                logger.error(f"Error: {e}")
+
+    logger.info(f"Done! {len(urls)} wurden verarbeitet.")
+    return {"message": f"Done! {len(urls)} wurden verarbeitet."}
+
 @app.post("/indexing/index_rag_vectordb/", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
 async def index_rag_vectordb():
     return await init_rag_vectordb()
@@ -159,24 +263,38 @@ async def chunk_rag_data():
     """
     return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
+@app.put("/indexing/index_faq_data/", summary="Update or Insert FAQ Data", response_description="Updated or Inserted Data")
+async def index_faq_data():
+    return await init_expert()
+
 @app.on_event("startup")
 async def startup_event():
     await check_db_connection(retries=10, delay=10)
 
-    if indexing_config["dev-mode"]:
-        pass
-
     if indexing_config["faq"]["auto-index"]:
-        try:
-            logger.info("Auto-indexing FAQ data")
-            await init_faq_vectordb()
-        except Exception as e:
-            logger.error("Failed to index FAQ data: %s", e)
+        # With dev-mode, only index sample FAQ data
+        if indexing_config["dev-mode"]:
+            try:
+                logger.info("Auto-indexing sample FAQ data")
+                await init_faq_vectordb()
+            except Exception as e:
+                logger.error("Dev-mode: Failed to index sample FAQ data: %s", e)
+        # If dev-mode is deactivated, scrap and index all bsv.admin.ch FAQ data
+        else:
+            try:
+                logger.info("Auto-indexing bsv.admin.ch FAQ data")
+                await init_expert()
+            except Exception as e:
+                logger.error("Failed to index bsv.admin.ch FAQ data: %s", e)
 
     if indexing_config["rag"]["auto-index"]:
-        try:
-            logger.info("Auto-indexing RAG data")
-            await init_rag_vectordb()
-        except Exception as e:
-            logger.error("Failed to index RAG data: %s", e)
-
+        # With dev-mode, only index sample data
+        if indexing_config["dev-mode"]:
+            try:
+                logger.info("Auto-indexing sample RAG data")
+                await init_rag_vectordb()
+            except Exception as e:
+                logger.error("Failed to index sample RAG data: %s", e)
+        # If dev-mode is deactivated, scrap and index all RAG data (NOTE: Will be implemented soon.)
+        else:
+            raise NotImplementedError("Feature is not implemented yet.")
