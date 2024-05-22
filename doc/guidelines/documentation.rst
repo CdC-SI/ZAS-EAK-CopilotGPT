@@ -1,4 +1,4 @@
-Documentation Standards
+Documentation standards
 #######################
 
 .. attention::
