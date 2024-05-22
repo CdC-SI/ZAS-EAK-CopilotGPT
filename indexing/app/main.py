@@ -275,9 +275,9 @@ async def index_data(url: str, question: str, answer: str, language: str, id: in
 async def startup_event():
     await check_db_connection(retries=10, delay=10)
 
-    if indexing_config["faq"]["auto-index"]:
+    if indexing_config["faq"]["auto_index"]:
         # With dev-mode, only index sample FAQ data
-        if indexing_config["dev-mode"]:
+        if indexing_config["dev_mode"]:
             try:
                 logger.info("Auto-indexing sample FAQ data")
                 await init_faq_vectordb()
@@ -291,9 +291,9 @@ async def startup_event():
             except Exception as e:
                 logger.error("Failed to index bsv.admin.ch FAQ data: %s", e)
 
-    if indexing_config["rag"]["auto-index"]:
+    if indexing_config["rag"]["auto_index"]:
         # With dev-mode, only index sample data
-        if indexing_config["dev-mode"]:
+        if indexing_config["dev_mode"]:
             try:
                 logger.info("Auto-indexing sample RAG data")
                 await init_rag_vectordb()
