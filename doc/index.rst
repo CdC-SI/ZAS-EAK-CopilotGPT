@@ -20,9 +20,9 @@ The current project serves as a proof of concept (PoC), which is slated to concl
    :caption: Introduction
    :hidden:
 
-   intro/intro
-   intro/start
-   intro/updates
+   introduction/intro
+   introduction/start
+   introduction/updates
 
 .. toctree::
    :maxdepth: 2
@@ -38,13 +38,13 @@ The current project serves as a proof of concept (PoC), which is slated to concl
    :caption: Documentation
    :hidden:
 
-   topics/api
-   topics/indexing/index
-   topics/survey/index
-   topics/rag/index
-   topics/chatbot/index
-   topics/autocomplete/index
-   topics/gui/index
+   documentation/api
+   documentation/indexing/index
+   documentation/survey/index
+   documentation/rag/index
+   documentation/chatbot/index
+   documentation/autocomplete/index
+   documentation/gui/index
 
 .. toctree::
    :maxdepth: 2

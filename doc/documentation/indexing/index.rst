@@ -1,5 +1,5 @@
-Indexing Pipeline
-#################
+IndexingPipeline
+################
 
 .. automodule:: indexing.app.main
    :members:
