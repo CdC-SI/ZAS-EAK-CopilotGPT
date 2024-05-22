@@ -372,7 +372,7 @@
 <h2>Structure<a class="headerlink" href="#structure" title="Link to this heading">¶</a></h2>
 <p>Files related to the documentation can be found inside the <code class="docutils literal notranslate"><span class="pre">doc/</span></code> directory.</p>
 <p>Currently, our /doc folder is structured as follows.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>doc
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>doc
 ├── _static
 │   ├ css
 │   └ img
@@ -404,7 +404,7 @@ Each <code class="docutils literal notranslate"><span class="pre">toctree</span>
 <p>Thus, there are 3 <code class="docutils literal notranslate"><span class="pre">toctree</span></code> defined in doc/index.rst, one for each theme, whose each structure can be visualized as below.</p>
 <div class="tab-set docutils">
 <input checked="True" class="tab-input" id="tab-set--0-input--1" name="tab-set--0" type="radio"><label class="tab-label" for="tab-set--0-input--1">Introduction</label><div class="tab-content docutils">
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Introduction
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Introduction
 ├── introduction/intro (EAK-Copilot)
 ├── introduction/start (Getting Started)
 └── introduction/udpate (Updates)
@@ -412,7 +412,7 @@ Each <code class="docutils literal notranslate"><span class="pre">toctree</span>
 </div>
 </div>
 <input class="tab-input" id="tab-set--0-input--2" name="tab-set--0" type="radio"><label class="tab-label" for="tab-set--0-input--2">Guidelines</label><div class="tab-content docutils">
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Introduction
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Introduction
 ├── guidelines/opensource (Open-Source collaboration)
 ├── guidelines/documentation (Documentation standards)
 └── guidelines/sphinx (Sphinx documentation) &lt;--- you are here
@@ -420,7 +420,7 @@ Each <code class="docutils literal notranslate"><span class="pre">toctree</span>
 </div>
 </div>
 <input class="tab-input" id="tab-set--0-input--3" name="tab-set--0" type="radio"><label class="tab-label" for="tab-set--0-input--3">Documentation</label><div class="tab-content docutils">
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Documentation
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Documentation
 ├── documentation/api (API)
 ├── documentation/indexing/index (IndexingPipeline)
 │   ├ crawler
@@ -456,111 +456,111 @@ Especially, the <a class="reference external" href="https://pradyunsg.me/furo/re
 <h3>Headers convention<a class="headerlink" href="#headers-convention" title="Link to this heading">¶</a></h3>
 <p>The underline and optional overline with a punctuation character needs to be at least as long as the text.
 Normally, there are no heading levels assigned to specific character, but the recommended way is as follow.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">####################################</span>
-<span class="n">Part</span> <span class="o">--</span> <span class="n">Number</span> <span class="n">Signs</span> <span class="n">above</span> <span class="ow">and</span> <span class="n">below</span>
-<span class="c1">####################################</span>
+<div class="highlight-RST notranslate"><div class="highlight"><pre><span></span><span class="gh">####################################</span>
+<span class="gh">Part -- Number Signs above and below</span>
+<span class="gh">####################################</span>
 
-<span class="o">************************************</span>
-<span class="n">Chapter</span> <span class="o">--</span> <span class="n">Asterisks</span> <span class="n">above</span> <span class="ow">and</span> <span class="n">below</span>
-<span class="o">************************************</span>
+<span class="gh">************************************</span>
+<span class="gh">Chapter -- Asterisks above and below</span>
+<span class="gh">************************************</span>
 
-<span class="n">Title</span> <span class="o">--</span> <span class="n">Number</span> <span class="n">Signs</span>
-<span class="c1">#####################</span>
+<span class="gh">Title -- Number Signs</span>
+<span class="gh">#####################</span>
 
-<span class="n">Suptitle</span> <span class="o">--</span> <span class="n">Asterisks</span>
-<span class="o">*********************</span>
+<span class="gh">Suptitle -- Asterisks</span>
+<span class="gh">*********************</span>
 
-<span class="n">Section</span> <span class="o">--</span> <span class="n">Equal</span> <span class="n">Signs</span>
-<span class="o">======================</span>
+<span class="gh">Section -- Equal Signs</span>
+<span class="gh">======================</span>
 
-<span class="n">Subsection</span> <span class="o">--</span> <span class="n">Hyphens</span>
-<span class="o">---------------------</span>
+<span class="gh">Subsection -- Hyphens</span>
+<span class="gh">---------------------</span>
 
-<span class="n">Subsubsection</span> <span class="o">--</span> <span class="n">Circumflex</span>
-<span class="o">^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
+<span class="gh">Subsubsection -- Circumflex</span>
+<span class="gh">^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
 
-<span class="n">Paragraph</span> <span class="o">--</span> <span class="n">Double</span> <span class="n">Quotes</span>
-<span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span><span class="s2">&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;</span>
+<span class="gh">Paragraph -- Double Quotes</span>
+<span class="gh">&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;</span>
 </pre></div>
 </div>
 </section>
 <section id="inline-markup">
 <h3>Inline markup<a class="headerlink" href="#inline-markup" title="Link to this heading">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>*italic text*
-**bold text**
-``code samples``
+<div class="highlight-RST notranslate"><div class="highlight"><pre><span></span><span class="ge">*italic text*</span>
+<span class="gs">**bold text**</span>
+<span class="s">``code samples``</span>
 </pre></div>
 </div>
 </section>
 <section id="lists">
 <h3>Lists<a class="headerlink" href="#lists" title="Link to this heading">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="n">This</span> <span class="ow">is</span> <span class="n">a</span> <span class="n">bulleted</span> <span class="nb">list</span><span class="o">.</span>
-<span class="o">*</span> <span class="n">It</span> <span class="n">has</span> <span class="n">two</span> <span class="n">items</span><span class="p">,</span> <span class="n">the</span> <span class="n">second</span>
-  <span class="n">item</span> <span class="n">uses</span> <span class="n">two</span> <span class="n">lines</span><span class="p">,</span>
+<div class="highlight-RST notranslate"><div class="highlight"><pre><span></span><span class="m">*</span> This is a bulleted list.
+<span class="m">*</span> It has two items, the second
+  item uses two lines,
 
-  <span class="o">*</span> <span class="ow">and</span> <span class="n">a</span> <span class="n">nested</span> <span class="nb">list</span>
-  <span class="o">*</span> <span class="ow">and</span> <span class="n">some</span> <span class="n">subitems</span>
+  <span class="m">*</span> and a nested list
+  <span class="m">*</span> and some subitems
 
-<span class="o">*</span> <span class="n">the</span> <span class="n">parent</span> <span class="nb">list</span> <span class="n">continues</span>
+<span class="m">*</span> the parent list continues
 
-<span class="mf">1.</span> <span class="n">This</span> <span class="ow">is</span> <span class="n">a</span> <span class="n">numbered</span> <span class="nb">list</span><span class="o">.</span>
-<span class="mf">2.</span> <span class="n">It</span> <span class="n">has</span> <span class="n">two</span> <span class="n">items</span> <span class="n">too</span><span class="o">.</span>
+<span class="m">1.</span> This is a numbered list.
+<span class="m">2.</span> It has two items too.
 
-<span class="c1">#. This is a numbered list.</span>
-<span class="c1">#. It has two items too.</span>
+<span class="m">#.</span> This is a numbered list.
+<span class="m">#.</span> It has two items too.
 </pre></div>
 </div>
 <p>Note that both <code class="docutils literal notranslate"><span class="pre">*</span></code> and <code class="docutils literal notranslate"><span class="pre">-</span></code> signs work for a bulleted list.</p>
 </section>
 <section id="hyperlinks">
 <h3>Hyperlinks<a class="headerlink" href="#hyperlinks" title="Link to this heading">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Hyperlinks can take various forms, so here&#39;s a list of them:
+<div class="highlight-RST notranslate"><div class="highlight"><pre><span></span>Hyperlinks can take various forms, so here&#39;s a list of them:
 
-- standalone hyperlink: https://python.org/
-- hyperlink using references: `link &lt;link&gt;`__
-- hyperlink with inline URL: `link &lt;https://python.org/&gt;`_
-- hyperlink to a different page: :doc:`link &lt;../quickstart&gt;`
-- hyperlink to a specific API element: :class:`pathlib.Path`
+<span class="m">-</span> standalone hyperlink: https://python.org/
+<span class="m">-</span> hyperlink using references: <span class="s">`link </span><span class="si">&lt;link&gt;</span><span class="s">`__</span>
+<span class="m">-</span> hyperlink with inline URL: <span class="s">`link </span><span class="si">&lt;https://python.org/&gt;</span><span class="s">`_</span>
+<span class="m">-</span> hyperlink to a different page: <span class="na">:doc:</span><span class="nv">`link &lt;../quickstart&gt;`</span>
+<span class="m">-</span> hyperlink to a specific API element: <span class="na">:class:</span><span class="nv">`pathlib.Path`</span>
 
-.. _link: https://python.org/
+<span class="p">..</span> <span class="nt">_link:</span> https://python.org/
 </pre></div>
 </div>
 </section>
 <section id="image">
 <h3>Image<a class="headerlink" href="#image" title="Link to this heading">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>.. image:: https://source.unsplash.com/200x200/daily?cute+animals
+<div class="highlight-RST notranslate"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">image</span><span class="p">::</span> https://source.unsplash.com/200x200/daily?cute+animals
 </pre></div>
 </div>
 </section>
 <section id="code-blocks">
 <h3>Code Blocks<a class="headerlink" href="#code-blocks" title="Link to this heading">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Below</span> <span class="ow">is</span> <span class="n">a</span> <span class="n">code</span> <span class="n">blocks</span><span class="p">::</span>
+<div class="highlight-RST notranslate"><div class="highlight"><pre><span></span>Below is a code blocks<span class="se">::</span>
 
-    <span class="n">Indenting</span> <span class="n">content</span> <span class="n">by</span> <span class="mi">4</span> <span class="n">spaces</span><span class="p">,</span> <span class="n">after</span> <span class="n">a</span> <span class="n">line</span> <span class="n">ends</span> <span class="k">with</span> <span class="s2">&quot;::&quot;</span><span class="o">.</span>
-    <span class="n">This</span> <span class="n">will</span> <span class="n">have</span> <span class="n">default</span> <span class="n">syntax</span> <span class="n">highlighting</span> <span class="p">(</span><span class="n">highlighting</span> <span class="n">a</span> <span class="n">few</span> <span class="n">words</span> <span class="ow">and</span> <span class="s2">&quot;strings&quot;</span><span class="p">)</span><span class="o">.</span>
+<span class="s">    Indenting content by 4 spaces, after a line ends with &quot;::&quot;.</span>
+<span class="s">    This will have default syntax highlighting (highlighting a few words and &quot;strings&quot;).</span>
 
-<span class="o">..</span> <span class="n">code</span><span class="p">::</span>
+<span class="p">..</span> <span class="ow">code</span><span class="p">::</span>
 
-    <span class="n">You</span> <span class="n">can</span> <span class="n">also</span> <span class="n">use</span> <span class="n">the</span> <span class="n">code</span> <span class="n">directive</span><span class="p">,</span> <span class="ow">or</span> <span class="n">an</span> <span class="n">alias</span><span class="p">:</span> <span class="n">code</span><span class="o">-</span><span class="n">block</span><span class="p">,</span> <span class="n">sourcecode</span><span class="o">.</span>
-    <span class="n">This</span> <span class="n">will</span> <span class="n">have</span> <span class="n">default</span> <span class="n">syntax</span> <span class="n">highlighting</span> <span class="p">(</span><span class="n">highlighting</span> <span class="n">a</span> <span class="n">few</span> <span class="n">words</span> <span class="ow">and</span> <span class="s2">&quot;strings&quot;</span><span class="p">)</span><span class="o">.</span>
+    You can also use the code directive, or an alias: code-block, sourcecode.
+    This will have default syntax highlighting (highlighting a few words and &quot;strings&quot;).
 
-<span class="o">..</span> <span class="n">code</span><span class="p">::</span> <span class="n">python</span>
+<span class="p">..</span> <span class="ow">code</span><span class="p">::</span> <span class="k">python</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;And with the directive syntax, you can have syntax highlighting.&quot;</span><span class="p">)</span>
 
-<span class="o">..</span> <span class="n">code</span><span class="p">::</span> <span class="n">none</span>
+<span class="p">..</span> <span class="ow">code</span><span class="p">::</span> none
 
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Or disable all syntax highlighting.&quot;</span><span class="p">)</span>
+    print(&quot;Or disable all syntax highlighting.&quot;)
 </pre></div>
 </div>
 </section>
 <section id="api-documentation">
 <h3>API documentation<a class="headerlink" href="#api-documentation" title="Link to this heading">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">..</span> <span class="n">automodule</span><span class="p">::</span> <span class="n">indexing</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">main</span>
-   <span class="p">:</span><span class="n">members</span><span class="p">:</span>
+<div class="highlight-RST notranslate"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">automodule</span><span class="p">::</span> indexing.app.main
+   <span class="nc">:members:</span>
 
-<span class="o">..</span> <span class="n">autoclass</span><span class="p">::</span> <span class="n">web_scraper</span><span class="o">.</span><span class="n">WebScraper</span>
-    <span class="p">:</span><span class="n">members</span><span class="p">:</span>
+<span class="p">..</span> <span class="ow">autoclass</span><span class="p">::</span> web_scraper.WebScraper
+    <span class="nc">:members:</span>
 </pre></div>
 </div>
 </section>

@@ -40,7 +40,7 @@ Files related to the documentation can be found inside the ``doc/`` directory.
 
 Currently, our /doc folder is structured as follows.
 
-.. code::
+.. code:: none
 
     doc
     ├── _static
@@ -74,7 +74,7 @@ Thus, there are 3 ``toctree`` defined in doc/index.rst, one for each theme, whos
 
 .. tab:: Introduction
 
-    .. code::
+    .. code:: none
 
         Introduction
         ├── introduction/intro (EAK-Copilot)
@@ -83,7 +83,7 @@ Thus, there are 3 ``toctree`` defined in doc/index.rst, one for each theme, whos
 
 .. tab:: Guidelines
 
-    .. code::
+    .. code:: none
 
         Introduction
         ├── guidelines/opensource (Open-Source collaboration)
@@ -92,7 +92,7 @@ Thus, there are 3 ``toctree`` defined in doc/index.rst, one for each theme, whos
 
 .. tab:: Documentation
 
-    .. code::
+    .. code:: none
 
         Documentation
         ├── documentation/api (API)
@@ -134,7 +134,7 @@ Headers convention
 The underline and optional overline with a punctuation character needs to be at least as long as the text.
 Normally, there are no heading levels assigned to specific character, but the recommended way is as follow.
 
-.. code::
+.. code:: RST
 
     ####################################
     Part -- Number Signs above and below
@@ -165,7 +165,7 @@ Normally, there are no heading levels assigned to specific character, but the re
 Inline markup
 -------------
 
-.. code::
+.. code:: RST
 
     *italic text*
     **bold text**
@@ -174,7 +174,7 @@ Inline markup
 Lists
 -----
 
-.. code::
+.. code:: RST
 
     * This is a bulleted list.
     * It has two items, the second
@@ -196,7 +196,7 @@ Note that both ``*`` and ``-`` signs work for a bulleted list.
 Hyperlinks
 ----------
 
-.. code::
+.. code:: RST
 
     Hyperlinks can take various forms, so here's a list of them:
 
@@ -211,14 +211,14 @@ Hyperlinks
 Image
 -----
 
-.. code::
+.. code:: RST
 
     .. image:: https://source.unsplash.com/200x200/daily?cute+animals
 
 Code Blocks
 -----------
 
-.. code::
+.. code:: RST
 
     Below is a code blocks::
 
@@ -241,7 +241,7 @@ Code Blocks
 API documentation
 -----------------
 
-.. code::
+.. code:: RST
 
     .. automodule:: indexing.app.main
        :members:
