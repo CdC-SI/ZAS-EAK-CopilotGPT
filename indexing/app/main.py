@@ -263,9 +263,13 @@ async def chunk_rag_data():
     """
     return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
-@app.put("/indexing/index_faq_data/", summary="Update or Insert FAQ Data", response_description="Updated or Inserted Data")
+@app.put("/indexing/index_faq_data/", summary="Insert Data from faq.bsv.admin.ch", response_description="Insert Data from faq.bsv.admin.ch")
 async def index_faq_data():
     return await init_expert()
+
+@app.put("/indexing/data/", summary="Update or Insert FAQ Data", response_description="Updated or Inserted Data")
+async def index_data(url: str, question: str, answer: str, language: str, id: int = Body(None)):
+    return await update_or_insert_data(url, question, answer, language, id)
 
 @app.on_event("startup")
 async def startup_event():
