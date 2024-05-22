@@ -2,10 +2,12 @@ import logging
 
 from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import Response
+from fastapi.middleware.cors import CORSMiddleware
 import httpx
 
 # Load env variables
 from config.base_config import rag_config
+from config.network_config import CORS_ALLOWED_ORIGINS
 
 # Load utility functions
 from utils.embedding import get_embedding
@@ -20,6 +22,15 @@ logger = logging.getLogger(__name__)
 
 # Create an instance of FastAPI
 app = FastAPI()
+
+# Setup CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[CORS_ALLOWED_ORIGINS],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post("/rag/docs", summary="Retrieve context docs endpoint", response_description="Return context docs from semantic search", status_code=200)
 async def docs(request: RAGRequest):
