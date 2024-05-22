@@ -33,7 +33,7 @@ Prerequisites
 An ``index.html`` document can now be found in the ``_build/html/`` directory. You can open it with your favorite browser and start exploring!
 
 
-Documentation structure
+Structure
 =======================
 
 Files related to the documentation can be found inside the ``doc/`` directory.
