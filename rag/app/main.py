@@ -22,7 +22,17 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 # Create an instance of FastAPI
-app = FastAPI()
+app = FastAPI(title="RAG service app",
+              description="Provides endpoint for RAG",
+              summary="RAG service app",
+              version="0.1.0",
+              terms_of_service="https://cdc-si.github.io/eak-copilot/",
+              contact={"name": "Kieran Schubert",
+                       "url": "https://admindir.verzeichnisse.admin.ch/person/p-1ZR8JLGPP",
+                       "email": "kieran.schubert@zas.admin.ch"},
+              license_info={"name": "GPL-3.0",
+                            "url": "https://www.gnu.org/licenses/gpl-3.0.en.html"}
+              )
 
 # Setup CORS
 app.add_middleware(
@@ -34,7 +44,7 @@ app.add_middleware(
 )
 
 @app.post("/rag/process", summary="Process RAG query endpoint", response_description="Return result from processing RAG query", status_code=200)
-async def process_query(request: QueryRequest):
+async def process_query(request: str):
     return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 @app.post("/rag/docs", summary="Retrieve context docs endpoint", response_description="Return context docs from semantic search", status_code=200)
