@@ -8,7 +8,7 @@ import httpx
 from pyxdameraulevenshtein import damerau_levenshtein_distance
 
 # Load env variables
-from config.base_config import autocomplete_config
+from config.base_config import autocomplete_config, autocomplete_app_config
 from config.network_config import CORS_ALLOWED_ORIGINS
 from config.pgvector_config import SIMILARITY_METRICS
 
@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 # Create an instance of FastAPI
-app = FastAPI()
+app = FastAPI(**autocomplete_app_config)
 
 # Setup CORS
 app.add_middleware(

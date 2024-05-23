@@ -12,8 +12,14 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../api/app'))
+sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../api'))
+sys.path.insert(0, os.path.abspath('../autocomplete/app'))
+sys.path.insert(0, os.path.abspath('../chatbot'))
+sys.path.insert(0, os.path.abspath('../indexing/app'))
+sys.path.insert(0, os.path.abspath('../rag/app'))
 # sys.path.insert(0, os.path.abspath('../other/app/path'))
+# missing survey pipeline and gui
 
 # -- Project information -----------------------------------------------------
 
@@ -34,6 +40,8 @@ extensions = [
     'sphinx.ext.todo',
     "sphinx_copybutton",
     "myst_parser",
+    "sphinx_inline_tabs",
+    'sphinx.ext.napoleon',
 ]
 autodoc_mock_imports = ["fastapi"]
 todo_include_todos = True

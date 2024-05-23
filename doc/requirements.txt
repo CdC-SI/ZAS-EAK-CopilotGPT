@@ -2,3 +2,4 @@ sphinx
 furo
 sphinx-copybutton
 myst-parser
+sphinx-inline-tabs
