@@ -18,7 +18,10 @@ rag:
     metric: cosine_similarity
   llm:
     model: gpt-4o
+    temperature: 0
     max_output_tokens: 512
+    top_p: 0.95
+    stream: true
 indexing:
   dev_mode: true
   faq:
