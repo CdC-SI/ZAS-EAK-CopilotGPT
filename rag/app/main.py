@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import httpx
 
 # Load env variables
-from config.base_config import rag_config
+from config.base_config import rag_config, rag_app_config
 from config.network_config import CORS_ALLOWED_ORIGINS
 from config.pgvector_config import SIMILARITY_METRICS
 
@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 # Create an instance of FastAPI
-app = FastAPI()
+app = FastAPI(**rag_app_config)
 
 # Setup CORS
 app.add_middleware(

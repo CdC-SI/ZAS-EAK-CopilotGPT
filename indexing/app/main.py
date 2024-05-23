@@ -6,7 +6,7 @@ from fastapi.responses import Response
 import httpx
 
 # Load env variables
-from config.base_config import indexing_config
+from config.base_config import indexing_config, indexing_app_config
 
 # Load utility functions
 from utils.db import get_db_connection, check_db_connection
@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 # Create an instance of FastAPI
-app = FastAPI()
+app = FastAPI(**indexing_app_config)
 
 async def init_rag_vectordb():
 
