@@ -337,11 +337,19 @@
 <li><p><strong>Automation of Routine Tasks:</strong> Reduces monotonous research tasks and the finding of information, allowing employees to focus on more important tasks.</p></li>
 <li><p><strong>Decision Support:</strong> Provides real-time assistance in decision-making through advanced algorithms.</p></li>
 </ul>
+<section id="implemented-features">
+<h3>Implemented features<a class="headerlink" href="#implemented-features" title="Link to this heading">¶</a></h3>
+<p>The EAK-Copilot currently has the following features implemented</p>
+<p>Question autosuggest: High quality curated questions (from FAQ) are suggested in the chatbar based on the user input. Validated answers with sources are then returned in the chat. Autocomplete currently supports exact match, fuzzy match and semantic similarity match.
+RAG: When no known question/answer pairs are found through autosuggest, RAG is initiated. A semantic similarity search will match the most relevant indexed documents in a vector database and an LLM will generate an answer based on these documents, providing the source of the answer.</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
+<figure class="align-center">
 <a class="reference internal image-reference" href="../_images/demo-video.gif"><img alt="../_images/demo-video.gif" src="../_images/demo-video.gif" style="width: 800px;" />
 </a>
+</figure>
+</section>
 </section>
 </section>
 
@@ -401,7 +409,10 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">EAK-Copilot</a><ul>
-<li><a class="reference internal" href="#features">Features</a></li>
+<li><a class="reference internal" href="#features">Features</a><ul>
+<li><a class="reference internal" href="#implemented-features">Implemented features</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
