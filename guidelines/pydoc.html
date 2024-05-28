@@ -336,194 +336,397 @@
 </pre></div>
 </div>
 </div>
-<section id="sphinx-docstrings">
-<h2>Sphinx docstrings<a class="headerlink" href="#sphinx-docstrings" title="Link to this heading">¶</a></h2>
+<section id="numpy-docstrings">
+<h2>NumPy docstrings<a class="headerlink" href="#numpy-docstrings" title="Link to this heading">¶</a></h2>
 <p>Our documentation relies on <a class="reference external" href="https://www.sphinx-doc.org/">Sphinx</a> to generate comprehensible description of modules and class.
-To help making it easier to maintain, please follow the <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/domains/python.html">Sphinx docstring format</a> when contributing to the project with Python files.</p>
-<p>A typical Sphinx docstring is structured as following.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;[Summary]</span>
+To help making it easier to maintain, please follow the <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">NumPy style guide</a> when contributing to the project with Python files.</p>
+<p>A typical NumPy docstring is structured as following.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">My numpydoc description of a kind</span>
+<span class="sd">of very exhautive numpydoc format docstring.</span>
 
-<span class="sd">:param [ParamName]: [ParamDescription], defaults to [DefaultParamVal]</span>
-<span class="sd">:type [ParamName]: [ParamType](, optional)</span>
-<span class="sd">...</span>
-<span class="sd">:raises [ErrorType]: [ErrorDescription]</span>
-<span class="sd">...</span>
-<span class="sd">:return: [ReturnDescription]</span>
-<span class="sd">:rtype: [ReturnType]</span>
+<span class="sd">Parameters</span>
+<span class="sd">----------</span>
+<span class="sd">first : array_like</span>
+<span class="sd">    the 1st param name `first`</span>
+<span class="sd">second :</span>
+<span class="sd">    the 2nd param</span>
+<span class="sd">third : {&#39;value&#39;, &#39;other&#39;}, optional</span>
+<span class="sd">    the 3rd param, by default &#39;value&#39;</span>
+
+<span class="sd">Returns</span>
+<span class="sd">-------</span>
+<span class="sd">string</span>
+<span class="sd">    a value in a string</span>
+
+<span class="sd">Raises</span>
+<span class="sd">------</span>
+<span class="sd">KeyError</span>
+<span class="sd">    when a key error</span>
+<span class="sd">OtherError</span>
+<span class="sd">    when an other error</span>
 <span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 </div>
-<ul class="simple">
-<li><p>The pair <code class="docutils literal notranslate"><span class="pre">:param:</span></code> and <code class="docutils literal notranslate"><span class="pre">:type:</span></code> options must be used for each <strong>parameter</strong> we wish to document.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">:raises:</span></code> option is used to describe any <strong>errors</strong> that are raised by the code.</p></li>
-<li><p>The pair <code class="docutils literal notranslate"><span class="pre">:return:</span></code> and <code class="docutils literal notranslate"><span class="pre">:rtype:</span></code> options are used to describe any <strong>values returned</strong> by our code.</p></li>
-</ul>
 <section id="example">
 <h3>Example<a class="headerlink" href="#example" title="Link to this heading">¶</a></h3>
-<p>The following example is taken from <a class="reference external" href="https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html">Sphinx-RTD-Tutorial</a> documentation.
-It displays a typical class documentation. The docstrings are written for a <code class="docutils literal notranslate"><span class="pre">SimpleBleDevice</span></code> defined within a <code class="docutils literal notranslate"><span class="pre">simpleble</span></code> module.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SimpleBleDevice</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;This is a conceptual class representation of a simple BLE device</span>
-<span class="sd">    (GATT Server). It is essentially an extended combination of the</span>
-<span class="sd">    :class:`bluepy.btle.Peripheral` and :class:`bluepy.btle.ScanEntry` classes</span>
+<p>The following example is taken from the <a href="#id1"><span class="problematic" id="id2">`Sphinx official documentation &lt;https://www.sphinx-doc.org/en/master/usage/extensions/example_numpy.html#example-numpy`_</span></a>.
+It displays a typical Numpy style documentation for a <cite>.py</cite> file.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example NumPy style docstrings.</span>
 
-<span class="sd">    :param client: A handle to the :class:`simpleble.SimpleBleClient` client</span>
-<span class="sd">        object that detected the device</span>
-<span class="sd">    :type client: class:`simpleble.SimpleBleClient`</span>
-<span class="sd">    :param addr: Device MAC address, defaults to None</span>
-<span class="sd">    :type addr: str, optional</span>
-<span class="sd">    :param addrType: Device address type - one of ADDR_TYPE_PUBLIC or</span>
-<span class="sd">        ADDR_TYPE_RANDOM, defaults to ADDR_TYPE_PUBLIC</span>
-<span class="sd">    :type addrType: str, optional</span>
-<span class="sd">    :param iface: Bluetooth interface number (0 = /dev/hci0) used for the</span>
-<span class="sd">        connection, defaults to 0</span>
-<span class="sd">    :type iface: int, optional</span>
-<span class="sd">    :param data: A list of tuples (adtype, description, value) containing the</span>
-<span class="sd">        AD type code, human-readable description and value for all available</span>
-<span class="sd">        advertising data items, defaults to None</span>
-<span class="sd">    :type data: list, optional</span>
-<span class="sd">    :param rssi: Received Signal Strength Indication for the last received</span>
-<span class="sd">        broadcast from the device. This is an integer value measured in dB,</span>
-<span class="sd">        where 0 dB is the maximum (theoretical) signal strength, and more</span>
-<span class="sd">        negative numbers indicate a weaker signal, defaults to 0</span>
-<span class="sd">    :type rssi: int, optional</span>
-<span class="sd">    :param connectable: `True` if the device supports connections, and `False`</span>
-<span class="sd">        otherwise (typically used for advertising ‘beacons’).,</span>
-<span class="sd">        defaults to `False`</span>
-<span class="sd">    :type connectable: bool, optional</span>
-<span class="sd">    :param updateCount: Integer count of the number of advertising packets</span>
-<span class="sd">        received from the device so far, defaults to 0</span>
-<span class="sd">    :type updateCount: int, optional</span>
+<span class="sd">This module demonstrates documentation as specified by the `NumPy</span>
+<span class="sd">Documentation HOWTO`_. Docstrings may extend over multiple lines. Sections</span>
+<span class="sd">are created with a section header followed by an underline of equal length.</span>
+
+<span class="sd">Example</span>
+<span class="sd">-------</span>
+<span class="sd">Examples can be given using either the ``Example`` or ``Examples``</span>
+<span class="sd">sections. Sections support any reStructuredText formatting, including</span>
+<span class="sd">literal blocks::</span>
+
+<span class="sd">    $ python example_numpy.py</span>
+
+
+<span class="sd">Section breaks are created with two blank lines. Section breaks are also</span>
+<span class="sd">implicitly created anytime a new section starts. Section bodies *may* be</span>
+<span class="sd">indented:</span>
+
+<span class="sd">Notes</span>
+<span class="sd">-----</span>
+<span class="sd">    This is an example of an indented section. It&#39;s like any other section,</span>
+<span class="sd">    but the body is indented to help it stand out from surrounding text.</span>
+
+<span class="sd">If a section is indented, then a section break is created by</span>
+<span class="sd">resuming unindented text.</span>
+
+<span class="sd">Attributes</span>
+<span class="sd">----------</span>
+<span class="sd">module_level_variable1 : int</span>
+<span class="sd">    Module level variables may be documented in either the ``Attributes``</span>
+<span class="sd">    section of the module docstring, or in an inline docstring immediately</span>
+<span class="sd">    following the variable.</span>
+
+<span class="sd">    Either form is acceptable, but the two should not be mixed. Choose</span>
+<span class="sd">    one convention to document module level variables and be consistent</span>
+<span class="sd">    with it.</span>
+
+
+<span class="sd">.. _NumPy Documentation HOWTO:</span>
+<span class="sd">   https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">module_level_variable1</span> <span class="o">=</span> <span class="mi">12345</span>
+
+<span class="n">module_level_variable2</span> <span class="o">=</span> <span class="mi">98765</span>
+<span class="sd">&quot;&quot;&quot;int: Module level variable documented inline.</span>
+
+<span class="sd">The docstring may span multiple lines. The type may optionally be specified</span>
+<span class="sd">on the first line, separated by a colon.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">function_with_types_in_docstring</span><span class="p">(</span><span class="n">param1</span><span class="p">,</span> <span class="n">param2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Example function with types documented in the docstring.</span>
+
+<span class="sd">    `PEP 484`_ type annotations are supported. If attribute, parameter, and</span>
+<span class="sd">    return types are annotated according to `PEP 484`_, they do not need to be</span>
+<span class="sd">    included in the docstring:</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    param1 : int</span>
+<span class="sd">        The first parameter.</span>
+<span class="sd">    param2 : str</span>
+<span class="sd">        The second parameter.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if successful, False otherwise.</span>
+
+<span class="sd">    .. _PEP 484:</span>
+<span class="sd">        https://www.python.org/dev/peps/pep-0484/</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">,</span> <span class="n">addr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">addrType</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">iface</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                 <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rssi</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">connectable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">updateCount</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor method</span>
+
+<span class="k">def</span> <span class="nf">function_with_pep484_type_annotations</span><span class="p">(</span><span class="n">param1</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">param2</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Example function with PEP 484 type annotations.</span>
+
+<span class="sd">    The return type must be duplicated in the docstring to comply</span>
+<span class="sd">    with the NumPy docstring style.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    param1</span>
+<span class="sd">        The first parameter.</span>
+<span class="sd">    param2</span>
+<span class="sd">        The second parameter.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if successful, False otherwise.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">module_level_function</span><span class="p">(</span><span class="n">param1</span><span class="p">,</span> <span class="n">param2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This is an example of a module level function.</span>
+
+<span class="sd">    Function parameters should be documented in the ``Parameters`` section.</span>
+<span class="sd">    The name of each parameter is required. The type and description of each</span>
+<span class="sd">    parameter is optional, but should be included if not obvious.</span>
+
+<span class="sd">    If \*args or \*\*kwargs are accepted,</span>
+<span class="sd">    they should be listed as ``*args`` and ``**kwargs``.</span>
+
+<span class="sd">    The format for a parameter is::</span>
+
+<span class="sd">        name : type</span>
+<span class="sd">            description</span>
+
+<span class="sd">            The description may span multiple lines. Following lines</span>
+<span class="sd">            should be indented to match the first line of the description.</span>
+<span class="sd">            The &quot;: type&quot; is optional.</span>
+
+<span class="sd">            Multiple paragraphs are supported in parameter</span>
+<span class="sd">            descriptions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    param1 : int</span>
+<span class="sd">        The first parameter.</span>
+<span class="sd">    param2 : :obj:`str`, optional</span>
+<span class="sd">        The second parameter.</span>
+<span class="sd">    *args</span>
+<span class="sd">        Variable length argument list.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Arbitrary keyword arguments.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if successful, False otherwise.</span>
+
+<span class="sd">        The return type is not optional. The ``Returns`` section may span</span>
+<span class="sd">        multiple lines and paragraphs. Following lines should be indented to</span>
+<span class="sd">        match the first line of the description.</span>
+
+<span class="sd">        The ``Returns`` section supports any reStructuredText formatting,</span>
+<span class="sd">        including literal blocks::</span>
+
+<span class="sd">            {</span>
+<span class="sd">                &#39;param1&#39;: param1,</span>
+<span class="sd">                &#39;param2&#39;: param2</span>
+<span class="sd">            }</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    AttributeError</span>
+<span class="sd">        The ``Raises`` section is a list of all exceptions</span>
+<span class="sd">        that are relevant to the interface.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If `param2` is equal to `param1`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">param1</span> <span class="o">==</span> <span class="n">param2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;param1 may not be equal to param2&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">True</span>
+
+
+<span class="k">def</span> <span class="nf">example_generator</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generators have a ``Yields`` section instead of a ``Returns`` section.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n : int</span>
+<span class="sd">        The upper limit of the range to generate, from 0 to `n` - 1.</span>
+
+<span class="sd">    Yields</span>
+<span class="sd">    ------</span>
+<span class="sd">    int</span>
+<span class="sd">        The next number in the range of 0 to `n` - 1.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Examples should be written in doctest format, and should illustrate how</span>
+<span class="sd">    to use the function.</span>
+
+<span class="sd">    &gt;&gt;&gt; print([i for i in example_generator(4)])</span>
+<span class="sd">    [0, 1, 2, 3]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">i</span>
+
+
+<span class="k">class</span> <span class="nc">ExampleError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exceptions are documented in the same way as classes.</span>
+
+<span class="sd">    The __init__ method may be documented in either the class level</span>
+<span class="sd">    docstring, or as a docstring on the __init__ method itself.</span>
+
+<span class="sd">    Either form is acceptable, but the two should not be mixed. Choose one</span>
+<span class="sd">    convention to document the __init__ method and be consistent with it.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    Do not include the `self` parameter in the ``Parameters`` section.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    msg : str</span>
+<span class="sd">        Human readable string describing the exception.</span>
+<span class="sd">    code : :obj:`int`, optional</span>
+<span class="sd">        Numeric error code.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    msg : str</span>
+<span class="sd">        Human readable string describing the exception.</span>
+<span class="sd">    code : int</span>
+<span class="sd">        Numeric error code.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">code</span> <span class="o">=</span> <span class="n">code</span>
+
+
+<span class="k">class</span> <span class="nc">ExampleClass</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The summary line for a class docstring should fit on one line.</span>
+
+<span class="sd">    If the class has public attributes, they may be documented here</span>
+<span class="sd">    in an ``Attributes`` section and follow the same formatting as a</span>
+<span class="sd">    function&#39;s ``Args`` section. Alternatively, attributes may be documented</span>
+<span class="sd">    inline with the attribute&#39;s declaration (see __init__ method below).</span>
+
+<span class="sd">    Properties created with the ``@property`` decorator should be documented</span>
+<span class="sd">    in the property&#39;s getter method.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    attr1 : str</span>
+<span class="sd">        Description of `attr1`.</span>
+<span class="sd">    attr2 : :obj:`int`, optional</span>
+<span class="sd">        Description of `attr2`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param1</span><span class="p">,</span> <span class="n">param2</span><span class="p">,</span> <span class="n">param3</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Example of docstring on the __init__ method.</span>
+
+<span class="sd">        The __init__ method may be documented in either the class level</span>
+<span class="sd">        docstring, or as a docstring on the __init__ method itself.</span>
+
+<span class="sd">        Either form is acceptable, but the two should not be mixed. Choose one</span>
+<span class="sd">        convention to document the __init__ method and be consistent with it.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        Do not include the `self` parameter in the ``Parameters`` section.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        param1 : str</span>
+<span class="sd">            Description of `param1`.</span>
+<span class="sd">        param2 : :obj:`list` of :obj:`str`</span>
+<span class="sd">            Description of `param2`. Multiple</span>
+<span class="sd">            lines are supported.</span>
+<span class="sd">        param3 : :obj:`int`, optional</span>
+<span class="sd">            Description of `param3`.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">deviceAddr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">addrType</span><span class="o">=</span><span class="n">addrType</span><span class="p">,</span> <span class="n">iface</span><span class="o">=</span><span class="n">iface</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="n">addr</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">addrType</span> <span class="o">=</span> <span class="n">addrType</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iface</span> <span class="o">=</span> <span class="n">iface</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rssi</span> <span class="o">=</span> <span class="n">rssi</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">connectable</span> <span class="o">=</span> <span class="n">connectable</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">updateCount</span> <span class="o">=</span> <span class="n">updateCount</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_connected</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_services</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_characteristics</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attr1</span> <span class="o">=</span> <span class="n">param1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attr2</span> <span class="o">=</span> <span class="n">param2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attr3</span> <span class="o">=</span> <span class="n">param3</span>  <span class="c1">#: Doc comment *inline* with attribute</span>
 
-    <span class="k">def</span> <span class="nf">getServices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuids</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a list of :class:`bluepy.blte.Service` objects representing</span>
-<span class="sd">        the services offered by the device. This will perform Bluetooth service</span>
-<span class="sd">        discovery if this has not already been done; otherwise it will return a</span>
-<span class="sd">        cached list of services immediately..</span>
+        <span class="c1">#: list of str: Doc comment *before* attribute, with type specified</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attr4</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;attr4&quot;</span><span class="p">]</span>
 
-<span class="sd">        :param uuids: A list of string service UUIDs to be discovered,</span>
-<span class="sd">            defaults to None</span>
-<span class="sd">        :type uuids: list, optional</span>
-<span class="sd">        :return: A list of the discovered :class:`bluepy.blte.Service` objects,</span>
-<span class="sd">            which match the provided ``uuids``</span>
-<span class="sd">        :rtype: list On Python 3.x, this returns a dictionary view object,</span>
-<span class="sd">            not a list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attr5</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str: Docstring *after* attribute, with type specified.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">readonly_property</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str: Properties should be documented in their getter method.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;readonly_property&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">readwrite_property</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;:obj:`list` of :obj:`str`: Properties with both a getter and setter</span>
+<span class="sd">        should only be documented in their getter method.</span>
+
+<span class="sd">        If the setter method contains notable behavior, it should be</span>
+<span class="sd">        mentioned here.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_services</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">uuids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">uuid</span> <span class="ow">in</span> <span class="n">uuids</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">service</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getServiceByUUID</span><span class="p">(</span><span class="n">uuid</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
-                <span class="k">except</span> <span class="n">BTLEException</span><span class="p">:</span>
-                    <span class="k">pass</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_services</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">getServices</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_services</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;readwrite_property&quot;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">setNotificationCallback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the callback function to be executed when the device sends a</span>
-<span class="sd">        notification to the client.</span>
+    <span class="nd">@readwrite_property</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">readwrite_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">value</span>
 
-<span class="sd">        :param callback: A function handle of the form</span>
-<span class="sd">            ``callback(client, characteristic, data)``, where ``client`` is a</span>
-<span class="sd">            handle to the :class:`simpleble.SimpleBleClient` that invoked the</span>
-<span class="sd">            callback, ``characteristic`` is the notified</span>
-<span class="sd">            :class:`bluepy.blte.Characteristic` object and data is a</span>
-<span class="sd">            `bytearray` containing the updated value. Defaults to None</span>
-<span class="sd">        :type callback: function, optional</span>
+    <span class="k">def</span> <span class="nf">example_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param1</span><span class="p">,</span> <span class="n">param2</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Class methods are similar to regular functions.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        Do not include the `self` parameter in the ``Parameters`` section.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        param1</span>
+<span class="sd">            The first parameter.</span>
+<span class="sd">        param2</span>
+<span class="sd">            The second parameter.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if successful, False otherwise.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">withDelegate</span><span class="p">(</span>
-            <span class="n">SimpleBleNotificationDelegate</span><span class="p">(</span>
-                <span class="n">callback</span><span class="p">,</span>
-                <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">getCharacteristics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">startHnd</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">endHnd</span><span class="o">=</span><span class="mh">0xFFFF</span><span class="p">,</span> <span class="n">uuids</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a list containing :class:`bluepy.btle.Characteristic`</span>
-<span class="sd">        objects for the peripheral. If no arguments are given, will return all</span>
-<span class="sd">        characteristics. If startHnd and/or endHnd are given, the list is</span>
-<span class="sd">        restricted to characteristics whose handles are within the given range.</span>
-
-<span class="sd">        :param startHnd: Start index, defaults to 1</span>
-<span class="sd">        :type startHnd: int, optional</span>
-<span class="sd">        :param endHnd: End index, defaults to 0xFFFF</span>
-<span class="sd">        :type endHnd: int, optional</span>
-<span class="sd">        :param uuids: a list of UUID strings, defaults to None</span>
-<span class="sd">        :type uuids: list, optional</span>
-<span class="sd">        :return: List of returned :class:`bluepy.btle.Characteristic` objects</span>
-<span class="sd">        :rtype: list</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_characteristics</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">uuids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">uuid</span> <span class="ow">in</span> <span class="n">uuids</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">characteristic</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">getCharacteristics</span><span class="p">(</span>
-                        <span class="n">startHnd</span><span class="p">,</span> <span class="n">endHnd</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_characteristics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">characteristic</span><span class="p">)</span>
-                <span class="k">except</span> <span class="n">BTLEException</span><span class="p">:</span>
-                    <span class="k">pass</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_characteristics</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">getCharacteristics</span><span class="p">(</span><span class="n">startHnd</span><span class="p">,</span>
-                                                               <span class="n">endHnd</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_characteristics</span>
-
-    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Attempts to initiate a connection with the device.</span>
-
-<span class="sd">        :return: `True` if connection was successful, `False` otherwise</span>
-<span class="sd">        :rtype: bool</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">addr</span><span class="p">,</span>
-                            <span class="n">addrType</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">addrType</span><span class="p">,</span>
-                            <span class="n">iface</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iface</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">BTLEException</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_connected</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">ex</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_connected</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="nf">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Drops existing connection to device</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_connected</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">def</span> <span class="nf">__special__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;By default special members with docstrings are not included.</span>
 
-    <span class="k">def</span> <span class="nf">isConnected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks to see if device is connected</span>
+<span class="sd">        Special members are any methods or attributes that start with and</span>
+<span class="sd">        end with a double underscore. Any special member with a docstring</span>
+<span class="sd">        will be included in the output, if</span>
+<span class="sd">        ``napoleon_include_special_with_doc`` is set to True.</span>
 
-<span class="sd">        :return: `True` if connected, `False` otherwise</span>
-<span class="sd">        :rtype: bool</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connected</span>
+<span class="sd">        This behavior can be enabled by changing the following setting in</span>
+<span class="sd">        Sphinx&#39;s conf.py::</span>
 
-    <span class="k">def</span> <span class="nf">printInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Print info about device</span>
+<span class="sd">            napoleon_include_special_with_doc = True</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Device </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">), RSSI=</span><span class="si">%d</span><span class="s2"> dB&quot;</span> <span class="o">%</span>
-              <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">addr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">addrType</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rssi</span><span class="p">))</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">adtype</span><span class="p">,</span> <span class="n">desc</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">desc</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">__special_without_docstring__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_private</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;By default private members are not included.</span>
+
+<span class="sd">        Private members are any methods or attributes that start with an</span>
+<span class="sd">        underscore and are *not* special. By default they are not included</span>
+<span class="sd">        in the output.</span>
+
+<span class="sd">        This behavior can be changed such that private members *are* included</span>
+<span class="sd">        by changing the following setting in Sphinx&#39;s conf.py::</span>
+
+<span class="sd">            napoleon_include_private_with_doc = True</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_private_without_docstring</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
 </pre></div>
 </div>
 </section>
@@ -586,7 +789,7 @@ It displays a typical class documentation. The docstrings are written for a <cod
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Python documentation</a><ul>
-<li><a class="reference internal" href="#sphinx-docstrings">Sphinx docstrings</a><ul>
+<li><a class="reference internal" href="#numpy-docstrings">NumPy docstrings</a><ul>
 <li><a class="reference internal" href="#example">Example</a></li>
 </ul>
 </li>
