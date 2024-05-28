@@ -12,8 +12,11 @@ The current project serves as a proof of concept (PoC), which is slated to concl
 
 |
 
-.. image:: _static/img/demo-video.gif
+.. figure:: _static/img/demo-video.gif
    :width: 800
+   :align: center
+
+    Demo
 
 .. toctree::
    :maxdepth: 2

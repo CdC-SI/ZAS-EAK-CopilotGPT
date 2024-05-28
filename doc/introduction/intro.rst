@@ -11,8 +11,18 @@ Features
 * **Automation of Routine Tasks:** Reduces monotonous research tasks and the finding of information, allowing employees to focus on more important tasks.
 * **Decision Support:** Provides real-time assistance in decision-making through advanced algorithms.
 
+Implemented features
+--------------------
+
+The EAK-Copilot currently has the following features implemented
+
+Question autosuggest: High quality curated questions (from FAQ) are suggested in the chatbar based on the user input. Validated answers with sources are then returned in the chat. Autocomplete currently supports exact match, fuzzy match and semantic similarity match.
+RAG: When no known question/answer pairs are found through autosuggest, RAG is initiated. A semantic similarity search will match the most relevant indexed documents in a vector database and an LLM will generate an answer based on these documents, providing the source of the answer.
 
 |
 
-.. image:: ../_static/img/demo-video.gif
+.. figure:: ../_static/img/demo-video.gif
    :width: 800
+   :align: center
+
+    Demo
