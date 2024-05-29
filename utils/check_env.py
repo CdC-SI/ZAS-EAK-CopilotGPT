@@ -33,7 +33,7 @@ def check_env_vars(config):
 
     # Check environment variables for rag
     if config["rag"]["embedding"]["model"] not in supported_embedding_models:
-        print(f'Invalid value for "rag.embedding.model" in config/config.yaml. Please read the documentation at {documentation["openai_api"]} for more information.')
+        print(f'Invalid value for "rag.embedding.model" in config/config.yaml. Please read the documentation at {documentation["openai_api"]}/embeddings for more information.')
         sys.exit(1)
     if config["rag"]["retrieval"]["top_k"] != 1:
         print(f'Invalid value for "rag.retrieval.top_k" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information. NOTE: Will be extended soon to more than 1 retrieved document.')
@@ -42,10 +42,19 @@ def check_env_vars(config):
         print(f'Invalid value for "rag.retrieval.metric" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')
         sys.exit(1)
     if config["rag"]["llm"]["model"] not in supported_llm_models:
-        print(f'Invalid value for "rag.retrieval.metric" in config/config.yaml. Please read the documentation at {documentation["openai_api"]}/embeddings for more information.')
+        print(f'Invalid value for "rag.llm.model" in config/config.yaml. Please read the documentation at {documentation["openai_api"]} for more information.')
+        sys.exit(1)
+    if not config["rag"]["llm"]["temperature"] >= 0:
+        print(f'Invalid value for "rag.llm.model" in config/config.yaml. Please read the documentation at {documentation["openai_api"]} for more information.')
         sys.exit(1)
     if not config["rag"]["llm"]["max_output_tokens"] >= 1:
         print(f'Invalid value for "rag.llm.max_output_tokens" in config/config.yaml. Please read the documentation at {documentation["openai_api"]} for more information.')
+        sys.exit(1)
+    if not 0 <= config["rag"]["llm"]["top_p"] <= 1:
+        print(f'Invalid value for "rag.llm.top_p" in config/config.yaml. Please read the documentation at {documentation["openai_api"]} for more information.')
+        sys.exit(1)
+    if not isinstance(config["rag"]["llm"]["stream"], bool):
+        print(f'Invalid value for "rag.llm.stream" in config/config.yaml. Please read the documentation at {documentation["openai_api"]} for more information.')
         sys.exit(1)
 
     # Check environment variables for indexing
