@@ -3,7 +3,6 @@ import logging
 import asyncio
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-import httpx
 
 from pyxdameraulevenshtein import damerau_levenshtein_distance
 
@@ -14,6 +13,7 @@ from config.pgvector_config import SIMILARITY_METRICS
 
 # Load utility functions
 from utils.db import get_db_connection
+from utils.embedding import get_embedding
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -121,15 +121,8 @@ async def get_semantic_similarity_match(question: str):
     conn = await get_db_connection()
 
     try:
-        # Make POST request to the /embed API endpoint to get the embedding
-        async with httpx.AsyncClient() as client:
-            response = await client.post("http://rag:8010/rag/embed", json={"text": question})
-
-        # Ensure the request was successful
-        response.raise_for_status()
-
-        # Get the resulting embedding vector from the response
-        question_embedding = response.json()["data"][0]["embedding"]
+        # Get embedding vector for question
+        question_embedding = get_embedding(question)[0]["embedding"]
 
         # Fetch the most similar questions based on cosine similarity
         similarity_metric = autocomplete_config["semantic_similarity_match"]["metric"]

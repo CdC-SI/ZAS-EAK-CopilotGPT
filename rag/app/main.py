@@ -89,16 +89,8 @@ async def docs(request: RAGRequest):
     conn = await get_db_connection()
 
     try:
-
-        # Make POST request to the RAG service to get the question embedding
-        async with httpx.AsyncClient() as client:
-            response = await client.post("http://rag:8010/rag/embed", json={"text": request.query})
-
-        # Ensure the request was successful
-        response.raise_for_status()
-
-        # Get the resulting embedding vector from the response
-        query_embedding = response.json()["data"][0]["embedding"]
+        # Get the query embedding vector
+        query_embedding = get_embedding(request.query)[0]["embedding"]
 
         # Only supports retrieval of 1 document at the moment (set in /config/config.yaml). Will implement multi-doc retrieval later
         top_k = rag_config["retrieval"]["top_k"]

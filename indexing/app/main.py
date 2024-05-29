@@ -3,13 +3,13 @@ from datetime import datetime
 
 from fastapi import FastAPI, HTTPException, status, Body
 from fastapi.responses import Response
-import httpx
 
 # Load env variables
 from config.base_config import indexing_config, indexing_app_config
 
 # Load utility functions
 from utils.db import get_db_connection, check_db_connection
+from utils.embedding import get_embedding
 from indexing.app.web_scraper import WebScraper
 
 # Load models
@@ -37,15 +37,8 @@ async def init_rag_vectordb():
     try:
         for text in texts:
 
-            # Make POST request to the RAG service to get the question embedding
-            async with httpx.AsyncClient() as client:
-                response = await client.post("http://rag:8010/rag/embed", json={"text": text[0]})
-
-            # Ensure the request was successful
-            response.raise_for_status()
-
-            # Get the resulting embedding vector from the response
-            embedding = response.json()["data"][0]["embedding"]
+            # Get the embedding vector
+            embedding = get_embedding(text[0])[0]["embedding"]
 
             await conn.execute(
                 "INSERT INTO embeddings (embedding, text, url, created_at, modified_at) VALUES ($1, $2, $3, $4, $5)",
@@ -84,15 +77,8 @@ async def init_faq_vectordb():
     try:
         for text in texts:
 
-            # Make POST request to the RAG service to get the question embedding
-            async with httpx.AsyncClient() as client:
-                response = await client.post("http://rag:8010/rag/embed", json={"text": text[1]})
-
-            # Ensure the request was successful
-            response.raise_for_status()
-
             # Get the resulting embedding vector from the response
-            embedding = response.json()["data"][0]["embedding"]
+            embedding = get_embedding(text[1])[0]["embedding"]
 
             # insert FAQ data with embeddings into the 'faq_embeddings' table
             await conn.execute(
