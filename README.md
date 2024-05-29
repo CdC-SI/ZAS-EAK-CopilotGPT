@@ -99,14 +99,10 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
     ```bash
     docker-compose ps
     ```
-    After the containers are successfully started, verify that the application is running correctly by accessing it through your web browser.
+    After the containers are successfully started, verify that the application is running correctly by accessing it through your web browser at http://localhost:3000.
 
-5. **Index sample vectorDB data**
+5. **Notes**
 
-    To index some sample data into the vectorDB, navigate to ```localhost:8010/docs``` and make a request to the ```/rag/init_rag_vectordb/``` and ```/rag/init_faq_vectordb/``` endpoints. This will enable autocomplete with semantic similarity search and RAG to run on this test data.
+    Sample FAQ and RAG data is automatically indexed when config/config.yaml ```indexing.faq.auto_index``` and ```indexing.rag.auto_index``` are set to true.
 
-    To index more extensive FAQ data from https://faq.bsv.admin.ch, navigate to ```localhost:8000/docs``` and make a request to the ```/autocomplete/init_expert/``` endpoint.
-
-    NOTE: Future updates to the config.yaml file will enable automatic data indexing, eliminating the need for manual intervention.
-
-    Navigate to http://localhost:3000 to access the EAK-Copilot.
+    To index more extensive FAQ data from https://faq.bsv.admin.ch, navigate to ```localhost:8011/docs``` and make a request to the ```/indexing/index_faq_data/``` endpoint.

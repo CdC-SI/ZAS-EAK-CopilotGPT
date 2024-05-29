@@ -25,6 +25,6 @@ rag:
 indexing:
   dev_mode: true
   faq:
-    auto_index: false
+    auto_index: true
   rag:
-    auto_index: false
+    auto_index: true
