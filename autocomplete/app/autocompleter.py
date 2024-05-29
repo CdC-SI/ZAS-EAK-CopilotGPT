@@ -49,6 +49,7 @@ class Autocompleter:
 
         return rows
 
+
     async def get_semantic_similarity_match(self, question: str, language: str = '*', k: int = 5):
         """
         Search for questions with cosine (semantic) similarity using an embedding model, case-insensitive.
