@@ -1,6 +1,7 @@
 import psycopg2
 
-from config import DB_PARAMS, openai
+from config.db_config import DB_PARAMS
+from config.openai_config import openai
 
 def create_db_connection():
     """Establish a database connection."""
