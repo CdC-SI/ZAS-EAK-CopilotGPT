@@ -1,5 +1,5 @@
 ## Open-Source Collaboration Best Practices
-Please refer yourself to the [best practices document](https://portal.collab.admin.ch/sites/602-eak-copilot/_layouts/15/WopiFrame.aspx?sourcedoc=%7B7AC07C75-D5A2-4107-BE9C-EF376BCCE416%7D&file=Open-Source%20project%20Collaboration%20%E2%80%93%20Best%20Practices%20Updated.pptx&action=default&IsList=1&ListId=%7BCDF81277-FBCD-4EB8-B449-D6E0BE5A98C9%7D&ListItemId=21) for guidelines on how to contribute to this project.
+Please refer yourself to the [best practices document](https://cdc-si.github.io/eak-copilot/guidelines/opensource.html) for guidelines on how to contribute to this project.
 
 ## Issue Template
 
