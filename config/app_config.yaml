@@ -4,7 +4,7 @@ autocomplete:
   version: 0.1.0
   contact:
     name: Kieran Schubert
-    url: https://admindir.verzeichnisse.admin.ch/person/p-1ZR8JLGPP
+    url: https://www.linkedin.com/in/kieran-schubert-110772137/
     email: kieran.schubert@zas.admin.ch
   license_info:
     name: GPL-3.0
@@ -15,7 +15,7 @@ indexing:
   version: 0.1.0
   contact:
     name: Kieran Schubert
-    url: https://admindir.verzeichnisse.admin.ch/person/p-1ZR8JLGPP
+    url: https://www.linkedin.com/in/kieran-schubert-110772137/
     email: kieran.schubert@zas.admin.ch
   license_info:
     name: GPL-3.0
@@ -26,7 +26,7 @@ rag:
   version: 0.1.0
   contact:
     name: Kieran Schubert
-    url: https://admindir.verzeichnisse.admin.ch/person/p-1ZR8JLGPP
+    url: https://www.linkedin.com/in/kieran-schubert-110772137/
     email: kieran.schubert@zas.admin.ch
   license_info:
     name: GPL-3.0
