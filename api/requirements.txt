@@ -1,8 +1,0 @@
-fastapi
-uvicorn
-asyncpg
-requests
-beautifulsoup4
-datetime
-lxml
-python-dotenv
