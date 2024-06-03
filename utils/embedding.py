@@ -8,10 +8,10 @@ from config.openai_config import openai
 def get_embedding(text: Union[List[str], str]):
     model = rag_config["embedding"]["model"]
     if model == "text-embedding-ada-002":
-        response = openai.Embedding.create(
+        response = openai.embeddings.create(
             input=text,
-            engine=model,
+            model=model,
         )
-        return response['data']
+        return response.data
     else:
-        raise NotImplementedError("Model not supported")
+        raise NotImplementedError(f"Model '{model}' is not supported")

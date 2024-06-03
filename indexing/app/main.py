@@ -38,7 +38,7 @@ async def init_rag_vectordb():
         for text in texts:
 
             # Get the embedding vector
-            embedding = get_embedding(text[0])[0]["embedding"]
+            embedding = get_embedding(text[0])[0].embedding
 
             await conn.execute(
                 "INSERT INTO embeddings (embedding, text, url, created_at, modified_at) VALUES ($1, $2, $3, $4, $5)",
@@ -78,7 +78,7 @@ async def init_faq_vectordb():
         for text in texts:
 
             # Get the resulting embedding vector from the response
-            embedding = get_embedding(text[1])[0]["embedding"]
+            embedding = get_embedding(text[1])[0].embedding
 
             # insert FAQ data with embeddings into the 'faq_embeddings' table
             await conn.execute(

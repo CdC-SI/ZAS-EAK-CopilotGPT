@@ -122,7 +122,7 @@ async def get_semantic_similarity_match(question: str):
 
     try:
         # Get embedding vector for question
-        question_embedding = get_embedding(question)[0]["embedding"]
+        question_embedding = get_embedding(question)[0].embedding
 
         # Fetch the most similar questions based on cosine similarity
         similarity_metric = autocomplete_config["semantic_similarity_match"]["metric"]
