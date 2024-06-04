@@ -1,4 +1,4 @@
-from database import *
+import queries
 
 from config.base_config import autocomplete_config
 
@@ -20,8 +20,6 @@ class Autocompleter:
 
         self.last_matches = []
 
-        self.data = FAQDatabase()
-
     async def get_exact_match(self, question: str, language: str = '*', k: int = None):
         """
         Search for questions that contain the exact specified string, case-insensitive.
@@ -35,7 +33,7 @@ class Autocompleter:
         # Convert both the 'question' column and the search string to lowercase to perform a case-insensitive search
         question = f"%{question.lower()}%"
 
-        rows = await self.data.exact_match(question, language, k)
+        rows = await queries.exact_match(question, language=language, k=k)
 
         # Convert the results to a list of dictionaries
         matches = [dict(row) for row in rows]
@@ -51,12 +49,12 @@ class Autocompleter:
         """
         k = self.k_fuzzy_match if k is None else k
 
-        return await self.data.fuzzy_match(question, language, threshold, k)
+        return await queries.fuzzy_match(question, language=language, threshold=threshold, k=k)
 
     async def get_semantic_similarity_match(self, question: str, language: str = '*', k: int = -1):
         k = self.k_semantic_match if k is None else k
 
-        rows = await self.data.semantic_similarity_match(question, language, k)
+        rows = await queries.semantic_similarity_match(question, language=language, k=k)
 
         # Convert the results to a list of dictionaries
         matches = [{"question": row[0],
