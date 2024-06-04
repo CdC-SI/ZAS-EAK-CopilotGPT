@@ -40,6 +40,7 @@ app.add_middleware(
 class RAGProcessor:
     def __init__(self, rag_config):
         self.rag_config = rag_config
+        self.client = openai.OpenAI()
 
     async def fetch_context_docs(self, query):
         async with httpx.AsyncClient() as client:
@@ -52,7 +53,7 @@ class RAGProcessor:
         return [{"role": "system", "content": openai_rag_system_prompt},]
 
     def create_openai_stream(self, messages):
-        return openai.ChatCompletion.create(
+        return self.client.chat.completions.create(
             model=self.rag_config["llm"]["model"],
             messages=messages,
             max_tokens=self.rag_config["llm"]["max_output_tokens"],
@@ -63,8 +64,8 @@ class RAGProcessor:
 
     def generate(self, openai_stream, source_url):
         for chunk in openai_stream:
-            if "content" in chunk["choices"][0]["delta"].keys():
-                yield chunk["choices"][0]["delta"]["content"].encode("utf-8")
+            if chunk.choices[0].delta.content is not None:
+                yield chunk.choices[0].delta.content.encode("utf-8")
             else:
                 # Send a special token indicating the end of the response
                 yield f"\n\n<a href='{source_url}' target='_blank' class='source-link'>{source_url}</a>".encode("utf-8")
@@ -90,7 +91,7 @@ async def docs(request: RAGRequest):
 
     try:
         # Get the query embedding vector
-        query_embedding = get_embedding(request.query)[0]["embedding"]
+        query_embedding = get_embedding(request.query)[0].embedding
 
         # Only supports retrieval of 1 document at the moment (set in /config/config.yaml). Will implement multi-doc retrieval later
         top_k = rag_config["retrieval"]["top_k"]
@@ -117,7 +118,7 @@ async def docs(request: RAGRequest):
 @app.post("/rag/embed", summary="Embedding endpoint", response_description="A dictionary with embeddings for the input text")
 async def embed(text_input: EmbeddingRequest):
     try:
-        embedding = get_embedding(text_input.text)
+        embedding = get_embedding(text_input.text)[0].embedding
         return {"data": embedding}
 
     except Exception as e:

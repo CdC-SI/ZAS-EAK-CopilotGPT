@@ -27,6 +27,8 @@ class Autocompleter:
         k = autocomplete_config["results"]["limit"]
         self.k_autocomplete = 'NULL' if k == -1 else k
 
+        self.last_matches = []
+
     async def get_exact_match(self, question: str, language: str = '*', k: int = None):
         """
         Search for questions that contain the exact specified string, case-insensitive.
@@ -141,18 +143,23 @@ class Autocompleter:
         match_results = await self.get_fuzzy_match(question, language)
 
         # If the combined results from exact match and fuzzy match are less than 5, get semantic similarity matches
-        if len(match_results) < 5:
+        if len(match_results) < 5 and (question[-1] == " " or question[-1] == "?"):
 
             semantic_similarity_match_results = await self.get_semantic_similarity_match(question, language)
 
             # Combine the results
             match_results += semantic_similarity_match_results
 
-        # Remove duplicates
-        unique_matches = []
-        [unique_matches.append(i) for i in match_results if i not in unique_matches]
+            # Remove duplicates
+            unique_matches = []
+            [unique_matches.append(i) for i in match_results if i not in unique_matches]
 
-        if k != -1:
-            unique_matches = unique_matches[:k]
+            if k != -1:
+                unique_matches = unique_matches[:k]
 
-        return unique_matches
+            self.last_matches = unique_matches
+            return unique_matches
+
+        else:
+
+            return self.last_matches

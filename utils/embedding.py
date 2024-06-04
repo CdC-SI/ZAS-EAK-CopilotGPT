@@ -13,8 +13,8 @@ def get_embedding(text: Union[List[str], str]):
     if model in supported_models:
         response = openai.Embedding.create(
             input=text,
-            engine=model,
+            model=model,
         )
-        return response['data']
+        return response.data
     else:
-        raise NotImplementedError("Model not supported")
+        raise NotImplementedError(f"Model '{model}' is not supported")

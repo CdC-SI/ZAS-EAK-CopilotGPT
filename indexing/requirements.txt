@@ -1,5 +1,5 @@
 fastapi==0.111.0
-openai==0.28.0
+openai==1.30.5
 numpy==1.26.4
 asyncpg==0.29.0
 requests==2.31.0
