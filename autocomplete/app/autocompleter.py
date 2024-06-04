@@ -5,15 +5,29 @@ from database import connect
 
 import asyncpg
 import httpx
+from config.base_config import autocomplete_config
+
+# Load utility functions
+from utils.db import get_db_connection
+from utils.embedding import get_embedding
 
 
 class Autocompleter:
 
-    def __init__(self, rag_addr: str = "http://rag:8010/rag"):
-        self.rag_addr = rag_addr
+    def __init__(self):
+        k = autocomplete_config["exact_match"]["limit"]
+        self.k_exact_match = 'NULL' if k == -1 else k
 
-    @staticmethod
-    async def get_exact_match(self, question: str, language: str = '*'):
+        k = autocomplete_config["fuzzy_match"]["limit"]
+        self.k_fuzzy_match = 'NULL' if k == -1 else k
+
+        k = autocomplete_config["semantic_similarity_match"]["limit"]
+        self.k_semantic_match = 'NULL' if k == -1 else k
+
+        k = autocomplete_config["results"]["limit"]
+        self.k_autocomplete = 'NULL' if k == -1 else k
+
+    async def get_exact_match(self, question: str, language: str = '*', k: int = None):
         """
         Search for questions that contain the exact specified string, case-insensitive.
 
@@ -21,11 +35,21 @@ class Autocompleter:
 
         Returns a list of questions that exactly match the search criteria.
         """
-        conn = await connect()
+        conn = await get_db_connection()
+
+        if k is None:
+            k = self.k_exact_match
+        elif k == -1:
+            k = 'NULL'
 
         # Convert both the 'question' column and the search string to lowercase to perform a case-insensitive search
         search_query = f"%{question.lower()}%"
-        rows = await conn.fetch(f"SELECT * FROM data WHERE language={language} AND LOWER(question) LIKE {search_query}")
+        rows = await conn.fetch(f"""
+            SELECT * 
+            FROM data 
+            WHERE language='{language}' AND LOWER(question) LIKE '{search_query}'
+            LIMIT {k}
+        """)
         await conn.close()
 
         # Convert the results to a list of dictionaries
@@ -33,7 +57,7 @@ class Autocompleter:
         return matches
 
     @staticmethod
-    async def get_fuzzy_match(self, question: str, language: str = '*', threshold: int = 5):
+    async def get_fuzzy_match(self, question: str, language: str = '*', threshold: int = 5, k: int = None):
         """
         Search for questions with fuzzy match (levenstein-damerau distance) based on threshold, case-insensitive.
 
@@ -43,14 +67,28 @@ class Autocompleter:
         """
         conn = await connect()
 
+        if k is None:
+            k = self.k_fuzzy_match
+        elif k == -1:
+            k = 'NULL'
+
         # Fetch all rows from the database
-        rows = await conn.fetch(f"SELECT * FROM data WHERE language={language} AND levenshtein_less_equal(question, {question}, {threshold})")
+        rows = await conn.fetch(f"""
+            SELECT * 
+            FROM data 
+            WHERE language='{language}' AND levenshtein_less_equal(question, {question}, {threshold})
+            ORDER BY levenshtein(question, '{question}')
+            LIMIT {'NULL' if k==-1 else k}
+        """)
         await conn.close()  # Close the database connection
 
         return rows
 
-
-    async def get_semantic_similarity_match(self, question: str, language: str = '*', k: int = 5):
+    async def get_semantic_similarity_match(self,
+                                            question: str,
+                                            language: str = '*',
+                                            symbol: str = '<=>',
+                                            k: int = None):
         """
         Search for questions with cosine (semantic) similarity using an embedding model, case-insensitive.
 
@@ -60,20 +98,18 @@ class Autocompleter:
         """
         conn = await connect()
 
+        if k is None:
+            k = self.k_semantic_match
+        elif k == -1:
+            k = 'NULL'
+
         # Make POST request to the /embed API endpoint to get the embedding
-        async with httpx.AsyncClient() as client:
-            response = await client.post(self.rag_addr + "/embed", json={"text": question})
-
-        # Ensure the request was successful
-        response.raise_for_status()
-
-        # Get the resulting embedding vector from the response
-        question_embedding = response.json()["data"][0]["embedding"]
+        question_embedding = get_embedding(question)[0]["embedding"]
 
         matches = await conn.fetch(f"""
-            SELECT question, answer, url,  1 - (embedding <=> '{question_embedding}') AS cosine_similarity
+            SELECT question, answer, url,  1 - (embedding {symbol} '{question_embedding}') AS cosine_similarity
             FROM faq_embeddings
-            WHERE language={language}
+            WHERE language='{language}'
             ORDER BY cosine_similarity desc
             LIMIT {k}
         """)
@@ -87,7 +123,20 @@ class Autocompleter:
 
         return matches
 
-    async def get_autocomplete(self, question: str, language: str = '*'):
+    async def get_semantic_similarity_match_l1(self, question: str, language: str = '*', k: int = None):
+        return self.get_semantic_similarity_match(question, language, '<+>', k)
+
+    async def get_semantic_similarity_match_l2(self, question: str, language: str = '*', k: int = None):
+        return self.get_semantic_similarity_match(question, language, '<->', k)
+
+    async def get_semantic_similarity_match_inner_product(self, question: str, language: str = '*', k: int = None):
+        return self.get_semantic_similarity_match(question, language, '<#>', k)
+
+    async def get_autocomplete(self, question: str, language: str = '*', k: int = -1):
+        if k is None:
+            k = self.k_autocomplete
+        elif k == -1:
+            k = 'NULL'
 
         match_results = await self.get_fuzzy_match(question, language)
 
@@ -102,5 +151,8 @@ class Autocompleter:
         # Remove duplicates
         unique_matches = []
         [unique_matches.append(i) for i in match_results if i not in unique_matches]
+
+        if k != -1:
+            unique_matches = unique_matches[:k]
 
         return unique_matches
