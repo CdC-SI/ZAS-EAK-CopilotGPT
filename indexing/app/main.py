@@ -3,6 +3,7 @@ from datetime import datetime
 
 from fastapi import FastAPI, HTTPException, status, Body
 from fastapi.responses import Response
+from contextlib import asynccontextmanager
 
 # Load env variables
 from config.base_config import indexing_config, indexing_app_config
@@ -19,8 +20,45 @@ from rag.app.models import ResponseBody
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await check_db_connection(retries=10, delay=10)
+
+    if indexing_config["faq"]["auto_index"]:
+        # With dev-mode, only index sample FAQ data
+        if indexing_config["dev_mode"]:
+            try:
+                logger.info("Auto-indexing sample FAQ data")
+                await init_faq_vectordb()
+            except Exception as e:
+                logger.error("Dev-mode: Failed to index sample FAQ data: %s", e)
+        # If dev-mode is deactivated, scrap and index all bsv.admin.ch FAQ data
+        else:
+            try:
+                logger.info("Auto-indexing bsv.admin.ch FAQ data")
+                await init_expert()
+            except Exception as e:
+                logger.error("Failed to index bsv.admin.ch FAQ data: %s", e)
+
+    if indexing_config["rag"]["auto_index"]:
+        # With dev-mode, only index sample data
+        if indexing_config["dev_mode"]:
+            try:
+                logger.info("Auto-indexing sample RAG data")
+                await init_rag_vectordb()
+            except Exception as e:
+                logger.error("Failed to index sample RAG data: %s", e)
+        # If dev-mode is deactivated, scrap and index all RAG data (NOTE: Will be implemented soon.)
+        else:
+            raise NotImplementedError("Feature is not implemented yet.")
+
+    yield
+
+
 # Create an instance of FastAPI
-app = FastAPI(**indexing_app_config)
+app = FastAPI(**indexing_app_config, lifespan=lifespan)
+
 
 async def init_rag_vectordb():
 
@@ -256,35 +294,3 @@ async def index_faq_data():
 @app.put("/indexing/data/", summary="Update or Insert FAQ Data", response_description="Updated or Inserted Data")
 async def index_data(url: str, question: str, answer: str, language: str, id: int = Body(None)):
     return await update_or_insert_data(url, question, answer, language, id)
-
-@app.on_event("startup")
-async def startup_event():
-    await check_db_connection(retries=10, delay=10)
-
-    if indexing_config["faq"]["auto_index"]:
-        # With dev-mode, only index sample FAQ data
-        if indexing_config["dev_mode"]:
-            try:
-                logger.info("Auto-indexing sample FAQ data")
-                await init_faq_vectordb()
-            except Exception as e:
-                logger.error("Dev-mode: Failed to index sample FAQ data: %s", e)
-        # If dev-mode is deactivated, scrap and index all bsv.admin.ch FAQ data
-        else:
-            try:
-                logger.info("Auto-indexing bsv.admin.ch FAQ data")
-                await init_expert()
-            except Exception as e:
-                logger.error("Failed to index bsv.admin.ch FAQ data: %s", e)
-
-    if indexing_config["rag"]["auto_index"]:
-        # With dev-mode, only index sample data
-        if indexing_config["dev_mode"]:
-            try:
-                logger.info("Auto-indexing sample RAG data")
-                await init_rag_vectordb()
-            except Exception as e:
-                logger.error("Failed to index sample RAG data: %s", e)
-        # If dev-mode is deactivated, scrap and index all RAG data (NOTE: Will be implemented soon.)
-        else:
-            raise NotImplementedError("Feature is not implemented yet.")
