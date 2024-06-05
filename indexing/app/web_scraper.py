@@ -36,24 +36,22 @@ class WebScraper:
             urls = urls[:9]
 
         for url in urls:
-            extracted_h1 = self.extract_text_from_tag(url, 'h1')
-            extracted_article = self.extract_text_from_tag(url, 'article')
-            language = self.detect_language(url)
+            h1, article, lang = self.extract(url)
 
             # Efficient text processing
             for term in ['Antwort\n', 'Rispondi\n', 'Réponse\n']:
-                extracted_article = extracted_article.replace(term, '')
+                article = article.replace(term, '')
 
             if from_main:
                 self.logger.info("--------------------")
                 self.logger.info(f"url: {url}")
-                self.logger.info(f"question: {extracted_h1}")
-                self.logger.info(f"answer: {extracted_article}")
-                self.logger.info(f"language: {language}")
+                self.logger.info(f"question: {h1}")
+                self.logger.info(f"answer: {article}")
+                self.logger.info(f"language: {lang}")
 
-            elif extracted_h1 and extracted_article:
+            elif h1 and article:
                 self.logger.info(f"extract: {url}")
-                info, rid = await queries.update_or_insert(url, extracted_h1, extracted_article, language)
+                info, rid = await queries.update_or_insert(url, h1, article, lang)
                 self.logger.info(f"{info}: {url}")
 
         self.logger.info(f"Done! {len(urls)} wurden verarbeitet.")
@@ -80,6 +78,24 @@ class WebScraper:
         urls = [url.text for url in root.xpath("//sitemap:loc", namespaces=namespace)]
 
         return urls
+
+    def extract(self, url: str):
+        response = self.get_response(url)
+        if not response:
+            return ''
+
+        soup = BeautifulSoup(response.text, 'lxml')
+
+        extracted = []
+        for tag in ['h1', 'article', 'html']:
+            element = soup.find(tag)
+
+            if tag == 'html':
+                extracted += element['lang'] if element and element.has_attr('lang') else ''
+            else:
+                extracted += '\n'.join(line.strip() for line in element.get_text().splitlines() if line) if element else ''
+
+        return extracted[0], extracted[1], extracted[2]
 
     def extract_text_from_tag(self, url: str, tag: str) -> str:
         """Extract text from a specific tag in a web page."""
