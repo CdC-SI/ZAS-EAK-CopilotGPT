@@ -46,12 +46,10 @@ async def init_rag_vectordb():
             )
 
     except Exception as e:
-        await conn.close()
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
-        if conn:
-            await conn.close()
+        await conn.close()
 
     return {"content": "RAG data indexed successfully"}
 
@@ -87,12 +85,10 @@ async def init_faq_vectordb():
             )
 
     except Exception as e:
-        await conn.close()
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
-        if conn:
-            await conn.close()
+        await conn.close()
 
     return {"content": "FAQ data indexed successfully"}
 
@@ -116,6 +112,7 @@ async def update_or_insert_data(
     Note: The operation now checks for the presence of a question in the database to decide between insert and update.
     """
     conn = await get_db_connection()
+
     try:
         # Convert the search question to lowercase to perform a case-insensitive search
         search_query = f"%{question.lower()}%"
@@ -131,8 +128,10 @@ async def update_or_insert_data(
                 )
                 logger.info(f"Update: {url}")
                 return {"id": existing_row['id'], "url": url, "question": question, "answer": answer, "language": language}
+
             except Exception as e:
                 raise HTTPException(status_code=500, detail=f"Update exception: {str(e)}") from e
+
         else:
             # Insert a new record
             try:
@@ -142,10 +141,13 @@ async def update_or_insert_data(
                 )
                 logger.info(f"Insert: {url}")
                 return {"id": row['id'], "url": url, "question": question, "answer": answer, "language": language}
+
             except Exception as e:
                 raise HTTPException(status_code=500, detail=f"Insert exception: {str(e)}") from e
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
+
     finally:
         await conn.close()
 

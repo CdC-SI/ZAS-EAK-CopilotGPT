@@ -39,8 +39,9 @@ async def get_exact_match(question: str):
 
     Returns a list of questions that exactly match the search criteria.
     """
+    conn = await get_db_connection()
+
     try:
-        conn = await get_db_connection()
 
         # Convert both the 'question' column and the search string to lowercase to perform a case-insensitive search
         search_query = f"%{question.lower()}%"
@@ -69,9 +70,9 @@ async def get_fuzzy_match(question: str):
 
     Returns a list of questions that match the search criteria if within the specified threshold.
     """
-    try:
-        conn = await get_db_connection()
+    conn = await get_db_connection()
 
+    try:
         # Fetch all rows from the database
         rows = await conn.fetch("SELECT * FROM data")
 
@@ -121,9 +122,9 @@ async def get_semantic_similarity_match(question: str):
     Returns a list of 5 most similar questions based on cosine similarity.
     TO BE IMPLEMENTED: Returns a top_k list of questions that match the search criteria based on cosine similarity.
     """
-    try:
-        conn = await get_db_connection()
+    conn = await get_db_connection()
 
+    try:
         # Get embedding vector for question
         question_embedding = get_embedding(question)[0].embedding
 

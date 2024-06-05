@@ -87,9 +87,9 @@ async def process_query(request: RAGRequest):
 @app.post("/rag/docs", summary="Retrieve context docs endpoint", response_description="Return context docs from semantic search", status_code=200)
 async def docs(request: RAGRequest):
 
-    try:
-        conn = await get_db_connection()
+    conn = await get_db_connection()
 
+    try:
         # Get the query embedding vector
         query_embedding = get_embedding(request.query)[0].embedding
 
