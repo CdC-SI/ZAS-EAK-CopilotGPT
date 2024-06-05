@@ -103,15 +103,14 @@ async def docs(request: RAGRequest):
             ORDER BY similarity_score desc
             LIMIT {'NULL' if top_k==0 else top_k}
         """)
-        docs = [dict(row) for row in docs][0]
 
     except Exception as e:
-        await conn.close() # remove
         raise HTTPException(status_code=500, detail=str(e)) # Define what exceptions to catch
 
     finally:
-        if conn: # remove
-            await conn.close()
+        await conn.close()
+
+    docs = [dict(row) for row in docs][0]
 
     return {"contextDocs": docs["text"], "sourceUrl": docs["url"], "similarityScore": docs["similarity_score"]}
 
