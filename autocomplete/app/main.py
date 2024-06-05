@@ -4,7 +4,7 @@ from typing import Union
 
 from autocompleter import *
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
@@ -17,6 +17,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 _autocompleter: Union[Autocompleter, None] = None
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

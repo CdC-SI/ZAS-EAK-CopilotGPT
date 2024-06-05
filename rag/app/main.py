@@ -45,6 +45,7 @@ async def docs(request: RAGRequest, language: str = '*'):
 async def embed(text_input: EmbeddingRequest):
     return await processor.embed(text_input)
 
+
 @app.get("/rag/rerank", summary="Reranking endpoint", response_description="Welcome Message")
 async def rerank():
     """
