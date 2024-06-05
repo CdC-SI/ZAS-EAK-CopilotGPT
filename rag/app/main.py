@@ -30,15 +30,6 @@ app.add_middleware(
 )
 
 
-@app.middleware("http")
-async def catch_exceptions_middleware(request: Request, call_next):
-    try:
-        response = await call_next(request)
-        return response
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
-
-
 @app.post("/rag/process", summary="Process RAG query endpoint", response_description="Return result from processing RAG query", status_code=200)
 async def process_query(request: RAGRequest):
     content = await processor.process(request)
