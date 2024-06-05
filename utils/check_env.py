@@ -65,7 +65,7 @@ def check_env_vars(config):
             print('Invalid value for "indexing.dev_mode" in config/config.yaml. Please read the documentation at https://cdc-si.github.io/eak-copilot/ for more information.')
             sys.exit(1)
         if not isinstance(config["indexing"]["faq"]["auto_index"], bool):
-            print('HHHHH Invalid value for "indexing.faq.auto_index" in config/config.yaml. Please read the documentation at https://cdc-si.github.io/eak-copilot/ for more information.')
+            print('Invalid value for "indexing.faq.auto_index" in config/config.yaml. Please read the documentation at https://cdc-si.github.io/eak-copilot/ for more information.')
             sys.exit(1)
         if not isinstance(config["indexing"]["rag"]["auto_index"], bool):
             print('Invalid value for "indexing.rag.auto_index" in config/config.yaml. Please read the documentation at https://cdc-si.github.io/eak-copilot/ for more information.')
