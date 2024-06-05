@@ -11,9 +11,9 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 # Function to create a db connection
-async def get_db_connection():
+def get_db_connection():
     """Establish a database connection."""
-    conn = await asyncpg.connect(**DB_PARAMS)
+    conn = asyncpg.connect(**DB_PARAMS)
     return conn
 
 # Function to check if db is up
