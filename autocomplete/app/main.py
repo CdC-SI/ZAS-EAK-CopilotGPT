@@ -39,8 +39,9 @@ async def get_exact_match(question: str):
 
     Returns a list of questions that exactly match the search criteria.
     """
-    conn = await get_db_connection()
     try:
+        conn = await get_db_connection()
+
         # Convert both the 'question' column and the search string to lowercase to perform a case-insensitive search
         search_query = f"%{question.lower()}%"
 
@@ -49,14 +50,16 @@ async def get_exact_match(question: str):
 
         rows = await conn.fetch(f"SELECT * FROM data WHERE LOWER(question) LIKE $1 LIMIT {'NULL' if max_results==0 else max_results}", search_query)
 
-        await conn.close()  # Close the database connection
-
-        # Convert the results to a list of dictionaries
-        matches = [dict(row) for row in rows]
-        return matches
     except Exception as e:
-        await conn.close()
         raise HTTPException(status_code=500, detail=str(e)) from e
+
+    finally:
+        await conn.close()
+
+    # Convert the results to a list of dictionaries
+    matches = [dict(row) for row in rows]
+
+    return matches
 
 async def get_fuzzy_match(question: str):
     """
@@ -66,45 +69,48 @@ async def get_fuzzy_match(question: str):
 
     Returns a list of questions that match the search criteria if within the specified threshold.
     """
-    conn = await get_db_connection()
     try:
+        conn = await get_db_connection()
+
         # Fetch all rows from the database
         rows = await conn.fetch("SELECT * FROM data")
-        await conn.close()  # Close the database connection
-
-        # Convert the question to lowercase
-        question = question.lower()
-
-        # Perform fuzzy matching
-        matches = []
-        for row in rows:
-            # Convert the 'question' column to lowercase
-            row_question = row['question'].lower()
-
-            # Calculate the Levenshtein-Damerau distance
-            distance = damerau_levenshtein_distance(question, row_question)
-
-            # If the distance is above a certain threshold, add the row to the matches
-            threshold = autocomplete_config["fuzzy_match"]["threshold"]
-            if distance <= threshold:
-                matches.append((distance, row))
-
-        # Sort the matches by distance in ascending order
-        matches = sorted(matches, key=lambda x: x[0])
-
-        # Extract the rows from the matches
-        matches = [match[1] for match in matches]
-
-        max_results = autocomplete_config["fuzzy_match"]["limit"]
-        matches = matches[:max_results] if max_results != 0 else matches
-
-        # Convert the results to a list of dictionaries
-        matches = [dict(row) for row in matches]
-        return matches
 
     except Exception as e:
-        await conn.close()
         raise HTTPException(status_code=500, detail=str(e)) from e
+
+    finally:
+        await conn.close()
+
+    # Convert the question to lowercase
+    question = question.lower()
+
+    # Perform fuzzy matching
+    matches = []
+    for row in rows:
+        # Convert the 'question' column to lowercase
+        row_question = row['question'].lower()
+
+        # Calculate the Levenshtein-Damerau distance
+        distance = damerau_levenshtein_distance(question, row_question)
+
+        # If the distance is above a certain threshold, add the row to the matches
+        threshold = autocomplete_config["fuzzy_match"]["threshold"]
+        if distance <= threshold:
+            matches.append((distance, row))
+
+    # Sort the matches by distance in ascending order
+    matches = sorted(matches, key=lambda x: x[0])
+
+    # Extract the rows from the matches
+    matches = [match[1] for match in matches]
+
+    max_results = autocomplete_config["fuzzy_match"]["limit"]
+    matches = matches[:max_results] if max_results != 0 else matches
+
+    # Convert the results to a list of dictionaries
+    matches = [dict(row) for row in matches]
+
+    return matches
 
 async def get_semantic_similarity_match(question: str):
     """
@@ -115,9 +121,9 @@ async def get_semantic_similarity_match(question: str):
     Returns a list of 5 most similar questions based on cosine similarity.
     TO BE IMPLEMENTED: Returns a top_k list of questions that match the search criteria based on cosine similarity.
     """
-    conn = await get_db_connection()
-
     try:
+        conn = await get_db_connection()
+
         # Get embedding vector for question
         question_embedding = get_embedding(question)[0].embedding
 
@@ -133,18 +139,18 @@ async def get_semantic_similarity_match(question: str):
             LIMIT {'NULL' if max_results==0 else max_results}
         """)
 
-        await conn.close() # Close the database connection
-
-        # Convert the results to a list of dictionaries
-        matches = [{"question": row[0],
-                    "answer": row[1],
-                    "url": row[2]} for row in matches]
-
-        return matches
-
     except Exception as e:
-        await conn.close()
         raise HTTPException(status_code=500, detail=str(e)) from e
+
+    finally:
+        await conn.close()
+
+    # Convert the results to a list of dictionaries
+    matches = [{"question": row[0],
+                "answer": row[1],
+                "url": row[2]} for row in matches]
+
+    return matches
 
 @app.get("/autocomplete/", summary="Facade for autocomplete", response_description="List of matching questions")
 async def autocomplete(question: str):

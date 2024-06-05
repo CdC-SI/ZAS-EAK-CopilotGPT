@@ -87,9 +87,9 @@ async def process_query(request: RAGRequest):
 @app.post("/rag/docs", summary="Retrieve context docs endpoint", response_description="Return context docs from semantic search", status_code=200)
 async def docs(request: RAGRequest):
 
-    conn = await get_db_connection()
-
     try:
+        conn = await get_db_connection()
+
         # Get the query embedding vector
         query_embedding = get_embedding(request.query)[0].embedding
 
@@ -103,15 +103,14 @@ async def docs(request: RAGRequest):
             ORDER BY similarity_score desc
             LIMIT {'NULL' if top_k==0 else top_k}
         """)
-        docs = [dict(row) for row in docs][0]
 
     except Exception as e:
-        await conn.close() # remove
         raise HTTPException(status_code=500, detail=str(e)) # Define what exceptions to catch
 
     finally:
-        if conn: # remove
-            await conn.close()
+        await conn.close()
+
+    docs = [dict(row) for row in docs][0]
 
     return {"contextDocs": docs["text"], "sourceUrl": docs["url"], "similarityScore": docs["similarity_score"]}
 
