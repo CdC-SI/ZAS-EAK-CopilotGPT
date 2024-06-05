@@ -47,10 +47,7 @@ async def get_exact_match(question: str):
         # Fetch results from the database
         max_results = autocomplete_config["exact_match"]["limit"]
 
-        if max_results == -1:
-            rows = await conn.fetch("SELECT * FROM data WHERE LOWER(question) LIKE $1", search_query)
-        else:
-            rows = await conn.fetch("SELECT * FROM data WHERE LOWER(question) LIKE $1 LIMIT $2", search_query, max_results)
+        rows = await conn.fetch(f"SELECT * FROM data WHERE LOWER(question) LIKE $1 LIMIT {'NULL' if max_results==0 else max_results}", search_query)
 
         await conn.close()  # Close the database connection
 
@@ -99,7 +96,7 @@ async def get_fuzzy_match(question: str):
         matches = [match[1] for match in matches]
 
         max_results = autocomplete_config["fuzzy_match"]["limit"]
-        matches = matches[:max_results] if max_results != -1 else matches
+        matches = matches[:max_results] if max_results != 0 else matches
 
         # Convert the results to a list of dictionaries
         matches = [dict(row) for row in matches]
@@ -129,19 +126,12 @@ async def get_semantic_similarity_match(question: str):
         similarity_metric_symbol = SIMILARITY_METRICS[similarity_metric]
         max_results = autocomplete_config["semantic_similarity_match"]["limit"]
 
-        if max_results == -1:
-            matches = await conn.fetch(f"""
-                SELECT question, answer, url,  1 - (embedding {similarity_metric_symbol} '{question_embedding}') AS {similarity_metric}
-                FROM faq_embeddings
-                ORDER BY {similarity_metric} desc
-            """)
-        else:
-            matches = await conn.fetch(f"""
-                SELECT question, answer, url,  1 - (embedding {similarity_metric_symbol} '{question_embedding}') AS {similarity_metric}
-                FROM faq_embeddings
-                ORDER BY {similarity_metric} desc
-                LIMIT $1
-            """, max_results)
+        matches = await conn.fetch(f"""
+            SELECT question, answer, url,  1 - (embedding {similarity_metric_symbol} '{question_embedding}') AS similarity_score
+            FROM faq_embeddings
+            ORDER BY similarity_score desc
+            LIMIT {'NULL' if max_results==0 else max_results}
+        """)
 
         await conn.close() # Close the database connection
 
@@ -183,8 +173,7 @@ async def autocomplete(question: str):
 
     # Truncate the list to max_results
     max_results = autocomplete_config["results"]["limit"]
-    if max_results != -1:
-        unique_matches = unique_matches[:max_results]
+    unique_matches = unique_matches[:max_results] if max_results != 0 else unique_matches
 
     return unique_matches
 

@@ -1,16 +1,18 @@
-# Check ... to access documentation
+# Check https://cdc-si.github.io/eak-copilot/ to access config.yaml documentation
 autocomplete:
+  enabled: true
   results:
-    limit: -1
+    limit: 0
   exact_match:
-    limit: -1
+    limit: 0
   fuzzy_match:
     threshold: 5
-    limit: -1
+    limit: 0
   semantic_similarity_match:
     metric: cosine_similarity
-    limit: -1
+    limit: 0
 rag:
+  enabled: true
   embedding:
     model: text-embedding-ada-002
   retrieval:
@@ -23,8 +25,9 @@ rag:
     top_p: 0.95
     stream: true
 indexing:
+  enabled: true
   dev_mode: true
   faq:
-    auto_index: true
+    auto_index: false
   rag:
-    auto_index: true
+    auto_index: false

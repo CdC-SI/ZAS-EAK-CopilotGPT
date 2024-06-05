@@ -98,22 +98,22 @@ async def docs(request: RAGRequest):
         similarity_metric = rag_config["retrieval"]["metric"]
         similarity_metric_symbol = SIMILARITY_METRICS[similarity_metric]
         docs = await conn.fetch(f"""
-            SELECT text, url,  1 - (embedding {similarity_metric_symbol} '{query_embedding}') AS {similarity_metric}
+            SELECT text, url,  1 - (embedding {similarity_metric_symbol} '{query_embedding}') AS similarity_score
             FROM embeddings
-            ORDER BY {similarity_metric} desc
-            LIMIT $1
-        """, top_k)
+            ORDER BY similarity_score desc
+            LIMIT {'NULL' if top_k==0 else top_k}
+        """)
         docs = [dict(row) for row in docs][0]
 
     except Exception as e:
-        await conn.close()
-        raise HTTPException(status_code=500, detail=str(e))
+        await conn.close() # remove
+        raise HTTPException(status_code=500, detail=str(e)) # Define what exceptions to catch
 
     finally:
-        if conn:
+        if conn: # remove
             await conn.close()
 
-    return {"contextDocs": docs["text"], "sourceUrl": docs["url"], "cosineSimilarity": docs["cosine_similarity"]}
+    return {"contextDocs": docs["text"], "sourceUrl": docs["url"], "similarityScore": docs["similarity_score"]}
 
 @app.post("/rag/embed", summary="Embedding endpoint", response_description="A dictionary with embeddings for the input text")
 async def embed(text_input: EmbeddingRequest):
