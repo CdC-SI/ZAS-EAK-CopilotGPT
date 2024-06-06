@@ -1,6 +1,7 @@
 import httpx
 
-from config.openai_config import openai
+from config.openai_config import *
+from config.base_config import rag_config
 
 from rag.app.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
 from rag.app.models import RAGRequest, EmbeddingRequest
@@ -8,16 +9,32 @@ from rag.app.models import RAGRequest, EmbeddingRequest
 from autocomplete.app.queries import semantic_similarity_match
 from utils.embedding import get_embedding
 
+from openai import OpenAI
+
+
+
 
 class RAGProcessor:
-    def __init__(self, rag_config):
-        self.rag_config = rag_config
-        self.client = openai.OpenAI()
+    def __init__(self, model: str = "", max_token: int = None, stream: bool = True, temperature: float = 0,
+                 top_p: float = 1, top_k: int = None):
+        self.model = model if model else rag_config["llm"]["model"]
+        self.max_tokens = max_token if max_token else rag_config["llm"]["max_output_tokens"]
+        self.stream = stream if stream else rag_config["llm"]["stream"]
+        self.temperature = temperature if temperature else rag_config["llm"]["temperature"]
+        self.top_p = top_p if top_p else rag_config["llm"]["top_p"]
 
-        self.k_retrieve = rag_config["retrieval"]["top_k"]
+        self.k_retrieve = top_k if top_k else rag_config["retrieval"]["top_k"]
+
+        self.client = OpenAI()
+        self.client.api_key = OPENAI_API_KEY
 
     async def retrieve(self, request: RAGRequest, language: str = '*', k: int = None):
-        # Only supports retrieval of 1 document at the moment (set in /config/config.yaml). Will implement multi-doc retrieval later
+        """
+        Only supports retrieval of 1 document at the moment (set in /config/config.yaml).
+
+        .. todo::
+            multi-doc retrieval later
+        """
         k = self.k_retrieve if k is None else k
 
         rows = await semantic_similarity_match(request.query, db_name='embeddings', language=language, k=k)
@@ -26,9 +43,9 @@ class RAGProcessor:
         return {"contextDocs": documents["text"], "sourceUrl": documents["url"], "cosineSimilarity": documents["cosine_similarity"]}
 
     async def process(self, request: RAGRequest):
-        json_response = await self.fetch_context_docs(request.query)
-        context_docs = json_response['contextDocs']
-        source_url = json_response['sourceUrl']
+        documents = await self.retrieve(request)
+        context_docs = documents['contextDocs']
+        source_url = documents['sourceUrl']
         messages = self.create_openai_message(context_docs, request.query)
         openai_stream = self.create_openai_stream(messages)
 
@@ -50,13 +67,11 @@ class RAGProcessor:
 
     def create_openai_stream(self, messages):
         return self.client.chat.completions.create(
-            model=self.rag_config["llm"]["model"],
+            model=self.model,
             messages=messages,
-            max_tokens=self.rag_config["llm"]["max_output_tokens"],
-            stream=self.rag_config["llm"]["stream"],
-            temperature=self.rag_config["llm"]["temperature"],
-            top_p=self.rag_config["llm"]["top_p"]
-        )
+            stream=self.stream,
+            temperature=self.temperature,
+            top_p=self.top_p)
 
     def generate(self, openai_stream, source_url):
         for chunk in openai_stream:
@@ -65,4 +80,4 @@ class RAGProcessor:
             else:
                 # Send a special token indicating the end of the response
                 yield f"\n\n<a href='{source_url}' target='_blank' class='source-link'>{source_url}</a>".encode("utf-8")
-                break
+                return
