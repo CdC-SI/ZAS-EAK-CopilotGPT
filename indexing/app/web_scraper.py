@@ -11,6 +11,15 @@ from urllib3 import disable_warnings
 if __name__ != '__main__':
     import queries
 
+SITEMAP_URL = 'http://www.sitemaps.org/schemas/sitemap/0.9'
+
+ANSWER = {
+    'en': 'Answer',
+    'de': 'Antwort',
+    'it': 'Rispondi',
+    'fr': 'Réponse'
+}
+
 
 class WebScraper:
     def __init__(self, base_url: str, proxy: str = ''):
@@ -23,12 +32,6 @@ class WebScraper:
             self.session.verify = False
             self.session.proxies.update({"http": proxy})
             self.session.proxies.update({"https": proxy})
-
-        self.answer = {
-            'de': 'Antwort\n',
-            'it': 'Rispondi\n',
-            'fr': 'Réponse\n'
-        }
 
     async def run(self, test: int = 0):
         """
@@ -91,7 +94,7 @@ class WebScraper:
         path = []
         if response is not None:
             root = etree.fromstring(response.content)
-            namespace = {'sitemap': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+            namespace = {'sitemap': SITEMAP_URL}
             path = root.xpath("//sitemap:loc", namespaces=namespace)
         urls = [url.text for url in path]
 
@@ -100,26 +103,31 @@ class WebScraper:
     def extract_article(self, url: str):
         response = self._get_response(url)
         if not response:
-            return ''
+            return '', '', ''
 
         soup = BeautifulSoup(response.text, 'lxml')
 
         extracted = []
         for tag in ['html', 'h1', 'article']:
             element = soup.find(tag)
-            
+
+            # tag not found
             if not element:
-                extracted.append('')
+                extracted.append(None)
+
+            # extract lang
             elif tag == 'html':
-                extracted.append(element['lang'] if element.has_attr('lang') else '')
+                extracted.append(element.get('lang'))
+
+            # extract text
             else:
                 text = element.get_text()
                 if tag == 'article':
-                    text = text.replace(self.answer.get(extracted[0], ''), '')
-                text = re.sub(r"((\r\n|\r|\n)\s*){2,}", "\n\n", text.strip())
-                extracted.append(text)
+                    text = text.replace(ANSWER.get(extracted[0]), '')  # remove ANSWER title
+                    text = re.sub(r"((\r\n|\r|\n)\s*){2,}", "\n\n", text)  # remove double linebreak
+                extracted.append(text.strip())
 
-        return extracted[0], extracted[1], extracted[2]
+        return extracted[0], extracted[1], extracted[2]  # lang, h1, article
 
 
 if __name__ == '__main__':
