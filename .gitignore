@@ -163,4 +163,4 @@ cython_debug/
 data/
 venv_copilot/
 node_modules/
-/Untitled.ipynb
+*.ipynb
