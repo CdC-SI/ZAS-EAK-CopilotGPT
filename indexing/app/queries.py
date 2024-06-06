@@ -85,10 +85,10 @@ async def update_or_insert(url: str,
 
 
 async def insert_faq(url: str,
-                               question: str,
-                               answer: str,
-                               language: str,
-                               embedding: str):
+                     question: str,
+                     answer: str,
+                     language: str,
+                     embedding: str):
     conn = await get_db_connection()
 
     try:
@@ -103,10 +103,10 @@ async def insert_faq(url: str,
 
 
 async def insert_rag(embedding: str,
-                               text: str,
-                               url: str,
-                               created_at: datetime,
-                               modified_at: datetime):
+                     text: str,
+                     url: str,
+                     created_at: datetime,
+                     modified_at: datetime):
     conn = await get_db_connection()
 
     try:

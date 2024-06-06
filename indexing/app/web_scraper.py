@@ -35,7 +35,7 @@ class WebScraper:
 
     async def run(self, test: int = 0):
         """
-        Asynchronously retrieves and processes FAQ data from 'https://faq.bsv.admin.ch' to insert into the database.
+        Retrieves and processes FAQ data from 'https://faq.bsv.admin.ch' to insert into the database.
 
         The endpoint 'https://faq.bsv.admin.ch/sitemap.xml' is utilized to discover all relevant FAQ URLs. For each URL,
         the method extracts the primary question (denoted by the 'h1' tag) and its corresponding answer (within an
