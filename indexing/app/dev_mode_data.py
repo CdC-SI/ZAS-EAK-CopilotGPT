@@ -1,7 +1,5 @@
-from utils.db import get_db_connection
 from utils.embedding import get_embedding
 
-from fastapi import HTTPException
 from datetime import datetime
 
 import queries
