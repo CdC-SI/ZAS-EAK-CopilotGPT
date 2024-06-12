@@ -331,29 +331,29 @@
 <h1>Scraper<a class="headerlink" href="#scraper" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="web_scraper.WebScraper">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">web_scraper.</span></span><span class="sig-name descname"><span class="pre">WebScraper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#web_scraper.WebScraper" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">web_scraper.</span></span><span class="sig-name descname"><span class="pre">WebScraper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#web_scraper.WebScraper" title="Link to this definition">¶</a></dt>
 <dd><dl class="py method">
-<dt class="sig sig-object py" id="web_scraper.WebScraper.detect_language">
-<span class="sig-name descname"><span class="pre">detect_language</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#web_scraper.WebScraper.detect_language" title="Link to this definition">¶</a></dt>
-<dd><p>Detect the language of a website based on the ‘lang’ attribute in the HTML tag.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="web_scraper.WebScraper.extract_text_from_tag">
-<span class="sig-name descname"><span class="pre">extract_text_from_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#web_scraper.WebScraper.extract_text_from_tag" title="Link to this definition">¶</a></dt>
-<dd><p>Extract text from a specific tag in a web page.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="web_scraper.WebScraper.get_response">
-<span class="sig-name descname"><span class="pre">get_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Response</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#web_scraper.WebScraper.get_response" title="Link to this definition">¶</a></dt>
-<dd><p>Send a GET request and return the response object.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="web_scraper.WebScraper.get_sitemap_urls">
 <span class="sig-name descname"><span class="pre">get_sitemap_urls</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#web_scraper.WebScraper.get_sitemap_urls" title="Link to this definition">¶</a></dt>
 <dd><p>Extract URLs from the sitemap.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="web_scraper.WebScraper.run">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#web_scraper.WebScraper.run" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieves and processes FAQ data from ‘<a class="reference external" href="https://faq.bsv.admin.ch">https://faq.bsv.admin.ch</a>’ to insert into the database.</p>
+<p>The endpoint ‘<a class="reference external" href="https://faq.bsv.admin.ch/sitemap.xml">https://faq.bsv.admin.ch/sitemap.xml</a>’ is utilized to discover all relevant FAQ URLs. For each URL,
+the method extracts the primary question (denoted by the ‘h1’ tag) and its corresponding answer (within an
+‘article’ tag).
+Unnecessary boilerplate text will be removed for clarity and conciseness.</p>
+<p>Each extracted FAQ entry is then upserted (inserted or updated if already exists) into the database, with
+detailed logging to track the operation’s progress and identify any errors.</p>
+<p>Returns a confirmation message upon successful completion of the process.</p>
+<p>TODO:
+- Consider implementing error handling at a more granular level to retry failed insertions or updates, enhancing
+the robustness of the data ingestion process.
+- Explore optimization opportunities in text extraction and processing to improve efficiency and reduce runtime,
+especially for large sitemaps.</p>
 </dd></dl>
 
 </dd></dl>
@@ -417,10 +417,8 @@
             <ul>
 <li><a class="reference internal" href="#">Scraper</a><ul>
 <li><a class="reference internal" href="#web_scraper.WebScraper"><code class="docutils literal notranslate"><span class="pre">WebScraper</span></code></a><ul>
-<li><a class="reference internal" href="#web_scraper.WebScraper.detect_language"><code class="docutils literal notranslate"><span class="pre">WebScraper.detect_language()</span></code></a></li>
-<li><a class="reference internal" href="#web_scraper.WebScraper.extract_text_from_tag"><code class="docutils literal notranslate"><span class="pre">WebScraper.extract_text_from_tag()</span></code></a></li>
-<li><a class="reference internal" href="#web_scraper.WebScraper.get_response"><code class="docutils literal notranslate"><span class="pre">WebScraper.get_response()</span></code></a></li>
 <li><a class="reference internal" href="#web_scraper.WebScraper.get_sitemap_urls"><code class="docutils literal notranslate"><span class="pre">WebScraper.get_sitemap_urls()</span></code></a></li>
+<li><a class="reference internal" href="#web_scraper.WebScraper.run"><code class="docutils literal notranslate"><span class="pre">WebScraper.run()</span></code></a></li>
 </ul>
 </li>
 </ul>

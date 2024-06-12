@@ -331,39 +331,10 @@
 <span id="autocomplete"></span><h1>Autocomplete<a class="headerlink" href="#module-autocomplete.app.main" title="Link to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="autocomplete.app.main.autocomplete">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autocomplete.app.main.</span></span><span class="sig-name descname"><span class="pre">autocomplete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autocomplete.app.main.autocomplete" title="Link to this definition">¶</a></dt>
-<dd><p>If combined results of get_exact_match() and get_fuzzy_match() return less than 5 results, this method is called after every new “space” character in the question (user query) is added as well as when a “?” character is added at the end of the question.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autocomplete.app.main.get_exact_match">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autocomplete.app.main.</span></span><span class="sig-name descname"><span class="pre">get_exact_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autocomplete.app.main.get_exact_match" title="Link to this definition">¶</a></dt>
-<dd><p>Search for questions that contain the exact specified string, case-insensitive.</p>
-<ul class="simple">
-<li><p><strong>question</strong>: string to be searched within the questions.</p></li>
-</ul>
-<p>Returns a list of questions that exactly match the search criteria.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autocomplete.app.main.get_fuzzy_match">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autocomplete.app.main.</span></span><span class="sig-name descname"><span class="pre">get_fuzzy_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autocomplete.app.main.get_fuzzy_match" title="Link to this definition">¶</a></dt>
-<dd><p>Search for questions with fuzzy match (levenstein-damerau distance) based on threshold, case-insensitive.</p>
-<ul class="simple">
-<li><p><strong>question</strong>: string to be searched within the questions.</p></li>
-</ul>
-<p>Returns a list of questions that match the search criteria if within the specified threshold.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autocomplete.app.main.get_semantic_similarity_match">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autocomplete.app.main.</span></span><span class="sig-name descname"><span class="pre">get_semantic_similarity_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autocomplete.app.main.get_semantic_similarity_match" title="Link to this definition">¶</a></dt>
-<dd><p>Search for questions with cosine (semantic) similarity using an embedding model, case-insensitive.</p>
-<ul class="simple">
-<li><p><strong>question</strong>: string to be searched within the questions.</p></li>
-</ul>
-<p>Returns a list of 5 most similar questions based on cosine similarity.
-TO BE IMPLEMENTED: Returns a top_k list of questions that match the search criteria based on cosine similarity.</p>
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autocomplete.app.main.</span></span><span class="sig-name descname"><span class="pre">autocomplete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'*'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autocomplete.app.main.autocomplete" title="Link to this definition">¶</a></dt>
+<dd><p>If combined results of get_exact_match() and get_fuzzy_match() return less than 5 results,
+this method is called after every new “space” character in the question (user query) is
+added as well as when a “?” character is added at the end of the question.</p>
 </dd></dl>
 
 <div class="toctree-wrapper compound">
@@ -427,9 +398,6 @@ TO BE IMPLEMENTED: Returns a top_k list of questions that match the search crite
             <ul>
 <li><a class="reference internal" href="#">Autocomplete</a><ul>
 <li><a class="reference internal" href="#autocomplete.app.main.autocomplete"><code class="docutils literal notranslate"><span class="pre">autocomplete()</span></code></a></li>
-<li><a class="reference internal" href="#autocomplete.app.main.get_exact_match"><code class="docutils literal notranslate"><span class="pre">get_exact_match()</span></code></a></li>
-<li><a class="reference internal" href="#autocomplete.app.main.get_fuzzy_match"><code class="docutils literal notranslate"><span class="pre">get_fuzzy_match()</span></code></a></li>
-<li><a class="reference internal" href="#autocomplete.app.main.get_semantic_similarity_match"><code class="docutils literal notranslate"><span class="pre">get_semantic_similarity_match()</span></code></a></li>
 </ul>
 </li>
 </ul>
