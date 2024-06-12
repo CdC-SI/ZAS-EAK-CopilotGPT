@@ -5,15 +5,15 @@ from fastapi.responses import Response
 from contextlib import asynccontextmanager
 
 # Load env variables
-from config.base_config import indexing_config, indexing_app_config
+from src.config.base_config import indexing_config, indexing_app_config
 
 # Load utility functions
-from utils.db import check_db_connection
-from indexing.app.web_scraper import WebScraper
+from src.utils import check_db_connection
+from src.indexing.app.web_scraper import WebScraper
 import dev_mode_data
 
 # Load models
-from rag.app.models import ResponseBody
+from src.rag.app.models import ResponseBody
 
 import queries
 

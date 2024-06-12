@@ -1,5 +1,5 @@
-from utils.embedding import get_embedding
-from utils.db import get_db_connection
+from src.utils.embedding import get_embedding
+from src.utils import get_db_connection
 
 
 async def fetch(db_name: str, select: [str] = None, where: [str] = None, language: str = '*', order: str = 'question',

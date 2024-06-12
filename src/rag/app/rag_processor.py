@@ -1,13 +1,12 @@
 import httpx
 
-from config.openai_config import *
-from config.base_config import rag_config
+from src.config.base_config import rag_config
 
-from rag.app.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
-from rag.app.models import RAGRequest, EmbeddingRequest
+from src.rag.app.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
+from src.rag.app.models import RAGRequest, EmbeddingRequest
 
-from autocomplete.app.queries import semantic_similarity_match
-from utils.embedding import get_embedding
+from src.autocomplete.app.queries import semantic_similarity_match
+from src.utils.embedding import get_embedding
 
 from openai import OpenAI
 

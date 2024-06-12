@@ -1,4 +1,4 @@
-from utils.embedding import get_embedding
+from src.utils.embedding import get_embedding
 
 from datetime import datetime
 

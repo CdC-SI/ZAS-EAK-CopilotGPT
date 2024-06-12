@@ -1,8 +1,8 @@
 from typing import List, Union
 
 # Import env vars
-from config.base_config import rag_config
-from config.openai_config import openai
+from src.config.base_config import rag_config
+from src.config.openai_config import openai
 
 supported_models = ["text-embedding-ada-002"]
 

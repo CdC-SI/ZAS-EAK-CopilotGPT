@@ -13,11 +13,11 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
-sys.path.insert(0, os.path.abspath('../api'))
-sys.path.insert(0, os.path.abspath('../autocomplete/app'))
-sys.path.insert(0, os.path.abspath('../chatbot'))
-sys.path.insert(0, os.path.abspath('../indexing/app'))
-sys.path.insert(0, os.path.abspath('../rag/app'))
+sys.path.insert(0, os.path.abspath('../src/api'))
+sys.path.insert(0, os.path.abspath('../src/autocomplete/app'))
+sys.path.insert(0, os.path.abspath('../src/chatbot'))
+sys.path.insert(0, os.path.abspath('../src/indexing/app'))
+sys.path.insert(0, os.path.abspath('../src/rag/app'))
 # sys.path.insert(0, os.path.abspath('../other/app/path'))
 # missing survey pipeline and gui
 

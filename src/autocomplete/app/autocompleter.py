@@ -1,6 +1,6 @@
 import queries
 
-from config.base_config import autocomplete_config
+from src.config.base_config import autocomplete_config
 
 
 class Autocompleter:

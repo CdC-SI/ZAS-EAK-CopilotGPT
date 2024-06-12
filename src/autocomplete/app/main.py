@@ -9,8 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 # Load env variables
-from config.base_config import autocomplete_app_config
-from config.network_config import CORS_ALLOWED_ORIGINS
+from src.config.base_config import autocomplete_app_config
+from src.config.network_config import CORS_ALLOWED_ORIGINS
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

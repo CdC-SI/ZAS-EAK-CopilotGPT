@@ -1,16 +1,16 @@
 import logging
 
-from fastapi import FastAPI, HTTPException, status, Request
+from fastapi import FastAPI, status
 from fastapi.responses import Response, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 # Load env variables
-from config.base_config import rag_config, rag_app_config
-from config.network_config import CORS_ALLOWED_ORIGINS
+from src.config.base_config import rag_app_config
+from src.config.network_config import CORS_ALLOWED_ORIGINS
 
 # Load models
 from rag_processor import *
-from rag.app.models import RAGRequest, EmbeddingRequest
+from src.rag.app.models import RAGRequest, EmbeddingRequest
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

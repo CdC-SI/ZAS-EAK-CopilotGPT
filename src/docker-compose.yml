@@ -4,8 +4,8 @@ services:
   # db service
   db:
     build:
-      context: ./db
-      dockerfile: Dockerfile
+      context: ../db
+      dockerfile: ../db/Dockerfile
     image: copilot-postgresql-db
     ports:
       - "5432:5432"
@@ -39,8 +39,8 @@ services:
 
   autocomplete:
     build:
-      context: .
-      dockerfile: ./autocomplete/Dockerfile
+      context: ..
+      dockerfile: autocomplete/Dockerfile
     image: copilot-autocomplete
     ports:
       - "8000:8000"
@@ -63,8 +63,8 @@ services:
   # data indexing
   indexing:
     build:
-      context: .
-      dockerfile: ./indexing/Dockerfile
+      context: ..
+      dockerfile: indexing/Dockerfile
     image: copilot-indexing
     ports:
       - "8011:8011"
@@ -104,8 +104,8 @@ services:
   # RAG
   rag:
     build:
-      context: .
-      dockerfile: ./rag/Dockerfile
+      context: ..
+      dockerfile: rag/Dockerfile
     image: copilot-rag
     ports:
       - "8010:8010"
