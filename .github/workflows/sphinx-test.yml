@@ -23,10 +23,10 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install -r doc/requirements.txt
-          pip install -r autocomplete/requirements.txt
-          pip install -r indexing/requirements.txt
-          pip install -r rag/requirements.txt
+          pip install -r src/doc/requirements.txt
+          pip install -r src/autocomplete/requirements.txt
+          pip install -r src/indexing/requirements.txt
+          pip install -r src/rag/requirements.txt
 
       - name: Build HTML
         run: |
