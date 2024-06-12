@@ -13,7 +13,7 @@ from src.indexing.app.web_scraper import WebScraper
 import dev_mode_data
 
 # Load models
-from src.rag.app.models import ResponseBody
+from src.rag.models import ResponseBody
 
 import queries
 

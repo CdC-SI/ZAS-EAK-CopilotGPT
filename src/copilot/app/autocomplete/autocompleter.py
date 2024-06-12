@@ -1,6 +1,6 @@
 import queries
 
-from src.config.base_config import autocomplete_config
+from src.copilot.config.base_config import autocomplete_config
 
 
 class Autocompleter:

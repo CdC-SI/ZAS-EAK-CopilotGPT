@@ -2,8 +2,8 @@ import httpx
 
 from src.config.base_config import rag_config
 
-from src.rag.app.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
-from src.rag.app.models import RAGRequest, EmbeddingRequest
+from src.rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
+from src.rag.models import RAGRequest, EmbeddingRequest
 
 from src.autocomplete.app.queries import semantic_similarity_match
 from src.utils.embedding import get_embedding
