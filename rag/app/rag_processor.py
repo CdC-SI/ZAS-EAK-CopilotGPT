@@ -1,6 +1,6 @@
 import httpx
 
-from config.openai_config import *
+from config.openai_config import openai
 from config.base_config import rag_config
 
 from rag.app.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
@@ -8,11 +8,6 @@ from rag.app.models import RAGRequest, EmbeddingRequest
 
 from autocomplete.app.queries import semantic_similarity_match
 from utils.embedding import get_embedding
-
-from openai import OpenAI
-
-
-
 
 class RAGProcessor:
     def __init__(self, model: str = "", max_token: int = None, stream: bool = True, temperature: float = 0,
@@ -25,8 +20,7 @@ class RAGProcessor:
 
         self.k_retrieve = top_k if top_k else rag_config["retrieval"]["top_k"]
 
-        self.client = OpenAI()
-        self.client.api_key = OPENAI_API_KEY
+        self.client = openai.OpenAI()
 
     async def retrieve(self, request: RAGRequest, language: str = '*', k: int = None):
         """
