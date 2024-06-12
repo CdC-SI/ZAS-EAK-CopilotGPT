@@ -9,7 +9,7 @@ from config.base_config import rag_config, rag_app_config
 from config.network_config import CORS_ALLOWED_ORIGINS
 
 # Load models
-from rag_processor import *
+from rag.app.rag_processor import *
 from rag.app.models import RAGRequest, EmbeddingRequest
 
 # Setup logging

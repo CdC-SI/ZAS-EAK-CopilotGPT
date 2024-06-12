@@ -2,7 +2,7 @@ import logging
 
 from typing import Union
 
-from autocompleter import *
+from autocomplete.app.autocompleter import *
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

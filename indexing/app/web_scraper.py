@@ -9,7 +9,7 @@ from urllib3.exceptions import InsecureRequestWarning
 from urllib3 import disable_warnings
 
 if __name__ != '__main__':
-    import queries
+    from indexing.app import queries
 
 SITEMAP_URL = 'http://www.sitemaps.org/schemas/sitemap/0.9'
 
@@ -26,7 +26,7 @@ class WebScraper:
         self.base_url = base_url
         self.session = requests.Session()
         self.logger = logging.getLogger(self.__class__.__name__)
-        
+
         if proxy:
             disable_warnings(category=InsecureRequestWarning)
             self.session.verify = False
