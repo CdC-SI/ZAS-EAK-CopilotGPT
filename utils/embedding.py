@@ -4,11 +4,14 @@ from typing import List, Union
 from config.base_config import rag_config
 from config.openai_config import openai
 
+supported_models = ["text-embedding-ada-002"]
+
+
 # Function to get embeddings for a text
 def get_embedding(text: Union[List[str], str]):
     model = rag_config["embedding"]["model"]
-    if model == "text-embedding-ada-002":
-        response = openai.embeddings.create(
+    if model in supported_models:
+        response = openai.Embedding.create(
             input=text,
             model=model,
         )
