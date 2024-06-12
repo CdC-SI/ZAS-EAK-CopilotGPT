@@ -4,8 +4,8 @@ services:
   # db service
   db:
     build:
-      context: ../db
-      dockerfile: ../db/Dockerfile
+      context: db
+      dockerfile: db/Dockerfile
     image: copilot-postgresql-db
     ports:
       - "5432:5432"
