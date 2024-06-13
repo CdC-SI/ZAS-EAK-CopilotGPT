@@ -20,7 +20,7 @@ class Autocompleter:
 
         self.last_matches = []
 
-    async def get_exact_match(self, question: str, language: str = 'ANY', k: int = 0):
+    async def get_exact_match(self, question: str, language: str = None, k: int = 0):
         """
         Search for questions that contain the exact specified string, case-insensitive.
 
@@ -39,7 +39,7 @@ class Autocompleter:
         matches = [dict(row) for row in rows]
         return matches
 
-    async def get_fuzzy_match(self, question: str, language: str = 'ANY', threshold: int = 5, k: int = 0):
+    async def get_fuzzy_match(self, question: str, language: str = None, threshold: int = 5, k: int = 0):
         """
         Search for questions with fuzzy match (levenstein-damerau distance) based on threshold, case-insensitive.
 
@@ -51,7 +51,7 @@ class Autocompleter:
 
         return await queries.fuzzy_match(question=question, language=language, threshold=threshold, k=k)
 
-    async def get_semantic_similarity_match(self, question: str, language: str = 'ANY', k: int = 0):
+    async def get_semantic_similarity_match(self, question: str, language: str = None, k: int = 0):
         k = self.k_semantic_match if k == 0 else k
 
         rows = await queries.semantic_similarity_match(question=question, language=language, k=k)
@@ -63,7 +63,7 @@ class Autocompleter:
 
         return matches
 
-    async def get_autocomplete(self, question: str, language: str = 'ANY', k: int = 0):
+    async def get_autocomplete(self, question: str, language: str = None, k: int = 0):
         k = self.k_autocomplete if k == 0 else k
 
         fuzzy_match = await self.get_fuzzy_match(question=question, language=language)

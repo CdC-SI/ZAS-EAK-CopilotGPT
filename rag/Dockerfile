@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Kopiere die Anforderungen in den Container und installiere sie
 COPY rag/requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install requirements.txt
 
 # Kopiere den Rest des Codes in den Container
 COPY . .
