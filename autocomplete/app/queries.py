@@ -11,7 +11,7 @@ async def fetch(db_name: str,
                 k: int = 0):
     conn = await get_db_connection()
 
-    selection = ', '.join(['question', 'answer', 'url'] + (select if select else []))
+    selection = ', '.join(['question', 'answer', 'url'] + (select if select else [])) if db_name != 'embeddings' else ', '.join(['text, url'] + (select if select else []))
     conditions = []
     if language:
         conditions.append(f'language = {language}')
@@ -66,13 +66,13 @@ def semantic_similarity_match(question: str,
                               language: str = None,
                               symbol: str = '<=>',
                               k: int = 0):
-    # Make POST request to the /embed API endpoint to get the embedding
+
     question_embedding = get_embedding(question)[0].embedding
 
     return fetch(db_name=db_name,
-                 select=[f"1 - (embedding {symbol} '{question_embedding}') AS cosine_similarity"],
+                 select=[f"1 - (embedding {symbol} '{question_embedding}') AS similarity_metric"],
                  language=language,
-                 order="cosine_similarity desc",
+                 order="similarity_metric desc",
                  k=k)
 
 
