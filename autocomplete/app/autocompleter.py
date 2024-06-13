@@ -8,6 +8,7 @@ class Autocompleter:
     def __init__(self):
         self.k_exact_match = autocomplete_config["exact_match"]["limit"]
         self.k_fuzzy_match = autocomplete_config["fuzzy_match"]["limit"]
+        self.fuzzy_match_threshold = autocomplete_config["fuzzy_match"]["threshold"]
         self.k_semantic_match = autocomplete_config["semantic_similarity_match"]["limit"]
         self.k_autocomplete = autocomplete_config["results"]["limit"]
 
@@ -42,7 +43,10 @@ class Autocompleter:
         """
         k = self.k_fuzzy_match if k == 0 else k
 
-        return await queries.fuzzy_match(question=question, threshold=threshold, language=language, k=k)
+        rows = await queries.fuzzy_match(question=question, threshold=threshold, language=language, k=k)
+
+        matches = [dict(row) for row in rows]
+        return matches
 
     async def get_semantic_similarity_match(self, question: str, language: str = None, k: int = 0):
         k = self.k_semantic_match if k == 0 else k
@@ -59,7 +63,7 @@ class Autocompleter:
     async def get_autocomplete(self, question: str, language: str = None, k: int = 0):
         k = self.k_autocomplete if k == 0 else k
 
-        fuzzy_match = await queries.exact_or_fuzzy(question=question, threshold=self.k_fuzzy_match, language=language)
+        fuzzy_match = await queries.exact_or_fuzzy(question=question, threshold=self.fuzzy_match_threshold, language=language)
 
         # If the combined results from exact match and fuzzy match are less than 5, get semantic similarity matches
         if len(fuzzy_match) < 5 and (question[-1] == " " or question[-1] == "?"):
@@ -70,7 +74,7 @@ class Autocompleter:
             unique_matches = list(fuzzy_match)
             unique_matches.extend(q for q in semantic_match if q not in unique_matches)
 
-            if k != -1:
+            if k != 0:
                 unique_matches = unique_matches[:k]
 
             self.last_matches = unique_matches
@@ -78,4 +82,4 @@ class Autocompleter:
 
         else:
 
-            return self.last_matches
+            return fuzzy_match

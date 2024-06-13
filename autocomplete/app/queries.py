@@ -29,8 +29,6 @@ async def fetch(db_name: str,
             {limit_clause}
         """
 
-    print(query)
-
     try:
         rows = await conn.fetch(query)
 
