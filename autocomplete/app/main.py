@@ -2,7 +2,7 @@ import logging
 
 from typing import Union
 
-from autocompleter import *
+from autocomplete.app.autocompleter import *
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -42,7 +42,7 @@ app.add_middleware(
 @app.get("/autocomplete/",
          summary="Facade for autocomplete",
          response_description="List of matching questions")
-async def autocomplete(question: str, language: str = '*'):
+async def autocomplete(question: str, language: str = None):
     """
      If combined results of get_exact_match() and get_fuzzy_match() return less than 5 results,
      this method is called after every new "space" character in the question (user query) is
@@ -54,19 +54,19 @@ async def autocomplete(question: str, language: str = '*'):
 @app.get("/autocomplete/exact_match/",
          summary="Search Questions with exact match",
          response_description="List of matching questions")
-async def exact_match(question: str, language: str = '*'):
+async def exact_match(question: str, language: str = None):
     return await _autocompleter.get_exact_match(question, language)
 
 
 @app.get("/autocomplete/fuzzy_match/",
          summary="Search Questions with fuzzy match",
          response_description="List of matching questions")
-async def fuzzy_match(question: str, language: str = '*'):
+async def fuzzy_match(question: str, language: str = None):
     return await _autocompleter.get_fuzzy_match(question, language)
 
 
 @app.get("/autocomplete/semantic_similarity_match/",
          summary="Search Questions with semantic similarity match",
          response_description="List of matching questions")
-async def semantic_similarity_match(question: str, language: str = '*'):
+async def semantic_similarity_match(question: str, language: str = None):
     return await _autocompleter.get_semantic_similarity_match(question, language)

@@ -11,7 +11,7 @@ supported_models = ["text-embedding-ada-002"]
 def get_embedding(text: Union[List[str], str]):
     model = rag_config["embedding"]["model"]
     if model in supported_models:
-        response = openai.Embedding.create(
+        response = openai.embeddings.create(
             input=text,
             model=model,
         )

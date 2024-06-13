@@ -6,7 +6,7 @@ autocomplete:
   exact_match:
     limit: 0
   fuzzy_match:
-    threshold: 5
+    threshold: 100
     limit: 0
   semantic_similarity_match:
     metric: cosine_similarity

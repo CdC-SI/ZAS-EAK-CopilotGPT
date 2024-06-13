@@ -1,6 +1,6 @@
 import httpx
 
-from config.openai_config import *
+from config.openai_config import openai
 from config.base_config import rag_config
 
 from rag.app.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
@@ -9,14 +9,10 @@ from rag.app.models import RAGRequest, EmbeddingRequest
 from autocomplete.app.queries import semantic_similarity_match
 from utils.embedding import get_embedding
 
-from openai import OpenAI
-
-
-
 
 class RAGProcessor:
-    def __init__(self, model: str = "", max_token: int = None, stream: bool = True, temperature: float = 0,
-                 top_p: float = 1, top_k: int = None):
+    def __init__(self, model: str = None, max_token: int = None, stream: bool = None, temperature: float = None,
+                 top_p: float = None, top_k: int = None):
         self.model = model if model else rag_config["llm"]["model"]
         self.max_tokens = max_token if max_token else rag_config["llm"]["max_output_tokens"]
         self.stream = stream if stream else rag_config["llm"]["stream"]
@@ -25,10 +21,9 @@ class RAGProcessor:
 
         self.k_retrieve = top_k if top_k else rag_config["retrieval"]["top_k"]
 
-        self.client = OpenAI()
-        self.client.api_key = OPENAI_API_KEY
+        self.client = openai.OpenAI()
 
-    async def retrieve(self, request: RAGRequest, language: str = '*', k: int = None):
+    async def retrieve(self, request: RAGRequest, language: str = None, k: int = 0):
         """
         Only supports retrieval of 1 document at the moment (set in /config/config.yaml).
 
@@ -40,7 +35,7 @@ class RAGProcessor:
         rows = await semantic_similarity_match(request.query, db_name='embeddings', language=language, k=k)
         documents = [dict(row) for row in rows][0]
 
-        return {"contextDocs": documents["text"], "sourceUrl": documents["url"], "cosineSimilarity": documents["cosine_similarity"]}
+        return {"contextDocs": documents["text"], "sourceUrl": documents["url"], "cosineSimilarity": documents["similarity_metric"]}
 
     async def process(self, request: RAGRequest):
         documents = await self.retrieve(request)
@@ -54,12 +49,6 @@ class RAGProcessor:
     async def embed(self, text_input: EmbeddingRequest):
         embedding = get_embedding(text_input.text)[0].embedding
         return {"data": embedding}
-
-    async def fetch_context_docs(self, query):
-        async with httpx.AsyncClient() as client:
-            response = await client.post("http://rag:8010/rag/docs", json={"query": query})
-        response.raise_for_status()
-        return response.json()
 
     def create_openai_message(self, context_docs, query):
         openai_rag_system_prompt = OPENAI_RAG_SYSTEM_PROMPT_DE.format(context_docs=context_docs, query=query)

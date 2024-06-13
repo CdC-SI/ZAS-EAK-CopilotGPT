@@ -1,15 +1,15 @@
 import logging
 
-from fastapi import FastAPI, HTTPException, status, Request
+from fastapi import FastAPI, status
 from fastapi.responses import Response, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 # Load env variables
-from config.base_config import rag_config, rag_app_config
+from config.base_config import rag_app_config
 from config.network_config import CORS_ALLOWED_ORIGINS
 
 # Load models
-from rag_processor import *
+from rag.app.rag_processor import *
 from rag.app.models import RAGRequest, EmbeddingRequest
 
 # Setup logging
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 # Create required instances
 app = FastAPI(**rag_app_config)
-processor = RAGProcessor(rag_config)
+processor = RAGProcessor()
 
 # Setup CORS
 app.add_middleware(
@@ -37,7 +37,7 @@ async def process_query(request: RAGRequest):
 
 
 @app.post("/rag/docs", summary="Retrieve context docs endpoint", response_description="Return context docs from semantic search", status_code=200)
-async def docs(request: RAGRequest, language: str = '*'):
+async def docs(request: RAGRequest, language: str = None):
     return await processor.retrieve(request, language)
 
 

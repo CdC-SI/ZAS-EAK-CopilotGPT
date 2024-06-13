@@ -10,12 +10,12 @@ from config.base_config import indexing_config, indexing_app_config
 # Load utility functions
 from utils.db import check_db_connection
 from indexing.app.web_scraper import WebScraper
-import dev_mode_data
+from indexing.app import dev_mode_data
 
 # Load models
 from rag.app.models import ResponseBody
 
-import queries
+from indexing.app import queries
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -120,11 +120,11 @@ async def chunk_rag_data():
 
 
 @app.put("/indexing/index_faq_data/", summary="Insert Data from faq.bsv.admin.ch", response_description="Insert Data from faq.bsv.admin.ch")
-async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xml'):
+async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xml', proxy: str = '', k: int = 0):
     logging.basicConfig(level=logging.INFO)
 
-    scraper = WebScraper(sitemap_url)
-    urls = await scraper.run()
+    scraper = WebScraper(sitemap_url, proxy)
+    urls = await scraper.run(k)
 
     return {"message": f"Done! {len(urls)} wurden verarbeitet."}
 
