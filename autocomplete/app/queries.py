@@ -67,11 +67,11 @@ def semantic_similarity_match(question: str,
                               db_name: str = 'faq_embeddings',
                               language: str = None,
                               symbol: str = '<=>',
-                              k: int = -1):
+                              k: int = 0):
     # Make POST request to the /embed API endpoint to get the embedding
     question_embedding = get_embedding(question)[0].embedding
 
-    return fetch(db_name,
+    return fetch(db_name=db_name,
                  select=[f"1 - (embedding {symbol} '{question_embedding}') AS cosine_similarity"],
                  language=language,
                  order="cosine_similarity desc",

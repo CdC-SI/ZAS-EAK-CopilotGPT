@@ -9,9 +9,10 @@ from rag.app.models import RAGRequest, EmbeddingRequest
 from autocomplete.app.queries import semantic_similarity_match
 from utils.embedding import get_embedding
 
+
 class RAGProcessor:
-    def __init__(self, model: str = "", max_token: int = None, stream: bool = True, temperature: float = 0,
-                 top_p: float = 1, top_k: int = None):
+    def __init__(self, model: str = None, max_token: int = None, stream: bool = None, temperature: float = None,
+                 top_p: float = None, top_k: int = None):
         self.model = model if model else rag_config["llm"]["model"]
         self.max_tokens = max_token if max_token else rag_config["llm"]["max_output_tokens"]
         self.stream = stream if stream else rag_config["llm"]["stream"]
@@ -22,7 +23,7 @@ class RAGProcessor:
 
         self.client = openai.OpenAI()
 
-    async def retrieve(self, request: RAGRequest, language: str = '*', k: int = None):
+    async def retrieve(self, request: RAGRequest, language: str = None, k: int = 0):
         """
         Only supports retrieval of 1 document at the moment (set in /config/config.yaml).
 

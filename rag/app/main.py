@@ -1,11 +1,11 @@
 import logging
 
-from fastapi import FastAPI, HTTPException, status, Request
+from fastapi import FastAPI, status
 from fastapi.responses import Response, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 # Load env variables
-from config.base_config import rag_config, rag_app_config
+from config.base_config import rag_app_config
 from config.network_config import CORS_ALLOWED_ORIGINS
 
 # Load models
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 # Create required instances
 app = FastAPI(**rag_app_config)
-processor = RAGProcessor(rag_config)
+processor = RAGProcessor()
 
 # Setup CORS
 app.add_middleware(
