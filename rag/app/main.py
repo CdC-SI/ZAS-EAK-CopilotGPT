@@ -37,7 +37,7 @@ async def process_query(request: RAGRequest):
 
 
 @app.post("/rag/docs", summary="Retrieve context docs endpoint", response_description="Return context docs from semantic search", status_code=200)
-async def docs(request: RAGRequest, language: str = '*'):
+async def docs(request: RAGRequest, language: str = None):
     return await processor.retrieve(request, language)
 
 
