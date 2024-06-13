@@ -50,12 +50,6 @@ class RAGProcessor:
         embedding = get_embedding(text_input.text)[0].embedding
         return {"data": embedding}
 
-    async def fetch_context_docs(self, query):
-        async with httpx.AsyncClient() as client:
-            response = await client.post("http://rag:8010/rag/docs", json={"query": query})
-        response.raise_for_status()
-        return response.json()
-
     def create_openai_message(self, context_docs, query):
         openai_rag_system_prompt = OPENAI_RAG_SYSTEM_PROMPT_DE.format(context_docs=context_docs, query=query)
         return [{"role": "system", "content": openai_rag_system_prompt},]
