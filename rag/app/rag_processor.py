@@ -9,6 +9,7 @@ from rag.app.models import RAGRequest, EmbeddingRequest
 from autocomplete.app.queries import semantic_similarity_match
 from utils.embedding import get_embedding
 
+
 class RAGProcessor:
     def __init__(self, model: str = "", max_token: int = None, stream: bool = True, temperature: float = 0,
                  top_p: float = 1, top_k: int = None):
