@@ -7,28 +7,26 @@ async def fetch(db_name: str,
                 select: List[str] = None,
                 where: List[str] = None,
                 language: str = None,
-                order: str = 'question',
+                order: str = None,
                 k: int = 0):
     conn = await get_db_connection()
 
-    selection = ', '.join(['question', 'answer', 'url'] + ([] if select is None else select))
-    print(selection)
+    selection = ', '.join(['question', 'answer', 'url'] + (select if select else []))
     conditions = []
     if language:
         conditions.append(f'language = {language}')
     if where:
         conditions += where
-    all_conditions = ' AND '.join(conditions)
-    print(conditions)
-    k = 'NULL' if k == 0 else k
-    print(k)
+    where_clause = ('WHERE ' + ' AND '.join(conditions)) if conditions else ''
+    order_clause = f'ORDER BY {order}' if order else ''
+    limit_clause = f'LIMIT {k}' if k > 0 else ''
 
     query = f"""
             SELECT {selection}
             FROM {db_name}
-            WHERE {all_conditions}
-            ORDER BY {order}
-            LIMIT {k}
+            {where_clause}
+            {order_clause}
+            {limit_clause}
         """
 
     print(query)
@@ -49,19 +47,27 @@ def exact_match(question: str, language: str = None, k: int = 0):
                  k=k)
 
 
-def fuzzy_match(question: str, language: str = None, threshold: int = 5, k: int = 0):
+def fuzzy_match(question: str, threshold, language: str = None, k: int = 0):
     return fetch(db_name='data',
-                 where=[f"levenshtein_less_equal(question, '{question}', {threshold}"],
+                 where=[f"levenshtein_less_equal('{question}', question, {threshold}) < {threshold}"],
                  language=language,
-                 order=f"levenshtein(question, '{question}') desc",
+                 order=f"levenshtein(question, '{question}') asc",
+                 k=k)
+
+
+def exact_or_fuzzy(question: str, threshold, language: str = None, k: int = 0):
+    return fetch(db_name='data',
+                 where=[f"LOWER(question) LIKE '{question}' OR levenshtein_less_equal('{question}', question, {threshold}) < {threshold}"],
+                 language=language,
+                 order=f"levenshtein(question, '{question}') asc",
                  k=k)
 
 
 def semantic_similarity_match(question: str,
-                                    db_name: str = 'faq_embeddings',
-                                    language: str = None,
-                                    symbol: str = '<=>',
-                                    k: int = -1):
+                              db_name: str = 'faq_embeddings',
+                              language: str = None,
+                              symbol: str = '<=>',
+                              k: int = -1):
     # Make POST request to the /embed API endpoint to get the embedding
     question_embedding = get_embedding(question)[0].embedding
 

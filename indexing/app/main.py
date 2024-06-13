@@ -120,11 +120,11 @@ async def chunk_rag_data():
 
 
 @app.put("/indexing/index_faq_data/", summary="Insert Data from faq.bsv.admin.ch", response_description="Insert Data from faq.bsv.admin.ch")
-async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xml'):
+async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xml', proxy: str = '', k: int = 0):
     logging.basicConfig(level=logging.INFO)
 
-    scraper = WebScraper(sitemap_url)
-    urls = await scraper.run()
+    scraper = WebScraper(sitemap_url, proxy)
+    urls = await scraper.run(k)
 
     return {"message": f"Done! {len(urls)} wurden verarbeitet."}
 
