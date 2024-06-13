@@ -33,7 +33,7 @@ class Autocompleter:
         matches = [dict(row) for row in rows]
         return matches
 
-    async def get_fuzzy_match(self, question: str, language: str = None, threshold: int = 50, k: int = 0):
+    async def get_fuzzy_match(self, question: str, language: str = None, threshold: int = None, k: int = 0):
         """
         Search for questions with fuzzy match (levenstein-damerau distance) based on threshold, case-insensitive.
 
@@ -42,6 +42,7 @@ class Autocompleter:
         Returns a list of questions that match the search criteria if within the specified threshold.
         """
         k = self.k_fuzzy_match if k == 0 else k
+        threshold = threshold if threshold else self.fuzzy_match_threshold
 
         rows = await queries.fuzzy_match(question=question, threshold=threshold, language=language, k=k)
 
