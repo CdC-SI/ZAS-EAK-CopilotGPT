@@ -1,5 +1,5 @@
 Scraper
 #######
 
-.. automodule:: indexing.scraper
+.. autoclass:: indexing.scraper.Scraper
     :members:
