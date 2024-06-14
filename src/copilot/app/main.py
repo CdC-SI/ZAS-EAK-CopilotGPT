@@ -6,6 +6,8 @@ from indexing_api import app as indexing_app
 from autocomplete_api import app as autocomplete_app
 from rag_api import app as rag_app
 
+PREFIX = ""  # "/api"
+
 app = FastAPI()
 
 # Setup CORS
@@ -18,7 +20,7 @@ app.add_middleware(
 )
 
 api = FastAPI()
-app.mount("/api", api)
+app.mount(PREFIX, api)
 
 api.mount("/indexing", indexing_app)
 api.mount("/autocomplete", autocomplete_app)
