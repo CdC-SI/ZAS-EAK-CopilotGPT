@@ -3,6 +3,8 @@ import logging
 from fastapi import FastAPI, status
 from fastapi.responses import Response
 from contextlib import asynccontextmanager
+from fastapi.middleware.cors import CORSMiddleware
+from config.network_config import CORS_ALLOWED_ORIGINS
 
 # Load env variables
 from config.base_config import indexing_config, indexing_app_config
@@ -57,6 +59,15 @@ async def lifespan(app: FastAPI):
 
 # Create an instance of FastAPI
 app = FastAPI(**indexing_app_config, lifespan=lifespan)
+
+# Setup CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[CORS_ALLOWED_ORIGINS],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.post("/index_rag_vectordb/", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
