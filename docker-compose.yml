@@ -84,22 +84,12 @@ services:
     restart: "no"
 
   # frontend
-  chatgpt-minimal:
+  zas-copilot:
     build:
-      context: https://github.com/CdC-SI/chatgpt-minimal.git#main
-    image: chatgpt-minimal
+      context: https://github.com/CdC-SI/copilot-frontend.git#main
+    image: zas-copilot:latest
     ports:
-      - "3000:3000"
-    env_file:
-      - .env
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - REACT_APP_QUERY_AUTOCOMPLETE_API_URL=${REACT_APP_QUERY_AUTOCOMPLETE_API_URL}
-    networks:
-      - copilot-network
-    depends_on:
-      - autocomplete
-    restart: "no"
+      - "4200:4200"
 
   # RAG
   rag:

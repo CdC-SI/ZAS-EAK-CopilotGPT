@@ -1,6 +1,6 @@
 FROM ankane/pgvector
 
-# Fügen von benutzerdefinierten Konfigurationsdateien hinzu, falls erforderlich
+# Copy custom configuration file
 COPY ./custom_postgres.conf /etc/postgresql/postgresql.conf
 
 # Fügen von Datenbankinitialisierungsskripten hinzu, falls erforderlich
