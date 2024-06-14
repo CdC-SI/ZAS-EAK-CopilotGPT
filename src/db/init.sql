@@ -1,4 +1,7 @@
 CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 
 -- Create a table 'embeddings' for storing embeddings and associated text for RAG
 CREATE TABLE embeddings (

@@ -5,17 +5,15 @@ from fastapi.responses import Response
 from contextlib import asynccontextmanager
 
 # Load env variables
-from src.config.base_config import indexing_config, indexing_app_config
+from config.base_config import indexing_config, indexing_app_config
 
 # Load utility functions
-from src.utils import check_db_connection
-from src.indexing.app.web_scraper import WebScraper
-import dev_mode_data
+from utils.db import check_db_connection
+from indexing.scraper import Scraper
+from indexing import dev_mode_data, queries
 
 # Load models
-from src.rag.models import ResponseBody
-
-import queries
+from rag.models import ResponseBody
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -61,17 +59,17 @@ async def lifespan(app: FastAPI):
 app = FastAPI(**indexing_app_config, lifespan=lifespan)
 
 
-@app.post("/indexing/index_rag_vectordb/", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
+@app.post("/index_rag_vectordb/", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
 async def index_rag_vectordb():
     return await dev_mode_data.init_rag_vectordb()
 
 
-@app.post("/indexing/index_faq_vectordb/", summary="Insert Embedding data for FAQ autocomplete semantic similarity search", response_description="Insert Embedding data for FAQ semantic similarity search", status_code=200, response_model=ResponseBody)
+@app.post("/index_faq_vectordb/", summary="Insert Embedding data for FAQ autocomplete semantic similarity search", response_description="Insert Embedding data for FAQ semantic similarity search", status_code=200, response_model=ResponseBody)
 async def index_faq_vectordb():
     return await dev_mode_data.init_faq_vectordb()
 
 
-@app.get("/indexing/crawl_data/", summary="Crawling endpoint", response_description="Welcome Message")
+@app.get("/crawl_data/", summary="Crawling endpoint", response_description="Welcome Message")
 async def crawl_data():
     """
     Dummy endpoint for data crawling.
@@ -79,7 +77,7 @@ async def crawl_data():
     return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 
-@app.get("/indexing/scrap_data/", summary="Scraping Endpoint", response_description="Welcome Message")
+@app.get("/scrap_data/", summary="Scraping Endpoint", response_description="Welcome Message")
 async def scrap_data():
     """
     Dummy endpoint for data scraping.
@@ -87,7 +85,7 @@ async def scrap_data():
     return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 
-@app.get("/indexing/index_data/", summary="Indexing Endpoint", response_description="Welcome Message")
+@app.get("/index_data/", summary="Indexing Endpoint", response_description="Welcome Message")
 async def index_data():
     """
     Dummy endpoint for data indexing.
@@ -95,7 +93,7 @@ async def index_data():
     return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 
-@app.get("/indexing/parse_faq_data/", summary="FAQ Parsing Endpoint", response_description="Welcome Message")
+@app.get("/parse_faq_data/", summary="FAQ Parsing Endpoint", response_description="Welcome Message")
 async def parse_faq_data():
     """
     Dummy endpoint for FAQ data parsing.
@@ -103,7 +101,7 @@ async def parse_faq_data():
     return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 
-@app.get("/indexing/parse_rag_data/", summary="Parsing Endpoint", response_description="Welcome Message")
+@app.get("/parse_rag_data/", summary="Parsing Endpoint", response_description="Welcome Message")
 async def parse_rag_data():
     """
     Dummy endpoint for data parsing (RAG).
@@ -111,7 +109,7 @@ async def parse_rag_data():
     return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 
-@app.get("/indexing/chunk_rag_data/", summary="Chunking Endpoint", response_description="Welcome Message")
+@app.get("/chunk_rag_data/", summary="Chunking Endpoint", response_description="Welcome Message")
 async def chunk_rag_data():
     """
     Dummy endpoint for data chunking (RAG).
@@ -119,17 +117,17 @@ async def chunk_rag_data():
     return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 
-@app.put("/indexing/index_faq_data/", summary="Insert Data from faq.bsv.admin.ch", response_description="Insert Data from faq.bsv.admin.ch")
-async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xml'):
+@app.put("/index_faq_data/", summary="Insert Data from faq.bsv.admin.ch", response_description="Insert Data from faq.bsv.admin.ch")
+async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xml', proxy: str = None, k: int = 0):
     logging.basicConfig(level=logging.INFO)
 
-    scraper = WebScraper(sitemap_url)
-    urls = await scraper.run()
+    scraper = Scraper(sitemap_url, proxy=proxy)
+    urls = await scraper.run(test=k)
 
     return {"message": f"Done! {len(urls)} wurden verarbeitet."}
 
 
-@app.put("/indexing/data/", summary="Update or Insert FAQ Data", response_description="Updated or Inserted Data")
+@app.put("/data/", summary="Update or Insert FAQ Data", response_description="Updated or Inserted Data")
 async def index_data(url: str, question: str, answer: str, language: str):
     info, rid = await queries.update_or_insert(url, question, answer, language)
     logger.info(f"{info}: {url}")

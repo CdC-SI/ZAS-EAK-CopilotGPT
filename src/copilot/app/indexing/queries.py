@@ -1,11 +1,11 @@
-from src.utils import get_db_connection
+from utils.db import get_db_connection
 from datetime import datetime
 
 
 async def fetchone(db_name: str, select: [str] = None, where: [str] = None):
     conn = await get_db_connection()
 
-    selection = ', '.join(['question', 'answer', 'url'] + select)
+    selection = ', '.join(['question', 'answer', 'url'] + ([] if select is None else select))
     conditions = ' AND '.join(where)
 
     try:
@@ -37,7 +37,7 @@ async def update_data(url: str,
 
     try:
         await conn.execute(f"""
-            UPDATE data 
+            UPDATE data
             SET url = '{url}', question = '{question}', answer = '{answer}', language = '{language}' WHERE id = {id}
         """)
 
@@ -55,9 +55,9 @@ async def insert_data(url: str,
 
     try:
         row = await conn.fetchrow(f"""
-            INSERT 
-            INTO data (url, question, answer, language) 
-            VALUES ({url}, {question}, {answer}, {language}) 
+            INSERT
+            INTO data (url, question, answer, language)
+            VALUES ({url}, {question}, {answer}, {language})
             RETURNING id
         """)
 
@@ -92,11 +92,11 @@ async def insert_faq(url: str,
     conn = await get_db_connection()
 
     try:
-        await conn.execute(f"""
-            INSERT 
-            INTO faq_embeddings (url, question, answer, language, embedding) 
-            VALUES ({url}, {question}, {answer}, {language}, {embedding})
-        """)
+        await conn.execute("""
+            INSERT
+            INTO faq_embeddings (url, question, answer, language, embedding)
+            VALUES ($1, $2, $3, $4, $5)
+        """, url, question, answer, language, embedding)
 
     finally:
         await conn.close()
@@ -110,11 +110,11 @@ async def insert_rag(embedding: str,
     conn = await get_db_connection()
 
     try:
-        await conn.execute(f"""
-            INSERT 
-            INTO embeddings (embedding, text, url, created_at, modified_at) 
-            VALUES ({embedding}, {text}, {url}, {created_at}, {modified_at})
-        """)
+        await conn.execute("""
+            INSERT
+            INTO embeddings (embedding, text, url, created_at, modified_at)
+            VALUES ($1, $2, $3, $4, $5)
+        """, embedding, text, url, created_at, modified_at)
 
     finally:
         await conn.close()

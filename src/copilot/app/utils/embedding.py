@@ -1,8 +1,8 @@
 from typing import List, Union
 
 # Import env vars
-from src.config.base_config import rag_config
-from src.config.openai_config import openai
+from config.base_config import rag_config
+from config.openai_config import openai
 
 supported_models = ["text-embedding-ada-002"]
 
@@ -11,7 +11,7 @@ supported_models = ["text-embedding-ada-002"]
 def get_embedding(text: Union[List[str], str]):
     model = rag_config["embedding"]["model"]
     if model in supported_models:
-        response = openai.Embedding.create(
+        response = openai.embeddings.create(
             input=text,
             model=model,
         )

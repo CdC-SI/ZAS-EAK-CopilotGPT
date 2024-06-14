@@ -1,30 +1,12 @@
-import logging
-
-from fastapi import FastAPI, status
-from fastapi.responses import Response, StreamingResponse
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-# Load env variables
-from config.base_config import rag_app_config
 from config.network_config import CORS_ALLOWED_ORIGINS
 
-# Load models
-from rag.rag_processor import *
-from rag.models import RAGRequest, EmbeddingRequest
+from indexing_api import app as indexing_app
+from autocomplete_api import app as autocomplete_app
+from rag_api import app as rag_app
 
-from autocomplete import autocomplete
-from indexing import indexing
-
-# Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
-
-# Create required instances
-app = FastAPI(**rag_app_config)
-app.mount("indexing", autocomplete.app)
-app.mount("autocomplete", indexing.app)
-
-processor = RAGProcessor()
+app = FastAPI()
 
 # Setup CORS
 app.add_middleware(
@@ -35,36 +17,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+api = FastAPI()
+app.mount("/api", api)
 
-@app.post("/process",
-          summary="Process RAG query endpoint",
-          response_description="Return result from processing RAG query",
+api.mount("/indexing", indexing_app)
+api.mount("/autocomplete", autocomplete_app)
+api.mount("/rag", rag_app)
+
+
+@api.post("/",
+          summary="Hello",
           status_code=200)
-async def process_query(request: RAGRequest):
-    content = await processor.process(request)
-    return StreamingResponse(content, media_type="text/event-stream")
-
-
-@app.post("/docs",
-          summary="Retrieve context docs endpoint",
-          response_description="Return context docs from semantic search",
-          status_code=200)
-async def docs(request: RAGRequest, language: str = '*'):
-    return await processor.retrieve(request, language)
-
-
-@app.post("/embed",
-          summary="Embedding endpoint",
-          response_description="A dictionary with embeddings for the input text")
-async def embed(text_input: EmbeddingRequest):
-    return await processor.embed(text_input)
-
-
-@app.get("/rerank",
-         summary="Reranking endpoint",
-         response_description="Welcome Message")
-async def rerank():
-    """
-    Dummy endpoint for retrieved docs reranking.
-    """
-    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
+async def welcome():
+    return "Hello!"

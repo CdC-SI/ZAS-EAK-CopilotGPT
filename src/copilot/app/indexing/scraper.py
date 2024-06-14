@@ -9,7 +9,7 @@ from urllib3.exceptions import InsecureRequestWarning
 from urllib3 import disable_warnings
 
 if __name__ != '__main__':
-    import queries
+    from . import queries
 
 SITEMAP_URL = 'http://www.sitemaps.org/schemas/sitemap/0.9'
 
@@ -21,12 +21,12 @@ ANSWER = {
 }
 
 
-class WebScraper:
+class Scraper:
     def __init__(self, base_url: str, proxy: str = ''):
         self.base_url = base_url
         self.session = requests.Session()
         self.logger = logging.getLogger(self.__class__.__name__)
-        
+
         if proxy:
             disable_warnings(category=InsecureRequestWarning)
             self.session.verify = False
@@ -146,5 +146,5 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO)
 
-    scraper = WebScraper(args.sitemap, args.proxy)
+    scraper = Scraper(args.sitemap, args.proxy)
     asyncio.run(scraper.run(9))
