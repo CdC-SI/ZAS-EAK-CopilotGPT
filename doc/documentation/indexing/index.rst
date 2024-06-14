@@ -1,7 +1,7 @@
 IndexingPipeline
 ################
 
-.. automodule:: indexing.app.main
+.. automodule:: indexing_api
    :members:
 
 .. toctree::

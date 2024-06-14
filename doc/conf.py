@@ -12,12 +12,7 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../src'))
-sys.path.insert(0, os.path.abspath('../src/copilot/api'))
-sys.path.insert(0, os.path.abspath('../src/copilot/app/autocomplete/app'))
-sys.path.insert(0, os.path.abspath('../src/copilot/chatbot'))
-sys.path.insert(0, os.path.abspath('../src/copilot/app/indexing/app'))
-sys.path.insert(0, os.path.abspath('../src/copilot/app/rag/app'))
+sys.path.insert(0, os.path.abspath('../src/copilot/app'))
 # sys.path.insert(0, os.path.abspath('../other/app/path'))
 # missing survey pipeline and gui
 

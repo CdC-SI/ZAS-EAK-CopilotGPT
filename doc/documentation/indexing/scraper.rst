@@ -1,5 +1,5 @@
 Scraper
-##########
+#######
 
-.. autoclass:: web_scraper.WebScraper
+.. automodule:: indexing.scraper
     :members:
