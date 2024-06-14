@@ -15,8 +15,8 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-    volumes:
-      - ./db/data:/var/lib/postgresql/data
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
     networks:
       - copilot-network
     restart: "no"
@@ -36,7 +36,7 @@ services:
     networks:
       - copilot-network
     restart: "no"
-
+#
   autocomplete:
     build:
       context: .
@@ -74,7 +74,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_HOST=db
+      - POSTGRES_HOST=${POSTGRES_HOST}
     volumes:
       - .:/app
     networks:
@@ -82,14 +82,6 @@ services:
     depends_on:
       - db
     restart: "no"
-
-  # frontend
-  zas-copilot:
-    build:
-      context: https://github.com/CdC-SI/copilot-frontend.git#main
-    image: zas-copilot:latest
-    ports:
-      - "4200:4200"
 
   # RAG
   rag:
@@ -106,7 +98,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_HOST=db
+      - POSTGRES_HOST=${POSTGRES_HOST}
     volumes:
       - .:/app
     networks:
@@ -114,6 +106,15 @@ services:
     depends_on:
       - db
     restart: "no"
+
+  # frontend
+  zas-copilot:
+    build:
+      context: ../copilot-frontend
+      dockerfile: Dockerfile
+    image: zas-copilot:latest
+    ports:
+      - "4200:4200"
 
 networks:
   copilot-network:
