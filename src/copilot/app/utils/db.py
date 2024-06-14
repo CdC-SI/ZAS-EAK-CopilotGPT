@@ -4,7 +4,7 @@ import asyncpg
 from fastapi import HTTPException
 
 # Import env vars
-from src.config.db_config import DB_PARAMS
+from config.db_config import DB_PARAMS
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

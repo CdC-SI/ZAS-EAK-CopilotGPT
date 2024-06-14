@@ -1,7 +1,8 @@
 import psycopg2
 
-from src.config.db_config import DB_PARAMS
-from src.config.openai_config import openai
+from config.db_config import DB_PARAMS
+from config.openai_config import openai
+
 
 def create_db_connection():
     """Establish a database connection."""
@@ -12,12 +13,14 @@ def create_db_connection():
         print(f"Unable to connect to the database: {e}")
         return None
 
+
 def get_embedding(text):
     response = openai.Embedding.create(
         input=text,
         engine="text-embedding-ada-002",
     )
     return response['data']
+
 
 if __name__ == '__main__':
 

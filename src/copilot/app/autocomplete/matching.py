@@ -1,88 +1,60 @@
-from typing import List
-from utils.embedding import get_embedding
-from utils.db import get_db_connection
+from abc import ABCMeta, abstractmethod
+
+from config.base_config import autocomplete_config
+from . import queries
+
+INF = 0
 
 
-async def fetch(db_name: str,
-                select: List[str] = None,
-                where: List[str] = None,
-                language: str = None,
-                order: str = None,
-                k: int = 0):
-    conn = await get_db_connection()
+class Matching(metaclass=ABCMeta):
+    def __init__(self, match_type: str):
+        self.limit = autocomplete_config[match_type]["limit"]
 
-    selection = ', '.join(['question', 'answer', 'url'] + (select if select else [])) if db_name != 'embeddings' else ', '.join(['text, url'] + (select if select else []))
-    conditions = []
-    if language:
-        conditions.append(f'language = {language}')
-    if where:
-        conditions += where
-    where_clause = ('WHERE ' + ' AND '.join(conditions)) if conditions else ''
-    order_clause = f'ORDER BY {order}' if order else ''
-    limit_clause = f'LIMIT {k}' if k > 0 else ''
-
-    query = f"""
-            SELECT {selection}
-            FROM {db_name}
-            {where_clause}
-            {order_clause}
-            {limit_clause}
-        """
-
-    try:
-        rows = await conn.fetch(query)
-
-    finally:
-        await conn.close()
-
-    return rows
+    @abstractmethod
+    async def match(self, question: str, language: str = None):
+        pass
 
 
-def exact_match(question: str, language: str = None, k: int = 0):
-    return fetch(db_name='data',
-                 where=[f"LOWER(question) LIKE '{question}'"],
-                 language=language,
-                 k=k)
+class ExactMatch(Matching):
+    def __init__(self):
+        self.match_type = "exact_match"
+        Matching.__init__(self, self.match_type)
+
+    async def match(self, question: str, language: str = None):
+
+        # Convert both the 'question' column and the search string to lowercase to perform a case-insensitive search
+        question = f"%{question.lower()}%"
+
+        rows = await queries.exact_match(question, language=language, k=self.limit)
+
+        # Convert the results to a list of dictionaries
+        matches = [dict(row) for row in rows]
+        return matches
 
 
-def fuzzy_match(question: str, threshold, language: str = None, k: int = 0):
-    return fetch(db_name='data',
-                 where=[f"levenshtein_less_equal('{question}', question, {threshold}) < {threshold}"],
-                 language=language,
-                 order=f"levenshtein(question, '{question}') asc",
-                 k=k)
+class FuzzyMatch(Matching):
+    def __init__(self, threshold: int = 100):
+        self.match_type = "exact_match"
+        self.threshold = threshold
+        Matching.__init__(self, self.match_type)
+
+    async def match(self, question: str, language: str = None):
+
+        return await queries.fuzzy_match(question, language=language, threshold=self.threshold, k=self.limit)
 
 
-def exact_or_fuzzy(question: str, threshold, language: str = None, k: int = 0):
-    return fetch(db_name='data',
-                 where=[f"LOWER(question) LIKE '{question}' OR levenshtein_less_equal('{question}', question, {threshold}) < {threshold}"],
-                 language=language,
-                 order=f"levenshtein(question, '{question}') asc",
-                 k=k)
+class SemanticMatch(Matching):
+    def __init__(self):
+        self.match_type = "semantic_similarity_match"
+        Matching.__init__(self, self.match_type)
 
+    async def match(self, question: str, language: str = None):
 
-def semantic_similarity_match(question: str,
-                              db_name: str = 'faq_embeddings',
-                              language: str = None,
-                              symbol: str = '<=>',
-                              k: int = 0):
+        rows = await queries.semantic_similarity_match(question, language=language, k=self.limit)
 
-    question_embedding = get_embedding(question)[0].embedding
+        # Convert the results to a list of dictionaries
+        matches = [{"question": row[0],
+                    "answer": row[1],
+                    "url": row[2]} for row in rows]
 
-    return fetch(db_name=db_name,
-                 select=[f"1 - (embedding {symbol} '{question_embedding}') AS distance"],
-                 language=language,
-                 order="distance desc",
-                 k=k)
-
-
-def semantic_similarity_match_l1(question: str, language: str = None, k: int = 0):
-    return semantic_similarity_match(question, language, symbol='<+>', k=k)
-
-
-def semantic_similarity_match_l2(question: str, language: str = None, k: int = 0):
-    return semantic_similarity_match(question, language, symbol='<->', k=k)
-
-
-def semantic_similarity_match_inner_prod(question: str, language: str = None, k: int = 0):
-    return semantic_similarity_match(question, language, symbol='<#>', k=k)
+        return matches

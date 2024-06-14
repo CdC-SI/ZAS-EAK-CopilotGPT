@@ -5,7 +5,7 @@ services:
   db:
     build:
       context: db
-      dockerfile: db/Dockerfile
+      dockerfile: Dockerfile
     image: copilot-postgresql-db
     ports:
       - "5432:5432"
@@ -15,8 +15,8 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-    volumes:
-      - ./db/data:/var/lib/postgresql/data
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
     networks:
       - copilot-network
     restart: "no"
@@ -39,8 +39,8 @@ services:
 
   copilot:
     build:
-      context: ..
-      dockerfile: copilot/Dockerfile
+      context: copilot
+      dockerfile: Dockerfile
     image: copilot
     ports:
       - "8000:8000"
@@ -51,10 +51,10 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_HOST=db
+      - POSTGRES_HOST=${POSTGRES_HOST}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     volumes:
-      - .:/app
+      - ./copilot/app:/app
     networks:
       - copilot-network
     depends_on:
@@ -62,19 +62,19 @@ services:
     restart: "no"
 
   # frontend
-  chatgpt-minimal:
+  zas-copilot:
     build:
-      context: https://github.com/CdC-SI/chatgpt-minimal.git#main
-    image: chatgpt-minimal
+      context: ../../copilot-frontend
+      dockerfile: Dockerfile
+    image: zas-copilot:latest
     ports:
-      - "3000:3000"
-    env_file:
-      - .env
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - REACT_APP_QUERY_AUTOCOMPLETE_API_URL=${REACT_APP_QUERY_AUTOCOMPLETE_API_URL}
+      - "4200:4200"
     networks:
       - copilot-network
     depends_on:
       - copilot
     restart: "no"
+
+networks:
+  copilot-network:
+    driver: bridge
