@@ -110,8 +110,7 @@ services:
   # frontend
   zas-copilot:
     build:
-      context: ../copilot-frontend
-      dockerfile: Dockerfile
+      context: https://github.com/CdC-SI/copilot-frontend.git#main
     image: zas-copilot:latest
     ports:
       - "4200:4200"
