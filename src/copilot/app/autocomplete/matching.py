@@ -7,6 +7,9 @@ INF = 0
 
 
 class Matching(metaclass=ABCMeta):
+    """
+    Abstract class for matching classes
+    """
     def __init__(self, match_type: str):
         self.limit = autocomplete_config[match_type]["limit"]
 
@@ -16,6 +19,9 @@ class Matching(metaclass=ABCMeta):
 
 
 class ExactMatch(Matching):
+    """
+    A class that implements exact matching, looking for results that contains the exact question sample.
+    """
     def __init__(self):
         self.match_type = "exact_match"
         Matching.__init__(self, self.match_type)
@@ -33,6 +39,10 @@ class ExactMatch(Matching):
 
 
 class FuzzyMatch(Matching):
+    """
+    A class that implements fuzzy matching through levenshtein, return results with the lowest distance first. The
+    levenshtein distance is defined as the number of changes required to get to the target string.
+    """
     def __init__(self, threshold: int = 100):
         self.match_type = "exact_match"
         self.threshold = threshold
@@ -44,6 +54,10 @@ class FuzzyMatch(Matching):
 
 
 class SemanticMatch(Matching):
+    """
+    A class that implements semantic similarity matching, return results with the lowest distance first. The
+    distance is defined as the cosine distance between question and results embedding.
+    """
     def __init__(self):
         self.match_type = "semantic_similarity_match"
         Matching.__init__(self, self.match_type)

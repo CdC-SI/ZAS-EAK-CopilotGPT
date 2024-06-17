@@ -3,6 +3,9 @@ from . import matching
 
 
 class Autocompleter:
+    """
+    Completer for user input to the copilot
+    """
 
     def __init__(self):
         self.exact_match = matching.ExactMatch()
@@ -15,6 +18,23 @@ class Autocompleter:
         self.last_matches = []
 
     async def get_autocomplete(self, question: str, language: str = None, k: int = 0):
+        """
+        Returns matching results according to a defined behaviour
+
+        Parameters
+        ----------
+        question : str
+            question to match
+        language : str
+            question and results language
+        k : int
+            number of results to return
+
+        Returns
+        -------
+        list of str
+            a list of matching results
+        """
         k = self.limit if k is None else k
 
         # TODO: add exact match results if fuzzy with levenshtein
