@@ -42,6 +42,7 @@ extensions = [
     'sphinx.ext.napoleon',  # NumPy & Google docstrings
 ]
 autodoc_mock_imports = ["fastapi"]
+autodoc_member_order = 'groupwise'
 todo_include_todos = True
 myst_enable_extensions = ["deflist"]
 

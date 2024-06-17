@@ -4,6 +4,7 @@ from config.base_config import autocomplete_config
 from . import queries
 
 INF = 0
+"""Value for matches limit, equivalent to infinity (return all results)"""
 
 
 class Matching(metaclass=ABCMeta):
@@ -15,6 +16,22 @@ class Matching(metaclass=ABCMeta):
 
     @abstractmethod
     async def match(self, question: str, language: str = None):
+        """
+        Return a list of results obtained by applying the matching process.
+
+        Parameters
+        ----------
+        question : str
+            User input to match with database entries
+        language : str, optional
+            Language of the question and answers
+
+        Returns
+        -------
+        list of dict
+            List of dictionaries containing the matching results
+
+        """
         pass
 
 

@@ -32,9 +32,20 @@ app.add_middleware(
          response_description="List of matching questions")
 async def autocomplete(question: str, language: str = None):
     """
-     If combined results of get_exact_match() and get_fuzzy_match() return less than 5 results,
-     this method is called after every new "space" character in the question (user query) is
-     added as well as when a "?" character is added at the end of the question.
+    If combined results of get_exact_match() and get_fuzzy_match() return less than 5 results,
+    this method is called after every new "space" character in the question (user query) is
+    added as well as when a "?" character is added at the end of the question.
+
+    Parameters
+    ----------
+    question : str
+       User input to match database entries
+    language : str, optional
+        Question and results language
+
+    Return
+    ------
+    list of dict
     """
     completer = Autocompleter()
     return await completer.get_autocomplete(question, language)
@@ -44,6 +55,20 @@ async def autocomplete(question: str, language: str = None):
          summary="Search Questions with exact match",
          response_description="List of matching questions")
 async def exact_match(question: str, language: str = None):
+    """
+    Return results from Exact matching
+
+    Parameters
+    ----------
+    question : str
+       User input to match database entries
+    language : str, optional
+        Question and results language
+
+    Return
+    ------
+    list of dict
+    """
     matcher = ExactMatch()
     return await matcher.match(question, language)
 
@@ -52,6 +77,20 @@ async def exact_match(question: str, language: str = None):
          summary="Search Questions with fuzzy match",
          response_description="List of matching questions")
 async def fuzzy_match(question: str, language: str = None):
+    """
+    Return results from Fuzzy matching
+
+    Parameters
+    ----------
+    question : str
+       User input to match database entries
+    language : str, optional
+        Question and results language
+
+    Return
+    ------
+    list of dict
+    """
     matcher = FuzzyMatch()
     return await matcher.match(question, language)
 
@@ -60,5 +99,19 @@ async def fuzzy_match(question: str, language: str = None):
          summary="Search Questions with semantic similarity match",
          response_description="List of matching questions")
 async def semantic_similarity_match(question: str, language: str = None):
+    """
+    Return results from Semantic Similarity matching
+
+    Parameters
+    ----------
+    question : str
+       User input to match database entries
+    language : str, optional
+        Question and results language
+
+    Return
+    ------
+    list of dict
+    """
     matcher = SemanticMatch()
     return await matcher.match(question, language)

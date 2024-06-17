@@ -22,6 +22,17 @@ ANSWER = {
 
 
 class Scraper:
+    """
+    Scraper class that can extract FAQ questions from a specified website.
+
+    Parameters
+    ==========
+    base_url : str
+        sitemap URL of the website to scrap
+    proxy : str, optional
+        Proxy URL if necessary
+    """
+
     def __init__(self, base_url: str, proxy: str = ''):
         self.base_url = base_url
         self.session = requests.Session()
@@ -35,23 +46,28 @@ class Scraper:
 
     async def run(self, test: int = 0):
         """
-        Retrieves and processes FAQ data from 'https://faq.bsv.admin.ch' to insert into the database.
-
-        The endpoint 'https://faq.bsv.admin.ch/sitemap.xml' is utilized to discover all relevant FAQ URLs. For each URL,
-        the method extracts the primary question (denoted by the 'h1' tag) and its corresponding answer (within an
-        'article' tag).
-        Unnecessary boilerplate text will be removed for clarity and conciseness.
+        Retrieves and processes FAQ data from `base_url` to insert into the database.
 
         Each extracted FAQ entry is then upserted (inserted or updated if already exists) into the database, with
         detailed logging to track the operation's progress and identify any errors.
 
-        Returns a confirmation message upon successful completion of the process.
+        If `test`>0, then extract only the specified number of articles and log them instead of upserting them.
 
-        TODO:
-        - Consider implementing error handling at a more granular level to retry failed insertions or updates, enhancing
-        the robustness of the data ingestion process.
-        - Explore optimization opportunities in text extraction and processing to improve efficiency and reduce runtime,
-        especially for large sitemaps.
+        Log a confirmation message upon successful completion of the process.
+
+        .. todo::
+            - Consider implementing error handling at a more granular level to retry failed insertions or updates, enhancing the robustness of the data ingestion process.
+            - Explore optimization opportunities in text extraction and processing to improve efficiency and reduce runtime, especially for large sitemaps.
+
+        Parameters
+        ==========
+        test : int, default 0
+            Number of articles to extract as a test
+
+        Returns
+        =======
+        list of str
+            list of urls which got extracted
         """
         self.logger.info(f"Beginne Datenextraktion für: {self.base_url}")
         urls = self.get_sitemap_urls()
@@ -78,7 +94,9 @@ class Scraper:
         return urls
 
     def _get_response(self, url: str, timeout: int = 10) -> Optional[requests.Response]:
-        """Send a GET request and return the response object."""
+        """
+        Send a GET request and return the response object.
+        """
         try:
             response = self.session.get(url, timeout=timeout)
             response.raise_for_status()
@@ -88,7 +106,9 @@ class Scraper:
             return None
 
     def get_sitemap_urls(self) -> List[str]:
-        """Extract URLs from the sitemap."""
+        """
+        Extract URLs from the sitemap. The endpoint '/sitemap.xml' is used to discover all relevant FAQ URLs.
+        """
         response = self._get_response(self.base_url)
 
         path = []
@@ -101,6 +121,22 @@ class Scraper:
         return urls
 
     def extract_article(self, url: str):
+        """
+        Given an url, extracts the primary question (denoted by the 'h1' tag) and its corresponding answer (within an
+        'article' tag).
+
+        Unnecessary boilerplate text will be removed for clarity and conciseness.
+
+        Parameters
+        ----------
+        url : str
+            URL of the website where the article needs to be extracted.
+
+        Returns
+        -------
+        str, str, str
+            The article language, its question and its answer.
+        """
         response = self._get_response(url)
         if not response:
             return '', '', ''
