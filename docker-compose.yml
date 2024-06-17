@@ -4,7 +4,7 @@ services:
   # db service
   db:
     build:
-      context: db
+      context: src/db
       dockerfile: Dockerfile
     image: copilot-postgresql-db
     ports:
@@ -39,7 +39,7 @@ services:
 
   copilot:
     build:
-      context: copilot
+      context: src/copilot
       dockerfile: Dockerfile
     image: copilot
     ports:
@@ -54,7 +54,7 @@ services:
       - POSTGRES_HOST=${POSTGRES_HOST}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     volumes:
-      - ./copilot/app:/app
+      - ./src/copilot/app:/app
     networks:
       - copilot-network
     depends_on:
@@ -64,7 +64,8 @@ services:
   # frontend
   zas-copilot:
     build:
-      context: https://github.com/CdC-SI/copilot-frontend.git#main
+      context: ../copilot-frontend
+      dockerfile: Dockerfile
     image: zas-copilot:latest
     ports:
       - "4200:4200"
