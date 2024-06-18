@@ -1,5 +1,3 @@
-import httpx
-
 from config.openai_config import openai
 from config.base_config import rag_config
 
@@ -7,7 +5,7 @@ from rag.app.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
 from rag.app.models import RAGRequest, EmbeddingRequest
 
 from autocomplete.app.queries import semantic_similarity_match
-from utils.embedding import get_embedding
+from utils.embeddings.openai import OpenAIEmbeddings
 
 
 class RAGProcessor:
@@ -35,7 +33,7 @@ class RAGProcessor:
         rows = await semantic_similarity_match(request.query, db_name='embeddings', language=language, k=k)
         documents = [dict(row) for row in rows][0]
 
-        return {"contextDocs": documents["text"], "sourceUrl": documents["url"], "cosineSimilarity": documents["similarity_metric"]}
+        return {"contextDocs": documents["text"], "sourceUrl": documents["url"], "similarity_metric": documents["similarity_metric"]}
 
     async def process(self, request: RAGRequest):
         documents = await self.retrieve(request)
@@ -47,7 +45,7 @@ class RAGProcessor:
         return self.generate(openai_stream, source_url)
 
     async def embed(self, text_input: EmbeddingRequest):
-        embedding = get_embedding(text_input.text)[0].embedding
+        embedding = OpenAIEmbeddings.embed_query(text_input.text).embedding
         return {"data": embedding}
 
     def create_openai_message(self, context_docs, query):
