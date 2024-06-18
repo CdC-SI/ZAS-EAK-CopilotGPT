@@ -37,6 +37,8 @@ class OpenAIEmbeddings(Embeddings):
     >>>     model_name=model_name,
     >>>     input=text
     >>> )
+    >>> openai_embeddings.embed_documents(["Guten", "Morgen"])
+    >>> openai_embeddings.embed_query("Guten Morgen")
     """
     model = rag_config["embedding"]["model"] if rag_config["embedding"]["model"] is not None else DEFAULT_OPENAI_MODEL
 
