@@ -12,33 +12,53 @@ if rag_config["embedding"]["model"] not in SUPPORTED_MODELS:
     raise ValueError(f"Model '{rag_config['embedding']['model']}' is not supported")
 
 class OpenAIEmbeddings(Embeddings):
-    """OpenAI API embedding model.
+    """
+    OpenAI API embedding model.
 
     To use, you should have the ``openai`` python package installed.
 
-    Example:
-        .. code-block:: python
+    Attributes
+    ----------
+    model : str
+        The model to be used for embeddings, defaults to DEFAULT_OPENAI_MODEL if not provided in rag_config.
 
-            from utils.embeddings import OpenAIEmbeddings
+    Methods
+    -------
+    embed_documents(texts)
+        Makes a call to the OpenAI embedding API to embed a list of text documents.
+    embed_query(text)
+        Makes a call to the OpenAI embedding API to embed a single text query.
 
-            model_name = "text-embedding-ada-002"
-            openai_embeddings = OpenAIEmbeddings(
-                model_name=model_name,
-                input=text
-            )
+    Example
+    -------
+    >>> from utils.embeddings import OpenAIEmbeddings
+    >>> model_name = "text-embedding-ada-002"
+    >>> openai_embeddings = OpenAIEmbeddings(
+    >>>     model_name=model_name,
+    >>>     input=text
+    >>> )
     """
     model = rag_config["embedding"]["model"] if rag_config["embedding"]["model"] is not None else DEFAULT_OPENAI_MODEL
 
     @classmethod
     def embed_documents(cls, texts: List[str]) -> List[List[float]]:
-        """Make call to OpenAI embedding API to embed a list of text documents.
+        """
+        Makes a call to the OpenAI embedding API to embed a list of text documents.
 
-        Args:
-            texts: The list of texts to embed.
+        Parameters
+        ----------
+        texts : list of str
+            The list of texts to embed.
 
-
-        Returns:
+        Returns
+        -------
+        list of list of float
             List of embeddings, one for each text.
+
+        Raises
+        ------
+        Exception
+            If the API call fails.
         """
         try:
             response = openai.embeddings.create(
@@ -51,12 +71,17 @@ class OpenAIEmbeddings(Embeddings):
 
     @classmethod
     def embed_query(cls, text: str) -> List[float]:
-        """Make call to OpenAI embedding API to embed a single text query.
+        """
+        Makes a call to the OpenAI embedding API to embed a single text query.
 
-        Args:
-            text: The text to embed.
+        Parameters
+        ----------
+        text : str
+            The text to embed.
 
-        Returns:
+        Returns
+        -------
+        list of float
             Embedding for the text.
         """
         return cls.embed_documents([text])[0]
