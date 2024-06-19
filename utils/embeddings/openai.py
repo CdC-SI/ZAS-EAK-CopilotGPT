@@ -6,10 +6,14 @@ from config.base_config import rag_config
 from config.openai_config import openai
 
 DEFAULT_OPENAI_MODEL = "text-embedding-ada-002"
-SUPPORTED_MODELS = ["text-embedding-ada-002"]
+SUPPORTED_MODELS = ["text-embedding-ada-002",
+                    "sentence-transformers/distiluse-base-multilingual-cased-v1"]
 
+# DANS INIT + logging à la place de Raise
 if rag_config["embedding"]["model"] not in SUPPORTED_MODELS:
-    raise ValueError(f"Model '{rag_config['embedding']['model']}' is not supported")
+    raise ValueError(
+        f"Model '{rag_config['embedding']['model']}' is not supported")
+
 
 class OpenAIEmbeddings(Embeddings):
     """
@@ -19,8 +23,8 @@ class OpenAIEmbeddings(Embeddings):
 
     Attributes
     ----------
-    model : str
-        The model to be used for embeddings, defaults to DEFAULT_OPENAI_MODEL if not provided in rag_config.
+    model_name : str
+        The model name to be used for embeddings, defaults to DEFAULT_OPENAI_MODEL if not provided in rag_config.
 
     Methods
     -------
@@ -40,10 +44,14 @@ class OpenAIEmbeddings(Embeddings):
     >>> openai_embeddings.embed_documents(["Guten", "Morgen"])
     >>> openai_embeddings.embed_query("Guten Morgen")
     """
-    model = rag_config["embedding"]["model"] if rag_config["embedding"]["model"] is not None else DEFAULT_OPENAI_MODEL
+    def __init__(self, model_name: str = DEFAULT_OPENAI_MODEL):
+        self.model_name = model_name if model_name else 
+        self.client = openai.OpenAI()
 
-    @classmethod
-    def embed_documents(cls, texts: List[str]) -> List[List[float]]:
+    #model_name = rag_config["embedding"]["model"] if rag_config["embedding"]["model"] is not None else DEFAULT_OPENAI_MODEL
+    #self.client = openai.OpenAI()
+
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
         """
         Makes a call to the OpenAI embedding API to embed a list of text documents.
 
@@ -63,16 +71,15 @@ class OpenAIEmbeddings(Embeddings):
             If the API call fails.
         """
         try:
-            response = openai.embeddings.create(
-                model=cls.model,
+            response = self.client.embeddings.create(
+                model=self.model_name,
                 input=texts,
-                )
+            )
             return response.data
         except Exception as e:
             raise e
 
-    @classmethod
-    def embed_query(cls, text: str) -> List[float]:
+    def embed_query(self, text: str) -> List[float]:
         """
         Makes a call to the OpenAI embedding API to embed a single text query.
 
@@ -86,4 +93,10 @@ class OpenAIEmbeddings(Embeddings):
         list of float
             Embedding for the text.
         """
-        return cls.embed_documents([text])[0]
+        return self.embed_documents([text])[0]
+
+    async def aembed_documents(self, texts: List[str]) -> List[List[float]]:
+        raise NotImplementedError("This method is not implemented yet.")
+
+    async def aembed_query(self, text: str) -> List[float]:
+        raise NotImplementedError("This method is not implemented yet.")

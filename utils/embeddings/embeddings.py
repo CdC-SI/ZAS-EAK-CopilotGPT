@@ -16,9 +16,7 @@ class Embeddings(ABC):
     @abstractmethod
     async def aembed_documents(self, texts: List[str]) -> List[List[float]]:
         """Asynchronous Embed search docs."""
-        pass
 
     @abstractmethod
     async def aembed_query(self, text: str) -> List[float]:
         """Asynchronous Embed query text."""
-        pass

@@ -6,11 +6,13 @@ from rag.app.models import RAGRequest, EmbeddingRequest
 
 from autocomplete.app.queries import semantic_similarity_match
 from utils.embeddings.openai import OpenAIEmbeddings
+from utils.embeddings.sentence_transformers import SentenceTransformersEmbeddings
+from utils.embeddings.embeddings import Embeddings
 
 
 class RAGProcessor:
     def __init__(self, model: str = None, max_token: int = None, stream: bool = None, temperature: float = None,
-                 top_p: float = None, top_k: int = None):
+                 top_p: float = None, top_k: int = None, embedding_client: Embeddings):
         self.model = model if model else rag_config["llm"]["model"]
         self.max_tokens = max_token if max_token else rag_config["llm"]["max_output_tokens"]
         self.stream = stream if stream else rag_config["llm"]["stream"]
@@ -20,6 +22,8 @@ class RAGProcessor:
         self.k_retrieve = top_k if top_k else rag_config["retrieval"]["top_k"]
 
         self.client = openai.OpenAI()
+        self.embedding_client = SentenceTransformersEmbeddings()
+        #self.embedding_client = OpenAIEmbeddings()
 
     async def retrieve(self, request: RAGRequest, language: str = None, k: int = 0):
         """
@@ -45,7 +49,9 @@ class RAGProcessor:
         return self.generate(openai_stream, source_url)
 
     async def embed(self, text_input: EmbeddingRequest):
-        embedding = OpenAIEmbeddings.embed_query(text_input.text).embedding
+        #embedding = OpenAIEmbeddings.embed_query(text_input.text).embedding
+        #embedding = SentenceTransformersEmbeddings.embed_query(text_input.text)
+        embedding = self.embedding_client.embed_query(text_input.text)
         return {"data": embedding}
 
     def create_openai_message(self, context_docs, query):
