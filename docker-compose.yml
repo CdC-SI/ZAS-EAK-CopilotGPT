@@ -15,8 +15,8 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-    volumes:
-      - ./db/data:/var/lib/postgresql/data
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
     networks:
       - copilot-network
     restart: "no"
@@ -47,7 +47,6 @@ services:
     env_file:
       - .env
     environment:
-      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
@@ -74,31 +73,13 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_HOST=db
+      - POSTGRES_HOST=${POSTGRES_HOST}
     volumes:
       - .:/app
     networks:
       - copilot-network
     depends_on:
       - db
-    restart: "no"
-
-  # frontend
-  chatgpt-minimal:
-    build:
-      context: https://github.com/CdC-SI/chatgpt-minimal.git#main
-    image: chatgpt-minimal
-    ports:
-      - "3000:3000"
-    env_file:
-      - .env
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - REACT_APP_QUERY_AUTOCOMPLETE_API_URL=${REACT_APP_QUERY_AUTOCOMPLETE_API_URL}
-    networks:
-      - copilot-network
-    depends_on:
-      - autocomplete
     restart: "no"
 
   # RAG
@@ -116,13 +97,27 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_HOST=db
+      - POSTGRES_HOST=${POSTGRES_HOST}
     volumes:
       - .:/app
     networks:
       - copilot-network
     depends_on:
       - db
+    restart: "no"
+
+  # frontend
+  zas-copilot:
+    build:
+      context: https://github.com/CdC-SI/copilot-frontend.git#main
+    image: zas-copilot:latest
+    ports:
+      - "4200:4200"
+    networks:
+      - copilot-network
+    depends_on:
+      - autocomplete
+      - rag
     restart: "no"
 
 networks:
