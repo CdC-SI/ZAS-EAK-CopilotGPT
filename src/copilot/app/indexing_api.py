@@ -70,7 +70,7 @@ app.add_middleware(
 )
 
 
-@app.post("/index_rag_vectordb/", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
+@app.post("/index_rag_vectordb", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
 async def index_rag_vectordb():
     """
     Add and index test data for RAG to the embedding database.
@@ -83,7 +83,7 @@ async def index_rag_vectordb():
     return await dev_mode_data.init_rag_vectordb()
 
 
-@app.post("/index_faq_vectordb/", summary="Insert Embedding data for FAQ autocomplete semantic similarity search", response_description="Insert Embedding data for FAQ semantic similarity search", status_code=200, response_model=ResponseBody)
+@app.post("/index_faq_vectordb", summary="Insert Embedding data for FAQ autocomplete semantic similarity search", response_description="Insert Embedding data for FAQ semantic similarity search", status_code=200, response_model=ResponseBody)
 async def index_faq_vectordb():
     """
     Add and index test data for Autocomplete to the FAQ database.
@@ -96,7 +96,7 @@ async def index_faq_vectordb():
     return await dev_mode_data.init_faq_vectordb()
 
 
-@app.get("/crawl_data/", summary="Crawling endpoint", response_description="Welcome Message")
+@app.get("/crawl_data", summary="Crawling endpoint", response_description="Welcome Message")
 async def crawl_data():
     """
     Dummy endpoint for data crawling.
@@ -112,7 +112,7 @@ async def scrap_data():
     return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 
-@app.get("/index_data/", summary="Indexing Endpoint", response_description="Welcome Message")
+@app.get("/index_data", summary="Indexing Endpoint", response_description="Welcome Message")
 async def index_data():
     """
     Dummy endpoint for data indexing.
@@ -120,7 +120,7 @@ async def index_data():
     return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 
-@app.get("/parse_faq_data/", summary="FAQ Parsing Endpoint", response_description="Welcome Message")
+@app.get("/parse_faq_data", summary="FAQ Parsing Endpoint", response_description="Welcome Message")
 async def parse_faq_data():
     """
     Dummy endpoint for FAQ data parsing.
@@ -128,7 +128,7 @@ async def parse_faq_data():
     return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 
-@app.get("/parse_rag_data/", summary="Parsing Endpoint", response_description="Welcome Message")
+@app.get("/parse_rag_data", summary="Parsing Endpoint", response_description="Welcome Message")
 async def parse_rag_data():
     """
     Dummy endpoint for data parsing (RAG).
@@ -136,7 +136,7 @@ async def parse_rag_data():
     return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 
-@app.get("/chunk_rag_data/", summary="Chunking Endpoint", response_description="Welcome Message")
+@app.get("/chunk_rag_data", summary="Chunking Endpoint", response_description="Welcome Message")
 async def chunk_rag_data():
     """
     Dummy endpoint for data chunking (RAG).
@@ -144,7 +144,7 @@ async def chunk_rag_data():
     return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 
-@app.put("/index_faq_data/", summary="Insert Data from faq.bsv.admin.ch", response_description="Insert Data from faq.bsv.admin.ch")
+@app.put("/index_faq_data", summary="Insert Data from faq.bsv.admin.ch", response_description="Insert Data from faq.bsv.admin.ch")
 async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xml', proxy: str = None, k: int = 0):
     """
     Add and index data for Autocomplete to the FAQ database. The data is obtained by scraping the website `sitemap_url`.
@@ -171,7 +171,7 @@ async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xm
     return {"message": f"Done! {len(urls)} wurden verarbeitet."}
 
 
-@app.put("/data/", summary="Update or Insert FAQ Data", response_description="Updated or Inserted Data")
+@app.put("/data", summary="Update or Insert FAQ Data", response_description="Updated or Inserted Data")
 async def index_data(url: str, question: str, answer: str, language: str):
     """
     Upsert a single entry to the FAQ dataset.

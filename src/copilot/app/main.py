@@ -6,7 +6,7 @@ from indexing_api import app as indexing_app
 from autocomplete_api import app as autocomplete_app
 from rag_api import app as rag_app
 
-PREFIX = ""  # "/api"
+PREFIX = "/apy"
 
 app = FastAPI()
 

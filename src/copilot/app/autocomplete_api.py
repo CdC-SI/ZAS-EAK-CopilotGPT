@@ -51,7 +51,7 @@ async def autocomplete(question: str, language: str = None):
     return await completer.get_autocomplete(question, language)
 
 
-@app.get("/exact_match/",
+@app.get("/exact_match",
          summary="Search Questions with exact match",
          response_description="List of matching questions")
 async def exact_match(question: str, language: str = None):
@@ -73,7 +73,7 @@ async def exact_match(question: str, language: str = None):
     return await matcher.match(question, language)
 
 
-@app.get("/fuzzy_match/",
+@app.get("/fuzzy_match",
          summary="Search Questions with fuzzy match",
          response_description="List of matching questions")
 async def fuzzy_match(question: str, language: str = None):
@@ -95,7 +95,7 @@ async def fuzzy_match(question: str, language: str = None):
     return await matcher.match(question, language)
 
 
-@app.get("/semantic_similarity_match/",
+@app.get("/semantic_similarity_match",
          summary="Search Questions with semantic similarity match",
          response_description="List of matching questions")
 async def semantic_similarity_match(question: str, language: str = None):
