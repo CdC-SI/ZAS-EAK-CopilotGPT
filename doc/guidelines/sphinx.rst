@@ -249,10 +249,10 @@ API documentation
 
 .. code:: RST
 
-    .. automodule:: indexing.app.main
+    .. automodule:: indexing_api
        :members:
 
-    .. autoclass:: web_scraper.WebScraper
+    .. autoclass:: indexing.scraper.Scraper
         :members:
 
 Markdown (MyST)

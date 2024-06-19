@@ -49,7 +49,7 @@ A typical NumPy docstring is structured as following.
 Example
 -------
 
-The following example is taken from the `Sphinx official documentation <https://www.sphinx-doc.org/en/master/usage/extensions/example_numpy.html#example-numpy`_.
+The following example is taken from the `Sphinx official documentation <https://www.sphinx-doc.org/en/master/usage/extensions/example_numpy.html#example-numpy>`_.
 It displays a typical Numpy style documentation for a `.py` file.
 
 .. code-block:: python
