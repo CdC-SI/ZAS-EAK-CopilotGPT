@@ -14,7 +14,7 @@ autocomplete:
 rag:
   enabled: true
   embedding:
-    model: text-embedding-ada-002
+    model: sentence-transformers/distiluse-base-multilingual-cased-v1
   retrieval:
     top_k: 1
     metric: cosine_similarity
