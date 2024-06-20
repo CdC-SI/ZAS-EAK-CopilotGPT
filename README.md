@@ -22,9 +22,9 @@ Check [the website](https://cdc-si.github.io/eak-copilot/) for more information.
 - Anonymization/De-Anonymization Module
 - Optimized RAG
 - OnPrem LLM
+- Survey Pipeline
 
 ### Version 0.2.0 (MVP1) - 31.05.2024
-- Survey Pipeline
 - GUI Styleguide Bundle
 
 ### Version 0.1.0 - 01.05.2024
