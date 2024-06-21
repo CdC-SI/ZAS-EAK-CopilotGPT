@@ -63,7 +63,7 @@ services:
   # frontend
   zas-copilot:
     build:
-      context: https://github.com/CdC-SI/copilot-frontend.git#refactored-paths
+      context: https://github.com/CdC-SI/copilot-frontend.git#main
     image: zas-copilot:latest
     ports:
       - "4200:4200"
