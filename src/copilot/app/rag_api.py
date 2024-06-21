@@ -13,19 +13,21 @@ from config.openai_config import openai
 from rag.rag_processor import RAGProcessor
 from rag.models import RAGRequest
 
+from utils.embeddings.openai import OpenAIEmbeddings
+
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Create required instances
-
 processor = RAGProcessor(model=rag_config["llm"]["model"],
                          max_token=rag_config["llm"]["max_output_tokens"],
                          stream=rag_config["llm"]["stream"],
                          temperature=rag_config["llm"]["temperature"],
                          top_p=rag_config["llm"]["top_p"],
                          top_k=rag_config["retrieval"]["top_k"],
-                         client=openai.OpenAI())
+                         embedding_client=OpenAIEmbeddings(model_name=rag_config["embedding"]["model"]),
+                         llm_client=openai.OpenAI())
 
 app = FastAPI(**rag_app_config)
 

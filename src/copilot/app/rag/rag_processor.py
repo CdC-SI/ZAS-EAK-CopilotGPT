@@ -1,8 +1,9 @@
 from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
 from rag.models import RAGRequest, EmbeddingRequest
 
+from utils.embeddings.embeddings import Embedding
+
 from autocomplete.queries import semantic_similarity_match
-from utils.embedding import get_embedding
 
 
 class RAGProcessor:
@@ -21,7 +22,7 @@ class RAGProcessor:
     client
     """
     def __init__(self, model: str, max_token: int, stream: bool, temperature: float,
-                 top_p: float, top_k: int, client):
+                 top_p: float, top_k: int, embedding_client: Embedding, llm_client):
         self.model = model
         self.max_tokens = max_token
         self.stream = stream
@@ -29,7 +30,8 @@ class RAGProcessor:
         self.top_p = top_p
         self.k_retrieve = top_k
 
-        self.client = client
+        self.embedding_client = embedding_client
+        self.llm_client = llm_client
 
     async def retrieve(self, request: RAGRequest, language: str = None, k: int = 0):
         """
@@ -91,7 +93,7 @@ class RAGProcessor:
         dict
             The requested text embedding
         """
-        embedding = get_embedding(text_input.text)[0].embedding
+        embedding = self.embedding_client.embed_query(text_input.text)
         return {"data": embedding}
 
     def create_openai_message(self, context_docs, query):
@@ -126,7 +128,7 @@ class RAGProcessor:
         -------
         chat.completion
         """
-        return self.client.chat.completions.create(
+        return self.llm_client.chat.completions.create(
             model=self.model,
             messages=messages,
             stream=self.stream,
