@@ -12,12 +12,10 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('..'))
-sys.path.insert(0, os.path.abspath('../api'))
-sys.path.insert(0, os.path.abspath('../autocomplete/app'))
-sys.path.insert(0, os.path.abspath('../chatbot'))
-sys.path.insert(0, os.path.abspath('../indexing/app'))
-sys.path.insert(0, os.path.abspath('../rag/app'))
+sys.path.insert(0, os.path.abspath('../src/copilot/app'))
+sys.path.insert(0, os.path.abspath('../src/copilot/app/autocomplete'))
+sys.path.insert(0, os.path.abspath('../src/copilot/app/indexing'))
+sys.path.insert(0, os.path.abspath('../src/copilot/app/rag'))
 # sys.path.insert(0, os.path.abspath('../other/app/path'))
 # missing survey pipeline and gui
 
@@ -44,6 +42,7 @@ extensions = [
     'sphinx.ext.napoleon',  # NumPy & Google docstrings
 ]
 autodoc_mock_imports = ["fastapi"]
+autodoc_member_order = 'groupwise'
 todo_include_todos = True
 myst_enable_extensions = ["deflist"]
 

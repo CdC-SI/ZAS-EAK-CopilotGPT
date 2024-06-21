@@ -22,9 +22,9 @@ Check [the website](https://cdc-si.github.io/eak-copilot/) for more information.
 - Anonymization/De-Anonymization Module
 - Optimized RAG
 - OnPrem LLM
+- Survey Pipeline
 
 ### Version 0.2.0 (MVP1) - 31.05.2024
-- Survey Pipeline
 - GUI Styleguide Bundle
 
 ### Version 0.1.0 - 01.05.2024
@@ -99,10 +99,10 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
     ```bash
     docker-compose ps
     ```
-    After the containers are successfully started, verify that the application is running correctly by accessing it through your web browser at http://localhost:3000.
+    After the containers are successfully started, verify that the application is running correctly by accessing it through your web browser at http://localhost:4200.
 
 5. **Notes**
 
     Sample FAQ and RAG data is automatically indexed when config/config.yaml ```indexing.faq.auto_index``` and ```indexing.rag.auto_index``` are set to true.
 
-    To index more extensive FAQ data from https://faq.bsv.admin.ch, navigate to ```localhost:8011/docs``` and make a request to the ```/indexing/index_faq_data/``` endpoint.
+    To index more extensive FAQ data from https://faq.bsv.admin.ch, navigate to ```localhost:8000/indexing/docs``` and make a request to the ```/indexing/index_faq_data/``` endpoint.
