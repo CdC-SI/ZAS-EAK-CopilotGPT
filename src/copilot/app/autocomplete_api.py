@@ -98,7 +98,7 @@ async def fuzzy_match(question: str, language: str = None):
 @app.get("/trigram_match",
          summary="Search Questions with trigram match",
          response_description="List of matching questions")
-async def fuzzy_match(question: str, language: str = None):
+async def trigram_match(question: str, language: str = None):
     """
     Return results from Trigram matching
 
