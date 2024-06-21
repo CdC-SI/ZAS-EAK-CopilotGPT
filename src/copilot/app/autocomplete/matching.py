@@ -65,6 +65,11 @@ class FuzzyMatch(Matching):
         self.threshold = threshold
         Matching.__init__(self, self.match_type)
 
+    async def match(self, question: str, language: str = None):
+
+        return await queries.fuzzy_match(question, language=language, threshold=self.threshold, k=self.limit)
+
+
 class TrigramMatch(Matching):
     """
     A class that implements fuzzy matching through trigram matching, return results with the highest similarity score
