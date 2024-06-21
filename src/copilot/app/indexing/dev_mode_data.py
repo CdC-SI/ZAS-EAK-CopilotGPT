@@ -2,8 +2,9 @@ from utils.embeddings.openai import OpenAIEmbeddings
 
 from datetime import datetime
 
-from . import queries
+from indexing import queries
 
+embedding_client = OpenAIEmbeddings(model_name="text-embedding-ada-002")
 
 async def init_rag_vectordb():
 
@@ -17,7 +18,7 @@ async def init_rag_vectordb():
 
     for text in texts:
         # Get the embedding vector
-        embedding = OpenAIEmbeddings.embed_query(text[0]).embedding
+        embedding = embedding_client.embed_query(text[0]).embedding
         date = datetime.now()
 
         await queries.insert_rag(str(embedding), text[0], text[1], date, date)
@@ -45,7 +46,7 @@ async def init_faq_vectordb():
     for text in texts:
 
         # Get the resulting embedding vector from the response
-        embedding = OpenAIEmbeddings.embed_query(text[1]).embedding
+        embedding = embedding_client.embed_query(text[1]).embedding
 
         # insert FAQ data with embeddings into the 'faq_embeddings' table
         await queries.insert_faq(text[0], text[1], text[2], text[3], str(embedding))
