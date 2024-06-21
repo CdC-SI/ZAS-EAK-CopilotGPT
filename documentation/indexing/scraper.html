@@ -262,6 +262,7 @@
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../rag/index.html">RAG</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of RAG</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../rag/processor.html">RAG Processor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../rag/retrieval.html">RetrievalPipeline</a></li>
 </ul>
 </li>
@@ -270,9 +271,8 @@
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../autocomplete/index.html">Autocomplete</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Autocomplete</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../autocomplete/exactmatch.html">Exact match</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../autocomplete/fuzzysearch.html">Fuzzy Search</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../autocomplete/similaritysearch.html">Similarity Search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autocomplete/autocompleter.html">Autocompleter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autocomplete/matching.html">Matching</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../gui/index.html">GUI</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of GUI</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -330,30 +330,68 @@
           <section id="scraper">
 <h1>Scraper<a class="headerlink" href="#scraper" title="Link to this heading">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="web_scraper.WebScraper">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">web_scraper.</span></span><span class="sig-name descname"><span class="pre">WebScraper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#web_scraper.WebScraper" title="Link to this definition">¶</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="web_scraper.WebScraper.get_sitemap_urls">
-<span class="sig-name descname"><span class="pre">get_sitemap_urls</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#web_scraper.WebScraper.get_sitemap_urls" title="Link to this definition">¶</a></dt>
-<dd><p>Extract URLs from the sitemap.</p>
+<dt class="sig sig-object py" id="indexing.scraper.Scraper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing.scraper.</span></span><span class="sig-name descname"><span class="pre">Scraper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing.scraper.Scraper" title="Link to this definition">¶</a></dt>
+<dd><p>Scraper class that can extract FAQ questions from a specified website.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_url</strong> (<em>str</em>) – sitemap URL of the website to scrap</p></li>
+<li><p><strong>proxy</strong> (<em>str</em><em>, </em><em>optional</em>) – Proxy URL if necessary</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.scraper.Scraper.extract_article">
+<span class="sig-name descname"><span class="pre">extract_article</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing.scraper.Scraper.extract_article" title="Link to this definition">¶</a></dt>
+<dd><p>Given an url, extracts the primary question (denoted by the ‘h1’ tag) and its corresponding answer (within an
+‘article’ tag).</p>
+<p>Unnecessary boilerplate text will be removed for clarity and conciseness.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>url</strong> (<em>str</em>) – URL of the website where the article needs to be extracted.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The article language, its question and its answer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str, str, str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="web_scraper.WebScraper.run">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#web_scraper.WebScraper.run" title="Link to this definition">¶</a></dt>
-<dd><p>Retrieves and processes FAQ data from ‘<a class="reference external" href="https://faq.bsv.admin.ch">https://faq.bsv.admin.ch</a>’ to insert into the database.</p>
-<p>The endpoint ‘<a class="reference external" href="https://faq.bsv.admin.ch/sitemap.xml">https://faq.bsv.admin.ch/sitemap.xml</a>’ is utilized to discover all relevant FAQ URLs. For each URL,
-the method extracts the primary question (denoted by the ‘h1’ tag) and its corresponding answer (within an
-‘article’ tag).
-Unnecessary boilerplate text will be removed for clarity and conciseness.</p>
+<dt class="sig sig-object py" id="indexing.scraper.Scraper.get_sitemap_urls">
+<span class="sig-name descname"><span class="pre">get_sitemap_urls</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.scraper.Scraper.get_sitemap_urls" title="Link to this definition">¶</a></dt>
+<dd><p>Extract URLs from the sitemap. The endpoint ‘/sitemap.xml’ is used to discover all relevant FAQ URLs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.scraper.Scraper.run">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing.scraper.Scraper.run" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieves and processes FAQ data from <cite>base_url</cite> to insert into the database.</p>
 <p>Each extracted FAQ entry is then upserted (inserted or updated if already exists) into the database, with
 detailed logging to track the operation’s progress and identify any errors.</p>
-<p>Returns a confirmation message upon successful completion of the process.</p>
-<p>TODO:
-- Consider implementing error handling at a more granular level to retry failed insertions or updates, enhancing
-the robustness of the data ingestion process.
-- Explore optimization opportunities in text extraction and processing to improve efficiency and reduce runtime,
-especially for large sitemaps.</p>
+<p>If <cite>test</cite>&gt;0, then extract only the specified number of articles and log them instead of upserting them.</p>
+<p>Log a confirmation message upon successful completion of the process.</p>
+<div class="admonition-todo admonition" id="id1">
+<p class="admonition-title">Todo</p>
+<ul class="simple">
+<li><p>Consider implementing error handling at a more granular level to retry failed insertions or updates, enhancing the robustness of the data ingestion process.</p></li>
+<li><p>Explore optimization opportunities in text extraction and processing to improve efficiency and reduce runtime, especially for large sitemaps.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>test</strong> (<em>int</em><em>, </em><em>default 0</em>) – Number of articles to extract as a test</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of urls which got extracted</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of str</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -416,9 +454,10 @@ especially for large sitemaps.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Scraper</a><ul>
-<li><a class="reference internal" href="#web_scraper.WebScraper"><code class="docutils literal notranslate"><span class="pre">WebScraper</span></code></a><ul>
-<li><a class="reference internal" href="#web_scraper.WebScraper.get_sitemap_urls"><code class="docutils literal notranslate"><span class="pre">WebScraper.get_sitemap_urls()</span></code></a></li>
-<li><a class="reference internal" href="#web_scraper.WebScraper.run"><code class="docutils literal notranslate"><span class="pre">WebScraper.run()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.scraper.Scraper"><code class="docutils literal notranslate"><span class="pre">Scraper</span></code></a><ul>
+<li><a class="reference internal" href="#indexing.scraper.Scraper.extract_article"><code class="docutils literal notranslate"><span class="pre">Scraper.extract_article()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.scraper.Scraper.get_sitemap_urls"><code class="docutils literal notranslate"><span class="pre">Scraper.get_sitemap_urls()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.scraper.Scraper.run"><code class="docutils literal notranslate"><span class="pre">Scraper.run()</span></code></a></li>
 </ul>
 </li>
 </ul>

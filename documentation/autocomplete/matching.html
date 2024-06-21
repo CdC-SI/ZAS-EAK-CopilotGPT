@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Fuzzy Search" href="fuzzysearch.html" /><link rel="prev" title="Autocomplete" href="index.html" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="GUI" href="../gui/index.html" /><link rel="prev" title="Autocompleter" href="autocompleter.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.ico"/><!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>Exact match - ZAS/EAK-Copilot documentation</title>
+        <title>Matching - ZAS/EAK-Copilot documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -215,7 +215,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -262,6 +262,7 @@
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../rag/index.html">RAG</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of RAG</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../rag/processor.html">RAG Processor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../rag/retrieval.html">RetrievalPipeline</a></li>
 </ul>
 </li>
@@ -270,9 +271,8 @@
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Autocomplete</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Autocomplete</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Exact match</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fuzzysearch.html">Fuzzy Search</a></li>
-<li class="toctree-l2"><a class="reference internal" href="similaritysearch.html">Similarity Search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autocompleter.html">Autocompleter</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Matching</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../gui/index.html">GUI</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of GUI</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -303,12 +303,12 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="https://github.com/CdC-SI/eak-copilot/blob/main//doc/documentation/autocomplete/exactmatch.rst?plain=true" title="View this page">
+  <a class="muted-link" href="https://github.com/CdC-SI/eak-copilot/blob/main//doc/documentation/autocomplete/matching.rst?plain=true" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
 </div><div class="edit-this-page">
-  <a class="muted-link" href="https://github.com/CdC-SI/eak-copilot/edit/main//doc/documentation/autocomplete/exactmatch.rst" title="Edit this page">
+  <a class="muted-link" href="https://github.com/CdC-SI/eak-copilot/edit/main//doc/documentation/autocomplete/matching.rst" title="Edit this page">
     <svg><use href="#svg-pencil"></use></svg>
     <span class="visually-hidden">Edit this page</span>
   </a>
@@ -321,18 +321,126 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="exact-match">
-<h1>Exact match<a class="headerlink" href="#exact-match" title="Link to this heading">¶</a></h1>
-<div class="admonition-todo admonition" id="id1">
-<p class="admonition-title">Todo</p>
-<p><code class="docutils literal notranslate"><span class="pre">autocomplete.exactmatch</span></code></p>
-</div>
+          <section id="module-autocomplete.matching">
+<span id="matching"></span><h1>Matching<a class="headerlink" href="#module-autocomplete.matching" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="autocomplete.matching.ExactMatch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autocomplete.matching.</span></span><span class="sig-name descname"><span class="pre">ExactMatch</span></span><a class="headerlink" href="#autocomplete.matching.ExactMatch" title="Link to this definition">¶</a></dt>
+<dd><p>A class that implements exact matching, looking for results that contains the exact question sample.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autocomplete.matching.ExactMatch.match">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autocomplete.matching.ExactMatch.match" title="Link to this definition">¶</a></dt>
+<dd><p>Return a list of results obtained by applying the matching process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>question</strong> (<em>str</em>) – User input to match with database entries</p></li>
+<li><p><strong>language</strong> (<em>str</em><em>, </em><em>optional</em>) – Language of the question and answers</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of dictionaries containing the matching results</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autocomplete.matching.FuzzyMatch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autocomplete.matching.</span></span><span class="sig-name descname"><span class="pre">FuzzyMatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autocomplete.matching.FuzzyMatch" title="Link to this definition">¶</a></dt>
+<dd><p>A class that implements fuzzy matching through levenshtein, return results with the lowest distance first. The
+levenshtein distance is defined as the number of changes required to get to the target string.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autocomplete.matching.FuzzyMatch.match">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autocomplete.matching.FuzzyMatch.match" title="Link to this definition">¶</a></dt>
+<dd><p>Return a list of results obtained by applying the matching process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>question</strong> (<em>str</em>) – User input to match with database entries</p></li>
+<li><p><strong>language</strong> (<em>str</em><em>, </em><em>optional</em>) – Language of the question and answers</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of dictionaries containing the matching results</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autocomplete.matching.Matching">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autocomplete.matching.</span></span><span class="sig-name descname"><span class="pre">Matching</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">match_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autocomplete.matching.Matching" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract class for matching classes</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autocomplete.matching.Matching.match">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autocomplete.matching.Matching.match" title="Link to this definition">¶</a></dt>
+<dd><p>Return a list of results obtained by applying the matching process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>question</strong> (<em>str</em>) – User input to match with database entries</p></li>
+<li><p><strong>language</strong> (<em>str</em><em>, </em><em>optional</em>) – Language of the question and answers</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of dictionaries containing the matching results</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autocomplete.matching.SemanticMatch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autocomplete.matching.</span></span><span class="sig-name descname"><span class="pre">SemanticMatch</span></span><a class="headerlink" href="#autocomplete.matching.SemanticMatch" title="Link to this definition">¶</a></dt>
+<dd><p>A class that implements semantic similarity matching, return results with the lowest distance first. The
+distance is defined as the cosine distance between question and results embedding.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autocomplete.matching.SemanticMatch.match">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autocomplete.matching.SemanticMatch.match" title="Link to this definition">¶</a></dt>
+<dd><p>Return a list of results obtained by applying the matching process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>question</strong> (<em>str</em>) – User input to match with database entries</p></li>
+<li><p><strong>language</strong> (<em>str</em><em>, </em><em>optional</em>) – Language of the question and answers</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of dictionaries containing the matching results</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="autocomplete.matching.INF">
+<span class="sig-prename descclassname"><span class="pre">autocomplete.matching.</span></span><span class="sig-name descname"><span class="pre">INF</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#autocomplete.matching.INF" title="Link to this definition">¶</a></dt>
+<dd><p>Value for matches limit, equivalent to infinity (return all results)</p>
+</dd></dl>
+
 </section>
 
         </article>
@@ -340,23 +448,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="fuzzysearch.html">
+          <a class="next-page" href="../gui/index.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Fuzzy Search</div>
+                <div class="title">GUI</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="index.html">
+          <a class="prev-page" href="autocompleter.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Autocomplete</div>
+                <div class="title">Autocompleter</div>
                 
               </div>
             </a>
@@ -378,8 +486,43 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Matching</a><ul>
+<li><a class="reference internal" href="#autocomplete.matching.ExactMatch"><code class="docutils literal notranslate"><span class="pre">ExactMatch</span></code></a><ul>
+<li><a class="reference internal" href="#autocomplete.matching.ExactMatch.match"><code class="docutils literal notranslate"><span class="pre">ExactMatch.match()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#autocomplete.matching.FuzzyMatch"><code class="docutils literal notranslate"><span class="pre">FuzzyMatch</span></code></a><ul>
+<li><a class="reference internal" href="#autocomplete.matching.FuzzyMatch.match"><code class="docutils literal notranslate"><span class="pre">FuzzyMatch.match()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#autocomplete.matching.Matching"><code class="docutils literal notranslate"><span class="pre">Matching</span></code></a><ul>
+<li><a class="reference internal" href="#autocomplete.matching.Matching.match"><code class="docutils literal notranslate"><span class="pre">Matching.match()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#autocomplete.matching.SemanticMatch"><code class="docutils literal notranslate"><span class="pre">SemanticMatch</span></code></a><ul>
+<li><a class="reference internal" href="#autocomplete.matching.SemanticMatch.match"><code class="docutils literal notranslate"><span class="pre">SemanticMatch.match()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#autocomplete.matching.INF"><code class="docutils literal notranslate"><span class="pre">INF</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

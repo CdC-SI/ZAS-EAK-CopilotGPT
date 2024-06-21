@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="RetrievalPipeline" href="retrieval.html" /><link rel="prev" title="Survey pipeline API" href="../survey/api.html" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="RAG Processor" href="processor.html" /><link rel="prev" title="Survey pipeline API" href="../survey/api.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.ico"/><!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
         <title>RAG - ZAS/EAK-Copilot documentation</title>
@@ -262,6 +262,7 @@
 </ul>
 </li>
 <li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">RAG</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of RAG</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="processor.html">RAG Processor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="retrieval.html">RetrievalPipeline</a></li>
 </ul>
 </li>
@@ -270,9 +271,8 @@
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../autocomplete/index.html">Autocomplete</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Autocomplete</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../autocomplete/exactmatch.html">Exact match</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../autocomplete/fuzzysearch.html">Fuzzy Search</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../autocomplete/similaritysearch.html">Similarity Search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autocomplete/autocompleter.html">Autocompleter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autocomplete/matching.html">Matching</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../gui/index.html">GUI</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of GUI</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -327,32 +327,32 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="module-rag.app.main">
-<span id="rag"></span><h1>RAG<a class="headerlink" href="#module-rag.app.main" title="Link to this heading">¶</a></h1>
+          <section id="module-rag_api">
+<span id="rag"></span><h1>RAG<a class="headerlink" href="#module-rag_api" title="Link to this heading">¶</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="rag.app.main.rerank">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rag.app.main.</span></span><span class="sig-name descname"><span class="pre">rerank</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rag.app.main.rerank" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="rag_api.rerank">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rag_api.</span></span><span class="sig-name descname"><span class="pre">rerank</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rag_api.rerank" title="Link to this definition">¶</a></dt>
 <dd><p>Dummy endpoint for retrieved docs reranking.</p>
 </dd></dl>
 
-<dl class="py class" id="module-rag.app.models">
-<dt class="sig sig-object py" id="rag.app.models.EmbeddingRequest">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rag.app.models.</span></span><span class="sig-name descname"><span class="pre">EmbeddingRequest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.app.models.EmbeddingRequest" title="Link to this definition">¶</a></dt>
+<dl class="py class" id="module-rag.models">
+<dt class="sig sig-object py" id="rag.models.EmbeddingRequest">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rag.models.</span></span><span class="sig-name descname"><span class="pre">EmbeddingRequest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.models.EmbeddingRequest" title="Link to this definition">¶</a></dt>
 <dd><dl class="py attribute">
-<dt class="sig sig-object py" id="rag.app.models.EmbeddingRequest.model_computed_fields">
-<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#rag.app.models.EmbeddingRequest.model_computed_fields" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="rag.models.EmbeddingRequest.model_computed_fields">
+<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#rag.models.EmbeddingRequest.model_computed_fields" title="Link to this definition">¶</a></dt>
 <dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="rag.app.models.EmbeddingRequest.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#rag.app.models.EmbeddingRequest.model_config" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="rag.models.EmbeddingRequest.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#rag.models.EmbeddingRequest.model_config" title="Link to this definition">¶</a></dt>
 <dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="rag.app.models.EmbeddingRequest.model_fields">
-<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'text':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=True)}</span></em><a class="headerlink" href="#rag.app.models.EmbeddingRequest.model_fields" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="rag.models.EmbeddingRequest.model_fields">
+<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'text':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=True)}</span></em><a class="headerlink" href="#rag.models.EmbeddingRequest.model_fields" title="Link to this definition">¶</a></dt>
 <dd><p>Metadata about the fields defined on the model,
 mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</p>
 <p>This replaces <cite>Model.__fields__</cite> from Pydantic V1.</p>
@@ -361,23 +361,23 @@ mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="rag.app.models.RAGRequest">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rag.app.models.</span></span><span class="sig-name descname"><span class="pre">RAGRequest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.app.models.RAGRequest" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="rag.models.RAGRequest">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rag.models.</span></span><span class="sig-name descname"><span class="pre">RAGRequest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.models.RAGRequest" title="Link to this definition">¶</a></dt>
 <dd><dl class="py attribute">
-<dt class="sig sig-object py" id="rag.app.models.RAGRequest.model_computed_fields">
-<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#rag.app.models.RAGRequest.model_computed_fields" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="rag.models.RAGRequest.model_computed_fields">
+<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#rag.models.RAGRequest.model_computed_fields" title="Link to this definition">¶</a></dt>
 <dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="rag.app.models.RAGRequest.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#rag.app.models.RAGRequest.model_config" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="rag.models.RAGRequest.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#rag.models.RAGRequest.model_config" title="Link to this definition">¶</a></dt>
 <dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="rag.app.models.RAGRequest.model_fields">
-<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'query':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=True)}</span></em><a class="headerlink" href="#rag.app.models.RAGRequest.model_fields" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="rag.models.RAGRequest.model_fields">
+<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'query':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=True)}</span></em><a class="headerlink" href="#rag.models.RAGRequest.model_fields" title="Link to this definition">¶</a></dt>
 <dd><p>Metadata about the fields defined on the model,
 mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</p>
 <p>This replaces <cite>Model.__fields__</cite> from Pydantic V1.</p>
@@ -386,23 +386,23 @@ mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="rag.app.models.ResponseBody">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rag.app.models.</span></span><span class="sig-name descname"><span class="pre">ResponseBody</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.app.models.ResponseBody" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="rag.models.ResponseBody">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rag.models.</span></span><span class="sig-name descname"><span class="pre">ResponseBody</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.models.ResponseBody" title="Link to this definition">¶</a></dt>
 <dd><dl class="py attribute">
-<dt class="sig sig-object py" id="rag.app.models.ResponseBody.model_computed_fields">
-<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#rag.app.models.ResponseBody.model_computed_fields" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="rag.models.ResponseBody.model_computed_fields">
+<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#rag.models.ResponseBody.model_computed_fields" title="Link to this definition">¶</a></dt>
 <dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="rag.app.models.ResponseBody.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#rag.app.models.ResponseBody.model_config" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="rag.models.ResponseBody.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#rag.models.ResponseBody.model_config" title="Link to this definition">¶</a></dt>
 <dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="rag.app.models.ResponseBody.model_fields">
-<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'content':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=True)}</span></em><a class="headerlink" href="#rag.app.models.ResponseBody.model_fields" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="rag.models.ResponseBody.model_fields">
+<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'content':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=True)}</span></em><a class="headerlink" href="#rag.models.ResponseBody.model_fields" title="Link to this definition">¶</a></dt>
 <dd><p>Metadata about the fields defined on the model,
 mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</p>
 <p>This replaces <cite>Model.__fields__</cite> from Pydantic V1.</p>
@@ -419,12 +419,12 @@ mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="retrieval.html">
+          <a class="next-page" href="processor.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">RetrievalPipeline</div>
+                <div class="title">RAG Processor</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -470,23 +470,23 @@ mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">RAG</a><ul>
-<li><a class="reference internal" href="#rag.app.main.rerank"><code class="docutils literal notranslate"><span class="pre">rerank()</span></code></a></li>
-<li><a class="reference internal" href="#rag.app.models.EmbeddingRequest"><code class="docutils literal notranslate"><span class="pre">EmbeddingRequest</span></code></a><ul>
-<li><a class="reference internal" href="#rag.app.models.EmbeddingRequest.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">EmbeddingRequest.model_computed_fields</span></code></a></li>
-<li><a class="reference internal" href="#rag.app.models.EmbeddingRequest.model_config"><code class="docutils literal notranslate"><span class="pre">EmbeddingRequest.model_config</span></code></a></li>
-<li><a class="reference internal" href="#rag.app.models.EmbeddingRequest.model_fields"><code class="docutils literal notranslate"><span class="pre">EmbeddingRequest.model_fields</span></code></a></li>
+<li><a class="reference internal" href="#rag_api.rerank"><code class="docutils literal notranslate"><span class="pre">rerank()</span></code></a></li>
+<li><a class="reference internal" href="#rag.models.EmbeddingRequest"><code class="docutils literal notranslate"><span class="pre">EmbeddingRequest</span></code></a><ul>
+<li><a class="reference internal" href="#rag.models.EmbeddingRequest.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">EmbeddingRequest.model_computed_fields</span></code></a></li>
+<li><a class="reference internal" href="#rag.models.EmbeddingRequest.model_config"><code class="docutils literal notranslate"><span class="pre">EmbeddingRequest.model_config</span></code></a></li>
+<li><a class="reference internal" href="#rag.models.EmbeddingRequest.model_fields"><code class="docutils literal notranslate"><span class="pre">EmbeddingRequest.model_fields</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#rag.app.models.RAGRequest"><code class="docutils literal notranslate"><span class="pre">RAGRequest</span></code></a><ul>
-<li><a class="reference internal" href="#rag.app.models.RAGRequest.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">RAGRequest.model_computed_fields</span></code></a></li>
-<li><a class="reference internal" href="#rag.app.models.RAGRequest.model_config"><code class="docutils literal notranslate"><span class="pre">RAGRequest.model_config</span></code></a></li>
-<li><a class="reference internal" href="#rag.app.models.RAGRequest.model_fields"><code class="docutils literal notranslate"><span class="pre">RAGRequest.model_fields</span></code></a></li>
+<li><a class="reference internal" href="#rag.models.RAGRequest"><code class="docutils literal notranslate"><span class="pre">RAGRequest</span></code></a><ul>
+<li><a class="reference internal" href="#rag.models.RAGRequest.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">RAGRequest.model_computed_fields</span></code></a></li>
+<li><a class="reference internal" href="#rag.models.RAGRequest.model_config"><code class="docutils literal notranslate"><span class="pre">RAGRequest.model_config</span></code></a></li>
+<li><a class="reference internal" href="#rag.models.RAGRequest.model_fields"><code class="docutils literal notranslate"><span class="pre">RAGRequest.model_fields</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#rag.app.models.ResponseBody"><code class="docutils literal notranslate"><span class="pre">ResponseBody</span></code></a><ul>
-<li><a class="reference internal" href="#rag.app.models.ResponseBody.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">ResponseBody.model_computed_fields</span></code></a></li>
-<li><a class="reference internal" href="#rag.app.models.ResponseBody.model_config"><code class="docutils literal notranslate"><span class="pre">ResponseBody.model_config</span></code></a></li>
-<li><a class="reference internal" href="#rag.app.models.ResponseBody.model_fields"><code class="docutils literal notranslate"><span class="pre">ResponseBody.model_fields</span></code></a></li>
+<li><a class="reference internal" href="#rag.models.ResponseBody"><code class="docutils literal notranslate"><span class="pre">ResponseBody</span></code></a><ul>
+<li><a class="reference internal" href="#rag.models.ResponseBody.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">ResponseBody.model_computed_fields</span></code></a></li>
+<li><a class="reference internal" href="#rag.models.ResponseBody.model_config"><code class="docutils literal notranslate"><span class="pre">ResponseBody.model_config</span></code></a></li>
+<li><a class="reference internal" href="#rag.models.ResponseBody.model_fields"><code class="docutils literal notranslate"><span class="pre">ResponseBody.model_fields</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -260,6 +260,7 @@
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="documentation/rag/index.html">RAG</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of RAG</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="documentation/rag/processor.html">RAG Processor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="documentation/rag/retrieval.html">RetrievalPipeline</a></li>
 </ul>
 </li>
@@ -268,9 +269,8 @@
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="documentation/autocomplete/index.html">Autocomplete</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Autocomplete</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="documentation/autocomplete/exactmatch.html">Exact match</a></li>
-<li class="toctree-l2"><a class="reference internal" href="documentation/autocomplete/fuzzysearch.html">Fuzzy Search</a></li>
-<li class="toctree-l2"><a class="reference internal" href="documentation/autocomplete/similaritysearch.html">Similarity Search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation/autocomplete/autocompleter.html">Autocompleter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation/autocomplete/matching.html">Matching</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="documentation/gui/index.html">GUI</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of GUI</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -318,23 +318,39 @@
           
 <section class="genindex-section">
   <h1 id="index">Index</h1>
-  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#W"><strong>W</strong></a></div>
+  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a></div>
 </section>
 <section id="A" class="genindex-section">
   <h2>A</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="documentation/autocomplete/index.html#autocomplete.app.main.autocomplete">autocomplete() (in module autocomplete.app.main)</a>
+        <li><a href="documentation/autocomplete/index.html#autocomplete_api.autocomplete">autocomplete() (in module autocomplete_api)</a>
 </li>
+        <li>
+    autocomplete.autocompleter
+
+        <ul>
+          <li><a href="documentation/autocomplete/autocompleter.html#module-autocomplete.autocompleter">module</a>
+</li>
+        </ul></li>
+        <li>
+    autocomplete.matching
+
+        <ul>
+          <li><a href="documentation/autocomplete/matching.html#module-autocomplete.matching">module</a>
+</li>
+        </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li>
-    autocomplete.app.main
+    autocomplete_api
 
         <ul>
-          <li><a href="documentation/autocomplete/index.html#module-autocomplete.app.main">module</a>
+          <li><a href="documentation/autocomplete/index.html#module-autocomplete_api">module</a>
 </li>
         </ul></li>
+        <li><a href="documentation/autocomplete/autocompleter.html#autocomplete.autocompleter.Autocompleter">Autocompleter (class in autocomplete.autocompleter)</a>
+</li>
     </ul></td>
   </tr></table>
 </section>
@@ -343,11 +359,15 @@
   <h2>C</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="documentation/indexing/index.html#indexing.app.main.chunk_rag_data">chunk_rag_data() (in module indexing.app.main)</a>
+        <li><a href="documentation/indexing/index.html#indexing_api.chunk_rag_data">chunk_rag_data() (in module indexing_api)</a>
+</li>
+        <li><a href="documentation/indexing/index.html#indexing_api.crawl_data">crawl_data() (in module indexing_api)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="documentation/indexing/index.html#indexing.app.main.crawl_data">crawl_data() (in module indexing.app.main)</a>
+        <li><a href="documentation/rag/processor.html#rag.rag_processor.RAGProcessor.create_openai_message">create_openai_message() (rag.rag_processor.RAGProcessor method)</a>
+</li>
+        <li><a href="documentation/rag/processor.html#rag.rag_processor.RAGProcessor.create_openai_stream">create_openai_stream() (rag.rag_processor.RAGProcessor method)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -357,7 +377,31 @@
   <h2>E</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="documentation/rag/index.html#rag.app.models.EmbeddingRequest">EmbeddingRequest (class in rag.app.models)</a>
+        <li><a href="documentation/rag/processor.html#rag.rag_processor.RAGProcessor.embed">embed() (rag.rag_processor.RAGProcessor method)</a>
+</li>
+        <li><a href="documentation/rag/index.html#rag.models.EmbeddingRequest">EmbeddingRequest (class in rag.models)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="documentation/autocomplete/index.html#autocomplete_api.exact_match">exact_match() (in module autocomplete_api)</a>
+</li>
+        <li><a href="documentation/autocomplete/matching.html#autocomplete.matching.ExactMatch">ExactMatch (class in autocomplete.matching)</a>
+</li>
+        <li><a href="documentation/indexing/scraper.html#indexing.scraper.Scraper.extract_article">extract_article() (indexing.scraper.Scraper method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="F" class="genindex-section">
+  <h2>F</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="documentation/autocomplete/index.html#autocomplete_api.fuzzy_match">fuzzy_match() (in module autocomplete_api)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="documentation/autocomplete/matching.html#autocomplete.matching.FuzzyMatch">FuzzyMatch (class in autocomplete.matching)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -367,7 +411,13 @@
   <h2>G</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="documentation/indexing/scraper.html#web_scraper.WebScraper.get_sitemap_urls">get_sitemap_urls() (web_scraper.WebScraper method)</a>
+        <li><a href="documentation/rag/processor.html#rag.rag_processor.RAGProcessor.generate">generate() (rag.rag_processor.RAGProcessor method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="documentation/autocomplete/autocompleter.html#autocomplete.autocompleter.Autocompleter.get_autocomplete">get_autocomplete() (autocomplete.autocompleter.Autocompleter method)</a>
+</li>
+        <li><a href="documentation/indexing/scraper.html#indexing.scraper.Scraper.get_sitemap_urls">get_sitemap_urls() (indexing.scraper.Scraper method)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -377,13 +427,25 @@
   <h2>I</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="documentation/indexing/index.html#indexing_api.index_data">index_data() (in module indexing_api)</a>
+</li>
+        <li><a href="documentation/indexing/index.html#indexing_api.index_faq_data">index_faq_data() (in module indexing_api)</a>
+</li>
+        <li><a href="documentation/indexing/index.html#indexing_api.index_faq_vectordb">index_faq_vectordb() (in module indexing_api)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="documentation/indexing/index.html#indexing_api.index_rag_vectordb">index_rag_vectordb() (in module indexing_api)</a>
+</li>
         <li>
-    indexing.app.main
+    indexing_api
 
         <ul>
-          <li><a href="documentation/indexing/index.html#module-indexing.app.main">module</a>
+          <li><a href="documentation/indexing/index.html#module-indexing_api">module</a>
 </li>
         </ul></li>
+        <li><a href="documentation/autocomplete/matching.html#autocomplete.matching.INF">INF (in module autocomplete.matching)</a>
+</li>
     </ul></td>
   </tr></table>
 </section>
@@ -392,43 +454,61 @@
   <h2>M</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="documentation/rag/index.html#rag.app.models.EmbeddingRequest.model_computed_fields">model_computed_fields (rag.app.models.EmbeddingRequest attribute)</a>
+        <li><a href="documentation/autocomplete/matching.html#autocomplete.matching.ExactMatch.match">match() (autocomplete.matching.ExactMatch method)</a>
 
         <ul>
-          <li><a href="documentation/rag/index.html#rag.app.models.RAGRequest.model_computed_fields">(rag.app.models.RAGRequest attribute)</a>
+          <li><a href="documentation/autocomplete/matching.html#autocomplete.matching.FuzzyMatch.match">(autocomplete.matching.FuzzyMatch method)</a>
 </li>
-          <li><a href="documentation/rag/index.html#rag.app.models.ResponseBody.model_computed_fields">(rag.app.models.ResponseBody attribute)</a>
+          <li><a href="documentation/autocomplete/matching.html#autocomplete.matching.Matching.match">(autocomplete.matching.Matching method)</a>
+</li>
+          <li><a href="documentation/autocomplete/matching.html#autocomplete.matching.SemanticMatch.match">(autocomplete.matching.SemanticMatch method)</a>
 </li>
         </ul></li>
-        <li><a href="documentation/rag/index.html#rag.app.models.EmbeddingRequest.model_config">model_config (rag.app.models.EmbeddingRequest attribute)</a>
+        <li><a href="documentation/autocomplete/matching.html#autocomplete.matching.Matching">Matching (class in autocomplete.matching)</a>
+</li>
+        <li><a href="documentation/rag/index.html#rag.models.EmbeddingRequest.model_computed_fields">model_computed_fields (rag.models.EmbeddingRequest attribute)</a>
 
         <ul>
-          <li><a href="documentation/rag/index.html#rag.app.models.RAGRequest.model_config">(rag.app.models.RAGRequest attribute)</a>
+          <li><a href="documentation/rag/index.html#rag.models.RAGRequest.model_computed_fields">(rag.models.RAGRequest attribute)</a>
 </li>
-          <li><a href="documentation/rag/index.html#rag.app.models.ResponseBody.model_config">(rag.app.models.ResponseBody attribute)</a>
+          <li><a href="documentation/rag/index.html#rag.models.ResponseBody.model_computed_fields">(rag.models.ResponseBody attribute)</a>
 </li>
         </ul></li>
-        <li><a href="documentation/rag/index.html#rag.app.models.EmbeddingRequest.model_fields">model_fields (rag.app.models.EmbeddingRequest attribute)</a>
+        <li><a href="documentation/rag/index.html#rag.models.EmbeddingRequest.model_config">model_config (rag.models.EmbeddingRequest attribute)</a>
 
         <ul>
-          <li><a href="documentation/rag/index.html#rag.app.models.RAGRequest.model_fields">(rag.app.models.RAGRequest attribute)</a>
+          <li><a href="documentation/rag/index.html#rag.models.RAGRequest.model_config">(rag.models.RAGRequest attribute)</a>
 </li>
-          <li><a href="documentation/rag/index.html#rag.app.models.ResponseBody.model_fields">(rag.app.models.ResponseBody attribute)</a>
+          <li><a href="documentation/rag/index.html#rag.models.ResponseBody.model_config">(rag.models.ResponseBody attribute)</a>
 </li>
         </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="documentation/rag/index.html#rag.models.EmbeddingRequest.model_fields">model_fields (rag.models.EmbeddingRequest attribute)</a>
+
+        <ul>
+          <li><a href="documentation/rag/index.html#rag.models.RAGRequest.model_fields">(rag.models.RAGRequest attribute)</a>
+</li>
+          <li><a href="documentation/rag/index.html#rag.models.ResponseBody.model_fields">(rag.models.ResponseBody attribute)</a>
+</li>
+        </ul></li>
         <li>
     module
 
         <ul>
-          <li><a href="documentation/autocomplete/index.html#module-autocomplete.app.main">autocomplete.app.main</a>
+          <li><a href="documentation/autocomplete/autocompleter.html#module-autocomplete.autocompleter">autocomplete.autocompleter</a>
 </li>
-          <li><a href="documentation/indexing/index.html#module-indexing.app.main">indexing.app.main</a>
+          <li><a href="documentation/autocomplete/matching.html#module-autocomplete.matching">autocomplete.matching</a>
 </li>
-          <li><a href="documentation/rag/index.html#module-rag.app.main">rag.app.main</a>
+          <li><a href="documentation/autocomplete/index.html#module-autocomplete_api">autocomplete_api</a>
 </li>
-          <li><a href="documentation/rag/index.html#module-rag.app.models">rag.app.models</a>
+          <li><a href="documentation/indexing/index.html#module-indexing_api">indexing_api</a>
+</li>
+          <li><a href="documentation/rag/index.html#module-rag.models">rag.models</a>
+</li>
+          <li><a href="documentation/rag/processor.html#module-rag.rag_processor">rag.rag_processor</a>
+</li>
+          <li><a href="documentation/rag/index.html#module-rag_api">rag_api</a>
 </li>
         </ul></li>
     </ul></td>
@@ -439,11 +519,13 @@
   <h2>P</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="documentation/indexing/index.html#indexing.app.main.parse_faq_data">parse_faq_data() (in module indexing.app.main)</a>
+        <li><a href="documentation/indexing/index.html#indexing_api.parse_faq_data">parse_faq_data() (in module indexing_api)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="documentation/indexing/index.html#indexing.app.main.parse_rag_data">parse_rag_data() (in module indexing.app.main)</a>
+        <li><a href="documentation/indexing/index.html#indexing_api.parse_rag_data">parse_rag_data() (in module indexing_api)</a>
+</li>
+        <li><a href="documentation/rag/processor.html#rag.rag_processor.RAGProcessor.process">process() (rag.rag_processor.RAGProcessor method)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -454,28 +536,39 @@
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li>
-    rag.app.main
+    rag.models
 
         <ul>
-          <li><a href="documentation/rag/index.html#module-rag.app.main">module</a>
+          <li><a href="documentation/rag/index.html#module-rag.models">module</a>
 </li>
         </ul></li>
         <li>
-    rag.app.models
+    rag.rag_processor
 
         <ul>
-          <li><a href="documentation/rag/index.html#module-rag.app.models">module</a>
+          <li><a href="documentation/rag/processor.html#module-rag.rag_processor">module</a>
+</li>
+        </ul></li>
+        <li>
+    rag_api
+
+        <ul>
+          <li><a href="documentation/rag/index.html#module-rag_api">module</a>
 </li>
         </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="documentation/rag/index.html#rag.app.models.RAGRequest">RAGRequest (class in rag.app.models)</a>
+        <li><a href="documentation/rag/processor.html#rag.rag_processor.RAGProcessor">RAGProcessor (class in rag.rag_processor)</a>
 </li>
-        <li><a href="documentation/rag/index.html#rag.app.main.rerank">rerank() (in module rag.app.main)</a>
+        <li><a href="documentation/rag/index.html#rag.models.RAGRequest">RAGRequest (class in rag.models)</a>
 </li>
-        <li><a href="documentation/rag/index.html#rag.app.models.ResponseBody">ResponseBody (class in rag.app.models)</a>
+        <li><a href="documentation/rag/index.html#rag_api.rerank">rerank() (in module rag_api)</a>
 </li>
-        <li><a href="documentation/indexing/scraper.html#web_scraper.WebScraper.run">run() (web_scraper.WebScraper method)</a>
+        <li><a href="documentation/rag/index.html#rag.models.ResponseBody">ResponseBody (class in rag.models)</a>
+</li>
+        <li><a href="documentation/rag/processor.html#rag.rag_processor.RAGProcessor.retrieve">retrieve() (rag.rag_processor.RAGProcessor method)</a>
+</li>
+        <li><a href="documentation/indexing/scraper.html#indexing.scraper.Scraper.run">run() (indexing.scraper.Scraper method)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -485,17 +578,15 @@
   <h2>S</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="documentation/indexing/index.html#indexing.app.main.scrap_data">scrap_data() (in module indexing.app.main)</a>
+        <li><a href="documentation/indexing/index.html#indexing_api.scrap_data">scrap_data() (in module indexing_api)</a>
+</li>
+        <li><a href="documentation/indexing/scraper.html#indexing.scraper.Scraper">Scraper (class in indexing.scraper)</a>
 </li>
     </ul></td>
-  </tr></table>
-</section>
-
-<section id="W" class="genindex-section">
-  <h2>W</h2>
-  <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="documentation/indexing/scraper.html#web_scraper.WebScraper">WebScraper (class in web_scraper)</a>
+        <li><a href="documentation/autocomplete/index.html#autocomplete_api.semantic_similarity_match">semantic_similarity_match() (in module autocomplete_api)</a>
+</li>
+        <li><a href="documentation/autocomplete/matching.html#autocomplete.matching.SemanticMatch">SemanticMatch (class in autocomplete.matching)</a>
 </li>
     </ul></td>
   </tr></table>

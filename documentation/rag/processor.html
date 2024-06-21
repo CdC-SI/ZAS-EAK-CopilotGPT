@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Similarity Search" href="similaritysearch.html" /><link rel="prev" title="Exact match" href="exactmatch.html" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="RetrievalPipeline" href="retrieval.html" /><link rel="prev" title="RAG" href="index.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.ico"/><!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>Fuzzy Search - ZAS/EAK-Copilot documentation</title>
+        <title>RAG Processor - ZAS/EAK-Copilot documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -215,7 +215,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -261,18 +261,18 @@
 <li class="toctree-l2"><a class="reference internal" href="../survey/api.html">Survey pipeline API</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../rag/index.html">RAG</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of RAG</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../rag/retrieval.html">RetrievalPipeline</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">RAG</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of RAG</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">RAG Processor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="retrieval.html">RetrievalPipeline</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../chatbot/index.html">Chatbot</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Chatbot</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../chatbot/generation.html">GenerationPipeline</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Autocomplete</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Autocomplete</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="exactmatch.html">Exact match</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Fuzzy Search</a></li>
-<li class="toctree-l2"><a class="reference internal" href="similaritysearch.html">Similarity Search</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../autocomplete/index.html">Autocomplete</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Autocomplete</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../autocomplete/autocompleter.html">Autocompleter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autocomplete/matching.html">Matching</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../gui/index.html">GUI</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of GUI</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -303,12 +303,12 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="https://github.com/CdC-SI/eak-copilot/blob/main//doc/documentation/autocomplete/fuzzysearch.rst?plain=true" title="View this page">
+  <a class="muted-link" href="https://github.com/CdC-SI/eak-copilot/blob/main//doc/documentation/rag/processor.rst?plain=true" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
 </div><div class="edit-this-page">
-  <a class="muted-link" href="https://github.com/CdC-SI/eak-copilot/edit/main//doc/documentation/autocomplete/fuzzysearch.rst" title="Edit this page">
+  <a class="muted-link" href="https://github.com/CdC-SI/eak-copilot/edit/main//doc/documentation/rag/processor.rst" title="Edit this page">
     <svg><use href="#svg-pencil"></use></svg>
     <span class="visually-hidden">Edit this page</span>
   </a>
@@ -321,18 +321,135 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="fuzzy-search">
-<h1>Fuzzy Search<a class="headerlink" href="#fuzzy-search" title="Link to this heading">¶</a></h1>
+          <section id="module-rag.rag_processor">
+<span id="rag-processor"></span><h1>RAG Processor<a class="headerlink" href="#module-rag.rag_processor" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="rag.rag_processor.RAGProcessor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rag.rag_processor.</span></span><span class="sig-name descname"><span class="pre">RAGProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.rag_processor.RAGProcessor" title="Link to this definition">¶</a></dt>
+<dd><p>Class implementing the RAG process</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>str</em>) – LLM Model used for generating chatbot answers</p></li>
+<li><p><strong>max_token</strong> (<em>int</em>)</p></li>
+<li><p><strong>stream</strong> (<em>bool</em>)</p></li>
+<li><p><strong>temperature</strong> (<em>float</em>)</p></li>
+<li><p><strong>top_p</strong> (<em>float</em>)</p></li>
+<li><p><strong>top_k</strong> (<em>int</em>)</p></li>
+<li><p><strong>client</strong></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="rag.rag_processor.RAGProcessor.create_openai_message">
+<span class="sig-name descname"><span class="pre">create_openai_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context_docs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.rag_processor.RAGProcessor.create_openai_message" title="Link to this definition">¶</a></dt>
+<dd><p>Format the message to send to the OpenAI API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>context_docs</strong> (<em>str</em>) – Context matching the query according to the retrieval process</p></li>
+<li><p><strong>query</strong> (<em>str</em>) – User input question</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Contains the message in the correct format to send to the OpenAI API</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rag.rag_processor.RAGProcessor.create_openai_stream">
+<span class="sig-name descname"><span class="pre">create_openai_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">messages</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.rag_processor.RAGProcessor.create_openai_stream" title="Link to this definition">¶</a></dt>
+<dd><p>Create a stream to communicate with OpenAI.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>messages</strong> (<em>dict</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>chat.completion</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rag.rag_processor.RAGProcessor.embed">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">embed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="index.html#rag.models.EmbeddingRequest" title="rag.models.EmbeddingRequest"><span class="pre">EmbeddingRequest</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.rag_processor.RAGProcessor.embed" title="Link to this definition">¶</a></dt>
+<dd><p>Get the embedding of an embedding request.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>text_input</strong> (<a class="reference internal" href="index.html#rag.models.EmbeddingRequest" title="rag.models.EmbeddingRequest"><em>EmbeddingRequest</em></a>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The requested text embedding</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rag.rag_processor.RAGProcessor.generate">
+<span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">openai_stream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_url</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.rag_processor.RAGProcessor.generate" title="Link to this definition">¶</a></dt>
+<dd><p>Generate the answer using LLM.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>openai_stream</strong></p></li>
+<li><p><strong>source_url</strong></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rag.rag_processor.RAGProcessor.process">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="index.html#rag.models.RAGRequest" title="rag.models.RAGRequest"><span class="pre">RAGRequest</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.rag_processor.RAGProcessor.process" title="Link to this definition">¶</a></dt>
+<dd><p>Execute the RAG process and query the LLM model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<a class="reference internal" href="index.html#rag.models.RAGRequest" title="rag.models.RAGRequest"><em>RAGRequest</em></a>) – User input question</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>LLM generated answer to the question</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rag.rag_processor.RAGProcessor.retrieve">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">retrieve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="index.html#rag.models.RAGRequest" title="rag.models.RAGRequest"><span class="pre">RAGRequest</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.rag_processor.RAGProcessor.retrieve" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve context documents related to the user input question.</p>
+<p>Only supports retrieval of 1 document at the moment (set in /config/config.yaml).</p>
 <div class="admonition-todo admonition" id="id1">
 <p class="admonition-title">Todo</p>
-<p><code class="docutils literal notranslate"><span class="pre">autocomplete.fuzzysearch</span></code></p>
+<p>multi-doc retrieval later</p>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<a class="reference internal" href="index.html#rag.models.RAGRequest" title="rag.models.RAGRequest"><em>RAGRequest</em></a>) – User input question</p></li>
+<li><p><strong>language</strong> (<em>str</em>) – Question and context documents language</p></li>
+<li><p><strong>k</strong> (<em>int</em><em>, </em><em>default 0</em>) – Number of context documents to return (need to be revised, current logic in the code is confusing)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
         </article>
@@ -340,23 +457,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="similaritysearch.html">
+          <a class="next-page" href="retrieval.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Similarity Search</div>
+                <div class="title">RetrievalPipeline</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="exactmatch.html">
+          <a class="prev-page" href="index.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Exact match</div>
+                <div class="title">RAG</div>
                 
               </div>
             </a>
@@ -378,8 +495,35 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">RAG Processor</a><ul>
+<li><a class="reference internal" href="#rag.rag_processor.RAGProcessor"><code class="docutils literal notranslate"><span class="pre">RAGProcessor</span></code></a><ul>
+<li><a class="reference internal" href="#rag.rag_processor.RAGProcessor.create_openai_message"><code class="docutils literal notranslate"><span class="pre">RAGProcessor.create_openai_message()</span></code></a></li>
+<li><a class="reference internal" href="#rag.rag_processor.RAGProcessor.create_openai_stream"><code class="docutils literal notranslate"><span class="pre">RAGProcessor.create_openai_stream()</span></code></a></li>
+<li><a class="reference internal" href="#rag.rag_processor.RAGProcessor.embed"><code class="docutils literal notranslate"><span class="pre">RAGProcessor.embed()</span></code></a></li>
+<li><a class="reference internal" href="#rag.rag_processor.RAGProcessor.generate"><code class="docutils literal notranslate"><span class="pre">RAGProcessor.generate()</span></code></a></li>
+<li><a class="reference internal" href="#rag.rag_processor.RAGProcessor.process"><code class="docutils literal notranslate"><span class="pre">RAGProcessor.process()</span></code></a></li>
+<li><a class="reference internal" href="#rag.rag_processor.RAGProcessor.retrieve"><code class="docutils literal notranslate"><span class="pre">RAGProcessor.retrieve()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
