@@ -4,7 +4,7 @@ services:
   # db service
   db:
     build:
-      context: ./db
+      context: src/db
       dockerfile: Dockerfile
     image: copilot-postgresql-db
     ports:
@@ -30,18 +30,18 @@ services:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
     volumes:
-      - ./pgadmin/servers.json:/pgadmin4/servers.json
+      - ./src/pgadmin/servers.json:/pgadmin4/servers.json
     depends_on:
       - db
     networks:
       - copilot-network
     restart: "no"
 
-  autocomplete:
+  copilot:
     build:
-      context: .
-      dockerfile: ./autocomplete/Dockerfile
-    image: copilot-autocomplete
+      context: src/copilot
+      dockerfile: Dockerfile
+    image: copilot
     ports:
       - "8000:8000"
     env_file:
@@ -50,56 +50,10 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_HOST=db
-    volumes:
-      - .:/app
-    networks:
-      - copilot-network
-    depends_on:
-      - db
-    restart: "no"
-
-  # data indexing
-  indexing:
-    build:
-      context: .
-      dockerfile: ./indexing/Dockerfile
-    image: copilot-indexing
-    ports:
-      - "8011:8011"
-    env_file:
-      - .env
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_HOST=${POSTGRES_HOST}
-    volumes:
-      - .:/app
-    networks:
-      - copilot-network
-    depends_on:
-      - db
-    restart: "no"
-
-  # RAG
-  rag:
-    build:
-      context: .
-      dockerfile: ./rag/Dockerfile
-    image: copilot-rag
-    ports:
-      - "8010:8010"
-    env_file:
-      - .env
-    environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_HOST=${POSTGRES_HOST}
     volumes:
-      - .:/app
+      - ./src/copilot/app:/app
     networks:
       - copilot-network
     depends_on:
@@ -109,15 +63,14 @@ services:
   # frontend
   zas-copilot:
     build:
-      context: https://github.com/CdC-SI/copilot-frontend.git#main
+      context: https://github.com/CdC-SI/copilot-frontend.git#refactored-paths
     image: zas-copilot:latest
     ports:
       - "4200:4200"
     networks:
       - copilot-network
     depends_on:
-      - autocomplete
-      - rag
+      - copilot
     restart: "no"
 
 networks:

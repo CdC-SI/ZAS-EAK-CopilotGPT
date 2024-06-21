@@ -1,12 +1,11 @@
 Autocomplete
 ############
 
-.. automodule:: autocomplete.app.main
+.. automodule:: autocomplete_api
    :members:
 
 .. toctree::
    :hidden:
 
-   exactmatch
-   fuzzysearch
-   similaritysearch
+   autocompleter
+   matching

@@ -2,7 +2,7 @@ from utils.embedding import get_embedding
 
 from datetime import datetime
 
-from indexing.app import queries
+from . import queries
 
 
 async def init_rag_vectordb():

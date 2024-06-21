@@ -46,4 +46,4 @@ Installation
 
         docker-compose ps
 
-After the containers are successfully started, navigate to `<http://localhost:3000>`_ in your web browser to access the EAK-Copilot.
+After the containers are successfully started, navigate to `<http://localhost:4200>`_ in your web browser to access the EAK-Copilot.
