@@ -54,7 +54,7 @@ class RAGProcessor:
         rows = await semantic_similarity_match(request.query, db_name='embeddings', language=language, k=k)
         documents = [dict(row) for row in rows][0]
 
-        return {"contextDocs": documents["text"], "sourceUrl": documents["url"], "cosineSimilarity": documents["distance"]}
+        return {"contextDocs": documents["text"], "sourceUrl": documents["url"], "cosineSimilarity": documents["similarity_metric"]}
 
     async def process(self, request: RAGRequest):
         """
