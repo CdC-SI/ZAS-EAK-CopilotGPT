@@ -2,6 +2,7 @@ from typing import List
 from utils.embeddings.openai import OpenAIEmbeddings
 from utils.db import get_db_connection
 
+embedding_client = OpenAIEmbeddings(model_name="text-embedding-ada-002")
 
 async def fetch(db_name: str,
                 select: List[str] = None,
@@ -67,7 +68,8 @@ def semantic_similarity_match(question: str,
                               symbol: str = '<=>',
                               k: int = 0):
 
-    question_embedding = OpenAIEmbeddings.embed_query(question).embedding
+    question_embedding = embedding_client.embed_query(question).embedding
+    #question_embedding = embedding_client.embed_query(question).embedding
 
     return fetch(db_name=db_name,
                  select=[f"1 - (embedding {symbol} '{question_embedding}') AS similarity_metric"],
