@@ -70,9 +70,9 @@ def semantic_similarity_match(question: str,
     question_embedding = get_embedding(question)[0].embedding
 
     return fetch(db_name=db_name,
-                 select=[f"1 - (embedding {symbol} '{question_embedding}') AS similarity_metric"],
+                 select=[f"1 - (embedding {symbol} '{question_embedding}') AS distance"],
                  language=language,
-                 order="similarity_metric desc",
+                 order="distance desc",
                  k=k)
 
 

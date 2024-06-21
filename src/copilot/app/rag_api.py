@@ -48,7 +48,7 @@ async def process_query(request: RAGRequest):
     return StreamingResponse(content, media_type="text/event-stream")
 
 
-@app.post("/context",
+@app.post("/context_docs",
           summary="Retrieve context docs endpoint",
           response_description="Return context docs from semantic search",
           status_code=200)
