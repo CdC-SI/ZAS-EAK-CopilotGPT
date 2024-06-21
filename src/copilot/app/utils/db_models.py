@@ -19,6 +19,7 @@ class ArticleFAQ(Base):
     answer: Mapped[str] = mapped_column(String(1024))
     language: Mapped[str] = mapped_column(String(3))
     source_id: Mapped[int] = mapped_column(ForeignKey("sources.id"))
+    source: Mapped["Source"] = relationship(back_populates="articlesFAQ")
     created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
     updated_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 
@@ -33,6 +34,7 @@ class Document(Base):
     text: Mapped[str] = mapped_column(String(1024))
     url: Mapped[str] = mapped_column(String(256))
     source_id: Mapped[int] = mapped_column(ForeignKey("sources.id"))
+    source: Mapped["Source"] = relationship(back_populates="documents")
     created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
     updated_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 
@@ -46,6 +48,8 @@ class Source(Base):
     name: Mapped[str] = mapped_column(String(128))
     url: Mapped[str] = mapped_column(String(256))
     sitemap_url: Mapped[str] = mapped_column(String(256))
+    articlesFAQ: Mapped[List["ArticleFAQ"]] = relationship(back_populates="source")
+    documents: Mapped[List["Document"]] = relationship(back_populates="source")
 
     def __repr__(self) -> str:
         return f"Address(id={self.id!r}, name={self.name!r}, url={self.url!r}, sitemap_url={self.sitemap_url!r})"
