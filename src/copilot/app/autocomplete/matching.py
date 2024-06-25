@@ -67,7 +67,12 @@ class FuzzyMatch(Matching):
 
     async def match(self, question: str, language: str = None):
 
-        return await queries.fuzzy_match(question, language=language, threshold=self.threshold, k=self.limit)
+        rows = await queries.fuzzy_match(question, language=language, threshold=self.threshold, k=self.limit)
+
+        # Convert the results to a list of dictionaries
+        matches = [dict(row) for row in rows]
+        return matches
+
 
 
 class SemanticMatch(Matching):
