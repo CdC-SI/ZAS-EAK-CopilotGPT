@@ -12,6 +12,8 @@ requests==2.31.0
 beautifulsoup4==4.12.3
 lxml==5.2.2
 asyncio==3.4.3
+pandas==2.2.2
 
 # rag
 sentence-transformers==3.0.1
+llama-cpp-python==0.2.79
