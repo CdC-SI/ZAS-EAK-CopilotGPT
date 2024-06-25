@@ -1,10 +1,16 @@
-from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
+from typing import List
+
+from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE, MISTRAL_RAG_SYSTEM_PROMPT_DE
 from rag.models import RAGRequest, EmbeddingRequest
 
 from utils.embeddings.embeddings import Embedding
+from utils.embeddings.openai import OpenAIEmbeddings
+from config.openai_config import openai
 
 from autocomplete.queries import semantic_similarity_match
 
+import requests
+from llama_cpp import Llama
 
 class RAGProcessor:
     """
@@ -13,16 +19,25 @@ class RAGProcessor:
     Parameters
     ----------
     model : str
-        LLM Model used for generating chatbot answers
+        The name of the model to be used.
     max_token : int
+        The maximum number of tokens for the model.
     stream : bool
+        Whether to stream the response.
     temperature : float
+        The temperature for the model's output distribution.
     top_p : float
+        The cumulative probability cutoff for the model's output distribution.
     top_k : int
-    client
+        The number of top tokens to consider for the model's output distribution.
+    embedding_client : Embedding
+        The client to be used for embedding.
+    llm_model_name : str, optional
+        The name of the language model to be used, by default "openai".
+
     """
     def __init__(self, model: str, max_token: int, stream: bool, temperature: float,
-                 top_p: float, top_k: int, embedding_client: Embedding, llm_client):
+                 top_p: float, top_k: int, embedding_model_name: str = "text-embedding-ada-002", llm_model_name: str = "gpt-3.5-turbo-0125"):
         self.model = model
         self.max_tokens = max_token
         self.stream = stream
@@ -30,8 +45,83 @@ class RAGProcessor:
         self.top_p = top_p
         self.k_retrieve = top_k
 
-        self.embedding_client = embedding_client
-        self.llm_client = llm_client
+        self.embedding_model_name = embedding_model_name
+        self.embedding_client = self.init_embedding_client()
+
+        self.llm_model_name = llm_model_name
+        self.llm_client = self.init_llm_client()
+
+    def init_embedding_client(self):
+        """
+        Initialize and return an embedding client based on `self.embedding_model_name`.
+
+        Returns
+        -------
+        object
+            An instance of the OpenAIEmbeddings client if `self.embedding_model_name` is "text-embedding-ada-002",
+            otherwise None.
+        """
+        if self.embedding_model_name == "text-embedding-ada-002":
+            return OpenAIEmbeddings()
+
+    def init_llm_client(self):
+        """
+        Initialize and return a language model client based on `self.llm_model_name`.
+
+        Returns
+        -------
+        object
+            An instance of the appropriate language model client.
+            If `self.llm_model_name` is "gpt-3.5-turbo-0125", it returns an OpenAI client.
+            If `self.llm_model_name` is "Qwen/Qwen1.5-0.5B-Chat-GGUF", it returns a Llama client.
+            If `self.llm_model_name` is "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX", it currently does nothing and returns None.
+        """
+        if self.llm_model_name == "gpt-3.5-turbo-0125":
+            return openai.OpenAI()
+        elif self.llm_model_name == "Qwen/Qwen1.5-0.5B-Chat-GGUF":
+            return Llama.from_pretrained(
+                                repo_id="Qwen/Qwen1.5-0.5B-Chat-GGUF",
+                                filename="*q8_0.gguf",
+                                verbose=False,
+                                n_ctx=8192,
+                                n_gpu_layers=-1
+                        )
+        elif self.llm_model_name == "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX":
+            # No client needed for this model at the moment, REST API requests are made to local MLX server
+            pass
+
+    def stream_response(self, context_docs: List[str], query: str, source_url: str):
+        """
+        Generate a response stream based on the language model specified by `self.llm_model_name`.
+
+        Parameters
+        ----------
+        context_docs : list
+            The context documents to be used for generating the response.
+        query : str
+            The query to be used for generating the response.
+        source_url : str
+            The source URL to be used for generating the response.
+
+        Returns
+        -------
+        str
+            The generated response.
+        """
+        if self.llm_model_name == "gpt-3.5-turbo-0125":
+            messages = self.create_openai_message(context_docs, query)
+            stream = self.create_openai_stream(messages)
+            return self.generate_openai(stream, source_url)
+
+        elif self.llm_model_name == "Qwen/Qwen1.5-0.5B-Chat-GGUF":
+            messages = self.create_openai_message(context_docs, query)
+            stream = self.create_qwen_stream(messages)
+            return self.generate_qwen(stream, source_url)
+
+        elif self.llm_model_name == "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX":
+            messages = self.create_mlx_message(context_docs, query)
+            stream = self.create_mlx_stream(messages)
+            return self.generate_mlx(stream, source_url)
 
     async def retrieve(self, request: RAGRequest, language: str = None, k: int = 0):
         """
@@ -75,10 +165,21 @@ class RAGProcessor:
         documents = await self.retrieve(request)
         context_docs = documents['contextDocs']
         source_url = documents['sourceUrl']
-        messages = self.create_openai_message(context_docs, request.query)
-        openai_stream = self.create_openai_stream(messages)
 
-        return self.generate(openai_stream, source_url)
+
+        #messages = self.create_openai_message(context_docs, request.query)
+        #stream = self.create_openai_stream(messages)
+        #return self.generate_openai(stream, source_url)
+
+        #messages = self.create_openai_message(context_docs, request.query)
+        #stream = self.create_qwen_stream(messages)
+        #return self.generate_qwen(stream, source_url)
+
+        # messages = self.create_mlx_message(context_docs, request.query)
+        # stream = self.create_mlx_stream(messages)
+        # return self.generate_mlx(stream, source_url)
+
+        return self.stream_response(context_docs, request.query, source_url)
 
     async def embed(self, text_input: EmbeddingRequest):
         """
@@ -116,6 +217,10 @@ class RAGProcessor:
         openai_rag_system_prompt = OPENAI_RAG_SYSTEM_PROMPT_DE.format(context_docs=context_docs, query=query)
         return [{"role": "system", "content": openai_rag_system_prompt},]
 
+    def create_mlx_message(self, context_docs, query):
+        mlx_rag_system_prompt = MISTRAL_RAG_SYSTEM_PROMPT_DE.format(context_docs=context_docs, query=query)
+        return mlx_rag_system_prompt
+
     def create_openai_stream(self, messages):
         """
         Create a stream to communicate with OpenAI.
@@ -135,7 +240,18 @@ class RAGProcessor:
             temperature=self.temperature,
             top_p=self.top_p)
 
-    def generate(self, openai_stream, source_url):
+    def create_qwen_stream(self, messages):
+        return self.llm_client.create_chat_completion(
+            messages=messages,
+            stream=self.stream)
+
+    def create_mlx_stream(self, messages):
+        response = requests.get('http://host.docker.internal:5000/generate', params={'prompt': messages, 'stream': 'true'}, stream=True)
+        for line in response.iter_lines():
+            if line:
+                yield line.decode('utf-8')
+
+    def generate_openai(self, stream, source_url):
         """
         Generate the answer using LLM.
 
@@ -148,10 +264,29 @@ class RAGProcessor:
         -------
 
         """
-        for chunk in openai_stream:
+        for chunk in stream:
             if chunk.choices[0].delta.content is not None:
                 yield chunk.choices[0].delta.content.encode("utf-8")
             else:
                 # Send a special token indicating the end of the response
                 yield f"\n\n<a href='{source_url}' target='_blank' class='source-link'>{source_url}</a>".encode("utf-8")
                 return
+
+    def generate_qwen(self, stream, source_url):
+        for chunk in stream:
+            if chunk["choices"][0]["finish_reason"] != "stop":
+                if "content" in chunk["choices"][0]["delta"].keys():
+                    yield chunk["choices"][0]["delta"]["content"].encode("utf-8")
+            else:
+                # Send a special token indicating the end of the response
+                yield f"\n\n<a href='{source_url}' target='_blank' class='source-link'>{source_url}</a>".encode("utf-8")
+                return
+
+    def generate_mlx(self, stream, source_url):
+        for chunk in stream:
+            if chunk is not None:
+                yield chunk.encode("utf-8")
+
+        # Send a special token indicating the end of the response
+        yield f"\n\n<a href='{source_url}' target='_blank' class='source-link'>{source_url}</a>".encode("utf-8")
+        return
