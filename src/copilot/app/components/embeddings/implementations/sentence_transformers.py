@@ -1,7 +1,7 @@
 import logging
 
 from typing import List
-from utils.embeddings.embeddings import Embedding
+from components.embeddings.base import Embedding
 
 from sentence_transformers import SentenceTransformer
 
@@ -36,7 +36,7 @@ class SentenceTransformersEmbeddings(Embedding):
 
     Example
     -------
-    >>> from utils.embeddings import SentenceTransformersEmbeddings
+    >>> from components.embeddings.implementations.sentence_transformers import SentenceTransformersEmbeddings
     >>> model_name = "sentence-transformers/distiluse-base-multilingual-cased-v1"
     >>> st_embeddings = SentenceTransformersEmbeddings(
     >>>     model_name=model_name,

@@ -1,7 +1,7 @@
 import logging
 
 from typing import List
-from utils.embeddings.embeddings import Embedding
+from components.embeddings.base import Embedding
 
 # Import env vars
 from config.base_config import rag_config
@@ -35,7 +35,7 @@ class OpenAIEmbeddings(Embedding):
 
     Example
     -------
-    >>> from utils.embeddings import OpenAIEmbeddings
+    >>> from components.embeddings.implementations.openai import OpenAIEmbeddings
     >>> model_name = "text-embedding-ada-002"
     >>> openai_embeddings = OpenAIEmbeddings(
     >>>     model_name=model_name,
@@ -45,16 +45,8 @@ class OpenAIEmbeddings(Embedding):
     >>> openai_embeddings.embed_query("Guten Morgen")
     """
     def __init__(self, model_name: str = DEFAULT_OPENAI_MODEL):
-        # if rag_config["embedding"]["model"] not in SUPPORTED_OPENAI_MODELS:
-        #     logger.warning("Model '%s' is not supported", rag_config['embedding']['model'])
-        #     self.model_name = DEFAULT_OPENAI_MODEL
-        # else:
-        #     self.model_name = model_name
         self.model_name = model_name if model_name is not None and model_name in SUPPORTED_OPENAI_MODELS else DEFAULT_OPENAI_MODEL
         self.client = openai.OpenAI()
-
-    #model_name = rag_config["embedding"]["model"] if rag_config["embedding"]["model"] is not None else DEFAULT_OPENAI_MODEL
-    #self.client = openai.OpenAI()
 
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
         """
