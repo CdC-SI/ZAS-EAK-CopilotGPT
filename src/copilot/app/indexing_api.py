@@ -10,7 +10,7 @@ from config.network_config import CORS_ALLOWED_ORIGINS
 from config.base_config import indexing_config, indexing_app_config
 
 # Load utility functions
-from utils.db import check_db_connection
+from components.db import check_db_connection
 from indexing.scraper import Scraper
 from indexing import dev_mode_data, queries
 
