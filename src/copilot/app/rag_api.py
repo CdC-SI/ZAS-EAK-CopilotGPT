@@ -23,7 +23,7 @@ processor = RAGProcessor(model=rag_config["llm"]["model"],
                          temperature=rag_config["llm"]["temperature"],
                          top_p=rag_config["llm"]["top_p"],
                          top_k=rag_config["retrieval"]["top_k"],
-                         embedding_model_name=rag_config["embedding"]["model"],
+                         embedding_model=rag_config["embedding"]["model"],
                          llm_model_name=rag_config["llm"]["model"]
                          )
 
