@@ -32,7 +32,6 @@ class Matching(metaclass=ABCMeta):
             List of dictionaries containing the matching results
 
         """
-        pass
 
 
 class ExactMatch(Matching):
@@ -60,9 +59,10 @@ class FuzzyMatch(Matching):
     A class that implements fuzzy matching through levenshtein, return results with the lowest distance first. The
     levenshtein distance is defined as the number of changes required to get to the target string.
     """
-    def __init__(self, threshold: int = 100):
-        self.match_type = "exact_match"
+    def __init__(self, threshold: int = 50, fuzzy_limit: int = 0):
+        self.match_type = "fuzzy_match"
         self.threshold = threshold
+        self.fuzzy_limit = fuzzy_limit
         Matching.__init__(self, self.match_type)
 
     async def match(self, question: str, language: str = None):
@@ -71,6 +71,10 @@ class FuzzyMatch(Matching):
 
         # Convert the results to a list of dictionaries
         matches = [dict(row) for row in rows]
+
+        if self.fuzzy_limit > 0:
+            matches = matches[:self.fuzzy_limit]
+
         return matches
 
 
