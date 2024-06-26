@@ -3,8 +3,7 @@ from typing import List
 from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE, MISTRAL_RAG_SYSTEM_PROMPT_DE
 from rag.models import RAGRequest, EmbeddingRequest
 
-from utils.embeddings.embeddings import Embedding
-from utils.embeddings.openai import OpenAIEmbeddings
+from components.embeddings.factory import EmbeddingFactory
 from config.openai_config import openai
 
 from autocomplete.queries import semantic_similarity_match
@@ -30,14 +29,14 @@ class RAGProcessor:
         The cumulative probability cutoff for the model's output distribution.
     top_k : int
         The number of top tokens to consider for the model's output distribution.
-    embedding_client : Embedding
-        The client to be used for embedding.
+    embedding_model : str, optional
+        The name of the embedding model to be used, by default "text-embedding-ada-002".
     llm_model_name : str, optional
-        The name of the language model to be used, by default "openai".
+        The name of the language model to be used, by default "gpt-3.5-turbo-0125".
 
     """
     def __init__(self, model: str, max_token: int, stream: bool, temperature: float,
-                 top_p: float, top_k: int, embedding_model_name: str = "text-embedding-ada-002", llm_model_name: str = "gpt-3.5-turbo-0125"):
+                 top_p: float, top_k: int, embedding_model: str = "text-embedding-ada-002", llm_model_name: str = "gpt-3.5-turbo-0125"):
         self.model = model
         self.max_tokens = max_token
         self.stream = stream
@@ -45,7 +44,7 @@ class RAGProcessor:
         self.top_p = top_p
         self.k_retrieve = top_k
 
-        self.embedding_model_name = embedding_model_name
+        self.embedding_model = embedding_model
         self.embedding_client = self.init_embedding_client()
 
         self.llm_model_name = llm_model_name
@@ -58,11 +57,10 @@ class RAGProcessor:
         Returns
         -------
         object
-            An instance of the OpenAIEmbeddings client if `self.embedding_model_name` is "text-embedding-ada-002",
-            otherwise None.
+            An instance of the appropriate embedding client based on `self.embedding_model_name`.
         """
-        if self.embedding_model_name == "text-embedding-ada-002":
-            return OpenAIEmbeddings()
+        return EmbeddingFactory.get_embedding_client(self.embedding_model)
+
 
     def init_llm_client(self):
         """
@@ -165,19 +163,6 @@ class RAGProcessor:
         documents = await self.retrieve(request)
         context_docs = documents['contextDocs']
         source_url = documents['sourceUrl']
-
-
-        #messages = self.create_openai_message(context_docs, request.query)
-        #stream = self.create_openai_stream(messages)
-        #return self.generate_openai(stream, source_url)
-
-        #messages = self.create_openai_message(context_docs, request.query)
-        #stream = self.create_qwen_stream(messages)
-        #return self.generate_qwen(stream, source_url)
-
-        # messages = self.create_mlx_message(context_docs, request.query)
-        # stream = self.create_mlx_stream(messages)
-        # return self.generate_mlx(stream, source_url)
 
         return self.stream_response(context_docs, request.query, source_url)
 
