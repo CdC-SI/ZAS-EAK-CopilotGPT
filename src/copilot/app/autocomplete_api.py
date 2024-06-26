@@ -17,6 +17,13 @@ logger = logging.getLogger(__name__)
 # Create required class instances
 app = FastAPI(**autocomplete_app_config)
 
+completer = Autocompleter()
+exact_matcher = ExactMatch()
+fuzzy_matcher = FuzzyMatch(
+    threshold=autocomplete_config["fuzzy_match"]["threshold"],
+    fuzzy_limit=autocomplete_config["fuzzy_match"]["limit"])
+semantic_matcher = SemanticMatch()
+
 # Setup CORS
 app.add_middleware(
     CORSMiddleware,
@@ -47,7 +54,6 @@ async def autocomplete(question: str, language: str = None):
     ------
     list of dict
     """
-    completer = Autocompleter()
     return await completer.get_autocomplete(question, language)
 
 
@@ -69,8 +75,7 @@ async def exact_match(question: str, language: str = None):
     ------
     list of dict
     """
-    matcher = ExactMatch()
-    return await matcher.match(question, language)
+    return await exact_matcher.match(question, language)
 
 
 @app.get("/fuzzy_match",
@@ -91,8 +96,7 @@ async def fuzzy_match(question: str, language: str = None):
     ------
     list of dict
     """
-    matcher = FuzzyMatch()
-    return await matcher.match(question, language)
+    return await fuzzy_matcher.match(question, language)
 
 
 @app.get("/semantic_similarity_match",
@@ -113,5 +117,4 @@ async def semantic_similarity_match(question: str, language: str = None):
     ------
     list of dict
     """
-    matcher = SemanticMatch()
-    return await matcher.match(question, language)
+    return await semantic_matcher.match(question, language)
