@@ -19,9 +19,7 @@ app = FastAPI(**autocomplete_app_config)
 
 completer = Autocompleter()
 exact_matcher = ExactMatch()
-fuzzy_matcher = FuzzyMatch(
-    threshold=autocomplete_config["fuzzy_match"]["threshold"],
-    fuzzy_limit=autocomplete_config["fuzzy_match"]["limit"])
+fuzzy_matcher = FuzzyMatch()
 semantic_matcher = SemanticMatch()
 
 # Setup CORS
