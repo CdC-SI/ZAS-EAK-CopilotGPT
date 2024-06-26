@@ -4,7 +4,6 @@ from typing import List
 from components.embeddings.base import Embedding
 
 # Import env vars
-from config.base_config import rag_config
 from config.openai_config import openai
 
 # Setup logging
@@ -24,7 +23,7 @@ class OpenAIEmbeddings(Embedding):
     Attributes
     ----------
     model_name : str
-        The model name to be used for embeddings, defaults to DEFAULT_OPENAI_MODEL if not provided in rag_config.
+        The model name to be used for embeddings, defaults to DEFAULT_OPENAI_MODEL if not provided in config.yaml.
 
     Methods
     -------

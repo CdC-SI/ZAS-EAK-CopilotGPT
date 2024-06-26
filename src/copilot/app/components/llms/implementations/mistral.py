@@ -1,9 +1,12 @@
 import logging
 
 from typing import List
-from components.embeddings.base import Embedding
+from components.llms.base import LLM
 
 from sentence_transformers import SentenceTransformer
+
+# Import env vars
+from config.base_config import rag_config
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -13,7 +16,7 @@ DEFAULT_ST_MODEL = "sentence-transformers/distiluse-base-multilingual-cased-v1"
 SUPPORTED_ST_MODELS = ["sentence-transformers/distiluse-base-multilingual-cased-v1"]
 
 
-class SentenceTransformersEmbeddings(Embedding):
+class MistralLLM(LLM):
     """
     SentenceTransformers embedding model.
 
@@ -22,7 +25,7 @@ class SentenceTransformersEmbeddings(Embedding):
     Attributes
     ----------
     model_name : str
-        The model name to be used for embeddings, defaults to DEFAULT_ST_MODEL if not provided in config.yaml.
+        The model name to be used for embeddings, defaults to DEFAULT_ST_MODEL if not provided in rag_config.
 
     Methods
     -------
@@ -33,7 +36,7 @@ class SentenceTransformersEmbeddings(Embedding):
 
     Example
     -------
-    >>> from components.embeddings.implementations.sentence_transformers import SentenceTransformersEmbeddings
+    >>> from utils.embeddings import SentenceTransformersEmbeddings
     >>> model_name = "sentence-transformers/distiluse-base-multilingual-cased-v1"
     >>> st_embeddings = SentenceTransformersEmbeddings(
     >>>     model_name=model_name,

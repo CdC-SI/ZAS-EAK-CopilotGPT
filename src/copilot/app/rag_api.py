@@ -24,7 +24,7 @@ processor = RAGProcessor(model=rag_config["llm"]["model"],
                          top_p=rag_config["llm"]["top_p"],
                          top_k=rag_config["retrieval"]["top_k"],
                          embedding_model=rag_config["embedding"]["model"],
-                         llm_model_name=rag_config["llm"]["model"]
+                         llm_model=rag_config["llm"]["model"]
                          )
 
 app = FastAPI(**rag_app_config)
