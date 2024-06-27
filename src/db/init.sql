@@ -14,8 +14,8 @@ CREATE TABLE sources (
 CREATE TABLE embeddings (
     id SERIAL PRIMARY KEY,
     embedding vector(1536),   -- A vector of dimension 1536
-    text text NOT NULL,                 -- Text associated with the vector
-    url text NOT NULL,                 -- URL associated with the vector
+    text TEXT NOT NULL,                 -- Text associated with the vector
+    url TEXT NOT NULL,                 -- URL associated with the vector
     created_at timestamptz DEFAULT now(),  -- Timestamp when the record was created
     modified_at timestamptz DEFAULT now()  -- Timestamp when the record was last modified
 );
@@ -23,26 +23,26 @@ CREATE TABLE embeddings (
 -- Create a table 'faq_embeddings' for storing FAQ question embeddings
 CREATE TABLE faq_embeddings (
     id SERIAL PRIMARY KEY,
-    url text NOT NULL,
+    url TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     question TEXT NOT NULL,
     answer TEXT NOT NULL,
-    language VARCHAR(2) DEFAULT 'de',
+    language TEXT DEFAULT 'de',
     embedding vector(1536)
 );
 
 -- Erstelle eine Tabelle namens 'data' für die Verwaltung der Informationen
 CREATE TABLE data (
     id SERIAL PRIMARY KEY,
-    url text NOT NULL,
+    url TEXT NOT NULL,
     source_id INTEGER REFERENCES sources(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     question TEXT NOT NULL,
     q_embedding vector(1536),
     answer TEXT NOT NULL,
-    language VARCHAR(2) DEFAULT 'de'
+    language TEXT DEFAULT 'de'
 );
 
 -- Erstelle eine Trigger-Funktion, um modified_at zu aktualisieren

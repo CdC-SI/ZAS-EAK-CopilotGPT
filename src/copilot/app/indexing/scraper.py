@@ -10,6 +10,9 @@ from urllib3 import disable_warnings
 
 if __name__ != '__main__':
     from . import queries
+    from sql_app.crud.article_faq import crud_article_faq
+    from sql_app.schemas import ArticleFAQCreate
+    from sql_app.utils import get_db
 
 SITEMAP_URL = 'http://www.sitemaps.org/schemas/sitemap/0.9'
 
@@ -72,8 +75,11 @@ class Scraper:
         self.logger.info(f"Beginne Datenextraktion für: {self.base_url}")
         urls = self.get_sitemap_urls()
 
+        db = None
         if test:
             urls = urls[:test]
+        else:
+            db = next(get_db())
 
         for url in urls:
             lang, h1, article = self.extract_article(url)
@@ -87,7 +93,8 @@ class Scraper:
 
             elif h1 and article:
                 self.logger.info(f"extract: {url}")
-                article = await queries.update_or_insert(url, h1, article, lang)
+                article_in = ArticleFAQCreate(question=h1, answer=article, language=lang)
+                article = crud_article_faq.add_or_update(db, article_in)
                 self.logger.info(f"{info}: {url}")
 
         self.logger.info(f"Done! {len(urls)} wurden verarbeitet.")

@@ -35,7 +35,7 @@ class ArticleFAQ(ArticleFAQBase):
     modified_at: datetime
 
     class Config:
-        orm_mode = True
+        from_orm = True
 
 
 class DocumentBase(BaseModel):
@@ -66,7 +66,7 @@ class Document(DocumentBase):
     modified_at: datetime
 
     class Config:
-        orm_mode = True
+        from_orm = True
 
 
 class SourceBase(BaseModel):
@@ -94,4 +94,4 @@ class Source(SourceBase):
     documents: List[Document] = []
 
     class Config:
-        orm_mode = True
+        from_orm = True
