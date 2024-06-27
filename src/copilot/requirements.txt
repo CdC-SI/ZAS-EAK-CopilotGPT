@@ -16,3 +16,4 @@ asyncio==3.4.3
 # sqlAlchemy
 pgvector
 SQLAlchemy
+psycopg2-binary

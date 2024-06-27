@@ -1,14 +1,19 @@
 import logging
+from typing import List
 
 from autocomplete.autocompleter import Autocompleter
 from autocomplete.matching import *
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from config.network_config import CORS_ALLOWED_ORIGINS
 
 # Load env variables
 from config.base_config import autocomplete_app_config
+
+from sqlalchemy.orm import Session
+from sql_app import crud, schemas
+from sql_app.utils import get_db
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -30,7 +35,7 @@ app.add_middleware(
 @app.get("/",
          summary="Facade for autocomplete",
          response_description="List of matching questions")
-async def autocomplete(question: str, language: str = None):
+def autocomplete(question: str, language: str = None):
     """
     If combined results of get_exact_match() and get_fuzzy_match() return less than 5 results,
     this method is called after every new "space" character in the question (user query) is
@@ -48,13 +53,14 @@ async def autocomplete(question: str, language: str = None):
     list of dict
     """
     completer = Autocompleter()
-    return await completer.get_autocomplete(question, language)
+    return completer.get_autocomplete(question, language)
 
 
 @app.get("/exact_match",
          summary="Search Questions with exact match",
+         response_model=List[schemas.ArticleFAQ],
          response_description="List of matching questions")
-async def exact_match(question: str, language: str = None):
+def exact_match(question: str, language: str = None, db: Session = Depends(get_db)):
     """
     Return results from Exact matching
 
@@ -64,41 +70,68 @@ async def exact_match(question: str, language: str = None):
        User input to match database entries
     language : str, optional
         Question and results language
+    db : Session
+        Database session
 
     Return
     ------
     list of dict
     """
-    matcher = ExactMatch()
-    return await matcher.match(question, language)
+    return crud.get_exact_match(db, question, language)
 
 
 @app.get("/fuzzy_match",
          summary="Search Questions with fuzzy match",
+         response_model=List[schemas.ArticleFAQ],
          response_description="List of matching questions")
-async def fuzzy_match(question: str, language: str = None):
+def fuzzy_match(question: str, language: str = None, db: Session = Depends(get_db)):
     """
     Return results from Fuzzy matching
 
     Parameters
     ----------
     question : str
-       User input to match database entries
+        User input to match database entries
     language : str, optional
         Question and results language
+    db : Session
+        Database session
 
     Return
     ------
     list of dict
     """
-    matcher = FuzzyMatch()
-    return await matcher.match(question, language)
+    return crud.get_fuzzy_match(db, question, language=language)
+
+
+@app.get("/trigram_match",
+         summary="Search Questions with trigram match",
+         response_model=List[schemas.ArticleFAQ],
+         response_description="List of matching questions")
+def trigram_match(question: str, language: str = None, db: Session = Depends(get_db)):
+    """
+    Return results from Trigram matching
+
+    Parameters
+    ----------
+    question : str
+        User input to match database entries
+    language : str, optional
+        Question and results language
+    db : Session
+        Database session
+
+    Return
+    ------
+    list of dict
+    """
+    return crud.get_trigram_match(db, question, language=language)
 
 
 @app.get("/semantic_similarity_match",
          summary="Search Questions with semantic similarity match",
          response_description="List of matching questions")
-async def semantic_similarity_match(question: str, language: str = None):
+def semantic_similarity_match(question: str, language: str = None):
     """
     Return results from Semantic Similarity matching
 
@@ -114,4 +147,4 @@ async def semantic_similarity_match(question: str, language: str = None):
     list of dict
     """
     matcher = SemanticMatch()
-    return await matcher.match(question, language)
+    return matcher.match(question, language)

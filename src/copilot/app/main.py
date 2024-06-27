@@ -10,6 +10,7 @@ PREFIX = "/apy"
 
 app = FastAPI()
 
+
 # Setup CORS
 app.add_middleware(
     CORSMiddleware,

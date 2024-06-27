@@ -6,7 +6,7 @@ from fastapi import HTTPException
 # Import env vars
 from config.db_config import DB_PARAMS
 
-# Setup logging
+# Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 

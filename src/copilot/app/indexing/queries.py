@@ -10,10 +10,10 @@ async def fetchone(db_name: str, select: [str] = None, where: [str] = None):
 
     try:
         rows = await conn.fetchone(f"""
-            SELECT {selection}
-            FROM {db_name}
-            WHERE {conditions}
-        """)
+            SELECT %s
+            FROM %s
+            WHERE %s
+        """, (selection, db_name, conditions))
 
     finally:
         await conn.close()
@@ -36,10 +36,10 @@ async def update_data(url: str,
     conn = await get_db_connection()
 
     try:
-        await conn.execute(f"""
+        await conn.execute("""
             UPDATE data
-            SET url = '{url}', question = '{question}', answer = '{answer}', language = '{language}' WHERE id = {id}
-        """)
+            SET url = %s, question = %s, answer = %s, language = %s WHERE id = %s
+        """, (url, question, answer, language, id))
 
     finally:
         await conn.close()
@@ -57,9 +57,9 @@ async def insert_data(url: str,
         row = await conn.fetchrow(f"""
             INSERT
             INTO data (url, question, answer, language)
-            VALUES ({url}, {question}, {answer}, {language})
+            VALUES (%s, %s, %s, %s)
             RETURNING id
-        """)
+        """, (url, question, answer, language))
 
     finally:
         await conn.close()
@@ -95,8 +95,8 @@ async def insert_faq(url: str,
         await conn.execute("""
             INSERT
             INTO faq_embeddings (url, question, answer, language, embedding)
-            VALUES ($1, $2, $3, $4, $5)
-        """, url, question, answer, language, embedding)
+            VALUES (%1, %2, %3, %4, %5)
+        """, (url, question, answer, language, embedding))
 
     finally:
         await conn.close()
@@ -113,8 +113,8 @@ async def insert_rag(embedding: str,
         await conn.execute("""
             INSERT
             INTO embeddings (embedding, text, url, created_at, modified_at)
-            VALUES ($1, $2, $3, $4, $5)
-        """, embedding, text, url, created_at, modified_at)
+            VALUES (%1, %2, %3, %4, %5)
+        """, (embedding, text, url, created_at, modified_at))
 
     finally:
         await conn.close()

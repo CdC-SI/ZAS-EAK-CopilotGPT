@@ -87,7 +87,7 @@ class Scraper:
 
             elif h1 and article:
                 self.logger.info(f"extract: {url}")
-                info, rid = await queries.update_or_insert(url, h1, article, lang)
+                article = await queries.update_or_insert(url, h1, article, lang)
                 self.logger.info(f"{info}: {url}")
 
         self.logger.info(f"Done! {len(urls)} wurden verarbeitet.")

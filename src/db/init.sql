@@ -3,14 +3,21 @@ CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 
+CREATE TABLE sources (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    url TEXT NOT NULL,
+    sitemap_url TEXT NOT NULL
+);
+
 -- Create a table 'embeddings' for storing embeddings and associated text for RAG
 CREATE TABLE embeddings (
-  id SERIAL PRIMARY KEY,
-  embedding vector(1536),   -- A vector of dimension 1536
-  text text NOT NULL,                 -- Text associated with the vector
-  url text NOT NULL,                 -- URL associated with the vector
-  created_at timestamptz DEFAULT now(),  -- Timestamp when the record was created
-  modified_at timestamptz DEFAULT now()  -- Timestamp when the record was last modified
+    id SERIAL PRIMARY KEY,
+    embedding vector(1536),   -- A vector of dimension 1536
+    text text NOT NULL,                 -- Text associated with the vector
+    url text NOT NULL,                 -- URL associated with the vector
+    created_at timestamptz DEFAULT now(),  -- Timestamp when the record was created
+    modified_at timestamptz DEFAULT now()  -- Timestamp when the record was last modified
 );
 
 -- Create a table 'faq_embeddings' for storing FAQ question embeddings
@@ -29,9 +36,11 @@ CREATE TABLE faq_embeddings (
 CREATE TABLE data (
     id SERIAL PRIMARY KEY,
     url text NOT NULL,
+    source_id INTEGER REFERENCES sources(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     question TEXT NOT NULL,
+    q_embedding vector(1536),
     answer TEXT NOT NULL,
     language VARCHAR(2) DEFAULT 'de'
 );
