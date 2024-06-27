@@ -1,23 +1,27 @@
+"""
+This module provides an implementation of the OpenAI LLM model.
+
+Classes:
+    OpenAILLM: A class that encapsulates methods to interact with OpenAI's language model APIs.
+"""
+
 import logging
 
 from typing import List
 from components.llms.base import LLM
+from components.config import SUPPORTED_OPENAI_LLM_MODELS, DEFAULT_OPENAI_LLM_MODEL
 
-# Import env vars
 from config.openai_config import openai
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-DEFAULT_OPENAI_MODEL = "gpt-3.5-turbo-0125"
-SUPPORTED_OPENAI_MODELS = ["gpt-3.5-turbo-0125", "gpt-4-turbo-preview", "gpt-4o"]
-
 
 class OpenAILLM(LLM):
 
-    def __init__(self, model_name: str = DEFAULT_OPENAI_MODEL, stream: bool = True, temperature: float = 0.0, top_p: float = 0.95):
-        self.model_name = model_name if model_name is not None and model_name in SUPPORTED_OPENAI_MODELS else DEFAULT_OPENAI_MODEL
+    def __init__(self, model_name: str = DEFAULT_OPENAI_LLM_MODEL, stream: bool = True, temperature: float = 0.0, top_p: float = 0.95):
+        self.model_name = model_name if model_name is not None and model_name in SUPPORTED_OPENAI_LLM_MODELS else DEFAULT_OPENAI_LLM_MODEL
         self.stream = stream
         self.temperature = temperature
         self.top_p = top_p

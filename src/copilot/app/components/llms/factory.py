@@ -1,7 +1,5 @@
 from components.llms.base import LLM
-from components.llms.implementations.openai import OpenAILLM
-from components.llms.implementations.mistral import MistralLLM
-from components.llms.implementations.qwen import QwenLLM
+from components.llms.implementations import *
 
 class LLMFactory:
     @staticmethod
@@ -24,11 +22,7 @@ class LLMFactory:
         ValueError
             If the `llm_model` is not supported.
         """
-        if llm_model == "gpt-3.5-turbo-0125":
-            return OpenAILLM(model_name=llm_model)
-        elif llm_model == "gpt-4-turbo-preview":
-            return OpenAILLM(model_name=llm_model)
-        elif llm_model == "gpt-4o":
+        if llm_model in ["gpt-3.5-turbo-0125", "gpt-4-turbo-preview", "gpt-4o"]:
             return OpenAILLM(model_name=llm_model)
         elif llm_model == "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX":
             return MistralLLM()
