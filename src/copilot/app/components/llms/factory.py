@@ -1,5 +1,6 @@
 from components.llms.base import LLM
 from components.llms.implementations import *
+from components.config import *
 
 class LLMFactory:
     @staticmethod
@@ -22,11 +23,13 @@ class LLMFactory:
         ValueError
             If the `llm_model` is not supported.
         """
-        if llm_model in ["gpt-3.5-turbo-0125", "gpt-4-turbo-preview", "gpt-4o"]:
+        if llm_model in SUPPORTED_OPENAI_LLM_MODELS:
             return OpenAILLM(model_name=llm_model)
-        elif llm_model == "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX":
-            return MistralLLM()
-        elif llm_model == "Qwen/Qwen1.5-0.5B-Chat-GGUF":
-            return QwenLLM()
+        elif llm_model in SUPPORTED_MLX_LLM_MODELS:
+            return MLXLLM(model_name=llm_model)
+        elif llm_model in SUPPORTED_LLAMACPP_LLM_MODELS
+            return LlamaCppLLM(model_name=llm_model)
+        elif llm_model in SUPPORTED_HUGGINGFACE_LLM_MODELS:
+            return HuggingFaceLLM(model_name=llm_model)
         else:
             raise ValueError(f"Unsupported embedding model type: {llm_model}")
