@@ -44,7 +44,7 @@ DEFAULT_MLX_LLM_MODEL = "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX"
 
 # Llama-cpp
 SUPPORTED_LLAMACPP_LLM_MODELS = ["Qwen/Qwen1.5-0.5B-Chat-GGUF"]
-DEFAULT_LLAMACPP_LLM_MODELS = "Qwen/Qwen1.5-0.5B-Chat-GGUF"
+DEFAULT_LLAMACPP_LLM_MODEL = "Qwen/Qwen1.5-0.5B-Chat-GGUF"
 
 # Embedding models
 # OpenAI
