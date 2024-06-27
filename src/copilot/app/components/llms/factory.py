@@ -26,8 +26,8 @@ class LLMFactory:
         if llm_model in SUPPORTED_OPENAI_LLM_MODELS:
             return OpenAILLM(model_name=llm_model)
         elif llm_model in SUPPORTED_MLX_LLM_MODELS:
-            return MLXLLM(model_name=llm_model)
-        elif llm_model in SUPPORTED_LLAMACPP_LLM_MODELS
+            return MlxLLM(model_name=llm_model)
+        elif llm_model in SUPPORTED_LLAMACPP_LLM_MODELS:
             return LlamaCppLLM(model_name=llm_model)
         elif llm_model in SUPPORTED_HUGGINGFACE_LLM_MODELS:
             return HuggingFaceLLM(model_name=llm_model)
