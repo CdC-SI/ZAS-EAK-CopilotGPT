@@ -1,3 +1,4 @@
 from .openai import OpenAILLM
-from .mistral import MistralLLM
-from .qwen import QwenLLM
+from .mlx import MLXLLM
+from .llamacpp import LlamaCppLLM
+from .huggingface import HuggingFaceLLM
