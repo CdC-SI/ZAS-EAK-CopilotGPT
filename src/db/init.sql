@@ -5,8 +5,6 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 CREATE TABLE sources (
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
-    url TEXT NOT NULL,
     sitemap_url TEXT NOT NULL
 );
 

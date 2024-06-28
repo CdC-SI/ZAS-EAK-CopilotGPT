@@ -1,5 +1,4 @@
 from typing import List, Optional
-from pgvector.sqlalchemy import Vector
 from datetime import datetime
 
 from pydantic import BaseModel
@@ -22,7 +21,14 @@ class ArticleFAQCreate(ArticleFAQBase):
     """
     Create class for ArticleFAQ
     """
-    q_embedding: Optional[List[float]]
+    q_embedding: Optional[List[float]] = None
+
+
+class ArticlesFAQCreate(BaseModel):
+    """
+    Create class for ArticlesFAQ
+    """
+    articlesFAQ: List[ArticleFAQCreate]
 
 
 class ArticleFAQ(ArticleFAQBase):
@@ -53,7 +59,14 @@ class DocumentCreate(DocumentBase):
     """
     Create class for Document
     """
-    embedding: Optional[List[float]]
+    embedding: Optional[List[float]] = None
+
+
+class DocumentsCreate(BaseModel):
+    """
+    Create class for Documents
+    """
+    documents: List[DocumentCreate]
 
 
 class Document(DocumentBase):
@@ -73,8 +86,6 @@ class SourceBase(BaseModel):
     """
     Base class for Source
     """
-    name: str
-    url: str
     sitemap_url: str
 
 

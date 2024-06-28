@@ -11,7 +11,8 @@ from urllib3 import disable_warnings
 if __name__ != '__main__':
     from . import queries
     from sql_app.crud.article_faq import crud_article_faq
-    from sql_app.schemas import ArticleFAQCreate
+    from sql_app.crud.source import crud_source
+    from sql_app.schemas import ArticleFAQCreate, SourceCreate
     from sql_app.utils import get_db
 
 SITEMAP_URL = 'http://www.sitemaps.org/schemas/sitemap/0.9'
@@ -47,7 +48,7 @@ class Scraper:
             self.session.proxies.update({"http": proxy})
             self.session.proxies.update({"https": proxy})
 
-    async def run(self, test: int = 0):
+    async def run(self, k: int = 0, test: bool = False):
         """
         Retrieves and processes FAQ data from `base_url` to insert into the database.
 
@@ -64,40 +65,51 @@ class Scraper:
 
         Parameters
         ==========
-        test : int, default 0
-            Number of articles to extract as a test
+        k : int, default 0
+            Number of articles to scrape and log to test the method
+        test : bool, default False
+            Flag to indicate whether to test the method by logging the extracted articles instead of upserting them
 
         Returns
         =======
         list of str
             list of urls which got extracted
         """
-        self.logger.info(f"Beginne Datenextraktion für: {self.base_url}")
+        self.logger.info(f"Start data extraction für: {self.base_url}")
         urls = self.get_sitemap_urls()
 
+        if k:
+            urls = urls[:k]
+
         db = None
-        if test:
-            urls = urls[:test]
-        else:
+        source = None
+        count = 0
+        if not test:
             db = next(get_db())
+            source = crud_source.get_by_sitemap_url(db, self.base_url)
+            if not source:
+                source_in = SourceCreate(sitemap_url=self.base_url)
+                source = crud_source.create(db, source_in)
 
         for url in urls:
             lang, h1, article = self.extract_article(url)
 
-            if h1 and test:
-                self.logger.info("--------------------")
-                self.logger.info(f"url: {url}")
-                self.logger.info(f"question: {h1}")
-                self.logger.info(f"answer: {article}")
-                self.logger.info(f"language: {lang}")
+            if h1 and article:
+                count += 1
 
-            elif h1 and article:
-                self.logger.info(f"extract: {url}")
-                article_in = ArticleFAQCreate(question=h1, answer=article, language=lang)
-                article = crud_article_faq.add_or_update(db, article_in)
-                self.logger.info(f"{info}: {url}")
+                if test:
+                    self.logger.info("--------------------")
+                    self.logger.info(f"url: {url}")
+                    self.logger.info(f"question: {h1}")
+                    self.logger.info(f"answer: {article}")
+                    self.logger.info(f"language: {lang}")
 
-        self.logger.info(f"Done! {len(urls)} wurden verarbeitet.")
+                else:
+                    self.logger.info(f"extract: {url}")
+                    article_in = ArticleFAQCreate(question=h1, answer=article, language=lang, url=url, source_id=source.id)
+                    crud_article_faq.create_or_update(db, article_in)
+
+        self.logger.info(f"Done! {count} articles have been processed.")
         return urls
 
     def _get_response(self, url: str, timeout: int = 10) -> Optional[requests.Response]:
@@ -190,4 +202,4 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
     scraper = Scraper(args.sitemap, args.proxy)
-    asyncio.run(scraper.run(9))
+    asyncio.run(scraper.run(k=9, test=True))

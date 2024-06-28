@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import FastAPI, status
+from fastapi import FastAPI, status, Depends
 from fastapi.responses import Response
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,8 +14,16 @@ from utils.db import check_db_connection
 from indexing.scraper import Scraper
 from indexing import dev_mode_data, queries
 
+from sqlalchemy.orm import Session
+from sql_app.crud.article_faq import crud_article_faq
+from sql_app.crud.document import crud_document
+from sql_app.schemas import ArticleFAQCreate, DocumentCreate, DocumentsCreate
+from sql_app.utils import get_db
+
 # Load models
 from rag.models import ResponseBody
+
+import csv
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -69,6 +77,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.post("/index_test_rag_csv", summary="Insert data for RAG without embedding", status_code=200, response_model=ResponseBody)
+def index_test_rag_csv(file_path: str = "indexing/data/rag_test_data.csv", db: Session = Depends(get_db)):
+    """
+    Add and index test data for RAG from csv files without embeddings.
+
+    Returns
+    -------
+    str
+        Confirmation message upon successful completion of the process
+    """
+    documents = []
+    with open(file_path, mode='r') as file:
+        data = csv.DictReader(file)
+        documents = [DocumentCreate(text=row["text"], url=row["url"]) for row in data]
+
+    crud_document.create_all(db, DocumentsCreate(documents=documents))
+
+    return {"content": "yay"}
 
 @app.post("/index_rag_vectordb", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
 async def index_rag_vectordb():
@@ -166,33 +192,26 @@ async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xm
     logging.basicConfig(level=logging.INFO)
 
     scraper = Scraper(sitemap_url, proxy=proxy)
-    urls = await scraper.run(test=k)
+    urls = await scraper.run(k=k)
 
     return {"message": f"Done! {len(urls)} wurden verarbeitet."}
 
 
 @app.put("/data", summary="Update or Insert FAQ Data", response_description="Updated or Inserted Data")
-async def index_data(url: str, question: str, answer: str, language: str):
+async def index_data(article_in: ArticleFAQCreate, db: Session = Depends(get_db)):
     """
     Upsert a single entry to the FAQ dataset.
 
     Parameters
     ----------
-    url : str
-        URL where the entry article can be found
-    question : str
-        The FAQ question
-    answer : str
-        The question answer
-    language : str
-        The article language
+    article_in : ArticleFAQCreate
+        The article id, url, question, answer and language to insert or update
+    db : Session
+        Database session
 
     Returns
     -------
     dict
         The article id, url, question, answer and language upon successful completion of the process
     """
-    info, rid = await queries.update_or_insert(url, question, answer, language)
-    logger.info(f"{info}: {url}")
-
-    return {"id": rid, "url": url, "question": question, "answer": answer, "language": language}
+    return crud_article_faq.add_or_update(db, article_in)

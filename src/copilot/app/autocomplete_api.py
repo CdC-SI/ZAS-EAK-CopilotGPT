@@ -12,7 +12,7 @@ from config.network_config import CORS_ALLOWED_ORIGINS
 from config.base_config import autocomplete_app_config
 
 from sqlalchemy.orm import Session
-from sql_app import crud, schemas
+from sql_app import crud_old, schemas
 from sql_app.crud.matching import crud_matching
 from sql_app.utils import get_db
 
