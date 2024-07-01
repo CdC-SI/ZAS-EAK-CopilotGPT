@@ -5,7 +5,9 @@ openai==1.30.5
 asyncpg==0.29.0
 pydantic==2.7.1
 numpy==1.26.4
-httpx==0.27.0
+aiohttp==3.9.5
+haystack-ai==2.2.3
+trafilatura==1.11.0
 
 # indexing
 requests==2.31.0
