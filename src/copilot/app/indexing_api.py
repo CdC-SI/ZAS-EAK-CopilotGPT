@@ -11,6 +11,7 @@ from config.base_config import indexing_config, indexing_app_config
 
 # Load utility functions
 from components.db import check_db_connection
+from components.indexing.implementations.haystack import HaystackIndexer
 from indexing.scraper import Scraper
 from indexing import dev_mode_data, queries
 
@@ -69,6 +70,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+indexer = HaystackIndexer()
+
+@app.post("/index_rag_vectordb_from_sitemap", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
+async def index_rag_vectordb_from_sitemap(sitemap_url: str):
+    """
+    Add and index test data for RAG to the embedding database.
+
+    Returns
+    -------
+    str
+        Confirmation message upon successful completion of the process
+    """
+    return await indexer.index_from_sitemap(sitemap_url)
 
 @app.post("/index_rag_vectordb", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
 async def index_rag_vectordb():
