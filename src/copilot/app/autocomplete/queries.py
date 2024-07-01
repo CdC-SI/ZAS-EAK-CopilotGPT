@@ -1,6 +1,6 @@
 from typing import List
 
-from components.embeddings.factory import EmbeddingFactory
+from components.embedding.factory import EmbeddingFactory
 from components.db import get_db_connection
 
 # Load env variables

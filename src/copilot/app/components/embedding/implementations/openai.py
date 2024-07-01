@@ -1,7 +1,7 @@
 import logging
 
 from typing import List
-from components.embeddings.base import Embedding
+from components.embedding.base import Embedding
 
 # Import env vars
 from config.openai_config import openai

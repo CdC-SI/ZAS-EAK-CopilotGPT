@@ -7,7 +7,7 @@ Classes:
 import logging
 
 from typing import List
-from components.llms.base import LLM
+from components.llm.base import LLM
 from components.config import SUPPORTED_HUGGINGFACE_LLM_MODELS, DEFAULT_HUGGINGFACE_LLM_MODEL
 
 from config.openai_config import openai

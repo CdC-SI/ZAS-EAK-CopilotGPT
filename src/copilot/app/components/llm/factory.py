@@ -1,5 +1,5 @@
-from components.llms.base import LLM
-from components.llms.implementations import *
+from components.llm.base import LLM
+from components.llm.implementations import *
 from components.config import *
 
 class LLMFactory:

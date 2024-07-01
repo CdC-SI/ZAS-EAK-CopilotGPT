@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from typing import List
 import requests
 
-from components.llms.base import LLM
+from components.llm.base import LLM
 from components.config import SUPPORTED_MLX_LLM_MODELS, DEFAULT_MLX_LLM_MODEL
 
 # Setup logging

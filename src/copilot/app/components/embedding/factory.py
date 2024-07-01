@@ -1,6 +1,5 @@
-from components.embeddings.base import Embedding
-from components.embeddings.implementations.openai import OpenAIEmbeddings
-from components.embeddings.implementations.sentence_transformers import SentenceTransformersEmbeddings
+from components.embedding.base import Embedding
+from components.embedding.implementations import *
 
 class EmbeddingFactory:
     @staticmethod
