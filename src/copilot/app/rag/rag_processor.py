@@ -4,7 +4,7 @@ from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE, MISTRAL_RAG_SYSTEM_PROMPT_D
 from rag.models import RAGRequest, EmbeddingRequest
 
 from components.embeddings.factory import EmbeddingFactory
-from config.openai_config import openai
+from components.llms.factory import LLMFactory
 
 from autocomplete.queries import semantic_similarity_match
 
@@ -36,7 +36,7 @@ class RAGProcessor:
 
     """
     def __init__(self, model: str, max_token: int, stream: bool, temperature: float,
-                 top_p: float, top_k: int, embedding_model: str = "text-embedding-ada-002", llm_model_name: str = "gpt-3.5-turbo-0125"):
+                 top_p: float, top_k: int, embedding_model: str = "text-embedding-ada-002", llm_model: str = "gpt-3.5-turbo-0125"):
         self.model = model
         self.max_tokens = max_token
         self.stream = stream
@@ -47,7 +47,7 @@ class RAGProcessor:
         self.embedding_model = embedding_model
         self.embedding_client = self.init_embedding_client()
 
-        self.llm_model_name = llm_model_name
+        self.llm_model = llm_model
         self.llm_client = self.init_llm_client()
 
     def init_embedding_client(self):
@@ -74,19 +74,21 @@ class RAGProcessor:
             If `self.llm_model_name` is "Qwen/Qwen1.5-0.5B-Chat-GGUF", it returns a Llama client.
             If `self.llm_model_name` is "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX", it currently does nothing and returns None.
         """
-        if self.llm_model_name == "gpt-3.5-turbo-0125":
-            return openai.OpenAI()
-        elif self.llm_model_name == "Qwen/Qwen1.5-0.5B-Chat-GGUF":
-            return Llama.from_pretrained(
-                                repo_id="Qwen/Qwen1.5-0.5B-Chat-GGUF",
-                                filename="*q8_0.gguf",
-                                verbose=False,
-                                n_ctx=8192,
-                                n_gpu_layers=-1
-                        )
-        elif self.llm_model_name == "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX":
-            # No client needed for this model at the moment, REST API requests are made to local MLX server
-            pass
+        return LLMFactory.get_llm_client(self.llm_model)
+
+        # if self.llm_model_name == "gpt-3.5-turbo-0125":
+        #     return openai.OpenAI()
+        # elif self.llm_model_name == "Qwen/Qwen1.5-0.5B-Chat-GGUF":
+        #     return Llama.from_pretrained(
+        #                         repo_id="Qwen/Qwen1.5-0.5B-Chat-GGUF",
+        #                         filename="*q8_0.gguf",
+        #                         verbose=False,
+        #                         n_ctx=8192,
+        #                         n_gpu_layers=-1
+        #                 )
+        # elif self.llm_model_name == "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX":
+        #     # No client needed for this model at the moment, REST API requests are made to local MLX server
+        #     pass
 
     def stream_response(self, context_docs: List[str], query: str, source_url: str):
         """
@@ -106,17 +108,17 @@ class RAGProcessor:
         str
             The generated response.
         """
-        if self.llm_model_name == "gpt-3.5-turbo-0125":
+        if self.llm_model == "gpt-3.5-turbo-0125":
             messages = self.create_openai_message(context_docs, query)
             stream = self.create_openai_stream(messages)
             return self.generate_openai(stream, source_url)
 
-        elif self.llm_model_name == "Qwen/Qwen1.5-0.5B-Chat-GGUF":
+        elif self.llm_model == "Qwen/Qwen1.5-0.5B-Chat-GGUF":
             messages = self.create_openai_message(context_docs, query)
             stream = self.create_qwen_stream(messages)
             return self.generate_qwen(stream, source_url)
 
-        elif self.llm_model_name == "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX":
+        elif self.llm_model == "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX":
             messages = self.create_mlx_message(context_docs, query)
             stream = self.create_mlx_stream(messages)
             return self.generate_mlx(stream, source_url)
@@ -218,23 +220,13 @@ class RAGProcessor:
         -------
         chat.completion
         """
-        return self.llm_client.chat.completions.create(
-            model=self.model,
-            messages=messages,
-            stream=self.stream,
-            temperature=self.temperature,
-            top_p=self.top_p)
+        return self.llm_client.generate(messages)
 
     def create_qwen_stream(self, messages):
-        return self.llm_client.create_chat_completion(
-            messages=messages,
-            stream=self.stream)
+        return self.llm_client.generate(messages)
 
     def create_mlx_stream(self, messages):
-        response = requests.get('http://host.docker.internal:5000/generate', params={'prompt': messages, 'stream': 'true'}, stream=True)
-        for line in response.iter_lines():
-            if line:
-                yield line.decode('utf-8')
+        return self.llm_client.generate(messages)
 
     def generate_openai(self, stream, source_url):
         """
