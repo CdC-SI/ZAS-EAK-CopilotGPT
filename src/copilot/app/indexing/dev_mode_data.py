@@ -3,7 +3,7 @@ from pandas import read_csv
 
 from indexing import queries
 
-from components.embeddings.factory import EmbeddingFactory
+from components.embedding.factory import EmbeddingFactory
 
 # Load env variables
 from config.base_config import rag_config
