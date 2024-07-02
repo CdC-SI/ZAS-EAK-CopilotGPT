@@ -5,6 +5,8 @@ from abc import ABC, abstractmethod
 from typing import List, Any
 import aiohttp
 
+from haystack.dataclasses import Document
+
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -40,17 +42,18 @@ class BaseParser(ABC):
         """Parse XML content."""
 
     @abstractmethod
-    def convert_to_documents(self, html: str) -> List[str]:
-        """"""
+    def convert_to_documents(self, content: List[Any]) -> List[Document]:
+        """Convert HTML content to documents."""
 
     @abstractmethod
-    def clean_documents(self, html: str) -> List[str]:
-        """"""
+    def clean_documents(self, documents: List[Document]) -> List[Document]:
+        """Clean documents."""
+        return [doc for doc in documents if doc.content is not None]
 
     @abstractmethod
-    def split_documents(self, html: str) -> List[str]:
-        """"""
-
+    def split_documents(self, documents: List[Document]) -> List[Document]:
+        """Split documents into chunks."""
+        return [doc for doc in documents if doc.content is not None]
 
 
 class BaseIndexer(ABC):

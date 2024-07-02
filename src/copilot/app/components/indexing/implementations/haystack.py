@@ -87,11 +87,17 @@ class HaystackParser(BaseParser):
 
     def clean_documents(self, documents: List[Document]) -> List[Document]:
 
-        return self.cleaner.run(documents=documents['documents'])
+        # Remove empty documents
+        documents = super().clean_documents(documents)
+
+        return self.cleaner.run(documents=documents)
 
     def split_documents(self, documents: List[Document]) -> List[Document]:
 
-        return self.splitter.run(documents=documents['documents'])
+        # Remove empty documents
+        documents = super().clean_documents(documents)
+
+        return self.splitter.run(documents=documents)
 
 
 
@@ -103,7 +109,7 @@ class HaystackIndexer(BaseIndexer):
         self.parser = HaystackParser()
         self.embedding_client = EmbeddingFactory.get_embedding_client(rag_config["embedding"]["model"])
 
-    async def index_from_sitemap(self, sitemap_url: str) -> dict:
+    async def index_from_sitemap(self, sitemap_url: str, language: str) -> dict:
 
         # Get content from sitemap
         content = await self.scraper.from_sitemap(sitemap_url)
@@ -112,10 +118,10 @@ class HaystackIndexer(BaseIndexer):
         documents = self.parser.convert_to_documents(content)
 
         # Clean documents
-        documents = self.parser.clean_documents(documents)
+        documents = self.parser.clean_documents(documents["documents"])
 
         # Split documents into chunks
-        chunks = self.parser.split_documents(documents)
+        chunks = self.parser.split_documents(documents["documents"])
 
         # TO DO: refactor embedding logic to embed from documents (add from_documents method)
         # Embed documents
