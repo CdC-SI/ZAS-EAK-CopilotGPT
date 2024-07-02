@@ -2,6 +2,7 @@ import logging
 
 from typing import List
 from components.embedding.base import Embedding
+from components.embedding.tokenizer_factory import TokenizerFactory
 
 # Import env vars
 from config.openai_config import openai
@@ -16,40 +17,46 @@ SUPPORTED_OPENAI_MODELS = ["text-embedding-ada-002"]
 
 class OpenAIEmbeddings(Embedding):
     """
-    OpenAI API embedding model.
-
-    To use, you should have the ``openai`` python package installed.
+    Class for embedding text documents using OpenAI's models.
 
     Attributes
     ----------
     model_name : str
-        The model name to be used for embeddings, defaults to DEFAULT_OPENAI_MODEL if not provided in config.yaml.
+        The name of the OpenAI model to use for embedding.
+    client : openai.OpenAI
+        The OpenAI client.
+    tokenizer : Tokenizer
+        The tokenizer instance.
 
     Methods
     -------
-    embed_documents(texts)
-        Makes a call to the OpenAI embedding API to embed a list of text documents.
-    embed_query(text)
-        Makes a call to the OpenAI embedding API to embed a single text query.
-
-    Example
-    -------
-    >>> from components.embeddings.implementations.openai import OpenAIEmbeddings
-    >>> model_name = "text-embedding-ada-002"
-    >>> openai_embeddings = OpenAIEmbeddings(
-    >>>     model_name=model_name,
-    >>>     input=text
-    >>> )
-    >>> openai_embeddings.embed_documents(["Guten", "Morgen"])
-    >>> openai_embeddings.embed_query("Guten Morgen")
+    embed_documents(texts: List[str]) -> List[List[float]]:
+        Embeds a list of text documents using the OpenAI API.
+    embed_query(text: str) -> List[float]:
+        Embeds a single text query using the OpenAI API.
+    aembed_documents(texts: List[str]) -> List[List[float]]:
+        Asynchronously embeds a list of text documents using the OpenAI API.
+    aembed_query(text: str) -> List[float]:
+        Asynchronously embeds a single text query using the OpenAI API.
     """
     def __init__(self, model_name: str = DEFAULT_OPENAI_MODEL):
+        """
+        Initializes the OpenAIEmbeddings instance.
+
+        Parameters
+        ----------
+        model_name : str, optional
+            The name of the OpenAI model to use for embedding. If not provided,
+            the default model is used.
+        """
         self.model_name = model_name if model_name is not None and model_name in SUPPORTED_OPENAI_MODELS else DEFAULT_OPENAI_MODEL
         self.client = openai.OpenAI()
+        self.tokenizer = TokenizerFactory.get_tokenizer_client(self.model_name)
+        super().__init__(self.tokenizer)
 
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
         """
-        Makes a call to the OpenAI embedding API to embed a list of text documents.
+        Embeds a list of text documents using the OpenAI API.
 
         Parameters
         ----------
@@ -66,6 +73,7 @@ class OpenAIEmbeddings(Embedding):
         Exception
             If the API call fails.
         """
+        texts = super().embed_documents(texts)
         try:
             response = self.client.embeddings.create(
                 model=self.model_name,
@@ -77,7 +85,7 @@ class OpenAIEmbeddings(Embedding):
 
     def embed_query(self, text: str) -> List[float]:
         """
-        Makes a call to the OpenAI embedding API to embed a single text query.
+        Embeds a single text query using the OpenAI API.
 
         Parameters
         ----------
