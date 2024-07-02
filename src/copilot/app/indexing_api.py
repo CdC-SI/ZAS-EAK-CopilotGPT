@@ -72,17 +72,17 @@ app.add_middleware(
 
 indexer = HaystackIndexer()
 
-@app.post("/index_rag_vectordb_from_sitemap", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
-async def index_rag_vectordb_from_sitemap(sitemap_url: str):
+@app.post("/index_rag_vectordb_from_sitemap", summary="Insert scraped data from https://*.admin.ch for RAG", response_description="Insert scraped data from https://*.admin.ch for RAG", status_code=200, response_model=ResponseBody)
+async def index_rag_vectordb_from_sitemap(sitemap_url: str, language: str = "de"):
     """
-    Add and index test data for RAG to the embedding database.
+    Add and scraped data for RAG to the embedding database from any official office website following a URL similar to "https://eak.admin.ch/eak/de/home.sitemap.xml".
 
     Returns
     -------
     str
         Confirmation message upon successful completion of the process
     """
-    return await indexer.index_from_sitemap(sitemap_url)
+    return await indexer.index_from_sitemap(sitemap_url, language)
 
 @app.post("/index_rag_vectordb", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
 async def index_rag_vectordb():
