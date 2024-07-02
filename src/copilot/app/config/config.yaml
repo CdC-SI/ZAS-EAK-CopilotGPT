@@ -2,24 +2,24 @@
 autocomplete:
   enabled: true
   results:
-    limit: 0
+    limit: 15
   exact_match:
     limit: 0
   fuzzy_match:
-    threshold: 100
-    limit: 0
+    threshold: 50
+    limit: 2
   semantic_similarity_match:
     metric: cosine_similarity
     limit: 0
 rag:
   enabled: true
   embedding:
-    model: sentence-transformers/distiluse-base-multilingual-cased-v1
+    model: text-embedding-ada-002
   retrieval:
     top_k: 1
     metric: cosine_similarity
   llm:
-    model: gpt-4o
+    model: gpt-3.5-turbo-0125
     temperature: 0
     max_output_tokens: 512
     top_p: 0.95
