@@ -46,7 +46,13 @@ class BaseScraper(ABC):
         aiohttp.ClientError
             If the fetch operation fails.
         """
-        # ...
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=10) as response:
+                    response.raise_for_status()
+                    return await response.read()
+        except aiohttp.ClientError as e:
+            logger.error("Failed to fetch sitemap: %s", e)
 
     @abstractmethod
     def scrap_urls(self, url: List[str]) -> List[Any]:
@@ -196,6 +202,7 @@ class BaseParser(ABC):
         list of Document
             The cleaned documents.
         """
+        return [doc for doc in documents if doc.content is not None]
 
     @abstractmethod
     def split_documents(self, documents: List[Document]) -> List[Document]:
@@ -212,6 +219,7 @@ class BaseParser(ABC):
         list of Document
             The split documents.
         """
+        return [doc for doc in documents if doc.content is not None]
 
 
 class BaseIndexer(ABC):
