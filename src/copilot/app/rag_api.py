@@ -7,7 +7,7 @@ from config.network_config import CORS_ALLOWED_ORIGINS
 
 # Load env variables
 from config.base_config import rag_app_config, rag_config
-from config.openai_config import openai
+from config.openai_config import clientAI
 
 # Load models
 from rag.rag_processor import RAGProcessor
@@ -25,7 +25,7 @@ processor = RAGProcessor(model=rag_config["llm"]["model"],
                          temperature=rag_config["llm"]["temperature"],
                          top_p=rag_config["llm"]["top_p"],
                          top_k=rag_config["retrieval"]["top_k"],
-                         client=openai.OpenAI())
+                         client=clientAI)
 
 app = FastAPI(**rag_app_config)
 
