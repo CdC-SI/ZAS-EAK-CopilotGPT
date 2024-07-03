@@ -21,3 +21,4 @@ pypdf==4.2.0
 sentence-transformers==3.0.1
 llama-cpp-python==0.2.79
 tiktoken==0.7.0
+transformers==4.42.3
