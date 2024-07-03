@@ -12,9 +12,9 @@ from config.network_config import CORS_ALLOWED_ORIGINS
 from config.base_config import autocomplete_app_config
 
 from sqlalchemy.orm import Session
-from sql_app import crud_old, schemas
-from sql_app.crud.matching import crud_matching
-from sql_app.utils import get_db
+from database import crud_old, schemas
+from database.service.matching import crud_matching
+from database.utils import get_db
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

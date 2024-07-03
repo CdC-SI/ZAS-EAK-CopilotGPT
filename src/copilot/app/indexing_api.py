@@ -15,10 +15,10 @@ from indexing.scraper import Scraper
 from indexing import dev_mode_data, queries
 
 from sqlalchemy.orm import Session
-from sql_app.crud.article_faq import crud_article_faq
-from sql_app.crud.document import crud_document
-from sql_app.schemas import ArticleFAQCreate, DocumentCreate, DocumentsCreate
-from sql_app.utils import get_db
+from database.service.question import crud_article_faq
+from database.service.document import crud_document
+from database.schemas import ArticleFAQCreate, DocumentCreate, DocumentsCreate
+from database.utils import get_db
 
 # Load models
 from rag.models import ResponseBody

@@ -10,10 +10,10 @@ from urllib3 import disable_warnings
 
 if __name__ != '__main__':
     from . import queries
-    from sql_app.crud.article_faq import crud_article_faq
-    from sql_app.crud.source import crud_source
-    from sql_app.schemas import ArticleFAQCreate, SourceCreate
-    from sql_app.utils import get_db
+    from database.service.question import crud_article_faq
+    from database.service.source import crud_source
+    from database.schemas import ArticleFAQCreate, SourceCreate
+    from database.utils import get_db
 
 SITEMAP_URL = 'http://www.sitemaps.org/schemas/sitemap/0.9'
 

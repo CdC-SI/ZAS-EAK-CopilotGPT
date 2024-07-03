@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
-from .article_faq import CRUDArticleFAQ
+from .question import CRUDArticleFAQ
 from utils.embedding import get_embedding
 
 
