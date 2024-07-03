@@ -2,7 +2,7 @@ from typing import Any
 import tiktoken
 from transformers import AutoTokenizer
 
-from models.config import SUPPORTED_OPENAI_EMBEDDING_MODELS, SUPPORTED_ST_EMBEDDING_MODELS
+from models.supported_models import SUPPORTED_OPENAI_EMBEDDING_MODELS, SUPPORTED_ST_EMBEDDING_MODELS
 
 class TokenizerFactory:
     """

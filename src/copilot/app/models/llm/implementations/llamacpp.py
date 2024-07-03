@@ -11,7 +11,7 @@ import logging
 from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
 
 from models.llm.base import LLM
-from models.config import SUPPORTED_LLAMACPP_LLM_MODELS, DEFAULT_LLAMACPP_LLM_MODEL
+from models.supported_models import SUPPORTED_LLAMACPP_LLM_MODELS, DEFAULT_LLAMACPP_LLM_MODEL
 from typing import List
 
 from llama_cpp import Llama

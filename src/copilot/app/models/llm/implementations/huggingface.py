@@ -8,7 +8,7 @@ import logging
 
 from typing import List
 from models.llm.base import LLM
-from models.config import SUPPORTED_HUGGINGFACE_LLM_MODELS, DEFAULT_HUGGINGFACE_LLM_MODEL
+from models.supported_models import SUPPORTED_HUGGINGFACE_LLM_MODELS, DEFAULT_HUGGINGFACE_LLM_MODEL
 
 from config.openai_config import openai
 

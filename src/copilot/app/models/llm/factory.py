@@ -1,6 +1,6 @@
 from models.llm.base import LLM
 from models.llm.implementations import *
-from models.config import *
+from models.supported_models import *
 
 class LLMFactory:
     @staticmethod

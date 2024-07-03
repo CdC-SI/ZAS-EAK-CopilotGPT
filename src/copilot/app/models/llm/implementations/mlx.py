@@ -11,7 +11,7 @@ from typing import List
 import requests
 
 from models.llm.base import LLM
-from models.config import SUPPORTED_MLX_LLM_MODELS, DEFAULT_MLX_LLM_MODEL
+from models.supported_models import SUPPORTED_MLX_LLM_MODELS, DEFAULT_MLX_LLM_MODEL
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
