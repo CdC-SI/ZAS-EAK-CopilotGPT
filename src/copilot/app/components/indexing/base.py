@@ -5,8 +5,6 @@ from abc import ABC, abstractmethod
 from typing import List, Any
 import aiohttp
 
-from haystack.dataclasses import Document
-
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -156,7 +154,7 @@ class BaseParser(ABC):
         """
 
     @abstractmethod
-    def convert_html_to_documents(self, content: List[Any]) -> List[Document]:
+    def convert_html_to_documents(self, content: List[Any]) -> List[Any]:
         """
         Abstract method to convert HTML content to documents.
 
@@ -172,7 +170,7 @@ class BaseParser(ABC):
         """
 
     @abstractmethod
-    def convert_pdf_to_documents(self, content: List[Any]) -> List[Document]:
+    def convert_pdf_to_documents(self, content: List[Any]) -> List[Any]:
         """
         Abstract method to convert PDF content to documents.
 
@@ -188,7 +186,7 @@ class BaseParser(ABC):
         """
 
     @abstractmethod
-    def clean_documents(self, documents: List[Document]) -> List[Document]:
+    def clean_documents(self, documents: List[Any]) -> List[Any]:
         """
         Abstract method to clean documents.
 
@@ -205,7 +203,7 @@ class BaseParser(ABC):
         return [doc for doc in documents if doc.content is not None]
 
     @abstractmethod
-    def split_documents(self, documents: List[Document]) -> List[Document]:
+    def split_documents(self, documents: List[Any]) -> List[Any]:
         """
         Abstract method to split documents into chunks.
 
