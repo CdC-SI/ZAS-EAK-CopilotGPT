@@ -1,6 +1,5 @@
 import logging
 from typing import List
-from datetime import datetime
 
 from haystack.dataclasses import Document, ByteStream
 from haystack.components.fetchers import LinkContentFetcher
@@ -387,8 +386,7 @@ class HaystackIndexer(BaseIndexer):
 
         # Upsert documents into VectorDB
         for embedding, doc, url in zip(document_embeddings, str_chunks, urls):
-            date = datetime.now()
-            await queries.insert_rag(str(embedding), doc, url, date, date)
+            await queries.insert_rag(str(embedding), doc, url)
 
         return {"content": f"{sitemap_url}: RAG data indexed successfully"}
 
@@ -429,7 +427,6 @@ class HaystackIndexer(BaseIndexer):
 
         # Upsert documents into VectorDB
         for embedding, doc, url in zip(document_embeddings, str_chunks, urls):
-            date = datetime.now()
-            await queries.insert_rag(str(embedding), doc, url, date, date)
+            await queries.insert_rag(str(embedding), doc, url)
 
         return {"content": f"{sitemap_url}: PDF RAG data indexed successfully"}
