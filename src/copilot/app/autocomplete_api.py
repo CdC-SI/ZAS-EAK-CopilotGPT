@@ -1,7 +1,7 @@
 import logging
 
-from autocomplete.autocompleter import Autocompleter
-from autocomplete.matching import *
+from autocomplete.autocompleter import autocompleter
+from autocomplete.matching import exact_matcher, fuzzy_matcher, semantic_matcher
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,11 +16,6 @@ logger = logging.getLogger(__name__)
 
 # Create required class instances
 app = FastAPI(**autocomplete_app_config)
-
-completer = Autocompleter()
-exact_matcher = ExactMatch()
-fuzzy_matcher = FuzzyMatch()
-semantic_matcher = SemanticMatch()
 
 # Setup CORS
 app.add_middleware(
@@ -52,7 +47,7 @@ async def autocomplete(question: str, language: str = None):
     ------
     list of dict
     """
-    return await completer.get_autocomplete(question, language)
+    return await autocompleter.get_autocomplete(question, language)
 
 
 @app.get("/exact_match",
