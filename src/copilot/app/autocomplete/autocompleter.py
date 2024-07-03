@@ -12,14 +12,13 @@ class Autocompleter:
     def __init__(self):
         self.exact_match = matching.ExactMatch()
         self.fuzzy_match = matching.FuzzyMatch(
-            threshold=autocomplete_config["fuzzy_match"]["threshold"],
-            fuzzy_limit=autocomplete_config["fuzzy_match"]["limit"]
-            )
+            threshold=autocomplete_config["fuzzy_match"]["threshold"]
+        )
         self.semantic_match = matching.SemanticMatch()
 
-        #k = autocomplete_config["results"]["limit"]
-        #self.limit = 'NULL' if k == matching.INF else k
-        self.limit = autocomplete_config["results"]["limit"]
+        k = autocomplete_config["results"]["limit"]
+        self.limit = 'NULL' if k == matching.INF else k
+
         self.exact_match_limit = autocomplete_config["exact_match"]["limit"]
         self.fuzzy_match_limit = autocomplete_config["fuzzy_match"]["limit"]
         self.semantic_match_limit = autocomplete_config["semantic_similarity_match"]["limit"]
@@ -104,3 +103,5 @@ class Autocompleter:
 
 
         return unique_matches
+
+autocompleter = Autocompleter()
