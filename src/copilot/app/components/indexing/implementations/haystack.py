@@ -32,9 +32,6 @@ class HaystackScraper(BaseScraper):
 
     Methods
     -------
-    __init__()
-        Initializes the HaystackScraper with a LinkContentFetcher instance.
-
     scrap_urls(url_list: List[str]) -> List[ByteStream]
         Scrapes the given URLs and returns the content as a list of ByteStreams.
 
@@ -164,9 +161,6 @@ class HaystackParser(BaseParser):
 
     Methods
     -------
-    __init__()
-        Initializes the HaystackParser with HTMLToDocument, PyPDFToDocument, DocumentCleaner, and DocumentSplitter instances.
-
     extract_urls_from_xml(sitemap: bytes) -> List[str]
         Extracts URLs from the given XML sitemap.
 
@@ -342,8 +336,6 @@ class HaystackIndexer(BaseIndexer):
 
     Methods
     -------
-    __init__()
-        Initializes the HaystackIndexer with HaystackScraper, HaystackParser, and EmbeddingClient instances.
     index_html_from_sitemap(sitemap_url: str, language: str = "de") -> dict
         Indexes HTML content from the given sitemap URL into the VectorDB.
     index_pdfs_from_sitemap(sitemap_url: str, language: str = "de") -> dict
