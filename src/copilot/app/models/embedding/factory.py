@@ -1,9 +1,9 @@
-from models.embedding.base import Embedding
+from models.embedding.base import BaseEmbedding
 from models.embedding.implementations import *
 
 class EmbeddingFactory:
     @staticmethod
-    def get_embedding_client(embedding_model: str) -> Embedding:
+    def get_embedding_client(embedding_model: str) -> BaseEmbedding:
         """
         Factory method to instantiate embedding clients based on a string identifier.
 

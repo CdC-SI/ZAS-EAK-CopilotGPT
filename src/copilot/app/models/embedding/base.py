@@ -2,7 +2,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-class Embedding(ABC):
+class BaseEmbedding(ABC):
     """
     Abstract base class for embedding models.
 

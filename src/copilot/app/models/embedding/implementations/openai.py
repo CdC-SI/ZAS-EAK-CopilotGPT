@@ -1,7 +1,7 @@
 import logging
 
 from typing import List
-from models.embedding.base import Embedding
+from models.embedding.base import BaseEmbedding
 from models.tokenizer.factory import TokenizerFactory
 
 # Import env vars
@@ -15,7 +15,7 @@ DEFAULT_OPENAI_MODEL = "text-embedding-ada-002"
 SUPPORTED_OPENAI_MODELS = ["text-embedding-ada-002"]
 
 
-class OpenAIEmbeddings(Embedding):
+class OpenAIEmbeddings(BaseEmbedding):
     """
     Class for embedding text documents using OpenAI's models.
 

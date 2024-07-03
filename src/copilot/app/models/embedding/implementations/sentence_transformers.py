@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from models.embedding.base import Embedding
+from models.embedding.base import BaseEmbedding
 
 from sentence_transformers import SentenceTransformer
 
@@ -13,7 +13,7 @@ DEFAULT_ST_MODEL = "sentence-transformers/distiluse-base-multilingual-cased-v1"
 SUPPORTED_ST_MODELS = ["sentence-transformers/distiluse-base-multilingual-cased-v1"]
 
 
-class SentenceTransformersEmbeddings(Embedding):
+class SentenceTransformersEmbeddings(BaseEmbedding):
     """
     SentenceTransformers embedding model.
 
