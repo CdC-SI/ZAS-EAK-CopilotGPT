@@ -1,6 +1,6 @@
-from components.llm.base import LLM
-from components.llm.implementations import *
-from components.config import *
+from models.llm.base import LLM
+from models.llm.implementations import *
+from models.config import *
 
 class LLMFactory:
     @staticmethod

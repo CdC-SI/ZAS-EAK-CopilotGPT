@@ -1,5 +1,5 @@
-from components.embedding.base import Embedding
-from components.embedding.implementations import *
+from models.embedding.base import Embedding
+from models.embedding.implementations import *
 
 class EmbeddingFactory:
     @staticmethod

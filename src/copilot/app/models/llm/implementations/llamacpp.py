@@ -10,8 +10,8 @@ import logging
 # NEED TO UPDATE LOGIC OF PROMPT BASED ON MODEL
 from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
 
-from components.llm.base import LLM
-from components.config import SUPPORTED_LLAMACPP_LLM_MODELS, DEFAULT_LLAMACPP_LLM_MODEL
+from models.llm.base import LLM
+from models.config import SUPPORTED_LLAMACPP_LLM_MODELS, DEFAULT_LLAMACPP_LLM_MODEL
 from typing import List
 
 from llama_cpp import Llama

@@ -1,7 +1,7 @@
 import logging
-
 from typing import List
-from components.embedding.base import Embedding
+
+from models.embedding.base import Embedding
 
 from sentence_transformers import SentenceTransformer
 

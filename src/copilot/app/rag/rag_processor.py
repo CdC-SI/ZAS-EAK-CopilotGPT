@@ -3,8 +3,8 @@ from typing import List
 from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE, MISTRAL_RAG_SYSTEM_PROMPT_DE
 from rag.models import RAGRequest, EmbeddingRequest
 
-from components.embedding.factory import EmbeddingFactory
-from components.llm.factory import LLMFactory
+from models.embedding.factory import EmbeddingFactory
+from models.llm.factory import LLMFactory
 
 from autocomplete.queries import semantic_similarity_match
 

@@ -7,10 +7,10 @@ from haystack.components.converters import HTMLToDocument, PyPDFToDocument
 from haystack.components.preprocessors import DocumentCleaner
 from haystack.components.preprocessors import DocumentSplitter
 
-from components.indexing.base import BaseScraper, BaseParser, BaseIndexer
-from components.embedding.factory import EmbeddingFactory
+from indexing.base import BaseScraper, BaseParser, BaseIndexer
+from models.embedding.factory import EmbeddingFactory
 
-from components.indexing import parsing
+from indexing import parsing
 from indexing import queries
 
 # Load env variables
@@ -194,6 +194,8 @@ class HaystackParser(BaseParser):
             split_length=1,
             split_overlap=0
         )
+
+
 
     @staticmethod
     def extract_urls_from_xml(sitemap: bytes) -> List[str]:

@@ -1,8 +1,8 @@
 import logging
 
 from typing import List
-from components.embedding.base import Embedding
-from components.embedding.tokenizer_factory import TokenizerFactory
+from models.embedding.base import Embedding
+from models.tokenizer.factory import TokenizerFactory
 
 # Import env vars
 from config.openai_config import openai

@@ -1,4 +1,4 @@
-from components.db import get_db_connection
+from utils.db import get_db_connection
 from datetime import datetime
 
 

@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import yaml
 
 # Load check_env_vars function
-from components.check_env import check_env_vars
+from utils.check_env import check_env_vars
 
 # Load environment variables from .env file
 load_dotenv()

@@ -1,7 +1,7 @@
 from typing import List
 
-from components.embedding.factory import EmbeddingFactory
-from components.db import get_db_connection
+from models.embedding.factory import EmbeddingFactory
+from utils.db import get_db_connection
 
 # Load env variables
 from config.base_config import rag_config
