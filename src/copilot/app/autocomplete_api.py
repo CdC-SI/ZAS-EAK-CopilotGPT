@@ -12,9 +12,9 @@ from config.network_config import CORS_ALLOWED_ORIGINS
 from config.base_config import autocomplete_app_config
 
 from sqlalchemy.orm import Session
-from database import crud_old, schemas
+from database import schemas
 from database.service.matching import crud_matching
-from database.utils import get_db
+from database.database import get_db
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -59,7 +59,7 @@ def autocomplete(question: str, language: str = None):
 
 @app.get("/exact_match",
          summary="Search Questions with exact match",
-         response_model=List[schemas.ArticleFAQ],
+         response_model=List[schemas.Question],
          response_description="List of matching questions")
 def exact_match(question: str, language: str = None, db: Session = Depends(get_db)):
     """
@@ -83,7 +83,7 @@ def exact_match(question: str, language: str = None, db: Session = Depends(get_d
 
 @app.get("/fuzzy_match",
          summary="Search Questions with fuzzy match",
-         response_model=List[schemas.ArticleFAQ],
+         response_model=List[schemas.Question],
          response_description="List of matching questions")
 def fuzzy_match(question: str, language: str = None, db: Session = Depends(get_db)):
     """
@@ -107,7 +107,7 @@ def fuzzy_match(question: str, language: str = None, db: Session = Depends(get_d
 
 @app.get("/trigram_match",
          summary="Search Questions with trigram match",
-         response_model=List[schemas.ArticleFAQ],
+         response_model=List[schemas.Question],
          response_description="List of matching questions")
 def trigram_match(question: str, language: str = None, db: Session = Depends(get_db)):
     """

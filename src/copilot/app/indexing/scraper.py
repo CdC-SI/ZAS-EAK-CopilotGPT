@@ -10,10 +10,10 @@ from urllib3 import disable_warnings
 
 if __name__ != '__main__':
     from . import queries
-    from database.service.question import crud_article_faq
+    from database.service.question import crud_question
     from database.service.source import crud_source
-    from database.schemas import ArticleFAQCreate, SourceCreate
-    from database.utils import get_db
+    from database.schemas import QuestionCreate, SourceCreate
+    from database.database import get_db
 
 SITEMAP_URL = 'http://www.sitemaps.org/schemas/sitemap/0.9'
 
@@ -86,9 +86,9 @@ class Scraper:
         count = 0
         if not test:
             db = next(get_db())
-            source = crud_source.get_by_sitemap_url(db, self.base_url)
+            source = crud_source.get_by_url(db, self.base_url)
             if not source:
-                source_in = SourceCreate(sitemap_url=self.base_url)
+                source_in = SourceCreate(url=self.base_url)
                 source = crud_source.create(db, source_in)
 
         for url in urls:
@@ -106,8 +106,8 @@ class Scraper:
 
                 else:
                     self.logger.info(f"extract: {url}")
-                    article_in = ArticleFAQCreate(question=h1, answer=article, language=lang, url=url, source_id=source.id)
-                    crud_article_faq.create_or_update(db, article_in)
+                    article_in = QuestionCreate(text=h1, answer=article, language=lang, url=url, source_id=source.id)
+                    crud_question.create_or_update(db, article_in)
 
         self.logger.info(f"Done! {count} articles have been processed.")
         return urls

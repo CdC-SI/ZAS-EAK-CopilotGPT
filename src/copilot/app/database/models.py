@@ -31,7 +31,7 @@ class Question(Base):
     text: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
     embedding: Mapped[Optional[Vector]] = mapped_column(Vector(1536))
     answer_id: Mapped[int] = mapped_column(Integer, ForeignKey("documents.id"), nullable=False)
-    answer: Mapped["Document"] = relationship("Document", back_populates="questions")
+    answer: Mapped["Document"] = relationship("Document", back_populates="question")
     language: Mapped[Optional[str]] = mapped_column(String(3))
 
     url: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
@@ -57,6 +57,6 @@ class Source(Base):
 
 
 # Init relationship mappers
-Document.question = relationship("Question", back_populates="documents")
+Document.question = relationship("Question", back_populates="answer")
 Document.source = relationship("Source", back_populates="documents")
 Question.source = relationship("Source", back_populates="questions")

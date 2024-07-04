@@ -19,7 +19,6 @@ services:
       - POSTGRES_PORT=${POSTGRES_PORT}
     networks:
       - copilot-network
-    restart: "no"
 
   # support tool for db
   pgadmin:

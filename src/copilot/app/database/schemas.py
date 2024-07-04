@@ -21,7 +21,7 @@ class DocumentCreate(DocumentBase):
     """
     Create class for Document
     """
-    embedding: Optional[list[float]] = None
+    pass
 
 
 class DocumentsCreate(BaseModel):
@@ -36,6 +36,7 @@ class Document(DocumentBase):
     Class for Document
     """
     id: int
+    embedding: Optional[list[float]] = None
 
     created_at: datetime
     modified_at: datetime
@@ -49,10 +50,9 @@ class QuestionBase(BaseModel):
     Base class for QuestionBase
     """
     language: Optional[str] = None
+    source_id: Optional[int] = None
     text: str
-    answer_id: int
     url: str
-    source_id: Optional[int]
 
     class Config:
         arbitrary_types_allowed = True
@@ -63,14 +63,13 @@ class QuestionCreate(QuestionBase):
     Create class for ArticleFAQ
     """
     answer: str
-    embedding: Optional[list[float]] = None
 
 
 class QuestionsCreate(BaseModel):
     """
     Create class for ArticlesFAQ
     """
-    articlesFAQ: list[QuestionCreate]
+    questions: list[QuestionCreate]
 
 
 class Question(QuestionBase):
@@ -78,6 +77,8 @@ class Question(QuestionBase):
     Class for ArticleFAQ
     """
     id: int
+    answer_id: int
+    embedding: Optional[list[float]] = None
 
     created_at: datetime
     modified_at: datetime
@@ -90,7 +91,7 @@ class SourceBase(BaseModel):
     """
     Base class for Source
     """
-    sitemap_url: str
+    url: str
 
 
 class SourceCreate(SourceBase):
@@ -106,7 +107,7 @@ class Source(SourceBase):
     """
     id: int
 
-    articlesFAQ: list[Question] = []
+    questions: list[Question] = []
     documents: list[Document] = []
 
     class Config:

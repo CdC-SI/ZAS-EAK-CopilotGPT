@@ -1,11 +1,11 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
-from .question import CRUDArticleFAQ
+from .question import CRUDQuestion
 from utils.embedding import get_embedding
 
 
-class CRUDMatching(CRUDArticleFAQ):
+class CRUDMatching(CRUDQuestion):
 
     def get_exact_match(self, db: Session, user_input: str, language: str = None, k: int = 0):
         """
