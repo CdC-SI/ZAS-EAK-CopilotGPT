@@ -28,6 +28,6 @@ indexing:
   enabled: true
   dev_mode: true
   faq:
-    auto_index: ${INDEXING_FAQ_AUTO:false}
+    auto_index: !ENV ${INDEXING_FAQ_AUTO:false}
   rag:
-    auto_index: ${INDEXING_RAG_AUTO:false}
+    auto_index: !ENV ${INDEXING_RAG_AUTO:false}
