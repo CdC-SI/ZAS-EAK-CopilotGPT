@@ -1,5 +1,6 @@
 import logging
 from typing import List
+from urllib.parse import unquote
 
 from haystack.dataclasses import Document, ByteStream
 from haystack.components.fetchers import LinkContentFetcher
@@ -10,7 +11,6 @@ from haystack.components.preprocessors import DocumentSplitter
 from indexing.base import BaseScraper, BaseParser, BaseIndexer
 from models.embedding.factory import EmbeddingFactory
 
-from indexing import parsing
 from indexing import queries
 
 # Load env variables
@@ -100,8 +100,7 @@ class AdminParser(BaseParser):
             split_overlap=0
         )
 
-    @staticmethod
-    def parse_xml(sitemap: bytes) -> List[str]:
+    def parse_xml(self, sitemap: bytes) -> List[str]:
         """
         Extracts URLs from the given XML sitemap.
 
@@ -115,7 +114,7 @@ class AdminParser(BaseParser):
         List[str]
             A list of URLs extracted from the sitemap.
         """
-        soup = parsing.get_soup(sitemap, "xml")
+        soup = self.get_soup(sitemap, "xml")
 
         url_list = []
 
@@ -128,6 +127,9 @@ class AdminParser(BaseParser):
         return url_list
 
     def parse_html(self):
+        pass
+
+    def contains_tag(self):
         pass
 
     def convert_html_to_documents(self, content: List[ByteStream]) -> List[Document]:
@@ -228,8 +230,46 @@ class AHVParser(BaseParser):
     def parse_xml(self):
         pass
 
-    @staticmethod
-    def parse_html(html: bytes) -> List[str]:
+    def contains_tag(self, tag):
+        """
+        Checks if a tag contains a memento URL.
+
+        Parameters
+        ----------
+        tag : bs4.element.Tag
+            The tag to check.
+
+        Returns
+        -------
+        bool
+            True if the tag contains a memento URL, False otherwise.
+        """
+        if tag.name == "a" and "href" in tag.attrs:
+            href = tag["href"]
+            decoded_href = unquote(href)
+            return "Merkblätter/" in decoded_href
+        return False
+
+    def get_pdf_paths(self, soup):
+        """
+        Extracts the paths of PDF documents from a BeautifulSoup object.
+
+        Parameters
+        ----------
+        soup : BeautifulSoup
+            The BeautifulSoup object to extract PDF paths from.
+
+        Returns
+        -------
+        list of str
+            The list of PDF paths.
+        """
+        # TO DO: re-scrap links which are not PDFs such as:
+        # pdf_paths = [a["href"] for a in soup.find_all("a", {"class": "co-document-content"})]
+        pdf_paths = [a["href"] for a in soup.find_all("a", {"class": "co-document-content"}) if "/p/" in a["href"]]
+        return pdf_paths
+
+    def parse_html(self, html: bytes) -> List[str]:
         """
         Extracts URLs from the given HTML content.
 
@@ -243,13 +283,13 @@ class AHVParser(BaseParser):
         List[str]
             A list of URLs extracted from the HTML content.
         """
-        soup = parsing.get_soup(html, "html.parser")
+        soup = self.get_soup(html, "html.parser")
 
         # Find all "a" tags with href containing "Merkblätter/" (and subsequent path)
-        links = soup.find_all(parsing.contains_memento_url)
+        links = soup.find_all(self.contains_tag)
 
         # Remove duplicate links
-        links = parsing.remove_duplicate_links(links)
+        links = self.remove_duplicate_links(links)
 
         links = [link["href"] for link in links]
 
@@ -415,12 +455,12 @@ class AHVIndexer(BaseIndexer):
 
         soups = []
         for res in response:
-            soups.append(parsing.get_soup(res.data, "html.parser"))
+            soups.append(self.parser.get_soup(res.data, "html.parser"))
 
         # Get PDF paths from each memento section
         pdf_paths = []
         for soup in soups:
-            pdf_paths.extend(parsing.get_pdf_paths(soup))
+            pdf_paths.extend(self.parser.get_pdf_paths(soup))
 
         # Scrap PDFs from each memento section
         pdf_urls = ["https://ahv-iv.ch" + pdf_path for pdf_path in pdf_paths]

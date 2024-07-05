@@ -4,6 +4,8 @@ import logging
 from abc import ABC, abstractmethod
 from typing import List, Any
 import aiohttp
+from bs4 import BeautifulSoup
+
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -90,6 +92,24 @@ class BaseParser(ABC):
         Abstract method to split documents into chunks.
     """
 
+    def get_soup(self, response, parser: str = "html.parser"):
+        """
+        Soupify the HTML response using BeautifulSoup.
+
+        Parameters
+        ----------
+        response : str
+            The HTML response to soupify
+        parser : str, optional
+            The parser library to use. Defaults to "html.parser".
+
+        Returns
+        -------
+        BeautifulSoup
+            The BeautifulSoup object.
+        """
+        return BeautifulSoup(response, features=parser)
+
     def remove_empty_documents(self, documents: List[Any]) -> List[Any]:
         """
         Remove documents from the list that have their data attribute set to None.
@@ -105,6 +125,45 @@ class BaseParser(ABC):
             List of document objects where the content attribute is not None.
         """
         return [doc for doc in documents if doc.content is not None]
+
+    def remove_duplicate_links(self, links):
+        """
+        Removes duplicate links from a list of tags.
+
+        Parameters
+        ----------
+        links : list of bs4.element.Tag
+            The list of tags to remove duplicates from.
+
+        Returns
+        -------
+        list of bs4.element.Tag
+            The list of tags without duplicates.
+        """
+        seen_hrefs = set()
+        unique_tags = []
+        for tag in links:
+            href = tag['href']
+            if href not in seen_hrefs:
+                seen_hrefs.add(href)
+                unique_tags.append(tag)
+        return unique_tags
+
+    @abstractmethod
+    def contains_tag(self, tag):
+        """
+        Check if a tag contains a specific string.
+
+        Parameters
+        ----------
+        tag : bs4.element.Tag
+            The tag to check.
+
+        Returns
+        -------
+        bool
+            True if the tag contains the string, False otherwise.
+        """
 
     @abstractmethod
     def parse_xml(self, xml: bytes) -> List[str]:
