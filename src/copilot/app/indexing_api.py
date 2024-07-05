@@ -22,8 +22,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
+async def init_indexing():
     await check_db_connection(retries=10, delay=10)
 
     if indexing_config["faq"]["auto_index"]:
@@ -54,11 +53,9 @@ async def lifespan(app: FastAPI):
         else:
             raise NotImplementedError("Feature is not implemented yet.")
 
-    yield
-
 
 # Create an instance of FastAPI
-app = FastAPI(**indexing_app_config, lifespan=lifespan)
+app = FastAPI(**indexing_app_config)
 
 # Setup CORS
 app.add_middleware(
