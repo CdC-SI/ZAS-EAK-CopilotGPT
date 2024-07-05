@@ -20,9 +20,9 @@ from config.base_config import rag_config
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-class HaystackScraper(BaseScraper):
+class Scraper(BaseScraper):
     """
-    A class used to scrape URLs and extract content from them.
+    A class used to scrap URLs from *.admin.ch websites.
 
     Attributes
     ----------
@@ -34,20 +34,9 @@ class HaystackScraper(BaseScraper):
     scrap_urls(url_list: List[str]) -> List[ByteStream]
         Scrapes the given URLs and returns the content as a list of ByteStreams.
 
-    async html_content_from_sitemap(sitemap_url: str) -> List[ByteStream]
-        Extracts HTML content from the given sitemap URL. It fetches the sitemap, extracts URLs from it,
-        and then scrapes the HTML content from these URLs.
-
-    async pdf_content_from_sitemap(sitemap_url: str) -> List[ByteStream]
-        Extracts PDF content from the given sitemap URL. It fetches the sitemap, extracts URLs from it,
-        scrapes the HTML content from these URLs, extracts PDF paths from the HTML content, and then
-        scrapes the PDF content from these paths.
     """
 
     def __init__(self):
-        """
-        Initializes the HaystackScraper with a LinkContentFetcher instance.
-        """
         super().__init__()
         self.fetcher = LinkContentFetcher()
 
@@ -68,89 +57,15 @@ class HaystackScraper(BaseScraper):
         streams = self.fetcher.run(urls=url_list)
         return streams["streams"]
 
-    async def html_content_from_sitemap(self, sitemap_url: str) -> List[ByteStream]:
-        """
-        Extracts HTML content from the given sitemap URL. It fetches the sitemap, extracts URLs from it,
-        and then scrapes the HTML content from these URLs.
 
-        Parameters
-        ----------
-        sitemap_url : str
-            The URL of the sitemap to extract HTML content from.
-
-        Returns
-        -------
-        List[ByteStream]
-            A list of ByteStreams containing the HTML content extracted from the sitemap.
-        """
-        # Get sitemap
-        sitemap = await self.fetch(sitemap_url)
-
-        # Extract URLs from sitemap
-        url_list = HaystackParser.extract_urls_from_xml(sitemap)
-
-        # Scrap HTML from URLs
-        content = self.scrap_urls(url_list)
-
-        return content
-
-    async def pdf_content_from_sitemap(self, sitemap_url: str) -> List[ByteStream]:
-        """
-        Extracts PDF content from the given sitemap URL. It fetches the sitemap, extracts URLs from it,
-        scrapes the HTML content from these URLs, extracts PDF paths from the HTML content, and then
-        scrapes the PDF content from these paths.
-
-        Parameters
-        ----------
-        sitemap_url : str
-            The URL of the sitemap to extract PDF content from.
-
-        Returns
-        -------
-        List[ByteStream]
-            A list of ByteStreams containing the PDF content extracted from the sitemap.
-        """
-        # Get sitemap
-        sitemap = await self.fetch(sitemap_url)
-
-        # Extract URLs of memento sections from sitemap (Allgemeines, Beiträge, etc.)
-        url_list = HaystackParser.extract_urls_from_html(sitemap)
-
-        # Get HTML from each memento section link
-        response = self.scrap_urls(url_list)
-
-        soups = []
-        for res in response:
-            soups.append(parsing.get_soup(res.data, "html.parser"))
-
-        # Get PDF paths from each memento section
-        pdf_paths = []
-        for soup in soups:
-            pdf_paths.extend(parsing.get_pdf_paths(soup))
-
-        # Scrap PDFs from each memento section
-        pdf_urls = ["https://ahv-iv.ch" + pdf_path for pdf_path in pdf_paths]
-
-        # Add "it", "fr" pdf paths
-        pdf_urls.extend([pdf_url.replace(".d", ".f") for pdf_url in pdf_urls])
-        pdf_urls.extend([pdf_url.replace(".d", ".i") for pdf_url in pdf_urls])
-
-        content = self.scrap_urls(pdf_urls)
-
-        return content
-
-
-class HaystackParser(BaseParser):
+class AdminParser(BaseParser):
     """
-    A class used to parse and clean documents.
+    A class used to parse, clean and split documents from a *.admin.ch website.
 
     Attributes
     ----------
     html_converter : HTMLToDocument
         An instance of HTMLToDocument to convert HTML content to Document objects.
-
-    pdf_converter : PyPDFToDocument
-        An instance of PyPDFToDocument to convert PDF content to Document objects.
 
     cleaner : DocumentCleaner
         An instance of DocumentCleaner to clean documents.
@@ -160,17 +75,11 @@ class HaystackParser(BaseParser):
 
     Methods
     -------
-    extract_urls_from_xml(sitemap: bytes) -> List[str]
+    parse_xml(sitemap: bytes) -> List[str]
         Extracts URLs from the given XML sitemap.
-
-    extract_urls_from_html(html: bytes) -> List[str]
-        Extracts URLs from the given HTML content.
 
     convert_html_to_documents(content: List[ByteStream]) -> List[Document]
         Converts HTML content to Document objects.
-
-    convert_pdf_to_documents(content: List[ByteStream]) -> List[Document]
-        Converts PDF content to Document objects.
 
     clean_documents(documents: List[Document]) -> List[Document]
         Cleans the given documents.
@@ -179,11 +88,7 @@ class HaystackParser(BaseParser):
         Splits the given documents into chunks.
     """
     def __init__(self):
-        """
-        Initializes the HaystackParser with HTMLToDocument, PyPDFToDocument, DocumentCleaner, and DocumentSplitter instances.
-        """
         self.html_converter = HTMLToDocument()
-        self.pdf_converter = PyPDFToDocument()
         self.cleaner = DocumentCleaner(
             remove_empty_lines=True,
             remove_extra_whitespaces=True,
@@ -195,10 +100,8 @@ class HaystackParser(BaseParser):
             split_overlap=0
         )
 
-
-
     @staticmethod
-    def extract_urls_from_xml(sitemap: bytes) -> List[str]:
+    def parse_xml(sitemap: bytes) -> List[str]:
         """
         Extracts URLs from the given XML sitemap.
 
@@ -224,8 +127,109 @@ class HaystackParser(BaseParser):
 
         return url_list
 
+    def parse_html(self):
+        pass
+
+    def convert_html_to_documents(self, content: List[ByteStream]) -> List[Document]:
+        """
+        Converts HTML content to Document objects.
+
+        Parameters
+        ----------
+        content : List[ByteStream]
+            The HTML content to convert to Document objects.
+
+        Returns
+        -------
+        List[Document]
+            A list of Document objects created from the HTML content.
+        """
+        return self.html_converter.run(sources=content)
+
+    def convert_pdf_to_documents(self):
+        pass
+
+    def clean_documents(self, documents: List[Document]) -> List[Document]:
+        """
+        Removes docs with None content and cleans the given documents.
+
+        Parameters
+        ----------
+        documents : List[Document]
+            The documents to clean.
+
+        Returns
+        -------
+        List[Document]
+            A list of cleaned documents.
+        """
+        return self.cleaner.run(documents=documents)
+
+    def split_documents(self, documents: List[Document]) -> List[Document]:
+        """
+        Removes docs with None content and splits the given documents into chunks.
+
+        Parameters
+        ----------
+        documents : List[Document]
+            The documents to split into chunks.
+
+        Returns
+        -------
+        List[Document]
+            A list of documents split into chunks.
+        """
+        return self.splitter.run(documents=documents)
+
+
+
+class AHVParser(BaseParser):
+    """
+    A class used to parse and clean documents.
+
+    Attributes
+    ----------
+    pdf_converter : PyPDFToDocument
+        An instance of PyPDFToDocument to convert PDF content to Document objects.
+
+    cleaner : DocumentCleaner
+        An instance of DocumentCleaner to clean documents.
+
+    splitter : DocumentSplitter
+        An instance of DocumentSplitter to split documents into chunks.
+
+    Methods
+    -------
+    parse_html(html: bytes) -> List[str]
+        Extracts URLs from the given HTML content.
+
+    convert_pdf_to_documents(content: List[ByteStream]) -> List[Document]
+        Converts PDF content to Document objects.
+
+    clean_documents(documents: List[Document]) -> List[Document]
+        Cleans the given documents.
+
+    split_documents(documents: List[Document]) -> List[Document]
+        Splits the given documents into chunks.
+    """
+    def __init__(self):
+        self.pdf_converter = PyPDFToDocument()
+        self.cleaner = DocumentCleaner(
+            remove_empty_lines=True,
+            remove_extra_whitespaces=True,
+            remove_repeated_substrings=False
+        )
+        self.splitter = DocumentSplitter(
+            split_by="passage",
+            split_length=1,
+            split_overlap=0
+        )
+
+    def parse_xml(self):
+        pass
+
     @staticmethod
-    def extract_urls_from_html(html: bytes) -> List[str]:
+    def parse_html(html: bytes) -> List[str]:
         """
         Extracts URLs from the given HTML content.
 
@@ -251,21 +255,8 @@ class HaystackParser(BaseParser):
 
         return links
 
-    def convert_html_to_documents(self, content: List[ByteStream]) -> List[Document]:
-        """
-        Converts HTML content to Document objects.
-
-        Parameters
-        ----------
-        content : List[ByteStream]
-            The HTML content to convert to Document objects.
-
-        Returns
-        -------
-        List[Document]
-            A list of Document objects created from the HTML content.
-        """
-        return self.html_converter.run(sources=content)
+    def convert_html_to_documents(self):
+        pass
 
     def convert_pdf_to_documents(self, content: List[ByteStream]) -> List[Document]:
         """
@@ -285,7 +276,7 @@ class HaystackParser(BaseParser):
 
     def clean_documents(self, documents: List[Document]) -> List[Document]:
         """
-        Cleans the given documents.
+        Removes docs with None content and cleans the given documents.
 
         Parameters
         ----------
@@ -297,14 +288,11 @@ class HaystackParser(BaseParser):
         List[Document]
             A list of cleaned documents.
         """
-        # Remove empty documents
-        documents = super().clean_documents(documents)
-
         return self.cleaner.run(documents=documents)
 
     def split_documents(self, documents: List[Document]) -> List[Document]:
         """
-        Splits the given documents into chunks.
+        Removes docs with None content and splits the given documents into chunks.
 
         Parameters
         ----------
@@ -316,65 +304,63 @@ class HaystackParser(BaseParser):
         List[Document]
             A list of documents split into chunks.
         """
-        # Remove empty documents
-        documents = super().clean_documents(documents)
-
         return self.splitter.run(documents=documents)
 
 
-class HaystackIndexer(BaseIndexer):
+class AdminIndexer(BaseIndexer):
     """
-    A class used to index documents into a VectorDB.
+    A class used to index documents from *.admin.ch into a VectorDB.
 
     Attributes
     ----------
-    scraper : HaystackScraper
-        An instance of HaystackScraper to scrape URLs and extract content from them.
-    parser : HaystackParser
-        An instance of HaystackParser to parse and clean documents.
-    embedding_client : EmbeddingClient
-        An instance of EmbeddingClient to embed documents.
+    scraper : Scraper
+        An instance of Scraper to scrape URLs and extract content from them.
+    parser : Parser
+        An instance of Parser to parse and clean documents.
+    embedding_client : Embedding
+        An instance of Embedding to embed documents.
 
     Methods
     -------
-    index_html_from_sitemap(sitemap_url: str, language: str = "de") -> dict
-        Indexes HTML content from the given sitemap URL into the VectorDB.
-    index_pdfs_from_sitemap(sitemap_url: str, language: str = "de") -> dict
-        Indexes PDF content from the given sitemap URL into the VectorDB.
+    index(sitemap_url: str) -> dict
+        Scraps, parses and indexes HTML webpage content from the given sitemap URL into the VectorDB.
     """
-    def __init__(self):
-        """
-        Initializes the HaystackIndexer with HaystackScraper, HaystackParser, and Embedding instances.
-        """
-        self.scraper = HaystackScraper()
-        self.parser = HaystackParser()
+    def __init__(self, parser: BaseParser, scraper: BaseScraper):
+        self.scraper = scraper
+        self.parser = parser
         self.embedding_client = EmbeddingFactory.get_embedding_client(rag_config["embedding"]["model"])
 
     # TO DO: index multiple languages: ["de", "fr", "it"]
-    async def index_html_from_sitemap(self, sitemap_url: str, language: str = "de") -> dict:
+    async def index(self, sitemap_url: str) -> dict:
         """
-        Indexes HTML content from the given sitemap URL into the VectorDB.
-
-        Parameters
-        ----------
-        sitemap_url : str
-            The URL of the sitemap to index HTML content from.
-        language : str, optional
-            The language of the HTML content, by default "de".
-
-        Returns
-        -------
-        dict
-            A dictionary containing a message indicating the success of the indexing operation.
+        Should implement the following steps:
+        1. Fetch the sitemap content
+        2. Parse the sitemap content (get URLs)
+        3. Fetch HTML content for all URLs
+        4. Convert HTML to Documents
+        5. Clean the documents
+        6. Split the documents
+        7. Embed the documents
+        8. Upsert the documents
         """
-        # Get HTML content from all sitemap URLs
-        content = await self.scraper.html_content_from_sitemap(sitemap_url)
+
+        # Get sitemap
+        sitemap = await self.scraper.fetch(sitemap_url)
+
+        # Extract URLs from sitemap
+        url_list = self.parser.parse_xml(sitemap)
+
+        # Scrap HTML from URLs
+        content = self.scraper.scrap_urls(url_list)
 
         # Convert HTML content to Document objects
         documents = self.parser.convert_html_to_documents(content)
 
+        # Remove empty documents
+        documents = self.parser.remove_empty_documents(documents["documents"])
+
         # Clean documents
-        documents = self.parser.clean_documents(documents["documents"])
+        documents = self.parser.clean_documents(documents)
 
         # Split documents into chunks
         chunks = self.parser.split_documents(documents["documents"])
@@ -392,30 +378,67 @@ class HaystackIndexer(BaseIndexer):
 
         return {"content": f"{sitemap_url}: RAG data indexed successfully"}
 
-    async def index_pdfs_from_sitemap(self, sitemap_url: str, language: str = "de") -> dict:
-        """
-        Indexes PDF content from the given sitemap URL into the VectorDB.
 
-        Parameters
-        ----------
-        sitemap_url : str
-            The URL of the sitemap to index PDF content from.
-        language : str, optional
-            The language of the PDF content, by default "de".
+class AHVIndexer(BaseIndexer):
+    """
+    A class used to index PDF Merkblätter documents into a VectorDB.
 
-        Returns
-        -------
-        dict
-            A dictionary containing a message indicating the success of the indexing operation.
-        """
-        # Get PDF content from all sitemap memento links
-        content = await self.scraper.pdf_content_from_sitemap(sitemap_url)
+    Attributes
+    ----------
+    scraper : Scraper
+        An instance of Scraper to scrape URLs and extract content from them.
+    parser : Parser
+        An instance of Parser to parse and clean documents.
+    embedding_client : Embedding
+        An instance of Embedding to embed documents.
+
+    Methods
+    -------
+    index(sitemap_url: str) -> dict
+        Scraps, parses and indexes PDF content from the given sitemap URL into the VectorDB.
+    """
+    def __init__(self, parser: BaseParser, scraper: BaseScraper):
+        self.scraper = scraper
+        self.parser = parser
+        self.embedding_client = EmbeddingFactory.get_embedding_client(rag_config["embedding"]["model"])
+
+    async def index(self, sitemap_url: str) -> dict:
+
+        # Get sitemap
+        sitemap = await self.scraper.fetch(sitemap_url)
+
+        # Extract URLs of memento sections from sitemap (Allgemeines, Beiträge, etc.)
+        url_list = self.parser.parse_html(sitemap)
+
+        # Get HTML from each memento section link
+        response = self.scraper.scrap_urls(url_list)
+
+        soups = []
+        for res in response:
+            soups.append(parsing.get_soup(res.data, "html.parser"))
+
+        # Get PDF paths from each memento section
+        pdf_paths = []
+        for soup in soups:
+            pdf_paths.extend(parsing.get_pdf_paths(soup))
+
+        # Scrap PDFs from each memento section
+        pdf_urls = ["https://ahv-iv.ch" + pdf_path for pdf_path in pdf_paths]
+
+        # Add "it", "fr" pdf paths
+        pdf_urls.extend([pdf_url.replace(".d", ".f") for pdf_url in pdf_urls])
+        pdf_urls.extend([pdf_url.replace(".d", ".i") for pdf_url in pdf_urls])
+
+        content = self.scraper.scrap_urls(pdf_urls)
 
         # Convert PDF content to Document objects
         documents = self.parser.convert_pdf_to_documents(content)
 
+        # Remove empty documents
+        documents = self.parser.remove_empty_documents(documents["documents"])
+
         # Clean documents
-        documents = self.parser.clean_documents(documents["documents"])
+        documents = self.parser.clean_documents(documents)
 
         # Split documents into chunks
         chunks = self.parser.split_documents(documents["documents"])
@@ -432,3 +455,20 @@ class HaystackIndexer(BaseIndexer):
             await queries.insert_rag(str(embedding), doc, url)
 
         return {"content": f"{sitemap_url}: PDF RAG data indexed successfully"}
+
+
+
+# Init scraper, parser, indexer for *.admin.ch and ahv-iv.ch
+scraper = Scraper()
+admin_parser = AdminParser()
+ahv_parser = AHVParser()
+
+admin_indexer = AdminIndexer(
+    scraper=scraper,
+    parser=admin_parser
+)
+
+ahv_indexer = AHVIndexer(
+    scraper=scraper,
+    parser=ahv_parser
+)

@@ -50,7 +50,7 @@ class BaseScraper(ABC):
                     response.raise_for_status()
                     return await response.read()
         except aiohttp.ClientError as e:
-            logger.error("Failed to fetch sitemap: %s", e)
+            logger.error("Failed to fetch url '%s': %s", url, e)
 
     @abstractmethod
     def scrap_urls(self, url: List[str]) -> List[Any]:
@@ -68,37 +68,6 @@ class BaseScraper(ABC):
             The scraped content.
         """
 
-    @abstractmethod
-    def html_content_from_sitemap(self, sitemap_url: str) -> List[Any]:
-        """
-        Abstract method to scrape HTML content from a sitemap.xml URL.
-
-        Parameters
-        ----------
-        sitemap_url : str
-            The sitemap URL to scrape content from.
-
-        Returns
-        -------
-        list of Any
-            The scraped content.
-        """
-
-    @abstractmethod
-    def pdf_content_from_sitemap(self, sitemap_url: str) -> List[Any]:
-        """
-        Abstract method to scrape PDF content from a specific sitemap URL.
-
-        Parameters
-        ----------
-        sitemap_url : str
-            The sitemap URL to scrape content from.
-
-        Returns
-        -------
-        list of Any
-            The scraped content.
-        """
 
 
 class BaseParser(ABC):
@@ -107,9 +76,9 @@ class BaseParser(ABC):
 
     Methods
     -------
-    extract_urls_from_xml(xml: bytes) -> List[str]:
+    parse_xml(xml: bytes) -> List[str]:
         Abstract method to parse XML content.
-    extract_urls_from_html(html: bytes) -> List[str]:
+    parse_html(html: bytes) -> List[str]:
         Abstract method to parse HTML content.
     convert_html_to_documents(content: List[Any]) -> List[Document]:
         Abstract method to convert HTML content to documents.
@@ -121,8 +90,24 @@ class BaseParser(ABC):
         Abstract method to split documents into chunks.
     """
 
+    def remove_empty_documents(self, documents: List[Any]) -> List[Any]:
+        """
+        Remove documents from the list that have their data attribute set to None.
+
+        Parameters
+        ----------
+        documents : list
+            List of document objects to be filtered.
+
+        Returns
+        -------
+        list
+            List of document objects where the content attribute is not None.
+        """
+        return [doc for doc in documents if doc.content is not None]
+
     @abstractmethod
-    def extract_urls_from_xml(self, xml: bytes) -> List[str]:
+    def parse_xml(self, xml: bytes) -> List[str]:
         """
         Abstract method to parse XML content.
 
@@ -134,11 +119,11 @@ class BaseParser(ABC):
         Returns
         -------
         list of str
-            The extracted URLs.
+            The extracted content.
         """
 
     @abstractmethod
-    def extract_urls_from_html(self, html: bytes) -> List[str]:
+    def parse_html(self, html: bytes) -> List[str]:
         """
         Abstract method to parse HTML content.
 
@@ -150,7 +135,7 @@ class BaseParser(ABC):
         Returns
         -------
         list of str
-            The extracted URLs.
+            The extracted content.
         """
 
     @abstractmethod
@@ -200,7 +185,6 @@ class BaseParser(ABC):
         list of Document
             The cleaned documents.
         """
-        return [doc for doc in documents if doc.content is not None]
 
     @abstractmethod
     def split_documents(self, documents: List[Any]) -> List[Any]:
@@ -217,7 +201,6 @@ class BaseParser(ABC):
         list of Document
             The split documents.
         """
-        return [doc for doc in documents if doc.content is not None]
 
 
 class BaseIndexer(ABC):
@@ -226,44 +209,22 @@ class BaseIndexer(ABC):
 
     Methods
     -------
-    index_html_from_sitemap(sitemap_url: str, language: str) -> dict:
-        Abstract method to index HTML from a sitemap following a specific structure.
-    index_pdfs_from_sitemap(sitemap_url: str, language: str) -> dict:
-        Abstract method to index PDFs from a specific sitemap.
+    index(sitemap_url: str) -> dict:
+        Abstract method to index content from a URL into a vectorDB.
     """
 
     @abstractmethod
-    async def index_html_from_sitemap(self, sitemap_url: str, language: str) -> dict:
+    async def index(self, url: str) -> dict:
         """
-        Abstract method to index HTML from a sitemap following a specific structure.
+        Abstract method to index content from a URL into a vectorDB.
 
         Parameters
         ----------
         sitemap_url : str
-            The sitemap URL to index HTML from.
-        language : str
-            The language of the HTML.
+            The URL to index content from.
 
         Returns
         -------
         dict
-            The indexed HTML.
-        """
-
-    @abstractmethod
-    async def index_pdfs_from_sitemap(self, sitemap_url: str, language: str) -> dict:
-        """
-        Abstract method to index PDFs from a specific sitemap.
-
-        Parameters
-        ----------
-        sitemap_url : str
-            The sitemap URL to index PDFs from.
-        language : str
-            The language of the PDFs.
-
-        Returns
-        -------
-        dict
-            The indexed PDFs.
+            content: Success message
         """

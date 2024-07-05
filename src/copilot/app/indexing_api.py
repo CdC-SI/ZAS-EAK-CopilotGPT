@@ -11,7 +11,7 @@ from config.base_config import indexing_config, indexing_app_config
 
 # Load utility functions
 from utils.db import check_db_connection
-from indexing.implementations.haystack import HaystackIndexer
+from indexing.implementations.haystack import admin_indexer, ahv_indexer
 from indexing.scraper import Scraper
 from indexing import dev_mode_data, queries
 
@@ -70,15 +70,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-indexer = HaystackIndexer()
-
 @app.post("/index_pdfs_from_sitemap",
           summary="Index memento PDFs from the https://www.ahv-iv.ch/de/Sitemap-DE sitemap",
           response_description="Confirmation message upon successful indexing",
           status_code=200,
           response_model=ResponseBody)
-async def index_pdfs_from_sitemap(sitemap_url: str = "https://www.ahv-iv.ch/de/Sitemap-DE",
-                                  language: str = "de"):
+async def index_pdfs_from_sitemap(sitemap_url: str = "https://www.ahv-iv.ch/de/Sitemap-DE"):
     """
     Indexes PDFs from a given sitemap URL. The PDFs are scraped and their data is added to the
     embedding database. This function is specifically designed for the site "https://www.ahv-iv.ch".
@@ -95,15 +92,14 @@ async def index_pdfs_from_sitemap(sitemap_url: str = "https://www.ahv-iv.ch/de/S
     ResponseBody
         A response body containing a confirmation message upon successful completion of the process.
     """
-    return await indexer.index_pdfs_from_sitemap(sitemap_url, language)
+    return await ahv_indexer.index(sitemap_url)
 
 @app.post("/index_html_from_sitemap",
           summary="Index HTML from a sitemap",
           response_description="Confirmation message upon successful indexing",
           status_code=200,
           response_model=ResponseBody)
-async def index_html_from_sitemap(sitemap_url: str = "https://eak.admin.ch/eak/de/home.sitemap.xml",
-                                  language: str = "de"):
+async def index_html_from_sitemap(sitemap_url: str = "https://eak.admin.ch/eak/de/home.sitemap.xml"):
     """
     Indexes HTML from a given sitemap URL. The HTML pages are scraped and their data is added to the
     embedding database. This function is specifically designed for the site "https://eak.admin.ch".
@@ -120,7 +116,7 @@ async def index_html_from_sitemap(sitemap_url: str = "https://eak.admin.ch/eak/d
     ResponseBody
         A response body containing a confirmation message upon successful completion of the process.
     """
-    return await indexer.index_html_from_sitemap(sitemap_url, language)
+    return await admin_indexer.index(sitemap_url)
 
 @app.post("/index_rag_vectordb", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
 async def index_rag_vectordb():
