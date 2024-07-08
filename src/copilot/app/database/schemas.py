@@ -50,7 +50,6 @@ class QuestionBase(BaseModel):
     Base class for QuestionBase
     """
     language: Optional[str] = None
-    source_id: Optional[int] = None
     text: str
     url: str
 
@@ -63,6 +62,7 @@ class QuestionCreate(QuestionBase):
     Create class for ArticleFAQ
     """
     answer: str
+    source: str
 
 
 class QuestionsCreate(BaseModel):
@@ -78,6 +78,7 @@ class Question(QuestionBase):
     """
     id: int
     answer_id: int
+    source_id: Optional[int] = None
     embedding: Optional[list[float]] = None
 
     created_at: datetime

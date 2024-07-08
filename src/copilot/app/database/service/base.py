@@ -1,25 +1,28 @@
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from ..models import Base
 
+from abc import ABCMeta
+from typing import Type
 
-class CRUDBase:
-    def __init__(self, model: Base):
+
+class CRUDBase(metaclass=ABCMeta):
+    def __init__(self, model=Type[Base]):
         self.model = model
 
     def get(self, db: Session, id_: int):
-        return db.query(self.model).filter(self.model.id == id_).first()
-
-    def _get_by(self, db: Session, arg_name: str, arg_value):
-        return db.query(self.model).filter_by(self.model[arg_name] == arg_value).first()
+        return select(self.model).filter(self.model.id == id_)
 
     def _create(self, db: Session, obj_in):
-        db.add(obj_in)
+        db_obj = self.model(**obj_in.model_dump())
+        db.add(db_obj)
+        return db_obj
 
     def create(self, db: Session, obj_in):
-        self._create(db, obj_in)
+        db_obj = self._create(db, obj_in)
         db.commit()
-        db.refresh(obj_in)
-        return obj_in
+        db.refresh(db_obj)
+        return db_obj
 
     def _create_all(self, db: Session, obj_in):
         db.add_all(obj_in)
