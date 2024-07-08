@@ -104,15 +104,17 @@ async def insert_faq(url: str,
 
 async def insert_rag(embedding: str,
                      text: str,
-                     url: str):
+                     url: str,
+                     created_at: datetime,
+                     modified_at: datetime):
     conn = await get_db_connection()
 
     try:
         await conn.execute("""
             INSERT
-            INTO embeddings (embedding, text, url)
-            VALUES ($1, $2, $3)
-        """, embedding, text, url)
+            INTO embeddings (embedding, text, url, created_at, modified_at)
+            VALUES ($1, $2, $3, $4, $5)
+        """, embedding, text, url, created_at, modified_at)
 
     finally:
         await conn.close()

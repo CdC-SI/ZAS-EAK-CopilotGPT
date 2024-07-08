@@ -3,11 +3,6 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-# Install build-essential and cmake
-RUN apt-get update && \
-    apt-get install -y build-essential cmake && \
-    apt-get clean
-
 # Copy the requirements into the container and install them
 COPY requirements.txt .
 RUN pip install -r requirements.txt
