@@ -1,7 +1,7 @@
 import logging
 
-from autocomplete.autocompleter import autocompleter
-from autocomplete.matching import exact_matcher, fuzzy_matcher, semantic_matcher
+from autocomplete.autocompleter import Autocompleter
+from autocomplete.matching import *
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -47,7 +47,8 @@ async def autocomplete(question: str, language: str = None):
     ------
     list of dict
     """
-    return await autocompleter.get_autocomplete(question, language)
+    completer = Autocompleter()
+    return await completer.get_autocomplete(question, language)
 
 
 @app.get("/exact_match",
@@ -68,7 +69,8 @@ async def exact_match(question: str, language: str = None):
     ------
     list of dict
     """
-    return await exact_matcher.match(question, language)
+    matcher = ExactMatch()
+    return await matcher.match(question, language)
 
 
 @app.get("/fuzzy_match",
@@ -89,7 +91,8 @@ async def fuzzy_match(question: str, language: str = None):
     ------
     list of dict
     """
-    return await fuzzy_matcher.match(question, language)
+    matcher = FuzzyMatch()
+    return await matcher.match(question, language)
 
 
 @app.get("/semantic_similarity_match",
@@ -110,4 +113,5 @@ async def semantic_similarity_match(question: str, language: str = None):
     ------
     list of dict
     """
-    return await semantic_matcher.match(question, language)
+    matcher = SemanticMatch()
+    return await matcher.match(question, language)

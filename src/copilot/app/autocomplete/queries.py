@@ -1,13 +1,7 @@
 from typing import List
-
-from models.embedding.factory import EmbeddingFactory
+from utils.embedding import get_embedding
 from utils.db import get_db_connection
 
-# Load env variables
-from config.base_config import rag_config
-
-# TO DO: instantiate client once in code, refactoring needed
-embedding_client = EmbeddingFactory.get_embedding_client(rag_config["embedding"]["model"])
 
 async def fetch(db_name: str,
                 select: List[str] = None,
@@ -73,7 +67,7 @@ def semantic_similarity_match(question: str,
                               symbol: str = '<=>',
                               k: int = 0):
 
-    question_embedding = embedding_client.embed_query(question).embedding
+    question_embedding = get_embedding(question)[0].embedding
 
     return fetch(db_name=db_name,
                  select=[f"1 - (embedding {symbol} '{question_embedding}') AS similarity_metric"],
