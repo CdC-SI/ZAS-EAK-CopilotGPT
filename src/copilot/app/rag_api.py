@@ -7,7 +7,6 @@ from config.network_config import CORS_ALLOWED_ORIGINS
 
 # Load env variables
 from config.base_config import rag_app_config, rag_config
-from config.openai_config import openai
 
 # Load models
 from rag.rag_processor import RAGProcessor
@@ -17,15 +16,16 @@ from rag.models import RAGRequest
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Create required instances
-
+#Create required instances
 processor = RAGProcessor(model=rag_config["llm"]["model"],
                          max_token=rag_config["llm"]["max_output_tokens"],
                          stream=rag_config["llm"]["stream"],
                          temperature=rag_config["llm"]["temperature"],
                          top_p=rag_config["llm"]["top_p"],
                          top_k=rag_config["retrieval"]["top_k"],
-                         client=openai.OpenAI())
+                         embedding_model=rag_config["embedding"]["model"],
+                         llm_model=rag_config["llm"]["model"]
+                         )
 
 app = FastAPI(**rag_app_config)
 

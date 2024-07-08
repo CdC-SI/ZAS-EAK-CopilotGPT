@@ -5,10 +5,20 @@ openai==1.30.5
 asyncpg==0.29.0
 pydantic==2.7.1
 numpy==1.26.4
-httpx==0.27.0
 
 # indexing
 requests==2.31.0
 beautifulsoup4==4.12.3
 lxml==5.2.2
 asyncio==3.4.3
+pandas==2.2.2
+aiohttp==3.9.5
+haystack-ai==2.2.3
+trafilatura==1.11.0
+pypdf==4.2.0
+
+# rag
+sentence-transformers==3.0.1
+llama-cpp-python==0.2.79
+tiktoken==0.7.0
+transformers==4.42.3
