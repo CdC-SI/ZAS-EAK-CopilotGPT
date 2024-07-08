@@ -215,7 +215,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -321,115 +321,14 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="module-indexing_api">
-<span id="indexingpipeline"></span><h1>IndexingPipeline<a class="headerlink" href="#module-indexing_api" title="Link to this heading">¶</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="indexing_api.chunk_rag_data">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">chunk_rag_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.chunk_rag_data" title="Link to this definition">¶</a></dt>
-<dd><p>Dummy endpoint for data chunking (RAG).</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="indexing_api.crawl_data">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">crawl_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.crawl_data" title="Link to this definition">¶</a></dt>
-<dd><p>Dummy endpoint for data crawling.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="indexing_api.index_data">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">index_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">answer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.index_data" title="Link to this definition">¶</a></dt>
-<dd><p>Upsert a single entry to the FAQ dataset.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>url</strong> (<em>str</em>) – URL where the entry article can be found</p></li>
-<li><p><strong>question</strong> (<em>str</em>) – The FAQ question</p></li>
-<li><p><strong>answer</strong> (<em>str</em>) – The question answer</p></li>
-<li><p><strong>language</strong> (<em>str</em>) – The article language</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The article id, url, question, answer and language upon successful completion of the process</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="indexing_api.index_faq_data">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">index_faq_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sitemap_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'https://faq.bsv.admin.ch/sitemap.xml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.index_faq_data" title="Link to this definition">¶</a></dt>
-<dd><p>Add and index data for Autocomplete to the FAQ database. The data is obtained by scraping the website <cite>sitemap_url</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sitemap_url</strong> (str, default ‘<a class="reference external" href="https://faq.bsv.admin.ch/sitemap.xml">https://faq.bsv.admin.ch/sitemap.xml</a>’) – the <cite>sitemap.xml</cite> URL of the website to scrap</p></li>
-<li><p><strong>proxy</strong> (<em>str</em><em>, </em><em>optional</em>) – Proxy URL if necessary</p></li>
-<li><p><strong>k</strong> (<em>int</em><em>, </em><em>default 0</em>) – Number of article to scrap and log to test the method.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Confirmation message upon successful completion of the process</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="indexing_api.index_faq_vectordb">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">index_faq_vectordb</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.index_faq_vectordb" title="Link to this definition">¶</a></dt>
-<dd><p>Add and index test data for Autocomplete to the FAQ database.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Confirmation message upon successful completion of the process</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="indexing_api.index_rag_vectordb">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">index_rag_vectordb</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.index_rag_vectordb" title="Link to this definition">¶</a></dt>
-<dd><p>Add and index test data for RAG to the embedding database.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Confirmation message upon successful completion of the process</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="indexing_api.parse_faq_data">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">parse_faq_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.parse_faq_data" title="Link to this definition">¶</a></dt>
-<dd><p>Dummy endpoint for FAQ data parsing.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="indexing_api.parse_rag_data">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">parse_rag_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.parse_rag_data" title="Link to this definition">¶</a></dt>
-<dd><p>Dummy endpoint for data parsing (RAG).</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="indexing_api.scrap_data">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">scrap_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.scrap_data" title="Link to this definition">¶</a></dt>
-<dd><p>Dummy endpoint for data scraping.</p>
-</dd></dl>
-
+          <section id="indexingpipeline">
+<h1>IndexingPipeline<a class="headerlink" href="#indexingpipeline" title="Link to this heading">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
 </section>
@@ -477,35 +376,8 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">IndexingPipeline</a><ul>
-<li><a class="reference internal" href="#indexing_api.chunk_rag_data"><code class="docutils literal notranslate"><span class="pre">chunk_rag_data()</span></code></a></li>
-<li><a class="reference internal" href="#indexing_api.crawl_data"><code class="docutils literal notranslate"><span class="pre">crawl_data()</span></code></a></li>
-<li><a class="reference internal" href="#indexing_api.index_data"><code class="docutils literal notranslate"><span class="pre">index_data()</span></code></a></li>
-<li><a class="reference internal" href="#indexing_api.index_faq_data"><code class="docutils literal notranslate"><span class="pre">index_faq_data()</span></code></a></li>
-<li><a class="reference internal" href="#indexing_api.index_faq_vectordb"><code class="docutils literal notranslate"><span class="pre">index_faq_vectordb()</span></code></a></li>
-<li><a class="reference internal" href="#indexing_api.index_rag_vectordb"><code class="docutils literal notranslate"><span class="pre">index_rag_vectordb()</span></code></a></li>
-<li><a class="reference internal" href="#indexing_api.parse_faq_data"><code class="docutils literal notranslate"><span class="pre">parse_faq_data()</span></code></a></li>
-<li><a class="reference internal" href="#indexing_api.parse_rag_data"><code class="docutils literal notranslate"><span class="pre">parse_rag_data()</span></code></a></li>
-<li><a class="reference internal" href="#indexing_api.scrap_data"><code class="docutils literal notranslate"><span class="pre">scrap_data()</span></code></a></li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>
