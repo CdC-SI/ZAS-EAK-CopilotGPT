@@ -5,7 +5,7 @@ from models.embedding.base import BaseEmbedding
 from models.tokenizer.factory import TokenizerFactory
 
 # Import env vars
-from config.openai_config import openai
+from config.openai_config import clientAI
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -50,7 +50,7 @@ class OpenAIEmbeddings(BaseEmbedding):
             the default model is used.
         """
         self.model_name = model_name if model_name is not None and model_name in SUPPORTED_OPENAI_MODELS else DEFAULT_OPENAI_MODEL
-        self.client = openai.OpenAI()
+        self.client = clientAI
         self.tokenizer = TokenizerFactory.get_tokenizer_client(self.model_name)
         super().__init__(self.tokenizer)
 

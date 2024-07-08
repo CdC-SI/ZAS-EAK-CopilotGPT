@@ -11,7 +11,7 @@ from typing import List
 from models.llm.base import LLM
 from models.supported_models import SUPPORTED_OPENAI_LLM_MODELS, DEFAULT_OPENAI_LLM_MODEL
 
-from config.openai_config import openai
+from config.openai_config import clientAI
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -64,7 +64,7 @@ class OpenAILLM(LLM):
         self.top_k = top_k
         self.max_tokens = max_tokens
         self.verbose = verbose
-        self.client = openai.OpenAI()
+        self.client = clientAI
 
     def generate(self, messages: List[dict]) -> str:
         """
