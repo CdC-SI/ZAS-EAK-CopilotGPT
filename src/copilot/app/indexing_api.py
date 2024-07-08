@@ -11,6 +11,7 @@ from config.base_config import indexing_config, indexing_app_config
 
 # Load utility functions
 from utils.db import check_db_connection
+from indexing.implementations.haystack import admin_indexer, ahv_indexer
 from indexing.scraper import Scraper
 from indexing import dev_mode_data, queries
 
@@ -66,6 +67,53 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.post("/index_pdfs_from_sitemap",
+          summary="Index memento PDFs from the https://www.ahv-iv.ch/de/Sitemap-DE sitemap",
+          response_description="Confirmation message upon successful indexing",
+          status_code=200,
+          response_model=ResponseBody)
+async def index_pdfs_from_sitemap(sitemap_url: str = "https://www.ahv-iv.ch/de/Sitemap-DE"):
+    """
+    Indexes PDFs from a given sitemap URL. The PDFs are scraped and their data is added to the
+    embedding database. This function is specifically designed for the site "https://www.ahv-iv.ch".
+
+    Parameters
+    ----------
+    sitemap_url : str, optional
+        The URL of the sitemap to scrape PDFs from. Defaults to "https://www.ahv-iv.ch/de/Sitemap-DE".
+    language : str, optional
+        The language of the PDFs. Defaults to "de" (German).
+
+    Returns
+    -------
+    ResponseBody
+        A response body containing a confirmation message upon successful completion of the process.
+    """
+    return await ahv_indexer.index(sitemap_url)
+
+@app.post("/index_html_from_sitemap",
+          summary="Index HTML from a sitemap",
+          response_description="Confirmation message upon successful indexing",
+          status_code=200,
+          response_model=ResponseBody)
+async def index_html_from_sitemap(sitemap_url: str = "https://eak.admin.ch/eak/de/home.sitemap.xml"):
+    """
+    Indexes HTML from a given sitemap URL. The HTML pages are scraped and their data is added to the
+    embedding database. This function is specifically designed for the site "https://eak.admin.ch".
+
+    Parameters
+    ----------
+    sitemap_url : str, optional
+        The URL of the sitemap to scrape HTML from. Defaults to "https://eak.admin.ch/eak/de/home.sitemap.xml".
+    language : str, optional
+        The language of the HTML pages. Defaults to "de" (German).
+
+    Returns
+    -------
+    ResponseBody
+        A response body containing a confirmation message upon successful completion of the process.
+    """
+    return await admin_indexer.index(sitemap_url)
 
 @app.post("/index_rag_vectordb", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
 async def index_rag_vectordb():

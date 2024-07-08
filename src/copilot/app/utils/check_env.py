@@ -8,8 +8,8 @@ def check_env_vars(config):
 
     # Define supported configs
     supported_similarity_metrics = ["cosine_similarity"]
-    supported_embedding_models = ["text-embedding-ada-002"]
-    supported_llm_models = ["gpt-3.5-turbo-0125", "gpt-4-turbo-preview", "gpt-4o"]
+    supported_embedding_models = ["text-embedding-ada-002", "sentence-transformers/distiluse-base-multilingual-cased-v1"]
+    supported_llm_models = ["gpt-3.5-turbo-0125", "gpt-4-turbo-preview", "gpt-4o", "Qwen/Qwen1.5-0.5B-Chat-GGUF", "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX"]
 
     # Check environment variables for autocomplete
     if config["autocomplete"]["enabled"]:

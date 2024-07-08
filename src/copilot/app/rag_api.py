@@ -18,13 +18,14 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 # Create required instances
-
 processor = RAGProcessor(model=rag_config["llm"]["model"],
                          max_token=rag_config["llm"]["max_output_tokens"],
                          stream=rag_config["llm"]["stream"],
                          temperature=rag_config["llm"]["temperature"],
                          top_p=rag_config["llm"]["top_p"],
                          top_k=rag_config["retrieval"]["top_k"],
+                         embedding_model=rag_config["embedding"]["model"],
+                         llm_model=rag_config["llm"]["model"],
                          client=clientAI)
 
 app = FastAPI(**rag_app_config)
