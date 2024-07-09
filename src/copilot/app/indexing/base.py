@@ -55,7 +55,7 @@ class BaseScraper(ABC):
         """
         try:
             async with aiohttp.ClientSession(trust_env=True) as session:
-                async with session.get(url, timeout=10, ssl=False) as response:
+                async with session.get(url, timeout=10) as response:
                     response.raise_for_status()
                     return await response.text()
 

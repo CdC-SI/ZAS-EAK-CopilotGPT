@@ -108,11 +108,18 @@ async def insert_rag(embedding: str,
     conn = await get_db_connection()
 
     try:
-        await conn.execute("""
-            INSERT
-            INTO embeddings (embedding, text, url)
-            VALUES ($1, $2, $3)
-        """, embedding, text, url)
+        if embedding is None:
+            await conn.execute("""
+                INSERT
+                INTO embeddings (text, url)
+                VALUES ($1, $2)
+            """, text, url)
+        else:
+            await conn.execute("""
+                INSERT
+                INTO embeddings (embedding, text, url)
+                VALUES ($1, $2, $3)
+            """, embedding, text, url)
 
     finally:
         await conn.close()

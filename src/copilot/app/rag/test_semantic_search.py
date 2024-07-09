@@ -19,13 +19,13 @@ def get_embedding(text):
         input=text,
         engine="text-embedding-ada-002",
     )
-    return response['data']
+    return str(response.data[0].embedding)
 
 
 if __name__ == '__main__':
 
     text = "Qu'est-ce qui change avec AVS 21?"
-    embedding = get_embedding(text)[0]["embedding"]
+    embedding = get_embedding(text)
 
     connection = create_db_connection()
     if connection is None:

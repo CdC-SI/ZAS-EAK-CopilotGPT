@@ -17,9 +17,9 @@ async def init_rag_vectordb():
 
     for text in texts:
         # Get the embedding vector
-        embedding = get_embedding(text[0])[0].embedding
+        embedding = get_embedding(text[0])
 
-        await queries.insert_rag(str(embedding), text[0], text[1])
+        await queries.insert_rag(embedding, text[0], text[1])
 
     return {"content": "RAG data indexed successfully"}
 
@@ -44,9 +44,9 @@ async def init_faq_vectordb():
     for text in texts:
 
         # Get the resulting embedding vector from the response
-        embedding = get_embedding(text[1])[0].embedding
+        embedding = get_embedding(text[1])
 
         # insert FAQ data with embeddings into the 'faq_embeddings' table
-        await queries.insert_faq(text[0], text[1], text[2], text[3], str(embedding))
+        await queries.insert_faq(text[0], text[1], text[2], text[3], embedding)
 
     return {"content": "FAQ data indexed successfully"}

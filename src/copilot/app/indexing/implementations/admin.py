@@ -120,14 +120,12 @@ class AdminIndexer(BaseIndexer):
         chunks = self.parser.split_documents(documents["documents"])
 
         # TO DO: refactor embedding logic to embed from documents (add from_documents method)
-        # Embed documents
-        str_chunks = [doc.content for doc in chunks["documents"]]
-        document_embeddings = get_embedding(str_chunks)[0].embedding
-        urls = [doc.meta["url"] for doc in chunks["documents"]]
-
         # Upsert documents into VectorDB
-        for embedding, doc, url in zip(document_embeddings, str_chunks, urls):
-            await queries.insert_rag(str(embedding), doc, url)
+        for doc in chunks["documents"]:
+            text = doc.content
+            embedding = get_embedding(text)
+            url = doc.meta["url"]
+            await queries.insert_rag(embedding, text, url)
 
         return {"content": f"{sitemap_url}: RAG data indexed successfully"}
 

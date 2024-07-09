@@ -67,7 +67,7 @@ def semantic_similarity_match(question: str,
                               symbol: str = '<=>',
                               k: int = 0):
 
-    question_embedding = get_embedding(question)[0].embedding
+    question_embedding = get_embedding(question)
 
     return fetch(db_name=db_name,
                  select=[f"1 - (embedding {symbol} '{question_embedding}') AS similarity_metric"],
