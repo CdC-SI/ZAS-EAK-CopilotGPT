@@ -101,7 +101,7 @@ class Autocompleter:
 
             return unique_matches
 
-
         return unique_matches
+
 
 autocompleter = Autocompleter()
