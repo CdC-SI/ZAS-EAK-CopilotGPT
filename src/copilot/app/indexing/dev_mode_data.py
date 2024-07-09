@@ -2,7 +2,7 @@ from utils.embedding import get_embedding
 
 from datetime import datetime
 
-from . import queries
+from indexing import queries
 
 
 async def init_rag_vectordb():
@@ -18,9 +18,8 @@ async def init_rag_vectordb():
     for text in texts:
         # Get the embedding vector
         embedding = get_embedding(text[0])[0].embedding
-        date = datetime.now()
 
-        await queries.insert_rag(str(embedding), text[0], text[1], date, date)
+        await queries.insert_rag(str(embedding), text[0], text[1])
 
     return {"content": "RAG data indexed successfully"}
 

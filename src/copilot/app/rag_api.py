@@ -17,8 +17,7 @@ from rag.models import RAGRequest
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Create required instances
-
+#Create required instances
 processor = RAGProcessor(model=rag_config["llm"]["model"],
                          max_token=rag_config["llm"]["max_output_tokens"],
                          stream=rag_config["llm"]["stream"],
