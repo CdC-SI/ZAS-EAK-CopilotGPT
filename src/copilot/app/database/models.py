@@ -9,14 +9,14 @@ from sqlalchemy.ext.declarative import declarative_base, declared_attr
 
 class EmbeddedMixin (object):
     text: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
-    embedding: Mapped[Vector] = mapped_column(Vector(1536))
-    language: Mapped[Optional[str]] = mapped_column(String(3))
+    embedding: Mapped[Vector] = mapped_column(Vector(1536), nullable=True)
+    language: Mapped[Optional[str]] = mapped_column(String(3), nullable=True)
 
     url: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
 
     @declared_attr
     def source_id(cls):
-        return mapped_column(Integer, ForeignKey("source.id"))
+        return mapped_column(Integer, ForeignKey("source.id"), nullable=False)
 
     @declared_attr
     def source(cls):
