@@ -1,13 +1,13 @@
 from sqlalchemy.orm import Session
 
-from .base import CRUDBase
+from .base import Base
 from ..models import Document
 from ..schemas import DocumentCreate, DocumentsCreate
 
 from utils.embedding import get_embedding
 
 
-class CRUDDocument(CRUDBase):
+class Document(Base):
     def __init__(self):
         super().__init__()
         self.model = Document
@@ -25,4 +25,4 @@ class CRUDDocument(CRUDBase):
         return documents
 
 
-crud_document = CRUDDocument()
+crud_document = Document()
