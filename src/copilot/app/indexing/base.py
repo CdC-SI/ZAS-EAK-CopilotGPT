@@ -34,7 +34,7 @@ class BaseScraper(ABC):
         Abstract method to scrape PDF content from a specific sitemap URL.
     """
 
-    async def fetch(self, url: str, proxy: str) -> str:
+    async def fetch(self, url: str) -> str:
         """
         Fetches the content from a given URL.
 
@@ -42,7 +42,6 @@ class BaseScraper(ABC):
         ----------
         url : str
             The URL to fetch content from.
-        proxy : str
 
         Returns
         -------
@@ -54,11 +53,9 @@ class BaseScraper(ABC):
         aiohttp.ClientError
             If the fetch operation fails.
         """
-        ssl = False if proxy else None
-
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url, timeout=10, proxy=proxy, ssl_context=ssl) as response:
+            async with aiohttp.ClientSession(trust_env=True) as session:
+                async with session.get(url, timeout=10, ssl=False) as response:
                     response.raise_for_status()
                     return await response.text()
 
@@ -263,7 +260,7 @@ class BaseIndexer(ABC):
         self.parser = parser
 
     @abstractmethod
-    async def index(self, url: str, proxy: str = '') -> dict:
+    async def index(self, url: str) -> dict:
         """
         Abstract method to index content from a URL into a vectorDB.
 
@@ -271,7 +268,6 @@ class BaseIndexer(ABC):
         ----------
         url : str
             The sitemap URL to index content from.
-        proxy : str, optional
 
         Returns
         -------

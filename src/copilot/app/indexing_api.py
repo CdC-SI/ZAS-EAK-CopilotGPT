@@ -19,6 +19,7 @@ from indexing import dev_mode_data, queries
 # Load models
 from rag.models import ResponseBody
 
+
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -42,7 +43,7 @@ app.add_middleware(
           response_description="Confirmation message upon successful indexing",
           status_code=200,
           response_model=ResponseBody)
-async def index_pdfs_from_sitemap(sitemap_url: str = "https://www.ahv-iv.ch/de/Sitemap-DE", proxy: str = None):
+async def index_pdfs_from_sitemap(sitemap_url: str = "https://www.ahv-iv.ch/de/Sitemap-DE"):
     """
     Indexes PDFs from a given sitemap URL. The PDFs are scraped and their data is added to the
     embedding database. This function is specifically designed for the site "https://www.ahv-iv.ch".
@@ -59,7 +60,7 @@ async def index_pdfs_from_sitemap(sitemap_url: str = "https://www.ahv-iv.ch/de/S
     ResponseBody
         A response body containing a confirmation message upon successful completion of the process.
     """
-    return await ahv_indexer.index(sitemap_url, proxy=proxy)
+    return await ahv_indexer.index(sitemap_url)
 
 
 @app.post("/index_html_from_sitemap",
@@ -67,7 +68,7 @@ async def index_pdfs_from_sitemap(sitemap_url: str = "https://www.ahv-iv.ch/de/S
           response_description="Confirmation message upon successful indexing",
           status_code=200,
           response_model=ResponseBody)
-async def index_html_from_sitemap(sitemap_url: str = "https://eak.admin.ch/eak/de/home.sitemap.xml", proxy: str = None):
+async def index_html_from_sitemap(sitemap_url: str = "https://eak.admin.ch/eak/de/home.sitemap.xml"):
     """
     Indexes HTML from a given sitemap URL. The HTML pages are scraped and their data is added to the
     embedding database. This function is specifically designed for the site "https://eak.admin.ch".
@@ -84,7 +85,7 @@ async def index_html_from_sitemap(sitemap_url: str = "https://eak.admin.ch/eak/d
     ResponseBody
         A response body containing a confirmation message upon successful completion of the process.
     """
-    return await admin_indexer.index(sitemap_url, proxy=proxy)
+    return await admin_indexer.index(sitemap_url)
 
 
 @app.post("/index_rag_vectordb", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
@@ -162,7 +163,7 @@ async def chunk_rag_data():
 
 
 @app.put("/index_faq_data", summary="Insert Data from faq.bsv.admin.ch", response_description="Insert Data from faq.bsv.admin.ch")
-async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xml', proxy: str = None, k: int = 0):
+async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xml', k: int = 0):
     """
     Add and index data for Autocomplete to the FAQ database. The data is obtained by scraping the website `sitemap_url`.
 
@@ -170,8 +171,6 @@ async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xm
     ==========
     sitemap_url : str, default 'https://faq.bsv.admin.ch/sitemap.xml'
         the `sitemap.xml` URL of the website to scrap
-    proxy : str, optional
-        Proxy URL if necessary
     k : int, default 0
         Number of article to scrap and log to test the method.
 
@@ -182,7 +181,7 @@ async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xm
     """
     logging.basicConfig(level=logging.INFO)
 
-    scraper = Scraper(sitemap_url, proxy=proxy)
+    scraper = Scraper(sitemap_url)
     urls = await scraper.run(test=k)
 
     return {"message": f"Done! {len(urls)} wurden verarbeitet."}

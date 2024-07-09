@@ -17,6 +17,8 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_PORT=${POSTGRES_PORT}
+    volumes:
+      - ./src/db/data:/var/lib/postgresql/data
     networks:
       - copilot-network
     restart: "no"
@@ -61,17 +63,17 @@ services:
     restart: "no"
 
   # frontend
-  # zas-copilot:
-  #   build:
-  #     context: https://github.com/CdC-SI/copilot-frontend.git#main
-  #   image: zas-copilot:latest
-  #   ports:
-  #     - "4200:4200"
-  #   networks:
-  #     - copilot-network
-  #   depends_on:
-  #     - copilot
-  #   restart: "no"
+  zas-copilot:
+    build:
+      context: https://github.com/CdC-SI/copilot-frontend.git#main
+    image: zas-copilot:latest
+    ports:
+      - "4200:4200"
+    networks:
+      - copilot-network
+    depends_on:
+      - copilot
+    restart: "no"
 
 networks:
   copilot-network:

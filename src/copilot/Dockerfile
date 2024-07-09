@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Copy the requirements into the container and install them
 COPY requirements.txt .
-RUN pip -r requirements.txt
+RUN pip install -r requirements.txt
 
 # Copy the rest of the code into the container
 COPY . .

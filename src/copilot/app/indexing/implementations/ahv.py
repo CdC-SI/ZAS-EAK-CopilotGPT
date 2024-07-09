@@ -119,9 +119,9 @@ class AHVIndexer(BaseIndexer):
     index(sitemap_url: str) -> dict
         Scraps, parses and indexes PDF content from the given sitemap URL into the VectorDB.
     """
-    async def index(self, sitemap_url: str, proxy: str = None) -> dict:
+    async def index(self, sitemap_url: str) -> dict:
         # Get sitemap
-        sitemap = await self.scraper.fetch(sitemap_url, proxy=proxy)
+        sitemap = await self.scraper.fetch(sitemap_url)
 
         # Extract URLs of memento sections from sitemap (Allgemeines, Beiträge, etc.)
         url_list = self.parser.parse_urls(sitemap)
@@ -162,8 +162,8 @@ class AHVIndexer(BaseIndexer):
         # TO DO: refactor embedding logic to embed from documents (add from_documents method)
         # Embed documents
         str_chunks = [doc.content for doc in chunks["documents"]]
-        # document_embeddings = get_embedding(str_chunks)[0].embedding
-        document_embeddings = []
+
+        document_embeddings = get_embedding(str_chunks)[0].embedding
         urls = [doc.meta["url"] for doc in chunks["documents"]]
 
         # Upsert documents into VectorDB

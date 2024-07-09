@@ -63,7 +63,7 @@ class AdminParser(BaseParser):
         return url_list
 
     def convert_to_documents(self, content: List[Any]) -> List[Any]:
-        return HTMLToDocument().run(inputs=content)
+        return HTMLToDocument().run(sources=content)
 
 
 class AdminIndexer(BaseIndexer):
@@ -85,7 +85,7 @@ class AdminIndexer(BaseIndexer):
         Scraps, parses and indexes HTML webpage content from the given sitemap URL into the VectorDB.
     """
     # TO DO: index multiple languages: ["de", "fr", "it"]
-    async def index(self, sitemap_url: str, proxy: str = None) -> dict:
+    async def index(self, sitemap_url: str) -> dict:
         """
         Should implement the following steps:
         1. Fetch the sitemap content
@@ -99,7 +99,7 @@ class AdminIndexer(BaseIndexer):
         """
 
         # Get sitemap
-        sitemap = await self.scraper.fetch(sitemap_url, proxy=proxy)
+        sitemap = await self.scraper.fetch(sitemap_url)
 
         # Extract URLs from sitemap
         url_list = self.parser.parse_urls(sitemap)
@@ -122,8 +122,7 @@ class AdminIndexer(BaseIndexer):
         # TO DO: refactor embedding logic to embed from documents (add from_documents method)
         # Embed documents
         str_chunks = [doc.content for doc in chunks["documents"]]
-        # document_embeddings = get_embedding(str_chunks)[0].embedding
-        document_embeddings = []
+        document_embeddings = get_embedding(str_chunks)[0].embedding
         urls = [doc.meta["url"] for doc in chunks["documents"]]
 
         # Upsert documents into VectorDB

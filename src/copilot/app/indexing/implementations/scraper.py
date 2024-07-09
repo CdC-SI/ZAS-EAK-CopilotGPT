@@ -31,7 +31,7 @@ class Scraper(BaseScraper):
         super().__init__()
         self.fetcher = LinkContentFetcher()
 
-    def scrap_urls(self, urls: List[str]):
+    def scrap_urls(self, urls: List[str]) -> List[ByteStream]:
         """
         Scrapes the given URLs and returns the content as a list of ByteStreams.
 
@@ -45,6 +45,7 @@ class Scraper(BaseScraper):
         List[ByteStream]
             A list of ByteStreams containing the content of the scraped URLs.
         """
+
         streams = self.fetcher.run(urls=urls)
         return streams["streams"]
 
