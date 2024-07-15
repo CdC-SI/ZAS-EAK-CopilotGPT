@@ -4,17 +4,18 @@ from datetime import datetime
 
 async def fetchone(db_name: str, select: [str] = None, where: [str] = None):
     conn = await get_db_connection()
-    cursor = await conn.cursor()
 
     selection = ', '.join(['question', 'answer', 'url'] + ([] if select is None else select))
     conditions = ' AND '.join(where)
 
     try:
-        rows = await cursor.fetchone(f"""
-            SELECT {selection}
-            FROM {db_name}
-            WHERE {conditions}
-        """)
+        async with conn.transaction():
+            cursor = await conn.cursor()
+            rows = await cursor.fetchone(f"""
+                SELECT {selection}
+                FROM {db_name}
+                WHERE {conditions}
+            """)
 
     finally:
         await conn.close()
