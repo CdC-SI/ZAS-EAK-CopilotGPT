@@ -18,6 +18,7 @@ from indexing import dev_mode_data, queries
 
 # Load models
 from rag.models import ResponseBody
+from indexing.models import FaqItem
 
 
 # Setup logging
@@ -220,27 +221,29 @@ async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xm
 
 
 @app.put("/data", summary="Update or Insert FAQ Data", response_description="Updated or Inserted Data")
-async def index_data(url: str, question: str, answer: str, language: str):
+async def index_data(item: FaqItem):
     """
     Upsert a single entry to the FAQ dataset.
 
     Parameters
     ----------
-    url : str
-        URL where the entry article can be found
-    question : str
-        The FAQ question
-    answer : str
-        The question answer
-    language : str
-        The article language
+    item : FaqItem
+        The FAQ item to insert or update :
+            url : str
+                URL where the entry article can be found
+            question : str
+                The FAQ question
+            answer : str
+                The question answer
+            language : str
+                The article language
 
     Returns
     -------
     dict
         The article id, url, question, answer and language upon successful completion of the process
     """
-    info, rid = await queries.update_or_insert(url, question, answer, language)
-    logger.info(f"{info}: {url}")
+    info, rid = await queries.update_or_insert(item.url, item.question, item.answer, item.language)
+    logger.info(f"{info}: {item.url}")
 
-    return {"id": rid, "url": url, "question": question, "answer": answer, "language": language}
+    return {"id": rid, "url": item.url, "question": item.question, "answer": item.answer, "language": item.language}
