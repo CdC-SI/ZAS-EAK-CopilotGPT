@@ -53,17 +53,14 @@ async def insert_data(url: str,
     conn = await get_db_connection()
 
     try:
-        row = await conn.fetchrow(f"""
+        return await conn.fetchval(f"""
             INSERT
             INTO data (url, question, answer, language)
-            VALUES ({url}, {question}, {answer}, {language})
-            RETURNING id
+            VALUES ('{url}', '{question}', '{answer}', '{language}')
         """)
 
     finally:
         await conn.close()
-
-    return row['id']
 
 
 async def update_or_insert(url: str,
