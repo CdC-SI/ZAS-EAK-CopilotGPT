@@ -1,4 +1,4 @@
-from utils.db import get_db_connection
+from ..utils.db import get_db_connection
 from datetime import datetime
 
 
@@ -9,13 +9,11 @@ async def fetchone(db_name: str, select: [str] = None, where: [str] = None):
     conditions = ' AND '.join(where)
 
     try:
-        async with conn.transaction():
-            cursor = await conn.cursor()
-            rows = await cursor.fetchone(f"""
-                SELECT {selection}
-                FROM {db_name}
-                WHERE {conditions}
-            """)
+        rows = await conn.fetchrow(f"""
+            SELECT {selection}
+            FROM {db_name}
+            WHERE {conditions}
+        """)
 
     finally:
         await conn.close()
