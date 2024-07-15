@@ -1,4 +1,5 @@
 from utils.db import get_db_connection
+import logging
 
 
 async def fetchone(db_name: str, select: [str] = None, where: [str] = None):
@@ -57,6 +58,7 @@ async def insert_data(url: str,
             INSERT
             INTO data (url, question, answer, language)
             VALUES ('{url}', '{question}', '{answer}', '{language}')
+            RETURNING id
         """)
 
     finally:
@@ -71,6 +73,8 @@ async def update_or_insert(url: str,
 
     if existing_row:
         # Update the existing record
+        logger = logging.getLogger(__name__)
+        logger.info(f"Updating {existing_row}...")
         rid = await update_data(url, question, answer, language, existing_row['id'])
         return "Update", rid
 
