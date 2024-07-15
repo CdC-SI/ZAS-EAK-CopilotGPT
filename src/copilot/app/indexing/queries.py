@@ -1,5 +1,4 @@
-from ..utils.db import get_db_connection
-from datetime import datetime
+from utils.db import get_db_connection
 
 
 async def fetchone(db_name: str, select: [str] = None, where: [str] = None):
