@@ -244,6 +244,6 @@ async def index_data(item: FaqItem):
         The article id, url, question, answer and language upon successful completion of the process
     """
     info, rid = await queries.update_or_insert(item.url, item.question, item.answer, item.language)
-    logger.info(f"{info}: {item.url}")
+    logger.info(f"{info}: {item.question}")
 
     return {"id": rid, "url": item.url, "question": item.question, "answer": item.answer, "language": item.language}

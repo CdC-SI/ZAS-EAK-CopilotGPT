@@ -1,11 +1,10 @@
 from utils.db import get_db_connection
-import logging
 
 
 async def fetchone(db_name: str, select: [str] = None, where: [str] = None):
     conn = await get_db_connection()
 
-    selection = ', '.join(['question', 'answer', 'url'] + ([] if select is None else select))
+    selection = ', '.join(['id', 'question', 'answer', 'url'] + ([] if select is None else select))
     conditions = ' AND '.join(where)
 
     try:
@@ -73,8 +72,6 @@ async def update_or_insert(url: str,
 
     if existing_row:
         # Update the existing record
-        logger = logging.getLogger(__name__)
-        logger.info(f"Updating {existing_row}...")
         rid = await update_data(url, question, answer, language, existing_row['id'])
         return "Update", rid
 
