@@ -11,7 +11,7 @@ async def fetch(db_name: str,
                 k: int = 0):
     conn = await get_db_connection()
 
-    selection = ', '.join(['question', 'answer', 'url'] + (select if select else [])) if db_name != 'embeddings' else ', '.join(['text, url'] + (select if select else []))
+    selection = ', '.join(['id', 'question', 'answer', 'url', 'language'] + (select if select else [])) if db_name != 'embeddings' else ', '.join(['text, url'] + (select if select else []))
     conditions = []
     if language:
         conditions.append(f'language = {language}')
