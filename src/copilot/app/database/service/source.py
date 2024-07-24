@@ -1,13 +1,16 @@
-from .base import CRUDBase
+from sqlalchemy import select
+
+from .base import BaseService
 from ..models import Source
 
 
-class CRUDSource(CRUDBase):
+class SourceService(BaseService):
     def __init__(self):
         super().__init__(Source)
 
     def get_by_url(self, db, url):
-        return db.query(self.model).filter(self.model.url == url).first()
+        stmt = select(self.model).filter(self.model.url == url)
+        return db.scalars(stmt).one_or_none()
 
     def get_or_create(self, db, obj_in):
         db_obj = self.get_by_url(db, obj_in.url)
@@ -16,4 +19,4 @@ class CRUDSource(CRUDBase):
         return self.create(db, obj_in)
 
 
-crud_source = CRUDSource()
+source_service = SourceService()

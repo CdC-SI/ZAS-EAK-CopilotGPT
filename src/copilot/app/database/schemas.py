@@ -17,10 +17,18 @@ class DocumentBase(BaseModel):
         arbitrary_types_allowed = True
 
 
+class DocumentUpdate(DocumentBase):
+    """
+    Update class for Document
+    """
+    pass
+
+
 class DocumentCreate(DocumentBase):
     """
     Create class for Document
     """
+    source: str
     pass
 
 
@@ -28,7 +36,8 @@ class DocumentsCreate(BaseModel):
     """
     Create class for Documents
     """
-    documents: list[DocumentCreate]
+    objects: list[DocumentCreate]
+    source: Optional[str] = None
 
 
 class Document(DocumentBase):
@@ -69,7 +78,8 @@ class QuestionsCreate(BaseModel):
     """
     Create class for ArticlesFAQ
     """
-    questions: list[QuestionCreate]
+    objects: list[QuestionCreate]
+    source: Optional[str] = None
 
 
 class Question(QuestionBase):

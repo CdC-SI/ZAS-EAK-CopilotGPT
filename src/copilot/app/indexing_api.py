@@ -12,9 +12,9 @@ from config.base_config import indexing_app_config
 from indexing.scraper import Scraper
 
 from sqlalchemy.orm import Session
-from database.service.question import crud_question
-from database.service.document import crud_document
-from database.service.source import crud_source
+from database.service.question import question_service
+from database.service.document import document_service
+from database.service.source import source_service
 from database.schemas import QuestionCreate, QuestionsCreate, DocumentCreate, DocumentsCreate, SourceCreate
 from database.database import get_db
 
@@ -50,12 +50,15 @@ def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", db
     str
         Confirmation message upon successful completion of the process
     """
-    source = crud_source.create(db, SourceCreate(url=file_path))
     with open(file_path, mode='r') as file:
         data = csv.DictReader(file)
-        documents = [DocumentCreate(text=row["text"], url=row["url"], source_id=source.id) for row in data]
 
-    crud_document.create_all(db, DocumentsCreate(documents=documents))
+        documents = []
+        for row in data:
+            document = DocumentCreate(url=row["url"], text=row["text"], source=file_path)
+            documents.append(document)
+
+    document_service.upsert_all(db, DocumentsCreate(objects=documents, source=file_path))
 
     return {"content": "yay"}
 
@@ -70,13 +73,13 @@ def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", db
     str
         Confirmation message upon successful completion of the process
     """
-    source = crud_source.create(db, SourceCreate(url=file_path))
-
     with open(file_path, mode='r') as file:
         data = csv.DictReader(file)
-        questions = [QuestionCreate(text=row["text"], url=row["url"], answer=row["answer"], language=row["language"], source_id=source.id) for row in data]
 
-    crud_question.create_all(db, QuestionsCreate(questions=questions))
+        questions = []
+        for row in data:
+            question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], source=file_path, language=row["language"])
+            question_service.upsert(db, question)
 
     return {"content": "yay"}
 
@@ -91,7 +94,7 @@ def embed_rag_data(db: Session = Depends(get_db)):
     str
         Confirmation message upon successful completion of the process
     """
-    crud_document.embed_all(db)
+    document_service.embed_all(db)
     return {"content": "yay"}
 
 
@@ -105,7 +108,7 @@ def embed_faq_data(db: Session = Depends(get_db)):
     str
         Confirmation message upon successful completion of the process
     """
-    crud_question.embed_all(db)
+    document_service.embed_all(db)
     return {"content": "yay"}
 
 
@@ -229,4 +232,4 @@ async def index_data(article_in: QuestionCreate, db: Session = Depends(get_db)):
     dict
         The article id, url, question, answer and language upon successful completion of the process
     """
-    return crud_question.create_or_update(db, article_in)
+    return document_service.create_or_update(db, article_in)

@@ -1,28 +1,49 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.dialects.postgresql import insert as pg_upsert
 
-from .base import Base
-from ..models import Document
-from ..schemas import DocumentCreate, DocumentsCreate
+from .matching import MatchingService
+from .source import source_service
+from ..models import Document, Source
+from ..schemas import DocumentCreate, DocumentsCreate, SourceCreate, DocumentUpdate
 
-from utils.embedding import get_embedding
 
-
-class Document(Base):
+class DocumentService(MatchingService):
     def __init__(self):
-        super().__init__()
-        self.model = Document
+        super().__init__(Document)
 
-    def create_all(self, db: Session, obj_in: DocumentsCreate):
-        db_obj = [Document(**obj.dict()) for obj in obj_in.documents]
-        return super().create_all(db, db_obj)
+    def _create(self, db: Session, obj_in: DocumentCreate, source: Source = None):
+        source = source_service.get_or_create(db, SourceCreate(url=obj_in.source))
+        db_document = Document(url=obj_in.url, language=obj_in.language, text=obj_in.text, source=source, source_id=source.id)
+        db.add(db_document)
+        return db_document
 
-    def embed_all(self, db: Session):
-        documents = db.query(Document).filter(Document.embedding.is_(None)).all()
-        for document in documents:
-            document.embedding = get_embedding(document.text)[0].embedding
-            db.commit()
-            db.refresh(document)
-        return documents
+    def get_by_url(self, db: Session, url: str):
+        return db.query(self.model).filter(self.model.url == url).one_or_none()
+
+    def get_by_text(self, db: Session, text: str):
+        return db.query(self.model).filter(self.model.text == text).one_or_none()
+
+    def upsert(self, db: Session, obj_in: DocumentCreate):
+        db_document = self.get_by_text(db, obj_in.text)
+        if db_document:
+            self.update(db, db_document, obj_in)
+        else:
+            db_document = self.create(db, obj_in)
+        db.commit()
+        return db_document
+
+    def upsert_all(self, db: Session, objs_in: DocumentsCreate):
+        db_documents = []
+        for obj_in in objs_in.objects:
+            db_documents.append(self.upsert(db, obj_in))
+        db.commit()
+        return db_documents
+
+    def _update(self, db: Session, db_obj, obj_in):
+        db_source = source_service.get_or_create(db, Source(url=obj_in.source))
+        obj_in.source_id = db_source.id
+
+        super()._update(db, db_obj, DocumentUpdate(**obj_in.model_dump(exclude={'source'}), source=db_source))
 
 
-crud_document = Document()
+document_service = DocumentService()

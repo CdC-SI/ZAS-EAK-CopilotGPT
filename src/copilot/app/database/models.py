@@ -12,15 +12,7 @@ class EmbeddedMixin (object):
     embedding: Mapped[Vector] = mapped_column(Vector(1536), nullable=True)
     language: Mapped[Optional[str]] = mapped_column(String(3), nullable=True)
 
-    url: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
-
-    @declared_attr
-    def source_id(cls):
-        return mapped_column(Integer, ForeignKey("source.id"), nullable=False)
-
-    @declared_attr
-    def source(cls):
-        return relationship("Source", back_populates="documents")
+    url: Mapped[str] = mapped_column(Text, nullable=False)
 
     created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
     modified_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
@@ -42,7 +34,8 @@ class Document(Base, EmbeddedMixin):
     __tablename__ = "document"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
-    question: Mapped[Optional["Question"]] = relationship("Question", back_populates="answer")
+    source_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("source.id"), nullable=True)
+    source: Mapped[Optional["Source"]] = relationship("Source", back_populates="documents")
 
     def __repr__(self) -> str:
         return f"Document(id={self.id!r}, url={self.url!r}, text={self.text!r}, language={self.language!r})"
@@ -53,13 +46,17 @@ class Question(Base, EmbeddedMixin):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
     answer_id: Mapped[int] = mapped_column(Integer, ForeignKey("document.id"), nullable=False)
-    answer: Mapped["Document"] = relationship("Document", back_populates="question")
+    answer: Mapped["Document"] = relationship("Document", back_populates="questions")
+
+    source_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("source.id"), nullable=True)
+    source: Mapped[Optional["Source"]] = relationship("Source", back_populates="questions")
 
     def __repr__(self) -> str:
         return f"Question(id={self.id!r}, url={self.url!r}, question={self.text!r}, answer_id={self.answer_id!r}, language={self.language!r})"
 
 
 # Init relationship mappers
+Document.questions = relationship("Question", order_by=Question.id, back_populates="answer")
 Question.source = relationship("Source", back_populates="questions")
 Source.questions = relationship("Question", order_by=Question.id, back_populates="source")
 Source.documents = relationship("Document", order_by=Document.id, back_populates="source")

@@ -13,7 +13,7 @@ from config.base_config import autocomplete_app_config
 
 from sqlalchemy.orm import Session
 from database import schemas
-from database.service.matching import crud_matching
+from database.service.question import question_service
 from database.database import get_db
 
 # Setup logging
@@ -78,7 +78,7 @@ def exact_match(question: str, language: str = None, db: Session = Depends(get_d
     ------
     list of dict
     """
-    return crud_matching.get_exact_match(db, question, language)
+    return question_service.get_exact_match(db, question, language)
 
 
 @app.get("/fuzzy_match",
@@ -102,12 +102,11 @@ def fuzzy_match(question: str, language: str = None, db: Session = Depends(get_d
     ------
     list of dict
     """
-    return crud_matching.get_fuzzy_match(db, question, language=language)
+    return question_service.get_fuzzy_match(db, question, language=language)
 
 
 @app.get("/trigram_match",
          summary="Search Questions with trigram match",
-         response_model=List[schemas.Question],
          response_description="List of matching questions")
 def trigram_match(question: str, language: str = None, db: Session = Depends(get_db)):
     """
@@ -126,7 +125,7 @@ def trigram_match(question: str, language: str = None, db: Session = Depends(get
     ------
     list of dict
     """
-    return crud_matching.get_trigram_match(db, question, language=language)
+    return question_service.get_trigram_match(db, question, language=language)
 
 
 @app.get("/semantic_similarity_match",

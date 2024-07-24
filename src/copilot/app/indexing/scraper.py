@@ -10,8 +10,8 @@ from urllib3 import disable_warnings
 
 if __name__ != '__main__':
     from . import queries
-    from database.service.question import crud_question
-    from database.service.source import crud_source
+    from database.service.question import question_service
+    from database.service.source import source_service
     from database.schemas import QuestionCreate, SourceCreate
     from database.database import get_db
 
@@ -86,10 +86,10 @@ class Scraper:
         count = 0
         if not test:
             db = next(get_db())
-            source = crud_source.get_by_url(db, self.base_url)
+            source = source_service.get_by_url(db, self.base_url)
             if not source:
                 source_in = SourceCreate(url=self.base_url)
-                source = crud_source.create(db, source_in)
+                source = source_service.create(db, source_in)
 
         for url in urls:
             lang, h1, article = self.extract_article(url)
@@ -107,7 +107,7 @@ class Scraper:
                 else:
                     self.logger.info(f"extract: {url}")
                     article_in = QuestionCreate(text=h1, answer=article, language=lang, url=url, source_id=source.id)
-                    crud_question.create_or_update(db, article_in)
+                    question_service.create_or_update(db, article_in)
 
         self.logger.info(f"Done! {count} articles have been processed.")
         return urls
