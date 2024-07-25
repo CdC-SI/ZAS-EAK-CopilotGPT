@@ -38,6 +38,12 @@ app.add_middleware(
 )
 
 
+@app.get("/model",
+         status_code=200)
+def model():
+    return {"model": processor.model, "rag_config": rag_config}
+
+
 @app.post("/query",
           summary="Process RAG query endpoint",
           response_description="Return result from processing RAG query",

@@ -10,9 +10,6 @@ from haystack.dataclasses import Document
 from haystack.components.preprocessors import DocumentCleaner
 from haystack.components.preprocessors import DocumentSplitter
 
-from urllib3.exceptions import InsecureRequestWarning
-from urllib3 import disable_warnings
-
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -105,9 +102,10 @@ class BaseParser(ABC):
             remove_repeated_substrings=False
         )
         self.splitter = DocumentSplitter(
-            split_by="passage",
-            split_length=1,
-            split_overlap=0
+            split_by="sentence",
+            split_length=5,
+            split_overlap=1,
+            split_threshold=2
         )
 
     def remove_empty_documents(self, documents: List[Any]) -> List[Any]:
