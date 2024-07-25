@@ -77,7 +77,7 @@ class BaseService(metaclass=ABCMeta):
 class EmbeddingService(BaseService):
 
     def _embed(self, db_obj):
-        db_obj.embedding = get_embedding(db_obj.text)[0].embedding
+        db_obj.embedding = get_embedding(db_obj.text)
         return db_obj
 
     def embed(self, db: Session, db_obj):

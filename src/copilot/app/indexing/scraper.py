@@ -5,11 +5,7 @@ import logging
 from lxml import etree
 import re
 
-from urllib3.exceptions import InsecureRequestWarning
-from urllib3 import disable_warnings
-
 if __name__ != '__main__':
-    from . import queries
     from database.service.question import question_service
     from database.service.source import source_service
     from database.schemas import QuestionCreate, SourceCreate
@@ -37,14 +33,12 @@ class Scraper:
         Proxy URL if necessary
     """
 
-    def __init__(self, base_url: str, proxy: str = ''):
+    def __init__(self, base_url: str, proxy: str = None):
         self.base_url = base_url
         self.session = requests.Session()
         self.logger = logging.getLogger(self.__class__.__name__)
 
         if proxy:
-            disable_warnings(category=InsecureRequestWarning)
-            self.session.verify = False
             self.session.proxies.update({"http": proxy})
             self.session.proxies.update({"https": proxy})
 
@@ -82,14 +76,9 @@ class Scraper:
             urls = urls[:k]
 
         db = None
-        source = None
         count = 0
         if not test:
             db = next(get_db())
-            source = source_service.get_by_url(db, self.base_url)
-            if not source:
-                source_in = SourceCreate(url=self.base_url)
-                source = source_service.create(db, source_in)
 
         for url in urls:
             lang, h1, article = self.extract_article(url)
@@ -106,8 +95,8 @@ class Scraper:
 
                 else:
                     self.logger.info(f"extract: {url}")
-                    article_in = QuestionCreate(text=h1, answer=article, language=lang, url=url, source_id=source.id)
-                    question_service.create_or_update(db, article_in)
+                    article_in = QuestionCreate(text=h1, answer=article, language=lang, url=url, source=self.base_url)
+                    question_service.upsert(db, article_in)
 
         self.logger.info(f"Done! {count} articles have been processed.")
         return urls

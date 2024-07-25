@@ -113,7 +113,7 @@ class MatchingService(EmbeddingService):
         -------
         list of dict
         """
-        q_embedding = get_embedding(user_input)[0].embedding
+        q_embedding = get_embedding(user_input)
 
         stmt = select(self.model)
         if language:

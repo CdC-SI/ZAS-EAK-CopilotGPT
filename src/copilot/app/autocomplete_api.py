@@ -1,8 +1,7 @@
 import logging
 from typing import List
 
-from autocomplete.autocompleter import Autocompleter
-from autocomplete.matching import *
+from autocomplete.autocompleter import autocompleter
 
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -36,7 +35,7 @@ app.add_middleware(
 @app.get("/",
          summary="Facade for autocomplete",
          response_description="List of matching questions")
-def autocomplete(question: str, language: str = None):
+async def autocomplete(question: str, language: str = None):
     """
     If combined results of get_exact_match() and get_fuzzy_match() return less than 5 results,
     this method is called after every new "space" character in the question (user query) is
@@ -53,8 +52,7 @@ def autocomplete(question: str, language: str = None):
     ------
     list of dict
     """
-    completer = Autocompleter()
-    return completer.get_autocomplete(question, language)
+    return await autocompleter.get_autocomplete(question, language)
 
 
 @app.get("/exact_match",
@@ -131,7 +129,7 @@ def trigram_match(question: str, language: str = None, db: Session = Depends(get
 @app.get("/semantic_similarity_match",
          summary="Search Questions with semantic similarity match",
          response_description="List of matching questions")
-def semantic_similarity_match(question: str, language: str = None):
+def semantic_similarity_match(question: str, language: str = None, db: Session = Depends(get_db)):
     """
     Return results from Semantic Similarity matching
 
@@ -146,5 +144,4 @@ def semantic_similarity_match(question: str, language: str = None):
     ------
     list of dict
     """
-    matcher = SemanticMatch()
-    return matcher.match(question, language)
+    return question_service.get_semantic_match(db, question, language=language)
