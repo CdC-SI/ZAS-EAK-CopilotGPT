@@ -163,8 +163,7 @@ class AHVIndexer(BaseIndexer):
         # Upsert documents into VectorDB
         for doc in chunks["documents"]:
             text = doc.content
-            # embedding = get_embedding(text)
-            embedding = str([0]*1536)
+            embedding = get_embedding(text)
             url = doc.meta["url"]
             await queries.insert_rag(embedding, text, url)
 
