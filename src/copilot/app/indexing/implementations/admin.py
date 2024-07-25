@@ -126,10 +126,8 @@ class AdminIndexer(BaseIndexer):
         db = next(get_db())
         for doc in chunks["documents"]:
             text = doc.content
-            embedding = get_embedding(text)
-            logger.info(f"Embedding: {type(embedding)} - {embedding}")
             url = doc.meta["url"]
-            document_service.upsert(db, DocumentCreate(url=url, text=text, embedding=embedding, source=sitemap_url))
+            document_service.upsert(db, DocumentCreate(url=url, text=text, source=sitemap_url), embed=True)
 
         return {"content": f"{sitemap_url}: RAG data indexed successfully"}
 

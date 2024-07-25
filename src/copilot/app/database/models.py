@@ -1,14 +1,16 @@
 from typing import Optional
-from sqlalchemy import Integer, ForeignKey, String, Text, DateTime, func
+from sqlalchemy import Integer, ForeignKey, String, Text, DateTime, func, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
+from sqlalchemy.dialects.postgresql import TSVECTOR, to_tsvector
 # SQLAlchemy-2.0.30
 
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 
 
 class EmbeddedMixin (object):
-    text: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    text_tsv: Mapped[str] = mapped_column(TSVECTOR, nullable=False, unique=True, index=True)
     embedding: Mapped[Vector] = mapped_column(Vector(1536), nullable=True)
     language: Mapped[Optional[str]] = mapped_column(String(3), nullable=True)
 
@@ -17,6 +19,9 @@ class EmbeddedMixin (object):
     created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
     modified_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 
+    __table_args__ = (
+        Index('idx_text_md5', 'text_md5', unique=True, postgresql_using='gin')
+    )
 
 Base = declarative_base()
 

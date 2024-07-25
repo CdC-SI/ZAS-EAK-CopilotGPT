@@ -13,6 +13,5 @@ COPY . .
 # Set pythonpath
 ENV PYTHONPATH="/app:/app/config"
 
-
 # Standard command that is executed when the container is started
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

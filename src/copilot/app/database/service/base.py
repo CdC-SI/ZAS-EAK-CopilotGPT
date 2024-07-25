@@ -91,3 +91,10 @@ class EmbeddingService(BaseService):
             self._embed(obj)
         db.commit()
         return objs
+
+    def embed_missing(self, db: Session):
+        questions = db.scalars(select(self.model).filter(self.model.embedding.is_(None))).all()
+        for question in questions:
+            self._embed(question)
+        db.commit()
+        return questions
