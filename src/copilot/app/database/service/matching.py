@@ -96,7 +96,7 @@ class MatchingService(EmbeddingService):
 
         return db.scalars(stmt).all()
 
-    def get_semantic_match(self, db: Session, user_input: str, symbol: str = '<=>', language: str = None, k: int = 0):
+    def get_semantic_match(self, db: Session, user_input: str, symbol: str = "<=>", language: str = None, k: int = 0):
         """
         Get semantic match from database
 
@@ -116,20 +116,21 @@ class MatchingService(EmbeddingService):
         q_embedding = get_embedding(user_input)
 
         stmt = select(self.model)
+        stmt = stmt.filter(self.model.embedding.isnot(None))
         if language:
             stmt = stmt.filter(self.model.language == language)
 
-        stmt = stmt.order_by(func.op(symbol)(q_embedding).asc())
+        stmt = stmt.order_by(self.model.embedding.op(symbol)(q_embedding).asc())
         if k > 0:
             stmt = stmt.limit(k)
 
         return db.scalars(stmt).all()
 
     def semantic_similarity_match_l1(self, db: Session, user_input: str, language: str = None, k: int = 0):
-        return self.get_semantic_match(db, user_input, symbol='<+>', language=language, k=k)
+        return self.get_semantic_match(db, user_input, symbol="<+>", language=language, k=k)
 
     def semantic_similarity_match_l2(self, db: Session, user_input: str, language: str = None, k: int = 0):
-        return self.get_semantic_match(db, user_input, symbol='<->', language=language, k=k)
+        return self.get_semantic_match(db, user_input, symbol="<->", language=language, k=k)
 
     def semantic_similarity_match_inner_prod(self, db: Session, user_input: str, language: str = None, k: int = 0):
-        return self.get_semantic_match(db, user_input, symbol='<#>', language=language, k=k)
+        return self.get_semantic_match(db, user_input, symbol="<#>", language=language, k=k)

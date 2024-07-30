@@ -1,10 +1,11 @@
+from typing import Union, Tuple
+
 from sqlalchemy.orm import Session
 
 from .matching import MatchingService
 from .document import document_service
-from .source import source_service
-from ..models import Question, Source
-from ..schemas import QuestionCreate, QuestionsCreate, DocumentCreate, SourceCreate
+from ..models import Question
+from ..schemas import QuestionCreate, QuestionItem, DocumentCreate, QuestionUpdate
 
 import logging
 
@@ -16,64 +17,45 @@ class QuestionService(MatchingService):
     def __init__(self):
         super().__init__(Question)
 
-    def _create(self, db: Session, obj_in: QuestionCreate, source: Source = None, embed=False):
-        db_document = document_service.upsert(db, DocumentCreate(url=obj_in.url, text=obj_in.answer, language=obj_in.language, source=obj_in.source))
+    def _create(self, db: Session, obj_in: QuestionCreate, embed: Union[Tuple[bool, bool], bool] = False):
+        if not isinstance(embed, tuple):
+            embed = (embed, embed)
+
+        db_document = document_service.upsert(db, DocumentCreate(**obj_in.model_dump(exclude_unset=True)), embed=embed[1])
 
         db_question = Question(text=obj_in.text, answer=db_document, answer_id=db_document.id, language=obj_in.language, url=obj_in.url, source=db_document.source, source_id=db_document.source_id)
-        if embed:
+        if embed[0]:
             db_question = self._embed(db_question)
 
         db.add(db_question)
 
         return db_question
 
-    def create(self, db: Session, obj_in: QuestionCreate, embed=False):
+    def create(self, db: Session, obj_in: QuestionCreate, embed: Union[Tuple[bool, bool], bool] = False):
         db_question = self._create(db, obj_in, embed=embed)
         db.commit()
         return db_question
 
-    def create_all(self, db: Session, objs_in: QuestionsCreate, embed=False):
-        db_source = source_service.get_or_create(db, SourceCreate(url=objs_in.source))
+    def _update(self, db: Session, db_question: Question, question: QuestionCreate, embed: Union[Tuple[bool, bool], bool] = False):
+        if not isinstance(embed, tuple):
+            embed = (embed, embed)
+        document_service.update(db, db_question.answer, DocumentCreate(url=question.url, text=question.answer, language=question.language, source=question.source), embed=embed[1])
 
-        db_objs = []
-        for obj_in in objs_in.objects:
-            db_objs.append(self._create(db, obj_in, db_source, embed=embed))
-        db.commit()
-        return db_objs
+        exclude = self._update_embed_exclude(db_question, question, embed[0])
+        super()._update(db, db_question, QuestionUpdate(**question.model_dump(exclude=exclude), source_id=db_question.answer.source_id))
 
-    def upsert(self, db: Session, obj_in: QuestionCreate, embed=False):
-        db_question = self.get_by_text(db, obj_in.text)
-        if db_question:
-            db_question = self._update(db, db_question, obj_in, embed=embed)
+        return db_question
+
+    def upsert_item(self, db: Session, item_in: QuestionItem):
+        obj_in = QuestionCreate(**item_in.model_dump(exclude={"id"}), source="username")
+        if item_in.id:
+            db_obj = self.get(db, item_in.id)
+            self._update(db, db_obj, obj_in)
         else:
-            db_question = self._create(db, obj_in, embed=embed)
+            db_obj = self._create(db, obj_in)
 
         db.commit()
-        return db_question
-
-    def upsert_all(self, db: Session, obj_in: QuestionsCreate, embed=False):
-        db_questions = []
-        for obj_in in obj_in.objects:
-            db_questions.append(self.upsert(db, obj_in, embed=embed))
-        db.commit()
-        return db_questions
-
-    def get_by_text(self, db: Session, question: str):
-        return db.query(self.model).filter(self.model.text == question).one_or_none()
-
-    def _update(self, db: Session, db_question, question: QuestionCreate, embed=False):
-        document_service.update(db, db_question.answer, DocumentCreate(url=question.url, text=question.answer, language=question.language, source=question.source))
-
-        db_question.text = question.text
-        db_question.answer.text = question.answer
-        db_question.language = question.language
-        db_question.url = question.url
-        db_question.source.url = question.source
-
-        if embed:
-            db_question = self._embed(db_question)
-
-        return db_question
+        return db_obj
 
 
 question_service = QuestionService()

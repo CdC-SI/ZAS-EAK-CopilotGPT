@@ -4,13 +4,16 @@ autocomplete:
   results:
     limit: 15
   exact_match:
-    limit: 0
+    limit: 10
   fuzzy_match:
     threshold: 50
-    limit: 2
+    limit: 10
+  trigram_match:
+    threshold: 0.4
+    limit: 10
   semantic_similarity_match:
     metric: cosine_similarity
-    limit: 0
+    limit: 10
 rag:
   enabled: true
   embedding:
@@ -19,7 +22,7 @@ rag:
     top_k: 1
     metric: cosine_similarity
   llm:
-    model: gpt-3.5-turbo-0125
+    model: gpt-4o-mini
     temperature: 0
     max_output_tokens: 512
     top_p: 0.95

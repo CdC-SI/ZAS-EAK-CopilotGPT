@@ -4,6 +4,13 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
+class SourceBase(BaseModel):
+    """
+    Base class for Source
+    """
+    url: str
+
+
 class DocumentBase(BaseModel):
     """
     Base class for Document
@@ -11,98 +18,20 @@ class DocumentBase(BaseModel):
     language: Optional[str] = None
     text: str
     url: str
-    source_id: Optional[int] = None
 
     class Config:
         arbitrary_types_allowed = True
-
-
-class DocumentUpdate(DocumentBase):
-    """
-    Update class for Document
-    """
-    pass
-
-
-class DocumentCreate(DocumentBase):
-    """
-    Create class for Document
-    """
-    source: str
-    pass
-
-
-class DocumentsCreate(BaseModel):
-    """
-    Create class for Documents
-    """
-    objects: list[DocumentCreate]
-    source: Optional[str] = None
-
-
-class Document(DocumentBase):
-    """
-    Class for Document
-    """
-    id: int
-    embedding: Optional[list[float]] = None
-
-    created_at: datetime
-    modified_at: datetime
-
-    class Config:
-        from_orm = True
 
 
 class QuestionBase(BaseModel):
     """
     Base class for QuestionBase
     """
-    language: Optional[str] = None
     text: str
     url: str
 
     class Config:
         arbitrary_types_allowed = True
-
-
-class QuestionCreate(QuestionBase):
-    """
-    Create class for ArticleFAQ
-    """
-    answer: str
-    source: str
-
-
-class QuestionsCreate(BaseModel):
-    """
-    Create class for ArticlesFAQ
-    """
-    objects: list[QuestionCreate]
-    source: Optional[str] = None
-
-
-class Question(QuestionBase):
-    """
-    Class for ArticleFAQ
-    """
-    id: int
-    answer_id: int
-    source_id: Optional[int] = None
-    embedding: Optional[list[float]] = None
-
-    created_at: datetime
-    modified_at: datetime
-
-    class Config:
-        from_orm = True
-
-
-class SourceBase(BaseModel):
-    """
-    Base class for Source
-    """
-    url: str
 
 
 class SourceCreate(SourceBase):
@@ -112,14 +41,94 @@ class SourceCreate(SourceBase):
     pass
 
 
+class DocumentCreate(DocumentBase):
+    """
+    Create class for Document
+    """
+    embedding: Optional[list[float]] = None
+    source: str
+
+
+class DocumentsCreate(BaseModel):
+    """
+    Create class for Documents
+    """
+    objects: list[DocumentCreate]
+
+
+class QuestionCreate(QuestionBase):
+    """
+    Create class for ArticleFAQ
+    """
+    language: Optional[str] = None
+    answer: str
+    embedding: Optional[list[float]] = None
+    source: str
+
+
+class QuestionsCreate(BaseModel):
+    """
+    Create class for ArticlesFAQ
+    """
+    objects: list[QuestionCreate]
+
+
+class DocumentUpdate(DocumentBase):
+    """
+    Update class for Document
+    """
+    source_id: Optional[int] = None
+    embedding: Optional[list[float]] = None
+
+
+class QuestionUpdate(QuestionBase):
+    """
+    Update class for Document
+    """
+    source_id: Optional[int] = None
+    embedding: Optional[list[float]] = None
+
+
+class QuestionItem(QuestionBase):
+    """
+    Upsert class for Question in Survey Pipeline
+    """
+    id: Optional[int] = None
+    language: Optional[str] = None
+    answer: str
+
+
 class Source(SourceBase):
     """
     Class for Source
     """
     id: int
 
-    questions: list[Question] = []
-    documents: list[Document] = []
+    questions: list[QuestionBase] = []
+    documents: list[DocumentBase] = []
+
+    class Config:
+        from_orm = True
+
+
+class Document(DocumentBase):
+    """
+    Class for Document
+    """
+    id: int
+    source: SourceBase
+
+    class Config:
+        from_orm = True
+
+
+class Question(QuestionBase):
+    """
+    Class for ArticleFAQ
+    """
+    id: int
+    answer: DocumentBase
+    source: SourceBase
 
     class Config:
         from_orm = True

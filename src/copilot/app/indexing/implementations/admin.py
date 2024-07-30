@@ -7,11 +7,10 @@ from haystack.components.converters import HTMLToDocument
 from bs4 import BeautifulSoup
 
 from indexing.base import BaseParser, BaseIndexer
-from utils.embedding import get_embedding
 from .scraper import scraper
 
+from sqlalchemy.orm import Session
 from database.service.document import document_service
-from database.database import get_db
 from database.schemas import DocumentCreate
 
 # Setup logging
@@ -87,7 +86,7 @@ class AdminIndexer(BaseIndexer):
         Scraps, parses and indexes HTML webpage content from the given sitemap URL into the VectorDB.
     """
     # TO DO: index multiple languages: ["de", "fr", "it"]
-    async def index(self, sitemap_url: str) -> dict:
+    async def index(self, sitemap_url: str, db: Session, embed: bool = True) -> dict:
         """
         Should implement the following steps:
         1. Fetch the sitemap content
@@ -123,11 +122,10 @@ class AdminIndexer(BaseIndexer):
 
         # TO DO: refactor embedding logic to embed from documents (add from_documents method)
         # Upsert documents into VectorDB
-        db = next(get_db())
         for doc in chunks["documents"]:
             text = doc.content
             url = doc.meta["url"]
-            document_service.upsert(db, DocumentCreate(url=url, text=text, source=sitemap_url), embed=True)
+            document_service.upsert(db, DocumentCreate(url=url, text=text, source=sitemap_url), embed=embed)
 
         return {"content": f"{sitemap_url}: RAG data indexed successfully"}
 

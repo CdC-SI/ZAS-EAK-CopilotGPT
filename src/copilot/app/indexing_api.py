@@ -17,7 +17,7 @@ from indexing.scraper import Scraper
 from sqlalchemy.orm import Session
 from database.service.question import question_service
 from database.service.document import document_service
-from database.schemas import QuestionCreate, DocumentCreate, DocumentsCreate, SourceCreate
+from database.schemas import Question, QuestionCreate, DocumentCreate, QuestionItem
 from database.database import get_db
 
 # Load models
@@ -40,7 +40,7 @@ async def init_indexing():
         if indexing_config["dev_mode"]:
             try:
                 logger.info("Auto-indexing sample FAQ data")
-                await index_faq_vectordb()
+                add_faq_data_from_csv()
             except Exception as e:
                 logger.error("Dev-mode: Failed to index sample FAQ data: %s", e)
         # If dev-mode is deactivated, scrap and index all bsv.admin.ch FAQ data
@@ -56,7 +56,7 @@ async def init_indexing():
         if indexing_config["dev_mode"]:
             try:
                 logger.info("Auto-indexing sample RAG data")
-                await index_rag_vectordb()
+                add_rag_data_from_csv()
             except Exception as e:
                 logger.error("Failed to index sample RAG data: %s", e)
         # If dev-mode is deactivated, scrap and index all RAG data (NOTE: Will be implemented soon.)
@@ -76,8 +76,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.post("/add_rag_data_from_csv", summary="Insert data for RAG without embedding from a local csv file", status_code=200, response_model=ResponseBody)
-def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", db: Session = Depends(get_db)):
+def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", embed: bool = False, db: Session = Depends(get_db)):
     """
     Add and index test data for RAG from csv files without embeddings.
 
@@ -89,18 +90,15 @@ def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", db
     with open(file_path, mode='r') as file:
         data = csv.DictReader(file)
 
-        documents = []
         for row in data:
             document = DocumentCreate(url=row["url"], text=row["text"], source=file_path)
-            documents.append(document)
-
-    document_service.upsert_all(db, DocumentsCreate(objects=documents, source=file_path))
+            document_service.upsert(db, document, embed=embed)
 
     return {"content": "yay"}
 
 
 @app.post("/add_faq_data_from_csv", summary="Insert data for FAQ without embedding from a local csv file", status_code=200, response_model=ResponseBody)
-def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", db: Session = Depends(get_db)):
+def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", embed: bool = False, db: Session = Depends(get_db)):
     """
     Add and index test data for RAG from csv files without embeddings.
 
@@ -112,39 +110,56 @@ def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", db
     with open(file_path, mode='r') as file:
         data = csv.DictReader(file)
 
-        questions = []
         for row in data:
             question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], source=file_path, language=row["language"])
-            question_service.upsert(db, question)
+            question_service.upsert(db, question, embed=embed)
 
     return {"content": "yay"}
 
 
 @app.post("/embed_rag_data", summary="Embed all data for RAG that have not been embedded yet", status_code=200, response_model=ResponseBody)
-def embed_rag_data(db: Session = Depends(get_db)):
+def embed_rag_data(db: Session = Depends(get_db), embed_empty_only: bool = True, k: int = 0):
     """
     Embed all data for RAG that have not been embedded yet.
+
+    Parameters
+    ----------
+    db : Session
+        Database session
+    embed_empty_only : bool, optional
+        Embed only data that have not been embedded yet. Defaults to True.
+    k : int, optional
+        Number of questions to embed. Default to 0 which means all questions.
 
     Returns
     -------
     str
         Confirmation message upon successful completion of the process
     """
-    document_service.embed_all(db)
+    document_service.embed_many(db, embed_empty_only, k)
     return {"content": "yay"}
 
 
 @app.post("/embed_faq_data", summary="Embed all data for FAQ that have not been embedded yet", status_code=200, response_model=ResponseBody)
-def embed_faq_data(db: Session = Depends(get_db)):
+def embed_faq_data(db: Session = Depends(get_db), embed_empty_only: bool = True, k: int = 0):
     """
     Embed all data for FAQ that have not been embedded yet.
+
+    Parameters
+    ----------
+    db : Session
+        Database session
+    embed_empty_only : bool, optional
+        Embed only data that have not been embedded yet. Defaults to True.
+    k : int, optional
+        Number of questions to embed. Default to 0 which means all questions.
 
     Returns
     -------
     str
         Confirmation message upon successful completion of the process
     """
-    document_service.embed_all(db)
+    question_service.embed_many(db, embed_empty_only, k)
     return {"content": "yay"}
 
 
@@ -153,7 +168,7 @@ def embed_faq_data(db: Session = Depends(get_db)):
           response_description="Confirmation message upon successful indexing",
           status_code=200,
           response_model=ResponseBody)
-async def index_pdfs_from_sitemap(sitemap_url: str = "https://www.ahv-iv.ch/de/Sitemap-DE"):
+async def index_pdfs_from_sitemap(sitemap_url: str = "https://www.ahv-iv.ch/de/Sitemap-DE", embed: bool = False, db: Session = Depends(get_db)):
     """
     Indexes PDFs from a given sitemap URL. The PDFs are scraped and their data is added to the
     embedding database. This function is specifically designed for the site "https://www.ahv-iv.ch".
@@ -162,15 +177,17 @@ async def index_pdfs_from_sitemap(sitemap_url: str = "https://www.ahv-iv.ch/de/S
     ----------
     sitemap_url : str, optional
         The URL of the sitemap to scrape PDFs from. Defaults to "https://www.ahv-iv.ch/de/Sitemap-DE".
-    language : str, optional
-        The language of the PDFs. Defaults to "de" (German).
+    embed : bool, optional
+        Whether to embed the data or not. Defaults to False.
+    db : Session
+        Database session
 
     Returns
     -------
     ResponseBody
         A response body containing a confirmation message upon successful completion of the process.
     """
-    return await ahv_indexer.index(sitemap_url)
+    return await ahv_indexer.index(sitemap_url, db, embed=embed)
 
 
 @app.post("/index_html_from_sitemap",
@@ -178,7 +195,7 @@ async def index_pdfs_from_sitemap(sitemap_url: str = "https://www.ahv-iv.ch/de/S
           response_description="Confirmation message upon successful indexing",
           status_code=200,
           response_model=ResponseBody)
-async def index_html_from_sitemap(sitemap_url: str = "https://eak.admin.ch/eak/de/home.sitemap.xml"):
+async def index_html_from_sitemap(sitemap_url: str = "https://eak.admin.ch/eak/de/home.sitemap.xml", embed: bool = False, db: Session = Depends(get_db)):
     """
     Indexes HTML from a given sitemap URL. The HTML pages are scraped and their data is added to the
     embedding database. This function is specifically designed for the site "https://eak.admin.ch".
@@ -195,35 +212,7 @@ async def index_html_from_sitemap(sitemap_url: str = "https://eak.admin.ch/eak/d
     ResponseBody
         A response body containing a confirmation message upon successful completion of the process.
     """
-    return await admin_indexer.index(sitemap_url)
-
-
-@app.post("/index_rag_vectordb", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
-async def index_rag_vectordb(db: Session = Depends(get_db)):
-    """
-    Add and index test data for RAG to the embedding database.
-
-    Returns
-    -------
-    str
-        Confirmation message upon successful completion of the process
-    """
-    add_rag_data_from_csv()
-    return embed_rag_data()
-
-
-@app.post("/index_faq_vectordb", summary="Insert Embedding data for FAQ autocomplete semantic similarity search", response_description="Insert Embedding data for FAQ semantic similarity search", status_code=200, response_model=ResponseBody)
-def index_faq_vectordb(db: Session = Depends(get_db)):
-    """
-    Add and index test data for Autocomplete to the FAQ database.
-
-    Returns
-    -------
-    str
-        Confirmation message upon successful completion of the process
-    """
-    add_faq_data_from_csv()
-    return embed_faq_data
+    return await admin_indexer.index(sitemap_url, db, embed=embed)
 
 
 @app.get("/crawl_data", summary="Crawling endpoint", response_description="Welcome Message")
@@ -275,7 +264,7 @@ async def chunk_rag_data():
 
 
 @app.put("/index_faq_data", summary="Insert Data from faq.bsv.admin.ch", response_description="Insert Data from faq.bsv.admin.ch")
-async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xml', k: int = 0):
+async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xml', embed_question: bool = False, embed_answer: bool = False, k: int = 0, db: Session = Depends(get_db)):
     """
     Add and index data for Autocomplete to the FAQ database. The data is obtained by scraping the website `sitemap_url`.
 
@@ -285,6 +274,10 @@ async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xm
         the `sitemap.xml` URL of the website to scrap
     k : int, default 0
         Number of article to scrap and log to test the method.
+    embed : Union[Tuple[bool, bool], bool], default False
+        Flag to indicate whether to embed the source and/or answer documents in the question object
+    db : Session, optional
+        Database session to use for upserting the extracted
 
     Returns
     -------
@@ -294,20 +287,25 @@ async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xm
     logging.basicConfig(level=logging.INFO)
 
     scraper = Scraper(sitemap_url)
-    urls = await scraper.run(k=k)
+    urls = await scraper.run(k=k, embed=(embed_question, embed_answer), db=db)
 
     return {"message": f"Done! {len(urls)} wurden verarbeitet."}
 
 
-@app.put("/data", summary="Update or Insert FAQ Data", response_description="Updated or Inserted Data")
-async def index_data(item: FaqItem):
+@app.put("/data",
+         summary="Update or Insert FAQ Data",
+         response_model=Question,
+         response_description="Updated or Inserted Data")
+async def index_data(item: QuestionItem, db: Session = Depends(get_db)):
     """
     Upsert a single entry to the FAQ dataset.
 
     Parameters
     ----------
-    item : FaqItem
-        The FAQ item to insert or update :
+    item : QuestionItem
+        The Question item to insert or update :
+            id : int, optional
+                The item if update is wanted
             url : str
                 URL where the entry article can be found
             question : str
@@ -316,20 +314,11 @@ async def index_data(item: FaqItem):
                 The question answer
             language : str
                 The article language
+    db : Session
+        Database session
 
     Returns
     -------
     dict
-        The article id, url, question, answer and language upon successful completion of the process
     """
-    #if the item has an id we update directly
-    if item.id:
-        await queries.update_data(item.url, item.question, item.answer, item.language, item.id)
-        logger.info(f"Update item : {item.id} - {item.question}")
-        return {"id": item.id, "url": item.url, "question": item.question, "answer": item.answer, "language": item.language}
-    #if the item has no id we check if a similar question already exists anyway
-    else :
-        info, rid = await queries.update_or_insert(item.url, item.question, item.answer, item.language)
-        logger.info(f"{info}: {item.question}")
-
-    return {"id": rid, "url": item.url, "question": item.question, "answer": item.answer, "language": item.language}
+    return question_service.upsert_item(db, item)

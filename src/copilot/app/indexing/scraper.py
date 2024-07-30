@@ -1,15 +1,14 @@
 import requests
 from bs4 import BeautifulSoup
-from typing import List, Optional
+from typing import List, Optional, Union, Tuple
 import logging
 from lxml import etree
 import re
 
 if __name__ != '__main__':
     from database.service.question import question_service
-    from database.service.source import source_service
-    from database.schemas import QuestionCreate, SourceCreate
-    from database.database import get_db
+    from database.schemas import QuestionCreate
+    from sqlalchemy.orm import Session
 
 SITEMAP_URL = 'http://www.sitemaps.org/schemas/sitemap/0.9'
 
@@ -42,7 +41,7 @@ class Scraper:
             self.session.proxies.update({"http": proxy})
             self.session.proxies.update({"https": proxy})
 
-    async def run(self, k: int = 0, test: bool = False):
+    async def run(self, k: int = 0, test: bool = False, embed: Union[Tuple[bool, bool], bool] = False, db: Session = None):
         """
         Retrieves and processes FAQ data from `base_url` to insert into the database.
 
@@ -63,6 +62,10 @@ class Scraper:
             Number of articles to scrape and log to test the method
         test : bool, default False
             Flag to indicate whether to test the method by logging the extracted articles instead of upserting them
+        embed : Union[Tuple[bool, bool], bool], default False
+            Flag to indicate whether to embed the source and/or answer documents in the question object
+        db : Session, optional
+            Database session to use for upserting the extracted
 
         Returns
         =======
@@ -75,10 +78,7 @@ class Scraper:
         if k:
             urls = urls[:k]
 
-        db = None
         count = 0
-        if not test:
-            db = next(get_db())
 
         for url in urls:
             lang, h1, article = self.extract_article(url)
@@ -93,10 +93,10 @@ class Scraper:
                     self.logger.info(f"answer: {article}")
                     self.logger.info(f"language: {lang}")
 
-                else:
+                elif db:
                     self.logger.info(f"extract: {url}")
                     article_in = QuestionCreate(text=h1, answer=article, language=lang, url=url, source=self.base_url)
-                    question_service.upsert(db, article_in)
+                    question_service.upsert(db, article_in, embed=embed)
 
         self.logger.info(f"Done! {count} articles have been processed.")
         return urls

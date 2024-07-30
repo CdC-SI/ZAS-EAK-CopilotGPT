@@ -43,7 +43,6 @@ services:
     build:
       context: src/copilot
       dockerfile: Dockerfile
-
     image: copilot
     ports:
       - "8000:8000"
