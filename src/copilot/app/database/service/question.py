@@ -46,16 +46,5 @@ class QuestionService(MatchingService):
 
         return db_question
 
-    def upsert_item(self, db: Session, item_in: QuestionItem):
-        obj_in = QuestionCreate(**item_in.model_dump(exclude={"id"}), source="username")
-        if item_in.id:
-            db_obj = self.get(db, item_in.id)
-            self._update(db, db_obj, obj_in)
-        else:
-            db_obj = self._create(db, obj_in)
-
-        db.commit()
-        return db_obj
-
 
 question_service = QuestionService()
