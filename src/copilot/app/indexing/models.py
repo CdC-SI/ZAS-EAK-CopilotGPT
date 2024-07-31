@@ -1,8 +1,9 @@
 from pydantic import BaseModel
+from typing import Optional
 
 
 class FaqItem(BaseModel):
-    id: int = None
+    id: Optional[int] = None
     question: str
     answer: str
     url: str

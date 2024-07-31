@@ -1,7 +1,6 @@
 from typing import Optional
-from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class SourceBase(BaseModel):
@@ -27,6 +26,7 @@ class QuestionBase(BaseModel):
     """
     Base class for QuestionBase
     """
+    language: Optional[str] = None
     text: str
     url: str
 
@@ -60,7 +60,6 @@ class QuestionCreate(QuestionBase):
     """
     Create class for ArticleFAQ
     """
-    language: Optional[str] = None
     answer: str
     embedding: Optional[list[float]] = None
     source: str
@@ -89,13 +88,11 @@ class QuestionUpdate(QuestionBase):
     embedding: Optional[list[float]] = None
 
 
-class QuestionItem(QuestionBase):
+class QuestionItem(QuestionCreate):
     """
     Upsert class for Question in Survey Pipeline
     """
     id: Optional[int] = None
-    language: Optional[str] = None
-    answer: str
 
 
 class Source(SourceBase):
@@ -108,7 +105,7 @@ class Source(SourceBase):
     documents: list[DocumentBase] = []
 
     class Config:
-        from_orm = True
+        from_attributes = True
 
 
 class Document(DocumentBase):
@@ -116,10 +113,9 @@ class Document(DocumentBase):
     Class for Document
     """
     id: int
-    source: SourceBase
 
     class Config:
-        from_orm = True
+        from_attributes = True
 
 
 class Question(QuestionBase):
@@ -128,7 +124,6 @@ class Question(QuestionBase):
     """
     id: int
     answer: DocumentBase
-    source: SourceBase
 
     class Config:
-        from_orm = True
+        from_attributes = True

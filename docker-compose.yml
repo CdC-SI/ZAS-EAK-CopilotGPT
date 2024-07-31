@@ -65,7 +65,7 @@ services:
   # frontend
   zas-copilot:
     build:
-      context: https://github.com/CdC-SI/copilot-frontend.git#main
+      context: https://github.com/CdC-SI/copilot-frontend.git#feature/222-setup-orm
     image: zas-copilot:latest
     ports:
       - "4200:4200"

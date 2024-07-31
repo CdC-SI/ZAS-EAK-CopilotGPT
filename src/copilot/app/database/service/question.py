@@ -21,7 +21,7 @@ class QuestionService(MatchingService):
         if not isinstance(embed, tuple):
             embed = (embed, embed)
 
-        db_document = document_service.upsert(db, DocumentCreate(**obj_in.model_dump(exclude_unset=True)), embed=embed[1])
+        db_document = document_service.upsert(db, DocumentCreate(**obj_in.model_dump(exclude={"text", "answer","embedding"}), text=obj_in.answer), embed=embed[1])
 
         db_question = Question(text=obj_in.text, answer=db_document, answer_id=db_document.id, language=obj_in.language, url=obj_in.url, source=db_document.source, source_id=db_document.source_id)
         if embed[0]:

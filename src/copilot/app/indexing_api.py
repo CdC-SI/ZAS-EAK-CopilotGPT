@@ -296,13 +296,13 @@ async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xm
          summary="Update or Insert FAQ Data",
          response_model=Question,
          response_description="Updated or Inserted Data")
-async def index_data(item: QuestionItem, db: Session = Depends(get_db)):
+async def index_data(item: FaqItem, db: Session = Depends(get_db)):
     """
     Upsert a single entry to the FAQ dataset.
 
     Parameters
     ----------
-    item : QuestionItem
+    item : FaqItem
         The Question item to insert or update :
             id : int, optional
                 The item if update is wanted
@@ -321,4 +321,5 @@ async def index_data(item: QuestionItem, db: Session = Depends(get_db)):
     -------
     dict
     """
-    return question_service.upsert_item(db, item)
+    q_item = QuestionItem(**item.model_dump(exclude={"question"}), text=item.question, source="username")
+    return question_service.upsert(db, q_item)
