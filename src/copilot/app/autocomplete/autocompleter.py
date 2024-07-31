@@ -10,10 +10,10 @@ class Autocompleter:
     Completer for user input to the copilot
     """
 
-    def __init__(self):
-        self.limit = autocomplete_config["results"]["limit"]
-        self.fuzzy_match_threshold = autocomplete_config["fuzzy_match"]["limit"]
-        self.trigram_match_threshold = autocomplete_config["trigram_match"]["threshold"]
+    def __init__(self, limit: int, fuzzy_match_threshold: int, trigram_match_threshold: int):
+        self.limit = limit
+        self.fuzzy_match_threshold = fuzzy_match_threshold
+        self.trigram_match_threshold = trigram_match_threshold
 
         self.semantic_matches_cache = {}
 
@@ -78,4 +78,7 @@ class Autocompleter:
         return unique_matches
 
 
-autocompleter = Autocompleter()
+autocompleter = Autocompleter(
+    limit=autocomplete_config["results"]["limit"],
+    fuzzy_match_threshold=autocomplete_config["fuzzy_match"]["limit"],
+    trigram_match_threshold=autocomplete_config["trigram_match"]["threshold"])
