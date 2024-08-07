@@ -130,7 +130,7 @@ def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", em
         data = csv.DictReader(file)
 
         for row in data:
-            embedding = row["embedding"] if row["embedding"] else None
+            embedding = ast.literal_eval(row["embedding"]) if row["embedding"] else None
             question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file_path, language=row["language"])
             question_service.upsert(db, question, embed=embed)
 
