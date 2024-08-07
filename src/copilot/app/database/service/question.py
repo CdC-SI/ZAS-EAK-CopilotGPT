@@ -39,7 +39,7 @@ class QuestionService(MatchingService):
     def _update(self, db: Session, db_question: Question, question: QuestionCreate, embed: Union[Tuple[bool, bool], bool] = False):
         if not isinstance(embed, tuple):
             embed = (embed, embed)
-        document_service.update(db, db_question.answer, DocumentCreate(url=question.url, text=question.answer, language=question.language, source=question.source), embed=embed[1])
+        document_service.update(db, db_question.answer, DocumentCreate(url=question.url, text=question.answer, language=question.language, embedding = question.embedding, source=question.source), embed=embed[1])
 
         exclude = self._update_embed_exclude(db_question, question, embed[0])
         super()._update(db, db_question, QuestionUpdate(**question.model_dump(exclude=exclude), source_id=db_question.answer.source_id))

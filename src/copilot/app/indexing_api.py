@@ -24,7 +24,7 @@ from database.database import get_db
 from rag.models import ResponseBody
 from indexing.models import FaqItem
 
-
+import ast
 import csv
 
 # Setup logging
@@ -91,7 +91,8 @@ def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", em
         data = csv.DictReader(file)
 
         for row in data:
-            document = DocumentCreate(url=row["url"], text=row["text"], source=file_path)
+            embedding = ast.literal_eval(row["embedding"]) if row["embedding"] else None
+            document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file_path)
             document_service.upsert(db, document, embed=embed)
 
     return {"content": "yay"}
@@ -111,7 +112,8 @@ def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", em
         data = csv.DictReader(file)
 
         for row in data:
-            question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], source=file_path, language=row["language"])
+            embedding = row["embedding"] if row["embedding"] else None
+            question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file_path, language=row["language"])
             question_service.upsert(db, question, embed=embed)
 
     return {"content": "yay"}
