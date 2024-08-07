@@ -7,10 +7,20 @@ from database.service.question import question_service
 
 class Autocompleter:
     """
-    Completer for user input to the copilot
+    Autocomplete user input to the CopilotChat
     """
 
     def __init__(self, limit: int, fuzzy_match_threshold: int, trigram_match_threshold: int):
+        """
+        Parameters
+        ----------
+        limit : int
+            number of results to return
+        fuzzy_match_threshold : int
+            threshold for fuzzy matching with levenshtein, only results with a similarity score below this threshold will be returned
+        trigram_match_threshold : int
+            threshold for trigram matching, only results with a similarity score above this threshold will be returned
+        """
         self.limit = limit
         self.fuzzy_match_threshold = fuzzy_match_threshold
         self.trigram_match_threshold = trigram_match_threshold
@@ -18,7 +28,21 @@ class Autocompleter:
         self.semantic_matches_cache = {}
 
     def _cache_key(self, question, language):
-        """Generate a cache key based on the question and language."""
+        """
+        Generate a cache key based on the question and language.
+
+        Parameters
+        ----------
+        question : str
+            question to match
+        language : str
+            question and results language
+
+        Returns
+        -------
+        str
+            a cache key encoded as a md5 hash
+        """
         return hashlib.md5(f"{question}_{language}".encode()).hexdigest()
 
     async def get_autocomplete(self, db: Session, question: str, language: str = None, k: int = 0):

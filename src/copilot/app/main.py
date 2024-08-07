@@ -42,4 +42,12 @@ api.mount("/rag", rag_app)
           summary="Hello",
           status_code=200)
 async def welcome():
+    """
+    Dummy endpoint for testing the API.
+
+    Returns
+    -------
+    str
+        A welcome message.
+    """
     return "Hello!"

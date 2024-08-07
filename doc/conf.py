@@ -33,7 +33,6 @@ release = '0.1.0'
 
 # Add any Sphinx extension module
 extensions = [
-    'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.todo',
     "sphinx_copybutton",
