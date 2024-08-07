@@ -1,21 +1,15 @@
 import logging
 import time
-import asyncpg
 from fastapi import HTTPException
 
 # Import env vars
 from config.db_config import DB_PARAMS
 
+from database.database import get_db
+
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-
-# Function to create a db connection
-def get_db_connection():
-    """Establish a database connection."""
-    conn = asyncpg.connect(**DB_PARAMS)
-    return conn
 
 
 # Function to check if db is up
@@ -23,8 +17,7 @@ async def check_db_connection(retries: int = 5, delay: int = 5):
     """Check if database is up."""
     for _ in range(retries):
         try:
-            conn = await get_db_connection()
-            await conn.close()
+            conn = get_db()
             logger.info("Database connection successful.")
             return
         except Exception as e:

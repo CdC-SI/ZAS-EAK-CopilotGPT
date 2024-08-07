@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import FastAPI, status, Depends
+from fastapi import FastAPI, status, Depends, HTTPException
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 from config.network_config import CORS_ALLOWED_ORIGINS
@@ -9,7 +9,6 @@ from config.network_config import CORS_ALLOWED_ORIGINS
 from config.base_config import indexing_config, indexing_app_config
 
 # Load utility functions
-from utils.db import check_db_connection
 from indexing.implementations.admin import admin_indexer
 from indexing.implementations.ahv import ahv_indexer
 from indexing.scraper import Scraper
@@ -33,8 +32,9 @@ logger = logging.getLogger(__name__)
 
 
 async def init_indexing():
-    await check_db_connection(retries=10, delay=10)
-
+    """
+    Initialize the database according to the configuration ``indexing_config`` specified in ``config.yaml``
+    """
     if indexing_config["faq"]["auto_index"]:
         # With dev-mode, only index sample FAQ data
         if indexing_config["dev_mode"]:
@@ -82,6 +82,15 @@ def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", em
     """
     Add and index test data for RAG from csv files without embeddings.
 
+    Parameters
+    ----------
+    file_path : str, optional
+        Path to the csv file containing the data. Defaults to "indexing/data/rag_test_data.csv".
+    embed : bool, optional
+        Whether to embed the data or not. Defaults to False.
+    db : Session
+        Database session
+
     Returns
     -------
     str
@@ -101,6 +110,15 @@ def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", em
 def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", embed: bool = False, db: Session = Depends(get_db)):
     """
     Add and index test data for RAG from csv files without embeddings.
+
+    Parameters
+    ----------
+    file_path : str, optional
+        Path to the csv file containing the data. Defaults to "indexing/data/faq_test_data.csv".
+    embed : bool, optional
+        Whether to embed the data or not. Defaults to False.
+    db : Session
+        Database session
 
     Returns
     -------
@@ -204,8 +222,10 @@ async def index_html_from_sitemap(sitemap_url: str = "https://eak.admin.ch/eak/d
     ----------
     sitemap_url : str, optional
         The URL of the sitemap to scrape HTML from. Defaults to "https://eak.admin.ch/eak/de/home.sitemap.xml".
-    language : str, optional
-        The language of the HTML pages. Defaults to "de" (German).
+    embed : bool, optional
+        Whether to embed the data or not. Defaults to False.
+    db : Session
+        Database session
 
     Returns
     -------
@@ -213,54 +233,6 @@ async def index_html_from_sitemap(sitemap_url: str = "https://eak.admin.ch/eak/d
         A response body containing a confirmation message upon successful completion of the process.
     """
     return await admin_indexer.index(sitemap_url, db, embed=embed)
-
-
-@app.get("/crawl_data", summary="Crawling endpoint", response_description="Welcome Message")
-async def crawl_data():
-    """
-    Dummy endpoint for data crawling.
-    """
-    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-
-
-@app.get("/scrap_data/", summary="Scraping Endpoint", response_description="Welcome Message")
-async def scrap_data():
-    """
-    Dummy endpoint for data scraping.
-    """
-    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-
-
-@app.get("/index_data", summary="Indexing Endpoint", response_description="Welcome Message")
-async def index_data():
-    """
-    Dummy endpoint for data indexing.
-    """
-    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-
-
-@app.get("/parse_faq_data", summary="FAQ Parsing Endpoint", response_description="Welcome Message")
-async def parse_faq_data():
-    """
-    Dummy endpoint for FAQ data parsing.
-    """
-    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-
-
-@app.get("/parse_rag_data", summary="Parsing Endpoint", response_description="Welcome Message")
-async def parse_rag_data():
-    """
-    Dummy endpoint for data parsing (RAG).
-    """
-    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-
-
-@app.get("/chunk_rag_data", summary="Chunking Endpoint", response_description="Welcome Message")
-async def chunk_rag_data():
-    """
-    Dummy endpoint for data chunking (RAG).
-    """
-    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 @app.put("/index_faq_data", summary="Insert Data from faq.bsv.admin.ch", response_description="Insert Data from faq.bsv.admin.ch")
@@ -274,8 +246,10 @@ async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xm
         the `sitemap.xml` URL of the website to scrap
     k : int, default 0
         Number of article to scrap and log to test the method.
-    embed : Union[Tuple[bool, bool], bool], default False
-        Flag to indicate whether to embed the source and/or answer documents in the question object
+    embed_question : bool, default False
+        Flag to indicate if the system embeds questions text
+    embed_answer : bool, default False
+        Flag to indicate if the system embeds answers text
     db : Session, optional
         Database session to use for upserting the extracted
 

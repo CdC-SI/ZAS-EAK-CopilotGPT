@@ -40,13 +40,14 @@ Demo
    :caption: Documentation
    :hidden:
 
-   documentation/api
-   documentation/indexing/index
-   documentation/survey/index
-   documentation/rag/index
-   documentation/chatbot/index
+   documentation/api/index
    documentation/autocomplete/index
+   documentation/chatbot/index
+   documentation/database/index
    documentation/gui/index
+   documentation/indexing/index
+   documentation/rag/index
+   documentation/survey/index
 
 .. toctree::
    :maxdepth: 2
