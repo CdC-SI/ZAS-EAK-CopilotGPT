@@ -1,10 +1,10 @@
 API
 ###
 
-The ``main.py`` file sets up a FastAPI application *(/apy)* with multiple sub-applications. Each sub-application provide services from one of the main functionalities of the EAK/ZAS CopilotGPT.
+The ``main.py`` file sets up a FastAPI application *(/apy)* with multiple sub-applications. Each sub-application endpoint provide a set of services defining one of the main functionalities of the EAK/ZAS CopilotGPT.
 
 Autocomplete *(/apy/autocomplete)*
-    Provides an endpoint for questions autocomplete suggestions when typing a message in the search bar.
+    Provides an endpoint for questions autocomplete suggestions when typing a message in the search bar. This aims to help users getting a curated answer from the database, avoiding the eventual randomness of the RAG model, while lowering the cost.
 
 Indexing *(/api/indexing)*
     Provides an endpoint for indexing new documents into the database that can be used by the autocomplete or the RAG functionalities.

@@ -7,20 +7,19 @@ from database.service.question import question_service
 
 class Autocompleter:
     """
-    Autocomplete user input to the CopilotChat
-    """
+    Autocomplete user input by providing matching questions from the database.
 
-    def __init__(self, limit: int, fuzzy_match_threshold: int, trigram_match_threshold: int):
-        """
-        Parameters
-        ----------
+    Attributes
+    ----------
         limit : int
             number of results to return
         fuzzy_match_threshold : int
             threshold for fuzzy matching with levenshtein, only results with a similarity score below this threshold will be returned
         trigram_match_threshold : int
             threshold for trigram matching, only results with a similarity score above this threshold will be returned
-        """
+    """
+
+    def __init__(self, limit: int, fuzzy_match_threshold: int, trigram_match_threshold: int):
         self.limit = limit
         self.fuzzy_match_threshold = fuzzy_match_threshold
         self.trigram_match_threshold = trigram_match_threshold
@@ -47,7 +46,13 @@ class Autocompleter:
 
     async def get_autocomplete(self, db: Session, question: str, language: str = None, k: int = 0):
         """
-        Returns matching results according to a defined behaviour
+        Returns matching results according to a defined behaviour.
+
+        If the user input ends with a "space" or a "?" character, return a set of questions that may be relevant to the user.
+        Else return the results stored in the cache from the previous query.
+
+        If there are at lest 5 results from fuzzy matching, fuzzy matching returned. Otherwise, results of semantic
+        similarity matching are returned alongside the fuzzy matching results.
 
         Parameters
         ----------

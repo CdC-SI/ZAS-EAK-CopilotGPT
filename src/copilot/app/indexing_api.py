@@ -81,6 +81,12 @@ app.add_middleware(
 def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", embed: bool = False, db: Session = Depends(get_db)):
     """
     Add and index test data for RAG from csv files without embeddings.
+    The function acknowledges the following columns:
+
+    - *url:* source URL of the document
+    - *text:* Text content of the document
+    - *language (optional):* Language of the document
+    - *embedding (optional):* Embedding of the document
 
     Parameters
     ----------
@@ -101,7 +107,7 @@ def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", em
 
         for row in data:
             embedding = ast.literal_eval(row["embedding"]) if row["embedding"] else None
-            document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file_path)
+            document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file_path, language=row["language"])
             document_service.upsert(db, document, embed=embed)
 
     return {"content": "yay"}
@@ -111,6 +117,13 @@ def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", em
 def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", embed: bool = False, db: Session = Depends(get_db)):
     """
     Add and index test data for RAG from csv files without embeddings.
+    The function acknowledges the following columns:
+
+    - *url:* source URL of the information
+    - *text:* Text content of the question
+    - *answer:* Text content of the answer
+    - *language (optional):* Language of the question and answer
+    - *embedding (optional):* Embedding of the question
 
     Parameters
     ----------
@@ -140,7 +153,7 @@ def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", em
 @app.post("/embed_rag_data", summary="Embed all data for RAG that have not been embedded yet", status_code=200, response_model=ResponseBody)
 def embed_rag_data(db: Session = Depends(get_db), embed_empty_only: bool = True, k: int = 0):
     """
-    Embed all data for RAG that have not been embedded yet.
+    Embed all RAG data (documents) that have not been embedded yet.
 
     Parameters
     ----------
@@ -163,7 +176,7 @@ def embed_rag_data(db: Session = Depends(get_db), embed_empty_only: bool = True,
 @app.post("/embed_faq_data", summary="Embed all data for FAQ that have not been embedded yet", status_code=200, response_model=ResponseBody)
 def embed_faq_data(db: Session = Depends(get_db), embed_empty_only: bool = True, k: int = 0):
     """
-    Embed all data for FAQ that have not been embedded yet.
+    Embed all FAQ questions that have not been embedded yet.
 
     Parameters
     ----------

@@ -1,6 +1,10 @@
 import os
 from dotenv import load_dotenv
 
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -19,3 +23,6 @@ DB_PARAMS = {
     "host": POSTGRES_HOST,
     "port": POSTGRES_PORT,
 }
+
+if os.environ.get("RUN_WITHOUT_DB") == 'true':
+    DB_PARAMS = None

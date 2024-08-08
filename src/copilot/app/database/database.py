@@ -6,13 +6,10 @@ from . import models
 from config.db_config import DB_PARAMS
 
 import time
-from fastapi import HTTPException
 
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-DATABASE_URL = f"postgresql://{DB_PARAMS['user']}:{DB_PARAMS['password']}@{DB_PARAMS['host']}:{DB_PARAMS['port']}/{DB_PARAMS['database']}"
 
 
 def get_db():
@@ -54,7 +51,11 @@ def get_engine(retries: int = 10, delay: int = 5):
     raise Exception("Failed to connect to the database after multiple attempts.")
 
 
-if __name__ != "__main__":
+if DB_PARAMS:
+    logger.info("Connecting to database...")
+    logger.info(DB_PARAMS)
+    DATABASE_URL = f"postgresql://{DB_PARAMS['user']}:{DB_PARAMS['password']}@{DB_PARAMS['host']}:{DB_PARAMS['port']}/{DB_PARAMS['database']}"
+
     engine = get_engine()
     with engine.connect() as con:
         con.execute(text("""
@@ -67,3 +68,5 @@ if __name__ != "__main__":
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
     models.Base.metadata.create_all(bind=engine)
+else:
+    logger.info("Running without database.")

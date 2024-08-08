@@ -6,6 +6,9 @@ from utils.embedding import get_embedding
 
 
 class MatchingService(EmbeddingService):
+    """
+    Class that provide services for matching text with database entries
+    """
 
     def get_exact_match(self, db: Session, user_input: str, language: str = None, k: int = 0):
         """
@@ -39,7 +42,7 @@ class MatchingService(EmbeddingService):
 
     def get_fuzzy_match(self, db: Session, user_input: str, threshold: int = 150, language: str = None, k: int = 0):
         """
-        Get fuzzy match from database
+        Get fuzzy match from database using levenshtein distance
 
         Parameters
         ----------
@@ -79,10 +82,11 @@ class MatchingService(EmbeddingService):
         user_input : str
             User input to match database entries
         threshold : int, optional
+            Trigram similarity threshold, default to 0.4
         language : str, optional
             Question and results language
         k : int, optional
-            Number of results
+            Number of results to return, default to 0 (return all results)
         """
         stmt = select(self.model)
         if language:
@@ -98,7 +102,7 @@ class MatchingService(EmbeddingService):
 
     def get_semantic_match(self, db: Session, user_input: str, symbol: str = "<=>", language: str = None, k: int = 0):
         """
-        Get semantic match from database
+        Get semantic similarity match from database
 
         Parameters
         ----------
@@ -106,8 +110,11 @@ class MatchingService(EmbeddingService):
         user_input : str
             User input to match database entries
         symbol : str, optional
+            distance function symbol, default to `<=>` (cosine distance). For other options, see https://github.com/pgvector/pgvector
         language : str, optional
+            Question and results language
         k : int, optional
+            Number of results to return, default to 0 (return all results)
 
         Returns
         -------
@@ -127,10 +134,19 @@ class MatchingService(EmbeddingService):
         return db.scalars(stmt).all()
 
     def semantic_similarity_match_l1(self, db: Session, user_input: str, language: str = None, k: int = 0):
+        """
+        Get semantic similarity match from database using L1 distance
+        """
         return self.get_semantic_match(db, user_input, symbol="<+>", language=language, k=k)
 
     def semantic_similarity_match_l2(self, db: Session, user_input: str, language: str = None, k: int = 0):
+        """
+        Get semantic similarity match from database using L2 distance
+        """
         return self.get_semantic_match(db, user_input, symbol="<->", language=language, k=k)
 
     def semantic_similarity_match_inner_prod(self, db: Session, user_input: str, language: str = None, k: int = 0):
+        """
+        Get semantic similarity match from database using inner product
+        """
         return self.get_semantic_match(db, user_input, symbol="<#>", language=language, k=k)

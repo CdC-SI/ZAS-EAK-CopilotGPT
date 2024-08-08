@@ -42,9 +42,9 @@ async def autocomplete(question: str,
                        k: int = autocomplete_config['results']['limit'],
                        db: Session = Depends(get_db)):
     """
-    If combined results of get_exact_match() and get_fuzzy_match() return less than 5 results,
-    this method is called after every new "space" character in the question (user query) is
-    added as well as when a "?" character is added at the end of the question.
+    If the user input ends with a "space" or a "?" character, return a set of questions that may be relevant to the user.
+    If there are at lest 5 results from fuzzy matching, they are returned. Otherwise, results of semantic similarity
+    matching are returned alongside the fuzzy matching results.
 
     Parameters
     ----------
@@ -103,7 +103,7 @@ def fuzzy_match(question: str,
                 threshold=autocomplete_config['fuzzy_match']['threshold'],
                 db: Session = Depends(get_db)):
     """
-    Return results from Fuzzy matching
+    Return results from Fuzzy matching, using Levenshtein distance
 
     Parameters
     ----------
