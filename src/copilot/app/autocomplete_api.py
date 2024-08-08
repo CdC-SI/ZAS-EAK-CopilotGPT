@@ -42,7 +42,7 @@ async def autocomplete(question: str,
                        k: int = autocomplete_config['results']['limit'],
                        db: Session = Depends(get_db)):
     """
-    If the user input ends with a "space" or a "?" character, return a set of questions that may be relevant to the user.
+    If the user input ends with a "?" character, return a set of questions that may be relevant to the user.
     If there are at lest 5 results from fuzzy matching, they are returned. Otherwise, results of semantic similarity
     matching are returned alongside the fuzzy matching results.
 

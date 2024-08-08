@@ -23,7 +23,7 @@ os.environ['RUN_WITHOUT_DB'] = 'true'
 
 # -- Project information -----------------------------------------------------
 
-project = 'EAK-Copilot'
+project = 'ZAS/EAK CopilotGPT'
 copyright = '2024, CdC-SI'
 author = 'CdC-SI'
 
@@ -63,7 +63,7 @@ exclude_patterns = []
 #
 html_theme = 'furo'
 html_theme_options = {
-    "source_repository": "https://github.com/CdC-SI/eak-copilot",
+    "source_repository": "https://github.com/CdC-SI/ZAS-EAK-CopilotGPT",
     "source_branch": "main/",
     "source_directory": "doc/",
     "light_css_variables": {
@@ -94,4 +94,4 @@ html_css_files = [
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 html_favicon = "_static/img/favicon.ico"
-html_title = "ZAS/EAK-Copilot documentation"
+html_title = "ZAS/EAK CopilotGPT documentation"
