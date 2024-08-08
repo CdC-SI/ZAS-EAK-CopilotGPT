@@ -1,5 +1,6 @@
 from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
 from rag.models import RAGRequest, EmbeddingRequest
+from rag.factory import RetrieverFactory
 
 from sqlalchemy.orm import Session
 from database.schemas import Document
@@ -27,19 +28,32 @@ class RAGProcessor:
     stream : bool
     temperature : float
     top_p : float
+    retriever :
     top_k : int
     client
     """
     def __init__(self, model: str, max_token: int, stream: bool, temperature: float,
-                 top_p: float, top_k: int, client):
+                 top_p: float, retrieval_method: str, top_k: int, client):
         self.model = model
         self.max_tokens = max_token
         self.stream = stream
         self.temperature = temperature
         self.top_p = top_p
+        self.retriever = self.init_retriever_client(retrieval_method=retrieval_method)
         self.k_retrieve = top_k
 
         self.client = client
+
+    def init_retriever_client(self, retrieval_method: str = "simple"):
+        """
+        Initialize and return a retriever client based on `self.retriever_name`.
+
+        Returns
+        -------
+        object
+            An instance of the appropriate retriever client based on `retrieval_method`.
+        """
+        return RetrieverFactory.get_retriever_client(retrieval_method=retrieval_method)
 
     def retrieve(self, db: Session, request: RAGRequest, language: str = None, k: int = 0):
         """
@@ -61,7 +75,9 @@ class RAGProcessor:
         k : int, default 0
             Number of context documents to return (need to be revised, current logic in the code is confusing)
         """
-        rows = document_service.get_semantic_match(db, request.query, language=language, k=k)
+        rows = self.retriever.get_documents(db, request.query, language=language, k=k)
+        print("-----------------ROWS: ", rows)
+        #rows = document_service.get_semantic_match(db, request.query, language=language, k=k)
 
         return rows[0] if len(rows) > 0 else {"text": "", "url": ""}
 
@@ -173,6 +189,7 @@ processor = RAGProcessor(model=rag_config["llm"]["model"],
                          stream=rag_config["llm"]["stream"],
                          temperature=rag_config["llm"]["temperature"],
                          top_p=rag_config["llm"]["top_p"],
+                         retrieval_method=rag_config["retrieval"]["retrieval_method"],
                          top_k=rag_config["retrieval"]["top_k"],
                          client=clientAI)
 
