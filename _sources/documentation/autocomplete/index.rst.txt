@@ -1,11 +1,10 @@
 Autocomplete
 ############
 
-.. automodule:: autocomplete_api
+.. automodule:: autocomplete.autocompleter
    :members:
 
 .. toctree::
    :hidden:
 
-   autocompleter
    matching

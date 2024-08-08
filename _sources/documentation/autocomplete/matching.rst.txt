@@ -2,5 +2,5 @@ Matching
 ########
 
 
-.. automodule:: autocomplete.matching
+.. automodule:: database.service.matching
    :members:
