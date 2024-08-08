@@ -27,9 +27,7 @@ Prerequisites
     .. code-block:: console
 
         pip install -r doc/requirements.txt
-        pip install -r autocomplete/requirements.txt
-        pip install -r indexing/requirements.txt
-        pip install -r rag/requirements.txt
+        pip install -r src/copilot/requirements.txt
 
 #. Run the build
     .. code-block:: console

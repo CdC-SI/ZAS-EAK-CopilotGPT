@@ -1,15 +1,14 @@
 import requests
 from bs4 import BeautifulSoup
-from typing import List, Optional
+from typing import List, Optional, Union, Tuple
 import logging
 from lxml import etree
 import re
 
-from urllib3.exceptions import InsecureRequestWarning
-from urllib3 import disable_warnings
-
 if __name__ != '__main__':
-    from . import queries
+    from database.service.question import question_service
+    from database.schemas import QuestionCreate
+    from sqlalchemy.orm import Session
 
 SITEMAP_URL = 'http://www.sitemaps.org/schemas/sitemap/0.9'
 
@@ -33,18 +32,16 @@ class Scraper:
         Proxy URL if necessary
     """
 
-    def __init__(self, base_url: str, proxy: str = ''):
+    def __init__(self, base_url: str, proxy: str = None):
         self.base_url = base_url
         self.session = requests.Session()
         self.logger = logging.getLogger(self.__class__.__name__)
 
         if proxy:
-            disable_warnings(category=InsecureRequestWarning)
-            self.session.verify = False
             self.session.proxies.update({"http": proxy})
             self.session.proxies.update({"https": proxy})
 
-    async def run(self, test: int = 0):
+    async def run(self, k: int = 0, test: bool = False, embed: Union[Tuple[bool, bool], bool] = False, db: Session = None):
         """
         Retrieves and processes FAQ data from `base_url` to insert into the database.
 
@@ -61,36 +58,47 @@ class Scraper:
 
         Parameters
         ==========
-        test : int, default 0
-            Number of articles to extract as a test
+        k : int, default 0
+            Number of articles to scrape and log to test the method
+        test : bool, default False
+            Flag to indicate whether to test the method by logging the extracted articles instead of upserting them
+        embed : Union[Tuple[bool, bool], bool], default False
+            Flag to indicate whether to embed the source and/or answer documents in the question object
+        db : Session, optional
+            Database session to use for upserting the extracted
 
         Returns
         =======
         list of str
             list of urls which got extracted
         """
-        self.logger.info(f"Beginne Datenextraktion für: {self.base_url}")
+        self.logger.info(f"Start data extraction für: {self.base_url}")
         urls = self.get_sitemap_urls()
 
-        if test:
-            urls = urls[:test]
+        if k:
+            urls = urls[:k]
+
+        count = 0
 
         for url in urls:
             lang, h1, article = self.extract_article(url)
 
-            if h1 and test:
-                self.logger.info("--------------------")
-                self.logger.info(f"url: {url}")
-                self.logger.info(f"question: {h1}")
-                self.logger.info(f"answer: {article}")
-                self.logger.info(f"language: {lang}")
+            if h1 and article:
+                count += 1
 
-            elif h1 and article:
-                self.logger.info(f"extract: {url}")
-                info, rid = await queries.update_or_insert(url, h1, article, lang)
-                self.logger.info(f"{info}: {url}")
+                if test:
+                    self.logger.info("--------------------")
+                    self.logger.info(f"url: {url}")
+                    self.logger.info(f"question: {h1}")
+                    self.logger.info(f"answer: {article}")
+                    self.logger.info(f"language: {lang}")
 
-        self.logger.info(f"Done! {len(urls)} wurden verarbeitet.")
+                elif db:
+                    self.logger.info(f"extract: {url}")
+                    article_in = QuestionCreate(text=h1, answer=article, language=lang, url=url, source=self.base_url)
+                    question_service.upsert(db, article_in, embed=embed)
+
+        self.logger.info(f"Done! {count} articles have been processed.")
         return urls
 
     def _get_response(self, url: str, timeout: int = 10) -> Optional[requests.Response]:
@@ -183,4 +191,4 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
     scraper = Scraper(args.sitemap, args.proxy)
-    asyncio.run(scraper.run(9))
+    asyncio.run(scraper.run(k=9, test=True))

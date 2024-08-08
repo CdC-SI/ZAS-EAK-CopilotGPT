@@ -1,31 +1,23 @@
 import logging
 
-from fastapi import FastAPI, status
+from fastapi import FastAPI, status, Depends
 from fastapi.responses import Response, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from config.network_config import CORS_ALLOWED_ORIGINS
 
 # Load env variables
-from config.base_config import rag_app_config, rag_config
-from config.openai_config import openai
+from config.base_config import rag_app_config
 
 # Load models
-from rag.rag_processor import RAGProcessor
+from rag.rag_processor import processor
 from rag.models import RAGRequest
+
+from sqlalchemy.orm import Session
+from database.database import get_db
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-# Create required instances
-
-processor = RAGProcessor(model=rag_config["llm"]["model"],
-                         max_token=rag_config["llm"]["max_output_tokens"],
-                         stream=rag_config["llm"]["stream"],
-                         temperature=rag_config["llm"]["temperature"],
-                         top_p=rag_config["llm"]["top_p"],
-                         top_k=rag_config["retrieval"]["top_k"],
-                         client=openai.OpenAI())
 
 app = FastAPI(**rag_app_config)
 
@@ -43,8 +35,25 @@ app.add_middleware(
           summary="Process RAG query endpoint",
           response_description="Return result from processing RAG query",
           status_code=200)
-async def process_query(request: RAGRequest):
-    content = await processor.process(request)
+async def process_query(request: RAGRequest, language: str = None, db: Session = Depends(get_db)):
+    """
+    Main endpoint for the RAG service, processes a RAG query.
+
+    Parameters
+    ----------
+    request: RAGRequest
+        The request object containing the query and context.
+    language: str
+        The language of the query.
+    db: Session
+        The database session.
+
+    Returns
+    -------
+    StreamingResponse
+        The response from the RAG processor
+    """
+    content = processor.process(db, request, language=language)
     return StreamingResponse(content, media_type="text/event-stream")
 
 
@@ -52,8 +61,28 @@ async def process_query(request: RAGRequest):
           summary="Retrieve context docs endpoint",
           response_description="Return context docs from semantic search",
           status_code=200)
-async def docs(request: RAGRequest, language: str = None):
-    return await processor.retrieve(request, language)
+async def docs(request: RAGRequest, language: str = None, k: int = 0, db: Session = Depends(get_db)):
+    """
+    Retrieve context documents for a given query.
+
+    Parameters
+    ----------
+    request: RAGRequest
+        The request object containing the query and context.
+    language: str
+        The language of the query.
+    k: int
+        The number of documents to retrieve.
+    db: Session
+        The database session.
+
+    Returns
+    -------
+    dict
+        The retrieved documents.
+    """
+
+    return processor.retrieve(db, request, language, k=k)
 
 
 @app.get("/rerank",

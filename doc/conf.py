@@ -19,6 +19,8 @@ sys.path.insert(0, os.path.abspath('../src/copilot/app/rag'))
 # sys.path.insert(0, os.path.abspath('../other/app/path'))
 # missing survey pipeline and gui
 
+os.environ['RUN_WITHOUT_DB'] = 'true'
+
 # -- Project information -----------------------------------------------------
 
 project = 'EAK-Copilot'
@@ -33,7 +35,6 @@ release = '0.1.0'
 
 # Add any Sphinx extension module
 extensions = [
-    'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.todo',
     "sphinx_copybutton",

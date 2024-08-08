@@ -1,8 +1,18 @@
 from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
 from rag.models import RAGRequest, EmbeddingRequest
 
-from autocomplete.queries import semantic_similarity_match
+from sqlalchemy.orm import Session
+from database.schemas import Document
+from database.service import document_service
 from utils.embedding import get_embedding
+
+from config.openai_config import clientAI
+from config.base_config import rag_config
+
+# Setup logging
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 
 class RAGProcessor:
@@ -31,7 +41,7 @@ class RAGProcessor:
 
         self.client = client
 
-    async def retrieve(self, request: RAGRequest, language: str = None, k: int = 0):
+    def retrieve(self, db: Session, request: RAGRequest, language: str = None, k: int = 0):
         """
         Retrieve context documents related to the user input question.
 
@@ -42,6 +52,8 @@ class RAGProcessor:
 
         Parameters
         ----------
+        db : Session
+            Database session
         request : RAGRequest
             User input question
         language : str
@@ -49,31 +61,32 @@ class RAGProcessor:
         k : int, default 0
             Number of context documents to return (need to be revised, current logic in the code is confusing)
         """
-        k = self.k_retrieve if k is None else k
+        rows = document_service.get_semantic_match(db, request.query, language=language, k=k)
 
-        rows = await semantic_similarity_match(request.query, db_name='embeddings', language=language, k=k)
-        documents = [dict(row) for row in rows][0]
+        return rows[0] if len(rows) > 0 else {"text": "", "url": ""}
 
-        return {"contextDocs": documents["text"], "sourceUrl": documents["url"], "cosineSimilarity": documents["similarity_metric"]}
-
-    async def process(self, request: RAGRequest):
+    def process(self, db: Session, request: RAGRequest, language: str = None):
         """
         Execute the RAG process and query the LLM model.
 
         Parameters
         ----------
+        db : Session
+            Database session
         request : RAGRequest
             User input question
+        language : str
+            Question and context documents language
 
         Returns
         -------
         str
             LLM generated answer to the question
         """
-        documents = await self.retrieve(request)
-        context_docs = documents['contextDocs']
-        source_url = documents['sourceUrl']
-        messages = self.create_openai_message(context_docs, request.query)
+        documents = self.retrieve(db, request, language=language, k=self.k_retrieve)
+        context_doc = documents.text
+        source_url = documents.url
+        messages = self.create_openai_message(context_doc, request.query)
         openai_stream = self.create_openai_stream(messages)
 
         return self.generate(openai_stream, source_url)
@@ -91,7 +104,7 @@ class RAGProcessor:
         dict
             The requested text embedding
         """
-        embedding = get_embedding(text_input.text)[0].embedding
+        embedding = get_embedding(text_input.text)
         return {"data": embedding}
 
     def create_openai_message(self, context_docs, query):
@@ -153,3 +166,13 @@ class RAGProcessor:
                 # Send a special token indicating the end of the response
                 yield f"\n\n<a href='{source_url}' target='_blank' class='source-link'>{source_url}</a>".encode("utf-8")
                 return
+
+
+processor = RAGProcessor(model=rag_config["llm"]["model"],
+                         max_token=rag_config["llm"]["max_output_tokens"],
+                         stream=rag_config["llm"]["stream"],
+                         temperature=rag_config["llm"]["temperature"],
+                         top_p=rag_config["llm"]["top_p"],
+                         top_k=rag_config["retrieval"]["top_k"],
+                         client=clientAI)
+

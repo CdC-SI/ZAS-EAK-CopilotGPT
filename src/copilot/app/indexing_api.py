@@ -1,8 +1,7 @@
 import logging
 
-from fastapi import FastAPI, status
+from fastapi import FastAPI, status, Depends, HTTPException
 from fastapi.responses import Response
-from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from config.network_config import CORS_ALLOWED_ORIGINS
 
@@ -10,28 +9,38 @@ from config.network_config import CORS_ALLOWED_ORIGINS
 from config.base_config import indexing_config, indexing_app_config
 
 # Load utility functions
-from utils.db import check_db_connection
+from indexing.implementations.admin import admin_indexer
+from indexing.implementations.ahv import ahv_indexer
 from indexing.scraper import Scraper
-from indexing import dev_mode_data, queries
+
+from sqlalchemy.orm import Session
+from database.service.question import question_service
+from database.service.document import document_service
+from database.schemas import Question, QuestionCreate, DocumentCreate, QuestionItem
+from database.database import get_db
 
 # Load models
 from rag.models import ResponseBody
+from indexing.models import FaqItem
+
+import ast
+import csv
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    await check_db_connection(retries=10, delay=10)
-
+async def init_indexing():
+    """
+    Initialize the database according to the configuration ``indexing_config`` specified in ``config.yaml``
+    """
     if indexing_config["faq"]["auto_index"]:
         # With dev-mode, only index sample FAQ data
         if indexing_config["dev_mode"]:
             try:
                 logger.info("Auto-indexing sample FAQ data")
-                await index_faq_vectordb()
+                add_faq_data_from_csv()
             except Exception as e:
                 logger.error("Dev-mode: Failed to index sample FAQ data: %s", e)
         # If dev-mode is deactivated, scrap and index all bsv.admin.ch FAQ data
@@ -47,18 +56,16 @@ async def lifespan(app: FastAPI):
         if indexing_config["dev_mode"]:
             try:
                 logger.info("Auto-indexing sample RAG data")
-                await index_rag_vectordb()
+                add_rag_data_from_csv()
             except Exception as e:
                 logger.error("Failed to index sample RAG data: %s", e)
         # If dev-mode is deactivated, scrap and index all RAG data (NOTE: Will be implemented soon.)
         else:
             raise NotImplementedError("Feature is not implemented yet.")
 
-    yield
-
 
 # Create an instance of FastAPI
-app = FastAPI(**indexing_app_config, lifespan=lifespan)
+app = FastAPI(**indexing_app_config)
 
 # Setup CORS
 app.add_middleware(
@@ -70,82 +77,181 @@ app.add_middleware(
 )
 
 
-@app.post("/index_rag_vectordb", summary="Insert Embedding data for RAG", response_description="Insert Embedding data for RAG", status_code=200, response_model=ResponseBody)
-async def index_rag_vectordb():
+@app.post("/add_rag_data_from_csv", summary="Insert data for RAG without embedding from a local csv file", status_code=200, response_model=ResponseBody)
+def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", embed: bool = False, db: Session = Depends(get_db)):
     """
-    Add and index test data for RAG to the embedding database.
+    Add and index test data for RAG from csv files without embeddings.
+    The function acknowledges the following columns:
+
+    - *url:* source URL of the document
+    - *text:* Text content of the document
+    - *language (optional):* Language of the document
+    - *embedding (optional):* Embedding of the document
+
+    Parameters
+    ----------
+    file_path : str, optional
+        Path to the csv file containing the data. Defaults to "indexing/data/rag_test_data.csv".
+    embed : bool, optional
+        Whether to embed the data or not. Defaults to False.
+    db : Session
+        Database session
 
     Returns
     -------
     str
         Confirmation message upon successful completion of the process
     """
-    return await dev_mode_data.init_rag_vectordb()
+    with open(file_path, mode='r') as file:
+        data = csv.DictReader(file)
+
+        for row in data:
+            embedding = ast.literal_eval(row["embedding"]) if row["embedding"] else None
+            document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file_path, language=row["language"])
+            document_service.upsert(db, document, embed=embed)
+
+    return {"content": "yay"}
 
 
-@app.post("/index_faq_vectordb", summary="Insert Embedding data for FAQ autocomplete semantic similarity search", response_description="Insert Embedding data for FAQ semantic similarity search", status_code=200, response_model=ResponseBody)
-async def index_faq_vectordb():
+@app.post("/add_faq_data_from_csv", summary="Insert data for FAQ without embedding from a local csv file", status_code=200, response_model=ResponseBody)
+def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", embed: bool = False, db: Session = Depends(get_db)):
     """
-    Add and index test data for Autocomplete to the FAQ database.
+    Add and index test data for RAG from csv files without embeddings.
+    The function acknowledges the following columns:
+
+    - *url:* source URL of the information
+    - *text:* Text content of the question
+    - *answer:* Text content of the answer
+    - *language (optional):* Language of the question and answer
+    - *embedding (optional):* Embedding of the question
+
+    Parameters
+    ----------
+    file_path : str, optional
+        Path to the csv file containing the data. Defaults to "indexing/data/faq_test_data.csv".
+    embed : bool, optional
+        Whether to embed the data or not. Defaults to False.
+    db : Session
+        Database session
 
     Returns
     -------
     str
         Confirmation message upon successful completion of the process
     """
-    return await dev_mode_data.init_faq_vectordb()
+    with open(file_path, mode='r') as file:
+        data = csv.DictReader(file)
+
+        for row in data:
+            embedding = ast.literal_eval(row["embedding"]) if row["embedding"] else None
+            question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file_path, language=row["language"])
+            question_service.upsert(db, question, embed=embed)
+
+    return {"content": "yay"}
 
 
-@app.get("/crawl_data", summary="Crawling endpoint", response_description="Welcome Message")
-async def crawl_data():
+@app.post("/embed_rag_data", summary="Embed all data for RAG that have not been embedded yet", status_code=200, response_model=ResponseBody)
+def embed_rag_data(db: Session = Depends(get_db), embed_empty_only: bool = True, k: int = 0):
     """
-    Dummy endpoint for data crawling.
+    Embed all RAG data (documents) that have not been embedded yet.
+
+    Parameters
+    ----------
+    db : Session
+        Database session
+    embed_empty_only : bool, optional
+        Embed only data that have not been embedded yet. Defaults to True.
+    k : int, optional
+        Number of questions to embed. Default to 0 which means all questions.
+
+    Returns
+    -------
+    str
+        Confirmation message upon successful completion of the process
     """
-    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
+    document_service.embed_many(db, embed_empty_only, k)
+    return {"content": "yay"}
 
 
-@app.get("/scrap_data/", summary="Scraping Endpoint", response_description="Welcome Message")
-async def scrap_data():
+@app.post("/embed_faq_data", summary="Embed all data for FAQ that have not been embedded yet", status_code=200, response_model=ResponseBody)
+def embed_faq_data(db: Session = Depends(get_db), embed_empty_only: bool = True, k: int = 0):
     """
-    Dummy endpoint for data scraping.
+    Embed all FAQ questions that have not been embedded yet.
+
+    Parameters
+    ----------
+    db : Session
+        Database session
+    embed_empty_only : bool, optional
+        Embed only data that have not been embedded yet. Defaults to True.
+    k : int, optional
+        Number of questions to embed. Default to 0 which means all questions.
+
+    Returns
+    -------
+    str
+        Confirmation message upon successful completion of the process
     """
-    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
+    question_service.embed_many(db, embed_empty_only, k)
+    return {"content": "yay"}
 
 
-@app.get("/index_data", summary="Indexing Endpoint", response_description="Welcome Message")
-async def index_data():
+@app.post("/index_pdfs_from_sitemap",
+          summary="Index memento PDFs from the https://www.ahv-iv.ch/de/Sitemap-DE sitemap",
+          response_description="Confirmation message upon successful indexing",
+          status_code=200,
+          response_model=ResponseBody)
+async def index_pdfs_from_sitemap(sitemap_url: str = "https://www.ahv-iv.ch/de/Sitemap-DE", embed: bool = False, db: Session = Depends(get_db)):
     """
-    Dummy endpoint for data indexing.
+    Indexes PDFs from a given sitemap URL. The PDFs are scraped and their data is added to the
+    embedding database. This function is specifically designed for the site "https://www.ahv-iv.ch".
+
+    Parameters
+    ----------
+    sitemap_url : str, optional
+        The URL of the sitemap to scrape PDFs from. Defaults to "https://www.ahv-iv.ch/de/Sitemap-DE".
+    embed : bool, optional
+        Whether to embed the data or not. Defaults to False.
+    db : Session
+        Database session
+
+    Returns
+    -------
+    ResponseBody
+        A response body containing a confirmation message upon successful completion of the process.
     """
-    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
+    return await ahv_indexer.index(sitemap_url, db, embed=embed)
 
 
-@app.get("/parse_faq_data", summary="FAQ Parsing Endpoint", response_description="Welcome Message")
-async def parse_faq_data():
+@app.post("/index_html_from_sitemap",
+          summary="Index HTML from a sitemap",
+          response_description="Confirmation message upon successful indexing",
+          status_code=200,
+          response_model=ResponseBody)
+async def index_html_from_sitemap(sitemap_url: str = "https://eak.admin.ch/eak/de/home.sitemap.xml", embed: bool = False, db: Session = Depends(get_db)):
     """
-    Dummy endpoint for FAQ data parsing.
-    """
-    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
+    Indexes HTML from a given sitemap URL. The HTML pages are scraped and their data is added to the
+    embedding database. This function is specifically designed for the site "https://eak.admin.ch".
 
+    Parameters
+    ----------
+    sitemap_url : str, optional
+        The URL of the sitemap to scrape HTML from. Defaults to "https://eak.admin.ch/eak/de/home.sitemap.xml".
+    embed : bool, optional
+        Whether to embed the data or not. Defaults to False.
+    db : Session
+        Database session
 
-@app.get("/parse_rag_data", summary="Parsing Endpoint", response_description="Welcome Message")
-async def parse_rag_data():
+    Returns
+    -------
+    ResponseBody
+        A response body containing a confirmation message upon successful completion of the process.
     """
-    Dummy endpoint for data parsing (RAG).
-    """
-    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-
-
-@app.get("/chunk_rag_data", summary="Chunking Endpoint", response_description="Welcome Message")
-async def chunk_rag_data():
-    """
-    Dummy endpoint for data chunking (RAG).
-    """
-    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
+    return await admin_indexer.index(sitemap_url, db, embed=embed)
 
 
 @app.put("/index_faq_data", summary="Insert Data from faq.bsv.admin.ch", response_description="Insert Data from faq.bsv.admin.ch")
-async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xml', proxy: str = None, k: int = 0):
+async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xml', embed_question: bool = False, embed_answer: bool = False, k: int = 0, db: Session = Depends(get_db)):
     """
     Add and index data for Autocomplete to the FAQ database. The data is obtained by scraping the website `sitemap_url`.
 
@@ -153,10 +259,14 @@ async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xm
     ==========
     sitemap_url : str, default 'https://faq.bsv.admin.ch/sitemap.xml'
         the `sitemap.xml` URL of the website to scrap
-    proxy : str, optional
-        Proxy URL if necessary
     k : int, default 0
         Number of article to scrap and log to test the method.
+    embed_question : bool, default False
+        Flag to indicate if the system embeds questions text
+    embed_answer : bool, default False
+        Flag to indicate if the system embeds answers text
+    db : Session, optional
+        Database session to use for upserting the extracted
 
     Returns
     -------
@@ -165,34 +275,40 @@ async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xm
     """
     logging.basicConfig(level=logging.INFO)
 
-    scraper = Scraper(sitemap_url, proxy=proxy)
-    urls = await scraper.run(test=k)
+    scraper = Scraper(sitemap_url)
+    urls = await scraper.run(k=k, embed=(embed_question, embed_answer), db=db)
 
     return {"message": f"Done! {len(urls)} wurden verarbeitet."}
 
 
-@app.put("/data", summary="Update or Insert FAQ Data", response_description="Updated or Inserted Data")
-async def index_data(url: str, question: str, answer: str, language: str):
+@app.put("/data",
+         summary="Update or Insert FAQ Data",
+         response_model=Question,
+         response_description="Updated or Inserted Data")
+async def index_data(item: FaqItem, db: Session = Depends(get_db)):
     """
     Upsert a single entry to the FAQ dataset.
 
     Parameters
     ----------
-    url : str
-        URL where the entry article can be found
-    question : str
-        The FAQ question
-    answer : str
-        The question answer
-    language : str
-        The article language
+    item : FaqItem
+        The Question item to insert or update :
+            id : int, optional
+                The item if update is wanted
+            url : str
+                URL where the entry article can be found
+            question : str
+                The FAQ question
+            answer : str
+                The question answer
+            language : str
+                The article language
+    db : Session
+        Database session
 
     Returns
     -------
     dict
-        The article id, url, question, answer and language upon successful completion of the process
     """
-    info, rid = await queries.update_or_insert(url, question, answer, language)
-    logger.info(f"{info}: {url}")
-
-    return {"id": rid, "url": url, "question": question, "answer": answer, "language": language}
+    q_item = QuestionItem(**item.model_dump(exclude={"question"}), text=item.question, source="username")
+    return question_service.upsert(db, q_item)
