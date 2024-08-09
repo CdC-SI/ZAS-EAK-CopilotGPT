@@ -2,7 +2,6 @@ from typing import Optional
 from sqlalchemy import Integer, ForeignKey, String, Text, DateTime, func, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
-from sqlalchemy.dialects.postgresql import TSVECTOR, to_tsvector
 # SQLAlchemy-2.0.30
 
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
@@ -10,7 +9,7 @@ from sqlalchemy.ext.declarative import declarative_base, declared_attr
 
 class EmbeddedMixin (object):
     text: Mapped[str] = mapped_column(Text, nullable=False)
-    embedding: Mapped[Vector] = mapped_column(Vector(1536), nullable=True)
+    embedding: Mapped[Optional[Vector]] = mapped_column(Vector(1536), nullable=True)
     language: Mapped[Optional[str]] = mapped_column(String(3), nullable=True)
 
     url: Mapped[str] = mapped_column(Text, nullable=False)
@@ -27,6 +26,10 @@ Base = declarative_base()
 
 
 class Source(Base):
+    """
+    Source of the data stored in Document and Question tables. It can be URL, file path, user ID, etc.
+    """
+
     __tablename__ = "source"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     url: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
@@ -36,6 +39,10 @@ class Source(Base):
 
 
 class Document(Base, EmbeddedMixin):
+    """
+    Documents used for the RAG
+    """
+
     __tablename__ = "document"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
@@ -51,6 +58,10 @@ class Document(Base, EmbeddedMixin):
 
 
 class Question(Base, EmbeddedMixin):
+    """
+    Question used for Autocomplete, answers are stored in the Document table.
+    """
+
     __tablename__ = "question"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 

@@ -35,15 +35,18 @@ release = '0.1.0'
 
 # Add any Sphinx extension module
 extensions = [
+    'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.todo',
     "sphinx_copybutton",
     "myst_parser",          # .md support
     "sphinx_inline_tabs",
     'sphinx.ext.napoleon',  # NumPy & Google docstrings
+    'sphinxcontrib.autodoc_pydantic',  # pydantic integration
+    'sphinx_sqlalchemy',  # SQLAlchemy integration
 ]
 autodoc_mock_imports = ["fastapi"]
-autodoc_member_order = 'groupwise'
+autodoc_member_order = 'bysource'
 todo_include_todos = True
 myst_enable_extensions = ["deflist"]
 

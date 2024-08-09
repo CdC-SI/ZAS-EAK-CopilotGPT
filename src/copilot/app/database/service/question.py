@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 from .matching import MatchingService
 from .document import document_service
 from ..models import Question
-from ..schemas import QuestionCreate, QuestionItem, DocumentCreate, QuestionUpdate
+from schemas.question import QuestionCreate, QuestionUpdate
+from schemas.document import DocumentCreate
 
 import logging
 
@@ -14,6 +15,9 @@ logger = logging.getLogger(__name__)
 
 
 class QuestionService(MatchingService):
+    """
+    Class that provide services for question database operations
+    """
     def __init__(self):
         super().__init__(Question)
 

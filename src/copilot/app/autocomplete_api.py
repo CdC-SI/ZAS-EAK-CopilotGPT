@@ -12,7 +12,7 @@ from config.network_config import CORS_ALLOWED_ORIGINS
 from config.base_config import autocomplete_app_config
 
 from sqlalchemy.orm import Session
-from database import schemas
+from schemas.question import Question
 from database.service.question import question_service
 from database.database import get_db
 
@@ -35,7 +35,7 @@ app.add_middleware(
 
 @app.get("/",
          summary="Facade for autocomplete",
-         response_model=List[schemas.Question],
+         response_model=List[Question],
          response_description="List of matching questions")
 async def autocomplete(question: str,
                        language: str = None,
@@ -66,7 +66,7 @@ async def autocomplete(question: str,
 
 @app.get("/exact_match",
          summary="Search Questions with exact match",
-         response_model=List[schemas.Question],
+         response_model=List[Question],
          response_description="List of matching questions")
 def exact_match(question: str,
                 language: str = None,
@@ -95,7 +95,7 @@ def exact_match(question: str,
 
 @app.get("/fuzzy_match",
          summary="Search Questions with fuzzy match",
-         response_model=List[schemas.Question],
+         response_model=List[Question],
          response_description="List of matching questions")
 def fuzzy_match(question: str,
                 language: str = None,
@@ -127,12 +127,12 @@ def fuzzy_match(question: str,
 
 @app.get("/trigram_match",
          summary="Search Questions with trigram match",
-         response_model=List[schemas.Question],
+         response_model=List[Question],
          response_description="List of matching questions")
 def trigram_match(question: str,
                   language: str = None,
                   k: int = autocomplete_config['trigram_match']['limit'],
-                  threshold=autocomplete_config['trigram_match']['threshold'],
+                  threshold: float = autocomplete_config['trigram_match']['threshold'],
                   db: Session = Depends(get_db)):
     """
     Return results from Trigram matching
@@ -145,6 +145,8 @@ def trigram_match(question: str,
         Question and results language
     k : int, optional
         Number of results to return
+    threshold : float, optional
+        Trigram threshold, between 0 and 1
     db : Session
         Database session
 
@@ -157,7 +159,7 @@ def trigram_match(question: str,
 
 @app.get("/semantic_similarity_match",
          summary="Search Questions with semantic similarity match",
-         response_model=List[schemas.Question],
+         response_model=List[Question],
          response_description="List of matching questions")
 def semantic_similarity_match(question: str,
                               language: str = None,

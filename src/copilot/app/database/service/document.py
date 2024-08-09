@@ -2,8 +2,9 @@ from sqlalchemy.orm import Session
 
 from .matching import MatchingService
 from .source import source_service
-from ..models import Document, Source
-from ..schemas import DocumentCreate, DocumentsCreate, SourceCreate, DocumentUpdate
+from ..models import Document
+from schemas.document import DocumentCreate, DocumentUpdate
+from schemas.source import SourceCreate
 
 
 class DocumentService(MatchingService):

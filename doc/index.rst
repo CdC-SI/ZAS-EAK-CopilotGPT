@@ -45,6 +45,7 @@ Demo
    documentation/database/index
    documentation/indexing/index
    documentation/rag/index
+   documentation/schemas/index
 
 .. toctree::
    :maxdepth: 2
