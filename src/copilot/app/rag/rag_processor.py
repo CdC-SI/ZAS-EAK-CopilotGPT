@@ -38,14 +38,14 @@ class RAGProcessor:
         self.stream = stream
         self.temperature = temperature
         self.top_p = top_p
-        self.retriever = self.init_retriever_client(retrieval_method=retrieval_method)
+        self.retriever_client = self.init_retriever_client(retrieval_method=retrieval_method)
         self.k_retrieve = top_k
 
         self.client = client
 
-    def init_retriever_client(self, retrieval_method: str = "simple"):
+    def init_retriever_client(self, retrieval_method: str = "top_k"):
         """
-        Initialize and return a retriever client based on `self.retriever_name`.
+        Initialize and return a retriever client based on `retrieval_method`.
 
         Returns
         -------
@@ -69,7 +69,7 @@ class RAGProcessor:
         k : int, default 0
             Number of context documents to return
         """
-        rows = self.retriever.get_documents(db, request.query, language=language, k=k)
+        rows = self.retriever_client.get_documents(db, request.query, language=language, k=k)
 
         return rows if len(rows) > 0 else [{"text": "", "url": ""}]
 

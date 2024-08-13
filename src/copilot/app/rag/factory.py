@@ -1,40 +1,60 @@
 from rag.base import BaseRetriever
-from rag.retrievers import TopKRetriever
+from rag.retrievers import RetrieverClient, TopKRetriever, QueryRewritingRetriever, ContextualCompressionRetriever, BM25Retriever, Reranker
 
 class RetrieverFactory:
+    """
+    A factory class for creating a RetrieverClient based on the specified retrieval methods.
+
+    This factory method allows for the creation of a composite retriever client that can use multiple
+    retrieval strategies in sequence or in parallel, depending on the specified methods.
+
+    Methods
+    -------
+    get_retriever_client(retrieval_method: str) -> BaseRetriever
+        Creates a RetrieverClient instance configured with the specified retrieval methods.
+
+    """
     @staticmethod
     def get_retriever_client(retrieval_method: str) -> BaseRetriever:
         """
-        Factory method to instantiate retriever clients based on a string identifier.
+        Create a RetrieverClient based on the given retrieval method(s).
 
         Parameters
         ----------
-        retriever : str
-            The name of the retriever. Currently supported models are "simple", "query_rewriting", "contextual_compression", "bm25" and "reranking".
+        retrieval_method : str
+            A string or a list of strings specifying the retrieval methods to use. Supported methods are:
+            - "top_k"
+            - "query_rewriting"
+            - "contextual_compression"
+            - "bm25"
+            - "reranking"
 
         Returns
         -------
         BaseRetriever
-            An instance of the appropriate retriever client.
+            A RetrieverClient instance configured with the specified retrieval methods.
 
         Raises
         ------
         ValueError
-            If the `retriever` is not supported.
+            If an unsupported retrieval method is provided.
         """
-        retrieval_method = retrieval_method[0]
+        retrievers = []
 
-        # switch/case statements
-        #if retriever_name not in SUPPORTED_RETRIEVAL_METHODS:
-        if retrieval_method not in ["top_k", "query_rewriting", "contextual_compression", "bm25", "reranking"]:
-            raise ValueError(f"Unsupported retrieval method: {retrieval_method}")
-        elif retrieval_method == "top_k":
-            return TopKRetriever()
-        # elif retriever_name == "query_rewriting":
-        #     return OpenAILLM(model_name=llm_model)
-        # elif retriever_name == "contextual_compression":
-        #     return OpenAILLM(model_name=llm_model)
-        # elif retriever_name == "bm25":
-        #     return OpenAILLM(model_name=llm_model)
-        # elif retriever_name == "reranking":
-        #     return OpenAILLM(model_name=llm_model)
+        for method in retrieval_method:
+            match method:
+                case "top_k":
+                    retrievers.append(TopKRetriever())
+                case "query_rewriting":
+                    retrievers.append(QueryRewritingRetriever())
+                case "contextual_compression":
+                    retrievers.append(ContextualCompressionRetriever())
+                case "bm25":
+                    retrievers.append(BM25Retriever())
+                case "reranking":
+                    retrievers.append(Reranker())
+                case _:
+                    raise ValueError(f"Unsupported retrieval method: {method}. Please see the documentation for supported methods (https://cdc-si.github.io/ZAS-EAK-CopilotGPT/).")
+
+        client = RetrieverClient(retrievers=retrievers)
+        return client
