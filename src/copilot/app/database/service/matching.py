@@ -100,7 +100,7 @@ class MatchingService(EmbeddingService):
 
         return db.scalars(stmt).all()
 
-    def get_semantic_match(self, db: Session, user_input: str, symbol: str = "<=>", language: str = None, k: int = 0):
+    def get_semantic_match(self, db: Session, user_input: str, language: str = None, k: int = 0, symbol: str = "<=>"):
         """
         Get semantic similarity match from database
 
@@ -137,16 +137,16 @@ class MatchingService(EmbeddingService):
         """
         Get semantic similarity match from database using L1 distance
         """
-        return self.get_semantic_match(db, user_input, symbol="<+>", language=language, k=k)
+        return self.get_semantic_match(db, user_input, language=language, k=k, symbol="<+>")
 
     def semantic_similarity_match_l2(self, db: Session, user_input: str, language: str = None, k: int = 0):
         """
         Get semantic similarity match from database using L2 distance
         """
-        return self.get_semantic_match(db, user_input, symbol="<->", language=language, k=k)
+        return self.get_semantic_match(db, user_input, language=language, k=k, symbol="<->")
 
     def semantic_similarity_match_inner_prod(self, db: Session, user_input: str, language: str = None, k: int = 0):
         """
         Get semantic similarity match from database using inner product
         """
-        return self.get_semantic_match(db, user_input, symbol="<#>", language=language, k=k)
+        return self.get_semantic_match(db, user_input, language=language, k=k, symbol="<#>")
