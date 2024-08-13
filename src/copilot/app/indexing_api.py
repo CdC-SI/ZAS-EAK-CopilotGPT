@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from config.network_config import CORS_ALLOWED_ORIGINS
 
@@ -24,6 +24,7 @@ from rag.models import ResponseBody
 
 import ast
 import csv
+import codecs
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -76,6 +77,72 @@ app.add_middleware(
 )
 
 
+@app.post("/upload_csv_rag", summary="Upload a CSV file for RAG data", status_code=200, response_model=ResponseBody)
+def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
+    """
+    Upload a CSV file containing RAG data to the database.
+
+    Parameters
+    ----------
+    file : UploadFile
+        The CSV file sent by the user
+    embed : bool, optional
+        Whether to embed the data or not. Defaults to False.
+    db : Session
+        Database session
+
+    Returns
+    -------
+    ResponseBody
+        A response body containing a confirmation message upon successful completion of the process.
+    """
+    data = csv.DictReader(codecs.iterdecode(file.file, 'utf-8'))
+    embedding_column = "embedding" in data.fieldnames
+    language_column = "language" in data.fieldnames
+
+    for row in data:
+        embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
+        language = row["language"] if language_column else None
+        document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file.filename, language=language)
+        document_service.upsert(db, document, embed=embed)
+
+    file.file.close()
+    return {"content": "yay"}
+
+
+@app.post("/upload_csv_faq", summary="Upload a CSV file for FAQ data", status_code=200, response_model=ResponseBody)
+def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
+    """
+    Upload a CSV file containing RAG data to the database.
+
+    Parameters
+    ----------
+    file : UploadFile
+        The CSV file sent by the user
+    embed : bool, optional
+        Whether to embed the data or not. Defaults to False.
+    db : Session
+        Database session
+
+    Returns
+    -------
+    ResponseBody
+        A response body containing a confirmation message upon successful completion of the process.
+    """
+    data = csv.DictReader(codecs.iterdecode(file.file, 'utf-8'))
+    embedding_column = "embedding" in data.fieldnames
+    language_column = "language" in data.fieldnames
+
+    for row in data:
+        embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
+        language = row["language"] if language_column else None
+        question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file.filename, language=language)
+        question_service.upsert(db, question, embed=embed)
+
+    file.file.close()
+    return {"content": "yay"}
+
+
 @app.post("/add_rag_data_from_csv", summary="Insert data for RAG without embedding from a local csv file", status_code=200, response_model=ResponseBody)
 def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", embed: bool = False, db: Session = Depends(get_db)):
     """
@@ -105,10 +172,12 @@ def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", em
         data = csv.DictReader(file)
 
         embedding_column = "embedding" in data.fieldnames
+        language_column = "language" in data.fieldnames
 
         for row in data:
             embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
-            document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file_path, language=row["language"])
+            language = row["language"] if language_column else None
+            document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file_path, language=language)
             document_service.upsert(db, document, embed=embed)
 
     return {"content": "yay"}
@@ -144,10 +213,12 @@ def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", em
         data = csv.DictReader(file)
 
         embedding_column = "embedding" in data.fieldnames
+        language_column = "language" in data.fieldnames
 
         for row in data:
             embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
-            question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file_path, language=row["language"])
+            language = row["language"] if language_column else None
+            question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file_path, language=language)
             question_service.upsert(db, question, embed=embed)
 
     return {"content": "yay"}
