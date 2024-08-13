@@ -58,11 +58,6 @@ class RAGProcessor:
         """
         Retrieve context documents related to the user input question.
 
-        Only supports retrieval of 1 document at the moment (set in /config/config.yaml).
-
-        .. todo::
-            multi-doc retrieval later
-
         Parameters
         ----------
         db : Session
@@ -72,13 +67,11 @@ class RAGProcessor:
         language : str
             Question and context documents language
         k : int, default 0
-            Number of context documents to return (need to be revised, current logic in the code is confusing)
+            Number of context documents to return
         """
         rows = self.retriever.get_documents(db, request.query, language=language, k=k)
-        print("-----------------ROWS: ", rows)
-        #rows = document_service.get_semantic_match(db, request.query, language=language, k=k)
 
-        return rows[0] if len(rows) > 0 else {"text": "", "url": ""}
+        return rows if len(rows) > 0 else [{"text": "", "url": ""}]
 
     def process(self, db: Session, request: RAGRequest, language: str = None):
         """
@@ -99,9 +92,9 @@ class RAGProcessor:
             LLM generated answer to the question
         """
         documents = self.retrieve(db, request, language=language, k=self.k_retrieve)
-        context_doc = documents.text
-        source_url = documents.url
-        messages = self.create_openai_message(context_doc, request.query)
+        context_docs = "\n\n".join([doc.text for doc in documents]) # TO UPDATE
+        source_url = documents[0].url # TO UPDATE
+        messages = self.create_openai_message(context_docs, request.query)
         openai_stream = self.create_openai_stream(messages)
 
         return self.generate(openai_stream, source_url)
