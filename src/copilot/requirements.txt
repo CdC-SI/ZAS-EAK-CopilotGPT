@@ -13,12 +13,16 @@ requests==2.31.0
 beautifulsoup4==4.12.3
 lxml==5.2.2
 asyncio==3.4.3
+haystack-ai==2.2.3
+aiohttp==3.9.5
+pypdf==4.2.0
+trafilatura==1.11.0
 
 # sqlAlchemy
 pgvector
 SQLAlchemy
 psycopg2-binary
-haystack-ai==2.2.3
-aiohttp==3.9.5
-pypdf==4.2.0
-trafilatura==1.11.0
+
+# tests (à sortir vers un autre fichier requirements.txt si besoin pour le scope test)
+testcontainers==4.7.1
+pytest==8.2.2

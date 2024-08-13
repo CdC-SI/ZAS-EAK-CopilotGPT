@@ -2,8 +2,9 @@ from sqlalchemy import create_engine, text, Engine
 from sqlalchemy.orm import sessionmaker, Session
 
 from . import models
+from config.db_config import DBConfiguration
 
-from config.db_config import DB_PARAMS
+configuration = DBConfiguration()
 
 import time
 
@@ -62,10 +63,10 @@ def get_engine(retries: int = 10, delay: int = 5):
     raise Exception("Failed to connect to the database after multiple attempts.")
 
 
-if DB_PARAMS:
+if configuration:
     logger.info("Connecting to database...")
-    logger.info(DB_PARAMS)
-    DATABASE_URL = f"postgresql://{DB_PARAMS['user']}:{DB_PARAMS['password']}@{DB_PARAMS['host']}:{DB_PARAMS['port']}/{DB_PARAMS['database']}"
+    logger.info(configuration)
+    DATABASE_URL = f"postgresql://{configuration.user}:{configuration.password}@{configuration.host}:{configuration.port}/{configuration.database}"
 
     engine = get_engine()
     with engine.connect() as con:

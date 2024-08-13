@@ -1,28 +1,31 @@
 import os
 from dotenv import load_dotenv
+from dataclasses import dataclass
+
 
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Load environment variables from .env file
-load_dotenv()
-
-# Load PostgreSQL database credentials
-POSTGRES_USER = os.environ["POSTGRES_USER"]
-POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
-POSTGRES_DB = os.environ["POSTGRES_DB"]
-POSTGRES_HOST = os.environ["POSTGRES_HOST"]
-POSTGRES_PORT = os.environ["POSTGRES_PORT"]
-
 # Database connection parameters
-DB_PARAMS = {
-    "user": POSTGRES_USER,
-    "password": POSTGRES_PASSWORD,
-    "database": POSTGRES_DB,
-    "host": POSTGRES_HOST,
-    "port": POSTGRES_PORT,
-}
+@dataclass
+class DBConfiguration:
+    user: str
+    password: str
+    database: str
+    host: str
+    port: int
 
-if os.environ.get("RUN_WITHOUT_DB") == 'true':
-    DB_PARAMS = None
+    def __init__(self):
+        # Load environment variables from .env file
+        load_dotenv()
+
+        self.without_db = os.getenv("RUN_WITHOUT_DB") == 'true'
+
+        self.user = os.getenv("POSTGRES_USER", "postgres")
+        self.password = os.getenv("POSTGRES_PASSWORD", "postgres")
+        self.database = os.getenv("POSTGRES_DB", "postgres")
+        self.host = os.getenv("POSTGRES_HOST", "localhost")
+        self.port = int(os.getenv("POSTGRES_PORT", "5432"))
+
+
