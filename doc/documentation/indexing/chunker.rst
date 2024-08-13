@@ -1,6 +1,0 @@
-Chunker
-#######
-
-.. todo::
-
-    ``indexingPipeline.chunker``

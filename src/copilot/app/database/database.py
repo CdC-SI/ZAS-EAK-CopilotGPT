@@ -1,5 +1,5 @@
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, text, Engine
+from sqlalchemy.orm import sessionmaker, Session
 
 from . import models
 
@@ -13,6 +13,13 @@ logger = logging.getLogger(__name__)
 
 
 def get_db():
+    """
+    Get a database connection
+
+    Returns
+    -------
+    Session
+    """
     db = SessionLocal()
 
     try:
@@ -24,26 +31,30 @@ def get_db():
 # Function to check if db is up
 def get_engine(retries: int = 10, delay: int = 5):
     """
-    Check if database is up.
+    Get an engine object that manages connection to the database
 
     Parameters
     ----------
-    retries
-    delay
+    retries : int
+        Number of retries before giving up on connecting to the database
+    delay : int
+        Delay between each retries
 
     Returns
     -------
-
+    Engine
     """
     attempt = 0
     while attempt < retries:
         try:
             engine = create_engine(DATABASE_URL, echo=True, future=True)
+
             # Try to connect to check if the connection is established
             connection = engine.connect()
             connection.close()
             print("Database connection established.")
             return engine
+
         except Exception:
             attempt += 1
             print(f"Attempt {attempt} failed: Database is not ready. Retrying in {delay} seconds...")

@@ -2,7 +2,6 @@ from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
 from rag.models import RAGRequest, EmbeddingRequest
 
 from sqlalchemy.orm import Session
-from database.schemas import Document
 from database.service import document_service
 from utils.embedding import get_embedding
 

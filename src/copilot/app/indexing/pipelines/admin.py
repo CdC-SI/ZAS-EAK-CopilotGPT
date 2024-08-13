@@ -1,17 +1,16 @@
 import logging
 from typing import List, Any
 
-from haystack.dataclasses import Document
 from haystack.components.converters import HTMLToDocument
 
 from bs4 import BeautifulSoup
 
 from indexing.base import BaseParser, BaseIndexer
-from .scraper import scraper
+from indexing.scraper import scraper
 
 from sqlalchemy.orm import Session
 from database.service.document import document_service
-from database.schemas import DocumentCreate
+from schemas.document import DocumentCreate
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

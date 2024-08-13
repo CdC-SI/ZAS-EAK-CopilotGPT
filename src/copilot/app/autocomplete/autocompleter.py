@@ -48,7 +48,7 @@ class Autocompleter:
         """
         Returns matching results according to a defined behaviour.
 
-        If the user input ends with a "space" or a "?" character, return a set of questions that may be relevant to the user.
+        If the user input ends with a "?" character, return a set of questions that may be relevant to the user.
         Else return the results stored in the cache from the previous query.
 
         If there are at lest 5 results from fuzzy matching, fuzzy matching returned. Otherwise, results of semantic
