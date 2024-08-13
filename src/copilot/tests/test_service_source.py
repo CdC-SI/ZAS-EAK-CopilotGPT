@@ -2,6 +2,7 @@ import os
 import pytest
 from testcontainers.postgres import PostgresContainer
 
+from database.database import get_db
 from schemas.source import Source
 
 postgres = PostgresContainer("ankane/pgvector")
