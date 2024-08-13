@@ -2,6 +2,7 @@ Database
 ########
 
 The database and connection to it is managed by the :mod:`database` module. The database is a PostgreSQL database and its structure is defined in the :mod:`database.models` module.
+Connections to the database and transactions are managed by `SQLAlchemy ORM <https://docs.sqlalchemy.org/en/20/orm/>`_, available queries are defined in the :mod:`database.services` module.
 
 At the start of the app, :meth:`database.database.get_engine()` is called to instantiate an engine and a sessionmaker.
 
