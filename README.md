@@ -68,19 +68,19 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
 
 1. **Clone the Repository**
 
-   Begin by cloning the EAK-Copilot repository to your local machine to get the necessary project files.
+   Begin by cloning the EAK-Copilot repository to your local machine.
 
    ```bash
-   git clone https://github.com/CdC-SI/eak-copilot.git
+   git clone https://github.com/CdC-SI/ZAS-EAK-CopilotGPT.git
    ```
 
    ```bash
-   cd eak-copilot
+   cd ZAS-EAK-CopilotGPT
    ```
 
 2. **Setting Up Environment Variables**
 
-    To use EAK-Copilot, you need to set up some environment variables. Copy the `.env.example` file to a new file named `.env` and fill in the appropriate values:
+    To use the ZAS/EAK-Copilot, you need to set up some environment variables. The `OPENAI_API_KEY` is a required field that must be filled in, all other fields are preconfigured with default settings (but can be configured as well).  Copy the `.env.example` file to a new file named `.env` and fill in the appropriate values:
 
     ```bash
     cp .env.example .env
@@ -103,6 +103,8 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
 
 5. **Notes**
 
-    Sample FAQ and RAG data is automatically indexed when config/config.yaml ```indexing.faq.auto_index``` and ```indexing.rag.auto_index``` are set to true.
+    To add some sample data for FAQ and RAG, you can navigate to http://localhost:8000/apy/indexing/docs/ and make a request to ```/add_faq_data_from_csv``` and ```/add_rag_data_from_csv``` (set ```embed``` parameter to ```true``` to enable semantic search).
 
-    To index more extensive FAQ data from https://faq.bsv.admin.ch, navigate to ```localhost:8000/indexing/docs``` and make a request to the ```/indexing/index_faq_data/``` endpoint.
+    To index more extensive FAQ data from https://faq.bsv.admin.ch, navigate to http://localhost:8000/apy/indexing/docs and make a request to the ```/index_faq_data``` endpoint.
+
+    To index more extensive RAG data, navigate to http://localhost:8000/apy/indexing/docs and make a request to the ```/index_html_from_sitemap``` and ```/index_pdfs_from_sitemap``` endpoints (set ```embed``` parameter to ```true``` to enable semantic search).
