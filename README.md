@@ -103,8 +103,8 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
 
 5. **Notes**
 
-    To add some sample data for FAQ and RAG, you can navigate to http://localhost:8000/apy/indexing/docs/ and make a request to ```/add_faq_data_from_csv``` and ```/add_rag_data_from_csv``` (set ```embed``` parameter to ```true``` to enable semantic search).
+    - To add some sample data for FAQ and RAG, you can navigate to http://localhost:8000/apy/indexing/docs/ and make a request to ```/add_faq_data_from_csv``` and ```/add_rag_data_from_csv``` (set ```embed``` parameter to ```true``` to enable semantic search).
 
-    To index more extensive FAQ data from https://faq.bsv.admin.ch, navigate to http://localhost:8000/apy/indexing/docs and make a request to the ```/index_faq_data``` endpoint.
+    - To index more extensive FAQ data from https://faq.bsv.admin.ch, navigate to http://localhost:8000/apy/indexing/docs and make a request to the ```/index_faq_data``` endpoint.
 
-    To index more extensive RAG data, navigate to http://localhost:8000/apy/indexing/docs and make a request to the ```/index_html_from_sitemap``` and ```/index_pdfs_from_sitemap``` endpoints (set ```embed``` parameter to ```true``` to enable semantic search).
+    - To index more extensive RAG data, navigate to http://localhost:8000/apy/indexing/docs and make a request to the ```/index_html_from_sitemap``` and ```/index_pdfs_from_sitemap``` endpoints (set ```embed``` parameter to ```true``` to enable semantic search).
