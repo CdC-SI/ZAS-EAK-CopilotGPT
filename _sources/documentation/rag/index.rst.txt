@@ -1,14 +1,10 @@
 RAG
 ###
 
-.. automodule:: rag_api
-   :members:
-
-.. automodule:: rag.models
-   :members:
+.. automodule:: rag.rag_processor
+    :members:
 
 .. toctree::
    :hidden:
 
-   processor
    retrieval

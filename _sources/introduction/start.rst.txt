@@ -18,7 +18,7 @@ Installation
 ============
 
 #. Clone the Repository
-    Begin by cloning the EAK-Copilot repository to your local machine to get the necessary project files.
+    Begin by cloning the ZAS/EAK CopilotGPT repository to your local machine to get the necessary project files.
 
     .. code-block:: console
 

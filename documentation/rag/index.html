@@ -3,14 +3,15 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="RAG Processor" href="processor.html" /><link rel="prev" title="Chunker" href="../indexing/chunker.html" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="RetrievalPipeline" href="retrieval.html" /><link rel="prev" title="BSV pipeline" href="../indexing/pipelines/bsv.html" />
 
-    <link rel="shortcut icon" href="../../_static/favicon.ico"/><!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
-        <title>RAG - ZAS/EAK-Copilot documentation</title>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
+        <title>RAG - ZAS/EAK CopilotGPT documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=4c969af8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=302659d7" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=d270bd51" />
     
@@ -190,7 +191,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">ZAS/EAK-Copilot documentation</div></a>
+      <a href="../../index.html"><div class="brand">ZAS/EAK CopilotGPT documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -214,7 +215,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">ZAS/EAK-Copilot documentation</span>
+  <span class="sidebar-brand-text">ZAS/EAK CopilotGPT documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -224,7 +225,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../introduction/intro.html">ZAS/EAK-Copilot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction/intro.html">ZAS/EAK CopilotGPT</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../introduction/start.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../introduction/updates.html">Updates</a></li>
 </ul>
@@ -242,46 +243,45 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/rag.html">RAG API</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../autocomplete/index.html">Autocomplete</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Autocomplete</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../autocomplete/matching.html">Matching</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../autocomplete/index.html">Autocomplete</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../database/index.html">Database</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Database</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../database/tables.html">Tables</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../database/services/index.html">Services</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Services</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../database/services/base.html">Base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../database/services/embedding.html">Embedding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../database/services/matching.html">Matching</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../database/services/document.html">Document</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../database/services/question.html">Question</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../database/services/source.html">Source</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../chatbot/index.html">Chatbot</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Chatbot</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../chatbot/generation.html">GenerationPipeline</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../database/index.html">Database</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Database</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../database/base.html">Base</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../database/matching.html">Matching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../database/document.html">Document</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../database/question.html">Question</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../database/source.html">Source</a></li>
-</ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../gui/index.html">GUI</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of GUI</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../gui/gui.html">GUI</a></li>
-</ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../indexing/index.html">IndexingPipeline</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of IndexingPipeline</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../indexing/crawler.html">Crawler</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../indexing/scraper.html">Scraper</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../indexing/index.html">Indexing</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Indexing</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../indexing/parser.html">Parser</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../indexing/chunker.html">Chunker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../indexing/scraper.html">Scraper</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../indexing/pipelines/index.html">Indexing pipelines</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Indexing pipelines</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../indexing/pipelines/ahv.html">AHV/IV pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../indexing/pipelines/eak.html">EAK pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../indexing/pipelines/bsv.html">BSV pipeline</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">RAG</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of RAG</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="processor.html">RAG Processor</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">RAG</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of RAG</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="retrieval.html">RetrievalPipeline</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../survey/index.html">SurveyPipeline</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of SurveyPipeline</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../survey/api.html">Survey pipeline API</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../schemas/index.html">Schemas</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of Schemas</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../schemas/document.html">Document</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../schemas/question.html">Question</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../schemas/source.html">Source</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Links</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/CdC-SI/eak-copilot">🚀 Github</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/CdC-SI/ZAS-EAK-CopilotGPT">🚀 Github</a></li>
 </ul>
 
 </div>
@@ -302,12 +302,12 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="https://github.com/CdC-SI/eak-copilot/blob/main//doc/documentation/rag/index.rst?plain=true" title="View this page">
+  <a class="muted-link" href="https://github.com/CdC-SI/ZAS-EAK-CopilotGPT/blob/main//doc/documentation/rag/index.rst?plain=true" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
 </div><div class="edit-this-page">
-  <a class="muted-link" href="https://github.com/CdC-SI/eak-copilot/edit/main//doc/documentation/rag/index.rst" title="Edit this page">
+  <a class="muted-link" href="https://github.com/CdC-SI/ZAS-EAK-CopilotGPT/edit/main//doc/documentation/rag/index.rst" title="Edit this page">
     <svg><use href="#svg-pencil"></use></svg>
     <span class="visually-hidden">Edit this page</span>
   </a>
@@ -326,23 +326,77 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="module-rag_api">
-<span id="rag"></span><h1>RAG<a class="headerlink" href="#module-rag_api" title="Link to this heading">¶</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="rag_api.docs">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rag_api.</span></span><span class="sig-name descname"><span class="pre">docs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#rag.models.RAGRequest" title="rag.models.RAGRequest"><span class="pre">RAGRequest</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag_api.docs" title="Link to this definition">¶</a></dt>
-<dd><p>Retrieve context documents for a given query.</p>
+          <section id="module-rag.rag_processor">
+<span id="rag"></span><h1>RAG<a class="headerlink" href="#module-rag.rag_processor" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="rag.rag_processor.RAGProcessor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rag.rag_processor.</span></span><span class="sig-name descname"><span class="pre">RAGProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.rag_processor.RAGProcessor" title="Link to this definition">¶</a></dt>
+<dd><p>Class implementing the RAG process</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>request</strong> (<a class="reference internal" href="#rag.models.RAGRequest" title="rag.models.RAGRequest"><em>RAGRequest</em></a>) – The request object containing the query and context.</p></li>
-<li><p><strong>language</strong> (<em>str</em>) – The language of the query.</p></li>
-<li><p><strong>k</strong> (<em>int</em>) – The number of documents to retrieve.</p></li>
-<li><p><strong>db</strong> (<em>Session</em>) – The database session.</p></li>
+<li><p><strong>model</strong> (<em>str</em>) – LLM Model used for generating chatbot answers</p></li>
+<li><p><strong>max_token</strong> (<em>int</em>)</p></li>
+<li><p><strong>stream</strong> (<em>bool</em>)</p></li>
+<li><p><strong>temperature</strong> (<em>float</em>)</p></li>
+<li><p><strong>top_p</strong> (<em>float</em>)</p></li>
+<li><p><strong>top_k</strong> (<em>int</em>)</p></li>
+<li><p><strong>client</strong></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="rag.rag_processor.RAGProcessor.retrieve">
+<span class="sig-name descname"><span class="pre">retrieve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RAGRequest</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.rag_processor.RAGProcessor.retrieve" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve context documents related to the user input question.</p>
+<p>Only supports retrieval of 1 document at the moment (set in /config/config.yaml).</p>
+<div class="admonition-todo admonition" id="id1">
+<p class="admonition-title">Todo</p>
+<p>multi-doc retrieval later</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
+<li><p><strong>request</strong> (<em>RAGRequest</em>) – User input question</p></li>
+<li><p><strong>language</strong> (<em>str</em>) – Question and context documents language</p></li>
+<li><p><strong>k</strong> (<em>int</em><em>, </em><em>default 0</em>) – Number of context documents to return (need to be revised, current logic in the code is confusing)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rag.rag_processor.RAGProcessor.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RAGRequest</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.rag_processor.RAGProcessor.process" title="Link to this definition">¶</a></dt>
+<dd><p>Execute the RAG process and query the LLM model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
+<li><p><strong>request</strong> (<em>RAGRequest</em>) – User input question</p></li>
+<li><p><strong>language</strong> (<em>str</em>) – Question and context documents language</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The retrieved documents.</p>
+<dd class="field-even"><p>LLM generated answer to the question</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rag.rag_processor.RAGProcessor.embed">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">embed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">EmbeddingRequest</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.rag_processor.RAGProcessor.embed" title="Link to this definition">¶</a></dt>
+<dd><p>Get the embedding of an embedding request.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>text_input</strong> (<em>EmbeddingRequest</em>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The requested text embedding</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
@@ -350,104 +404,52 @@
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="rag_api.process_query">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rag_api.</span></span><span class="sig-name descname"><span class="pre">process_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#rag.models.RAGRequest" title="rag.models.RAGRequest"><span class="pre">RAGRequest</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag_api.process_query" title="Link to this definition">¶</a></dt>
-<dd><p>Main endpoint for the RAG service, processes a RAG query.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="rag.rag_processor.RAGProcessor.create_openai_message">
+<span class="sig-name descname"><span class="pre">create_openai_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context_docs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.rag_processor.RAGProcessor.create_openai_message" title="Link to this definition">¶</a></dt>
+<dd><p>Format the message to send to the OpenAI API.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>request</strong> (<a class="reference internal" href="#rag.models.RAGRequest" title="rag.models.RAGRequest"><em>RAGRequest</em></a>) – The request object containing the query and context.</p></li>
-<li><p><strong>language</strong> (<em>str</em>) – The language of the query.</p></li>
-<li><p><strong>db</strong> (<em>Session</em>) – The database session.</p></li>
+<li><p><strong>context_docs</strong> (<em>str</em>) – Context matching the query according to the retrieval process</p></li>
+<li><p><strong>query</strong> (<em>str</em>) – User input question</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The response from the RAG processor</p>
+<dd class="field-even"><p>Contains the message in the correct format to send to the OpenAI API</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>StreamingResponse</p>
+<dd class="field-odd"><p>list of dict</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="rag_api.rerank">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rag_api.</span></span><span class="sig-name descname"><span class="pre">rerank</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rag_api.rerank" title="Link to this definition">¶</a></dt>
-<dd><p>Dummy endpoint for retrieved docs reranking.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="rag.rag_processor.RAGProcessor.create_openai_stream">
+<span class="sig-name descname"><span class="pre">create_openai_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">messages</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.rag_processor.RAGProcessor.create_openai_stream" title="Link to this definition">¶</a></dt>
+<dd><p>Create a stream to communicate with OpenAI.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>messages</strong> (<em>dict</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>chat.completion</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py class" id="module-rag.models">
-<dt class="sig sig-object py" id="rag.models.EmbeddingRequest">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rag.models.</span></span><span class="sig-name descname"><span class="pre">EmbeddingRequest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.models.EmbeddingRequest" title="Link to this definition">¶</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="rag.models.EmbeddingRequest.model_computed_fields">
-<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#rag.models.EmbeddingRequest.model_computed_fields" title="Link to this definition">¶</a></dt>
-<dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="rag.models.EmbeddingRequest.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#rag.models.EmbeddingRequest.model_config" title="Link to this definition">¶</a></dt>
-<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="rag.models.EmbeddingRequest.model_fields">
-<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'text':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=True)}</span></em><a class="headerlink" href="#rag.models.EmbeddingRequest.model_fields" title="Link to this definition">¶</a></dt>
-<dd><p>Metadata about the fields defined on the model,
-mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</p>
-<p>This replaces <cite>Model.__fields__</cite> from Pydantic V1.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="rag.models.RAGRequest">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rag.models.</span></span><span class="sig-name descname"><span class="pre">RAGRequest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.models.RAGRequest" title="Link to this definition">¶</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="rag.models.RAGRequest.model_computed_fields">
-<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#rag.models.RAGRequest.model_computed_fields" title="Link to this definition">¶</a></dt>
-<dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="rag.models.RAGRequest.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#rag.models.RAGRequest.model_config" title="Link to this definition">¶</a></dt>
-<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="rag.models.RAGRequest.model_fields">
-<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'query':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=True)}</span></em><a class="headerlink" href="#rag.models.RAGRequest.model_fields" title="Link to this definition">¶</a></dt>
-<dd><p>Metadata about the fields defined on the model,
-mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</p>
-<p>This replaces <cite>Model.__fields__</cite> from Pydantic V1.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="rag.models.ResponseBody">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rag.models.</span></span><span class="sig-name descname"><span class="pre">ResponseBody</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.models.ResponseBody" title="Link to this definition">¶</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="rag.models.ResponseBody.model_computed_fields">
-<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#rag.models.ResponseBody.model_computed_fields" title="Link to this definition">¶</a></dt>
-<dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="rag.models.ResponseBody.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#rag.models.ResponseBody.model_config" title="Link to this definition">¶</a></dt>
-<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="rag.models.ResponseBody.model_fields">
-<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'content':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=True)}</span></em><a class="headerlink" href="#rag.models.ResponseBody.model_fields" title="Link to this definition">¶</a></dt>
-<dd><p>Metadata about the fields defined on the model,
-mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</p>
-<p>This replaces <cite>Model.__fields__</cite> from Pydantic V1.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="rag.rag_processor.RAGProcessor.generate">
+<span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">openai_stream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_url</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rag.rag_processor.RAGProcessor.generate" title="Link to this definition">¶</a></dt>
+<dd><p>Generate the answer using LLM.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>openai_stream</strong></p></li>
+<li><p><strong>source_url</strong></p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -461,23 +463,23 @@ mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="processor.html">
+          <a class="next-page" href="retrieval.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">RAG Processor</div>
+                <div class="title">RetrievalPipeline</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../indexing/chunker.html">
+          <a class="prev-page" href="../indexing/pipelines/bsv.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Chunker</div>
+                <div class="title">BSV pipeline</div>
                 
               </div>
             </a>
@@ -512,25 +514,13 @@ mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">RAG</a><ul>
-<li><a class="reference internal" href="#rag_api.docs"><code class="docutils literal notranslate"><span class="pre">docs()</span></code></a></li>
-<li><a class="reference internal" href="#rag_api.process_query"><code class="docutils literal notranslate"><span class="pre">process_query()</span></code></a></li>
-<li><a class="reference internal" href="#rag_api.rerank"><code class="docutils literal notranslate"><span class="pre">rerank()</span></code></a></li>
-<li><a class="reference internal" href="#rag.models.EmbeddingRequest"><code class="docutils literal notranslate"><span class="pre">EmbeddingRequest</span></code></a><ul>
-<li><a class="reference internal" href="#rag.models.EmbeddingRequest.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">EmbeddingRequest.model_computed_fields</span></code></a></li>
-<li><a class="reference internal" href="#rag.models.EmbeddingRequest.model_config"><code class="docutils literal notranslate"><span class="pre">EmbeddingRequest.model_config</span></code></a></li>
-<li><a class="reference internal" href="#rag.models.EmbeddingRequest.model_fields"><code class="docutils literal notranslate"><span class="pre">EmbeddingRequest.model_fields</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#rag.models.RAGRequest"><code class="docutils literal notranslate"><span class="pre">RAGRequest</span></code></a><ul>
-<li><a class="reference internal" href="#rag.models.RAGRequest.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">RAGRequest.model_computed_fields</span></code></a></li>
-<li><a class="reference internal" href="#rag.models.RAGRequest.model_config"><code class="docutils literal notranslate"><span class="pre">RAGRequest.model_config</span></code></a></li>
-<li><a class="reference internal" href="#rag.models.RAGRequest.model_fields"><code class="docutils literal notranslate"><span class="pre">RAGRequest.model_fields</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#rag.models.ResponseBody"><code class="docutils literal notranslate"><span class="pre">ResponseBody</span></code></a><ul>
-<li><a class="reference internal" href="#rag.models.ResponseBody.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">ResponseBody.model_computed_fields</span></code></a></li>
-<li><a class="reference internal" href="#rag.models.ResponseBody.model_config"><code class="docutils literal notranslate"><span class="pre">ResponseBody.model_config</span></code></a></li>
-<li><a class="reference internal" href="#rag.models.ResponseBody.model_fields"><code class="docutils literal notranslate"><span class="pre">ResponseBody.model_fields</span></code></a></li>
+<li><a class="reference internal" href="#rag.rag_processor.RAGProcessor"><code class="docutils literal notranslate"><span class="pre">RAGProcessor</span></code></a><ul>
+<li><a class="reference internal" href="#rag.rag_processor.RAGProcessor.retrieve"><code class="docutils literal notranslate"><span class="pre">RAGProcessor.retrieve()</span></code></a></li>
+<li><a class="reference internal" href="#rag.rag_processor.RAGProcessor.process"><code class="docutils literal notranslate"><span class="pre">RAGProcessor.process()</span></code></a></li>
+<li><a class="reference internal" href="#rag.rag_processor.RAGProcessor.embed"><code class="docutils literal notranslate"><span class="pre">RAGProcessor.embed()</span></code></a></li>
+<li><a class="reference internal" href="#rag.rag_processor.RAGProcessor.create_openai_message"><code class="docutils literal notranslate"><span class="pre">RAGProcessor.create_openai_message()</span></code></a></li>
+<li><a class="reference internal" href="#rag.rag_processor.RAGProcessor.create_openai_stream"><code class="docutils literal notranslate"><span class="pre">RAGProcessor.create_openai_stream()</span></code></a></li>
+<li><a class="reference internal" href="#rag.rag_processor.RAGProcessor.generate"><code class="docutils literal notranslate"><span class="pre">RAGProcessor.generate()</span></code></a></li>
 </ul>
 </li>
 </ul>

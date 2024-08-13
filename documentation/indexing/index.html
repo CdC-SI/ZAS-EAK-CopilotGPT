@@ -3,14 +3,15 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Crawler" href="crawler.html" /><link rel="prev" title="GUI" href="../gui/gui.html" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Parser" href="parser.html" /><link rel="prev" title="Source" href="../database/services/source.html" />
 
-    <link rel="shortcut icon" href="../../_static/favicon.ico"/><!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
-        <title>IndexingPipeline - ZAS/EAK-Copilot documentation</title>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
+        <title>Indexing - ZAS/EAK CopilotGPT documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=4c969af8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=302659d7" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=d270bd51" />
     
@@ -190,7 +191,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">ZAS/EAK-Copilot documentation</div></a>
+      <a href="../../index.html"><div class="brand">ZAS/EAK CopilotGPT documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -214,7 +215,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">ZAS/EAK-Copilot documentation</span>
+  <span class="sidebar-brand-text">ZAS/EAK CopilotGPT documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -224,7 +225,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../introduction/intro.html">ZAS/EAK-Copilot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction/intro.html">ZAS/EAK CopilotGPT</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../introduction/start.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../introduction/updates.html">Updates</a></li>
 </ul>
@@ -242,46 +243,45 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/rag.html">RAG API</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../autocomplete/index.html">Autocomplete</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Autocomplete</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../autocomplete/matching.html">Matching</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../autocomplete/index.html">Autocomplete</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../database/index.html">Database</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Database</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../database/tables.html">Tables</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../database/services/index.html">Services</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Services</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../database/services/base.html">Base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../database/services/embedding.html">Embedding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../database/services/matching.html">Matching</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../database/services/document.html">Document</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../database/services/question.html">Question</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../database/services/source.html">Source</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../chatbot/index.html">Chatbot</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Chatbot</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../chatbot/generation.html">GenerationPipeline</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../database/index.html">Database</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Database</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../database/base.html">Base</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../database/matching.html">Matching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../database/document.html">Document</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../database/question.html">Question</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../database/source.html">Source</a></li>
-</ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../gui/index.html">GUI</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of GUI</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../gui/gui.html">GUI</a></li>
-</ul>
-</li>
-<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">IndexingPipeline</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of IndexingPipeline</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="crawler.html">Crawler</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scraper.html">Scraper</a></li>
+<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">Indexing</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Indexing</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="parser.html">Parser</a></li>
-<li class="toctree-l2"><a class="reference internal" href="chunker.html">Chunker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scraper.html">Scraper</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="pipelines/index.html">Indexing pipelines</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Indexing pipelines</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="pipelines/ahv.html">AHV/IV pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pipelines/eak.html">EAK pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pipelines/bsv.html">BSV pipeline</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../rag/index.html">RAG</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of RAG</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../rag/processor.html">RAG Processor</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../rag/index.html">RAG</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of RAG</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../rag/retrieval.html">RetrievalPipeline</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../survey/index.html">SurveyPipeline</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of SurveyPipeline</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../survey/api.html">Survey pipeline API</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../schemas/index.html">Schemas</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of Schemas</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../schemas/document.html">Document</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../schemas/question.html">Question</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../schemas/source.html">Source</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Links</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/CdC-SI/eak-copilot">🚀 Github</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/CdC-SI/ZAS-EAK-CopilotGPT">🚀 Github</a></li>
 </ul>
 
 </div>
@@ -302,12 +302,12 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="https://github.com/CdC-SI/eak-copilot/blob/main//doc/documentation/indexing/index.rst?plain=true" title="View this page">
+  <a class="muted-link" href="https://github.com/CdC-SI/ZAS-EAK-CopilotGPT/blob/main//doc/documentation/indexing/index.rst?plain=true" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
 </div><div class="edit-this-page">
-  <a class="muted-link" href="https://github.com/CdC-SI/eak-copilot/edit/main//doc/documentation/indexing/index.rst" title="Edit this page">
+  <a class="muted-link" href="https://github.com/CdC-SI/ZAS-EAK-CopilotGPT/edit/main//doc/documentation/indexing/index.rst" title="Edit this page">
     <svg><use href="#svg-pencil"></use></svg>
     <span class="visually-hidden">Edit this page</span>
   </a>
@@ -326,210 +326,40 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="module-indexing_api">
-<span id="indexingpipeline"></span><h1>IndexingPipeline<a class="headerlink" href="#module-indexing_api" title="Link to this heading">¶</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="indexing_api.add_faq_data_from_csv">
-<span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">add_faq_data_from_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'indexing/data/faq_test_data.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.add_faq_data_from_csv" title="Link to this definition">¶</a></dt>
-<dd><p>Add and index test data for RAG from csv files without embeddings.
-The function acknowledges the following columns:</p>
-<ul class="simple">
-<li><p><em>url:</em> source URL of the information</p></li>
-<li><p><em>text:</em> Text content of the question</p></li>
-<li><p><em>answer:</em> Text content of the answer</p></li>
-<li><p><em>language (optional):</em> Language of the question and answer</p></li>
-<li><p><em>embedding (optional):</em> Embedding of the question</p></li>
-</ul>
+          <section id="indexing">
+<h1>Indexing<a class="headerlink" href="#indexing" title="Link to this heading">¶</a></h1>
+<p>Create a pipeline to index data from a source to the database, using a parser and a scraper.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="indexing.base.BaseIndexer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing.base.</span></span><span class="sig-name descname"><span class="pre">BaseIndexer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scraper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing.base.BaseIndexer" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract base class for indexing models.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.base.BaseIndexer.index">
+<span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sitemap_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict:</span></span></span><a class="headerlink" href="#indexing.base.BaseIndexer.index" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract method to index content from a URL into a vectorDB.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract method to index content from a URL into a vectorDB.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>file_path</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to the csv file containing the data. Defaults to “indexing/data/faq_test_data.csv”.</p></li>
-<li><p><strong>embed</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to embed the data or not. Defaults to False.</p></li>
-<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
+<li><p><strong>url</strong> (<em>str</em>) – The sitemap URL to index content from.</p></li>
+<li><p><strong>db</strong> (<em>Session</em>) – The database session to use.</p></li>
+<li><p><strong>embed</strong> (<em>bool</em><em>, </em><em>optional</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Confirmation message upon successful completion of the process</p>
+<dd class="field-even"><p>content: Success message</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="indexing_api.add_rag_data_from_csv">
-<span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">add_rag_data_from_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'indexing/data/rag_test_data.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.add_rag_data_from_csv" title="Link to this definition">¶</a></dt>
-<dd><p>Add and index test data for RAG from csv files without embeddings.
-The function acknowledges the following columns:</p>
-<ul class="simple">
-<li><p><em>url:</em> source URL of the document</p></li>
-<li><p><em>text:</em> Text content of the document</p></li>
-<li><p><em>language (optional):</em> Language of the document</p></li>
-<li><p><em>embedding (optional):</em> Embedding of the document</p></li>
-</ul>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>file_path</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to the csv file containing the data. Defaults to “indexing/data/rag_test_data.csv”.</p></li>
-<li><p><strong>embed</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to embed the data or not. Defaults to False.</p></li>
-<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Confirmation message upon successful completion of the process</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="indexing_api.embed_faq_data">
-<span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">embed_faq_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_empty_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.embed_faq_data" title="Link to this definition">¶</a></dt>
-<dd><p>Embed all FAQ questions that have not been embedded yet.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
-<li><p><strong>embed_empty_only</strong> (<em>bool</em><em>, </em><em>optional</em>) – Embed only data that have not been embedded yet. Defaults to True.</p></li>
-<li><p><strong>k</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of questions to embed. Default to 0 which means all questions.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Confirmation message upon successful completion of the process</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="indexing_api.embed_rag_data">
-<span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">embed_rag_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_empty_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.embed_rag_data" title="Link to this definition">¶</a></dt>
-<dd><p>Embed all RAG data (documents) that have not been embedded yet.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
-<li><p><strong>embed_empty_only</strong> (<em>bool</em><em>, </em><em>optional</em>) – Embed only data that have not been embedded yet. Defaults to True.</p></li>
-<li><p><strong>k</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of questions to embed. Default to 0 which means all questions.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Confirmation message upon successful completion of the process</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="indexing_api.index_data">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">index_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FaqItem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.index_data" title="Link to this definition">¶</a></dt>
-<dd><p>Upsert a single entry to the FAQ dataset.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>item</strong> (<em>FaqItem</em>) – <dl class="simple">
-<dt>The Question item to insert or update :</dt><dd><dl class="simple">
-<dt>id<span class="classifier">int, optional</span></dt><dd><p>The item if update is wanted</p>
-</dd>
-<dt>url<span class="classifier">str</span></dt><dd><p>URL where the entry article can be found</p>
-</dd>
-<dt>question<span class="classifier">str</span></dt><dd><p>The FAQ question</p>
-</dd>
-<dt>answer<span class="classifier">str</span></dt><dd><p>The question answer</p>
-</dd>
-<dt>language<span class="classifier">str</span></dt><dd><p>The article language</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</p></li>
-<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="indexing_api.index_faq_data">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">index_faq_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sitemap_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'https://faq.bsv.admin.ch/sitemap.xml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_answer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.index_faq_data" title="Link to this definition">¶</a></dt>
-<dd><p>Add and index data for Autocomplete to the FAQ database. The data is obtained by scraping the website <cite>sitemap_url</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sitemap_url</strong> (str, default ‘<a class="reference external" href="https://faq.bsv.admin.ch/sitemap.xml">https://faq.bsv.admin.ch/sitemap.xml</a>’) – the <cite>sitemap.xml</cite> URL of the website to scrap</p></li>
-<li><p><strong>k</strong> (<em>int</em><em>, </em><em>default 0</em>) – Number of article to scrap and log to test the method.</p></li>
-<li><p><strong>embed_question</strong> (<em>bool</em><em>, </em><em>default False</em>) – Flag to indicate if the system embeds questions text</p></li>
-<li><p><strong>embed_answer</strong> (<em>bool</em><em>, </em><em>default False</em>) – Flag to indicate if the system embeds answers text</p></li>
-<li><p><strong>db</strong> (<em>Session</em><em>, </em><em>optional</em>) – Database session to use for upserting the extracted</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Confirmation message upon successful completion of the process</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="indexing_api.index_html_from_sitemap">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">index_html_from_sitemap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sitemap_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'https://eak.admin.ch/eak/de/home.sitemap.xml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.index_html_from_sitemap" title="Link to this definition">¶</a></dt>
-<dd><p>Indexes HTML from a given sitemap URL. The HTML pages are scraped and their data is added to the
-embedding database. This function is specifically designed for the site “<a class="reference external" href="https://eak.admin.ch">https://eak.admin.ch</a>”.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sitemap_url</strong> (<em>str</em><em>, </em><em>optional</em>) – The URL of the sitemap to scrape HTML from. Defaults to “<a class="reference external" href="https://eak.admin.ch/eak/de/home.sitemap.xml">https://eak.admin.ch/eak/de/home.sitemap.xml</a>”.</p></li>
-<li><p><strong>embed</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to embed the data or not. Defaults to False.</p></li>
-<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A response body containing a confirmation message upon successful completion of the process.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="../rag/index.html#rag.models.ResponseBody" title="rag.models.ResponseBody">ResponseBody</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="indexing_api.index_pdfs_from_sitemap">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">index_pdfs_from_sitemap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sitemap_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'https://www.ahv-iv.ch/de/Sitemap-DE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.index_pdfs_from_sitemap" title="Link to this definition">¶</a></dt>
-<dd><p>Indexes PDFs from a given sitemap URL. The PDFs are scraped and their data is added to the
-embedding database. This function is specifically designed for the site “<a class="reference external" href="https://www.ahv-iv.ch">https://www.ahv-iv.ch</a>”.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sitemap_url</strong> (<em>str</em><em>, </em><em>optional</em>) – The URL of the sitemap to scrape PDFs from. Defaults to “<a class="reference external" href="https://www.ahv-iv.ch/de/Sitemap-DE">https://www.ahv-iv.ch/de/Sitemap-DE</a>”.</p></li>
-<li><p><strong>embed</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to embed the data or not. Defaults to False.</p></li>
-<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A response body containing a confirmation message upon successful completion of the process.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="../rag/index.html#rag.models.ResponseBody" title="rag.models.ResponseBody">ResponseBody</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="indexing_api.init_indexing">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">init_indexing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.init_indexing" title="Link to this definition">¶</a></dt>
-<dd><p>Initialize the database according to the configuration <code class="docutils literal notranslate"><span class="pre">indexing_config</span></code> specified in <code class="docutils literal notranslate"><span class="pre">config.yaml</span></code></p>
 </dd></dl>
 
 <div class="toctree-wrapper compound">
@@ -541,23 +371,23 @@ embedding database. This function is specifically designed for the site “<a cl
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="crawler.html">
+          <a class="next-page" href="parser.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Crawler</div>
+                <div class="title">Parser</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../gui/gui.html">
+          <a class="prev-page" href="../database/services/source.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">GUI</div>
+                <div class="title">Source</div>
                 
               </div>
             </a>
@@ -591,16 +421,12 @@ embedding database. This function is specifically designed for the site “<a cl
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">IndexingPipeline</a><ul>
-<li><a class="reference internal" href="#indexing_api.add_faq_data_from_csv"><code class="docutils literal notranslate"><span class="pre">add_faq_data_from_csv()</span></code></a></li>
-<li><a class="reference internal" href="#indexing_api.add_rag_data_from_csv"><code class="docutils literal notranslate"><span class="pre">add_rag_data_from_csv()</span></code></a></li>
-<li><a class="reference internal" href="#indexing_api.embed_faq_data"><code class="docutils literal notranslate"><span class="pre">embed_faq_data()</span></code></a></li>
-<li><a class="reference internal" href="#indexing_api.embed_rag_data"><code class="docutils literal notranslate"><span class="pre">embed_rag_data()</span></code></a></li>
-<li><a class="reference internal" href="#indexing_api.index_data"><code class="docutils literal notranslate"><span class="pre">index_data()</span></code></a></li>
-<li><a class="reference internal" href="#indexing_api.index_faq_data"><code class="docutils literal notranslate"><span class="pre">index_faq_data()</span></code></a></li>
-<li><a class="reference internal" href="#indexing_api.index_html_from_sitemap"><code class="docutils literal notranslate"><span class="pre">index_html_from_sitemap()</span></code></a></li>
-<li><a class="reference internal" href="#indexing_api.index_pdfs_from_sitemap"><code class="docutils literal notranslate"><span class="pre">index_pdfs_from_sitemap()</span></code></a></li>
-<li><a class="reference internal" href="#indexing_api.init_indexing"><code class="docutils literal notranslate"><span class="pre">init_indexing()</span></code></a></li>
+<li><a class="reference internal" href="#">Indexing</a><ul>
+<li><a class="reference internal" href="#indexing.base.BaseIndexer"><code class="docutils literal notranslate"><span class="pre">BaseIndexer</span></code></a><ul>
+<li><a class="reference internal" href="#indexing.base.BaseIndexer.index"><code class="docutils literal notranslate"><span class="pre">BaseIndexer.index()</span></code></a></li>
+<li><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">BaseIndexer.index()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
