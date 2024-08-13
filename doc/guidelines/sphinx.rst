@@ -13,7 +13,7 @@ Prerequisites
     * Python 3.9+
 
 #. Clone the repository
-    Begin by cloning the EAK-Copilot repository to your local machine to get the necessary project files.
+    Begin by cloning the ZAS/EAK CopilotGPT repository to your local machine to get the necessary project files.
 
     .. code-block:: console
 
@@ -22,7 +22,7 @@ Prerequisites
 
 #. Install dependencies
     ``doc/requirement.txt`` contains Sphinx and several Sphinx extension packages that we use within the project.
-    The other files contain packages required for building the Copilot project, and thus for building the Sphinx documentation.
+    The other files contain packages required for building the CopilotGPT project, and thus for building the Sphinx documentation.
 
     .. code-block:: console
 
@@ -67,9 +67,9 @@ Currently, our /doc folder is structured as follows.
 All the remaining folders contains ``.rst`` or ``.md`` files only, each file represents a webpage.
 
 | **index.rst** is the website homepage.
-| **intro/** contains pages that introduce the Copilot project.
+| **intro/** contains pages that introduce the CopilotGPT project.
 | **guidelines/** contains tutorials and best practices guidelines.
-| **topics/** contains Copilot open sourced code documentation.
+| **topics/** contains CopilotGPT open sourced code documentation.
 
 Especially, **index.rst** contains several "Toc trees" which define the architecture of the website and build the sidebar on the left.
 Each ``toctree`` defines a theme. Currently, the website is split into 3 of theme: Introduction, Guidelines, and Documentation.

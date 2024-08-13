@@ -3,7 +3,6 @@ from rag.models import RAGRequest, EmbeddingRequest
 from rag.factory import RetrieverFactory
 
 from sqlalchemy.orm import Session
-from database.schemas import Document
 from database.service import document_service
 from utils.embedding import get_embedding
 

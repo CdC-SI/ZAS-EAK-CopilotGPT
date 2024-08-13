@@ -10,9 +10,9 @@ from indexing.base import BaseParser, BaseIndexer
 
 from sqlalchemy.orm import Session
 from database.service.document import document_service
-from database.schemas import DocumentCreate
+from schemas.document import DocumentCreate
 
-from .scraper import scraper
+from indexing.scraper import scraper
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

@@ -1,7 +1,6 @@
 import logging
 
-from fastapi import FastAPI, status, Depends, HTTPException
-from fastapi.responses import Response
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from config.network_config import CORS_ALLOWED_ORIGINS
 
@@ -9,19 +8,19 @@ from config.network_config import CORS_ALLOWED_ORIGINS
 from config.base_config import indexing_config, indexing_app_config
 
 # Load utility functions
-from indexing.implementations.admin import admin_indexer
-from indexing.implementations.ahv import ahv_indexer
-from indexing.scraper import Scraper
+from indexing.pipelines.admin import admin_indexer
+from indexing.pipelines.ahv import ahv_indexer
+from indexing.pipelines.bsv import BSVIndexer
 
 from sqlalchemy.orm import Session
 from database.service.question import question_service
 from database.service.document import document_service
-from database.schemas import Question, QuestionCreate, DocumentCreate, QuestionItem
+from schemas.question import Question, QuestionCreate, QuestionItem
+from schemas.document import DocumentCreate
 from database.database import get_db
 
 # Load models
 from rag.models import ResponseBody
-from indexing.models import FaqItem
 
 import ast
 import csv
@@ -105,8 +104,10 @@ def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", em
     with open(file_path, mode='r') as file:
         data = csv.DictReader(file)
 
+        embedding_column = "embedding" in data.fieldnames
+
         for row in data:
-            embedding = ast.literal_eval(row["embedding"]) if row["embedding"] else None
+            embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
             document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file_path, language=row["language"])
             document_service.upsert(db, document, embed=embed)
 
@@ -142,8 +143,10 @@ def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", em
     with open(file_path, mode='r') as file:
         data = csv.DictReader(file)
 
+        embedding_column = "embedding" in data.fieldnames
+
         for row in data:
-            embedding = ast.literal_eval(row["embedding"]) if row["embedding"] else None
+            embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
             question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file_path, language=row["language"])
             question_service.upsert(db, question, embed=embed)
 
@@ -275,7 +278,7 @@ async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xm
     """
     logging.basicConfig(level=logging.INFO)
 
-    scraper = Scraper(sitemap_url)
+    scraper = BSVIndexer(sitemap_url)
     urls = await scraper.run(k=k, embed=(embed_question, embed_answer), db=db)
 
     return {"message": f"Done! {len(urls)} wurden verarbeitet."}
@@ -285,13 +288,13 @@ async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xm
          summary="Update or Insert FAQ Data",
          response_model=Question,
          response_description="Updated or Inserted Data")
-async def index_data(item: FaqItem, db: Session = Depends(get_db)):
+async def index_data(item: QuestionItem, db: Session = Depends(get_db)):
     """
     Upsert a single entry to the FAQ dataset.
 
     Parameters
     ----------
-    item : FaqItem
+    item : QuestionItem
         The Question item to insert or update :
             id : int, optional
                 The item if update is wanted
@@ -303,6 +306,8 @@ async def index_data(item: FaqItem, db: Session = Depends(get_db)):
                 The question answer
             language : str
                 The article language
+            source : str
+                Username of the user who inserted the data
     db : Session
         Database session
 
@@ -310,5 +315,9 @@ async def index_data(item: FaqItem, db: Session = Depends(get_db)):
     -------
     dict
     """
-    q_item = QuestionItem(**item.model_dump(exclude={"question"}), text=item.question, source="username")
-    return question_service.upsert(db, q_item)
+    logger.info("Upserting data")
+    logger.info(item)
+
+    item.source = "username"
+    logger.info(item)
+    return question_service.upsert(db, item)

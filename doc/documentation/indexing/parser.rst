@@ -1,13 +1,5 @@
 Parser
 ######
 
-.. todo::
-
-    ``indexingPipeline.parser``
-
-FAQParser
-=========
-
-.. todo::
-
-    ``indexingPipeline.parser.FAQParser``
+.. autoclass:: indexing.base.BaseParser
+    :members:

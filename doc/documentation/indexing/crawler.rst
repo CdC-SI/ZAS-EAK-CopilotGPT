@@ -1,6 +1,0 @@
-Crawler
-#######
-
-.. todo::
-
-    ``indexingPipeline.crawler``

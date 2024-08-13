@@ -10,3 +10,6 @@ sphinx-inline-tabs
 
 # .md support
 myst-parser
+
+# pydantic support
+autodoc_pydantic
