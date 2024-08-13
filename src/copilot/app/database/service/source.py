@@ -47,8 +47,12 @@ class SourceService(BaseService):
         database.models.Source
         """
         db_obj = self.get_by_url(db, obj_in.url)
+
+        # if the source already exists, return it
         if db_obj:
             return db_obj
+
+        # otherwise, create a new source
         return self.create(db, obj_in)
 
 

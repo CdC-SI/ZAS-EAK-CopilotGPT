@@ -123,7 +123,7 @@ class MatchingService(EmbeddingService):
         q_embedding = get_embedding(user_input)
 
         stmt = select(self.model)
-        stmt = stmt.filter(self.model.embedding.isnot(None))
+        stmt = stmt.filter(self.model.embedding.isnot(None))  # filter out entries without embedding
         if language:
             stmt = stmt.filter(self.model.language == language)
 

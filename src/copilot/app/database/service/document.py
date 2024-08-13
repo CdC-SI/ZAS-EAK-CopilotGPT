@@ -13,6 +13,7 @@ class DocumentService(MatchingService):
 
     def _create(self, db: Session, obj_in: DocumentCreate, embed=False):
         source = source_service.get_or_create(db, SourceCreate(url=obj_in.source))
+
         db_document = Document(url=obj_in.url, language=obj_in.language, text=obj_in.text, embedding=obj_in.embedding, source=source, source_id=source.id)
         if embed:
             db_document = self._embed(db_document)
@@ -21,6 +22,20 @@ class DocumentService(MatchingService):
         return db_document
 
     def get_by_url(self, db: Session, url: str):
+        """
+        Get a document by its URL field
+
+        Parameters
+        ----------
+        db: Session
+            Database session
+        url: str
+            Document
+
+        Returns
+        -------
+        Document
+        """
         return db.query(self.model).filter(self.model.url == url).one_or_none()
 
     def _update(self, db: Session, db_obj, obj_in, embed=False):

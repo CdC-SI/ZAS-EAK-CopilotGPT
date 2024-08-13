@@ -74,7 +74,7 @@ class BaseService(metaclass=ABCMeta):
 
     def get(self, db: Session, id_: int):
         """
-        Get object by id
+        Get an object by id
 
         Parameters
         ----------
@@ -93,7 +93,7 @@ class BaseService(metaclass=ABCMeta):
 
     def update(self, db: Session, db_obj: Base, obj_in: BaseModel):
         """
-        Update db object
+        Update a database object
 
         Parameters
         ----------
@@ -125,7 +125,7 @@ class BaseService(metaclass=ABCMeta):
 
     def delete(self, db: Session, id_: int):
         """
-        Delete object by id
+        Delete an object by id
 
         Parameters
         ----------
@@ -236,6 +236,23 @@ class EmbeddingService(BaseService):
         pass
 
     def create(self, db: Session, obj_in: BaseModel, embed=False):
+        """
+        Create a new object in the database
+
+        Parameters
+        ----------
+        db: Session
+            Database session
+        obj_in: BaseModel
+            Pydantic schema
+        embed: bool, optional
+            Whether to embed the object, default to False
+
+        Returns
+        -------
+        Base
+            Database object
+        """
         db_obj = self._create(db, obj_in, embed=embed)
         db.commit()
         return db_obj
@@ -286,8 +303,25 @@ class EmbeddingService(BaseService):
         super()._update(db, db_obj, obj_in)
 
     def _update_embed_exclude(self, db_obj, obj_in, embed=False):
+        """
+        Return fields to exclude when updating an object
+
+        Parameters
+        ----------
+        db_obj
+            Database object
+        obj_in
+            Pydantic schema
+        embed
+            Whether to embed the object
+
+        Returns
+        -------
+        set[str]
+            fields to exclude
+        """
         exclude = {'source'}
-        # prevent from replacing existing embedding by None
+        # prevent from replacing existing embedding by None, check if obj_in has an embedding
         if obj_in.embedding is None:
             exclude.add('embedding')
 
@@ -342,7 +376,7 @@ class EmbeddingService(BaseService):
         Base
             Upserted database object
         """
-        db_obj = self.get_by_text(db, obj_in.text)
+        db_obj = self.get_by_text(db, obj_in.text)  # test if object already exists
         if db_obj:
             db_obj = self._update(db, db_obj, obj_in, embed=embed)
         else:
