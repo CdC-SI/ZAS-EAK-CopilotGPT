@@ -1,5 +1,5 @@
 from rag.base import BaseRetriever
-from rag.implementations.simple_retriever import SimpleRetriever
+from rag.retrievers import TopKRetriever
 
 class RetrieverFactory:
     @staticmethod
@@ -24,11 +24,12 @@ class RetrieverFactory:
         """
         retrieval_method = retrieval_method[0]
 
+        # switch/case statements
         #if retriever_name not in SUPPORTED_RETRIEVAL_METHODS:
-        if retrieval_method not in ["simple", "query_rewriting", "contextual_compression", "bm25", "reranking"]:
+        if retrieval_method not in ["top_k", "query_rewriting", "contextual_compression", "bm25", "reranking"]:
             raise ValueError(f"Unsupported retrieval method: {retrieval_method}")
-        elif retrieval_method == "simple":
-            return SimpleRetriever()
+        elif retrieval_method == "top_k":
+            return TopKRetriever()
         # elif retriever_name == "query_rewriting":
         #     return OpenAILLM(model_name=llm_model)
         # elif retriever_name == "contextual_compression":

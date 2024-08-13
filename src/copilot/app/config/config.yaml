@@ -20,7 +20,7 @@ rag:
     model: text-embedding-ada-002
   retrieval:
     retrieval_method:
-      - "simple"
+      - "top_k"
     top_k: 1
     metric: cosine_similarity
   llm:
