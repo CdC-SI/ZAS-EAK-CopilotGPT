@@ -7,8 +7,7 @@ import aiohttp
 from bs4 import BeautifulSoup
 
 from haystack.dataclasses import Document
-from haystack.components.preprocessors import DocumentCleaner
-from haystack.components.preprocessors import DocumentSplitter
+from haystack.components.preprocessors import DocumentCleaner, DocumentSplitter
 
 from sqlalchemy.orm import Session
 

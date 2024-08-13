@@ -122,6 +122,9 @@ class AHVIndexer(BaseIndexer):
         Scraps, parses and indexes PDF content from the given sitemap URL into the VectorDB.
     """
     async def index(self, sitemap_url: str, db: Session, embed: bool = True) -> dict:
+
+        # JUST SCRAPING URLS OF SECTIONS
+
         # Get sitemap
         sitemap = await self.scraper.fetch(sitemap_url)
 
@@ -130,6 +133,8 @@ class AHVIndexer(BaseIndexer):
 
         # Get HTML from each memento section link
         content = self.scraper.scrap_urls(url_list)
+
+        # JUST SCRAPING PDFS FROM SECTIONS
 
         soups = []
         for page in content:
@@ -140,12 +145,16 @@ class AHVIndexer(BaseIndexer):
         for soup in soups:
             pdf_paths.extend(self.parser.get_pdf_paths(soup))
 
+        # PROCESSING URLS
+
         # Scrap PDFs from each memento section
         pdf_urls = ["https://ahv-iv.ch" + pdf_path for pdf_path in pdf_paths]
 
         # Add "it", "fr" pdf paths
         pdf_urls.extend([pdf_url.replace(".d", ".f") for pdf_url in pdf_urls])
         pdf_urls.extend([pdf_url.replace(".d", ".i") for pdf_url in pdf_urls])
+
+        # SCRAP SCRAP SCRAP CHOP CHOP CHOP
 
         content = self.scraper.scrap_urls(pdf_urls)
 

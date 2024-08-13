@@ -1,8 +1,14 @@
 import logging
+import os
 
 from fastapi import FastAPI, Depends, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from config.network_config import CORS_ALLOWED_ORIGINS
+
+from haystack.dataclasses import ByteStream
+from haystack.components.converters import PyPDFToDocument
+from haystack.components.preprocessors import DocumentCleaner, DocumentSplitter
+from pathlib import Path
 
 # Load env variables
 from config.base_config import indexing_config, indexing_app_config
@@ -22,6 +28,8 @@ from database.database import get_db
 # Load models
 from rag.models import ResponseBody
 
+import tempfile
+import shutil
 import ast
 import csv
 import codecs
@@ -111,7 +119,7 @@ def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Sessio
 
 
 @app.post("/upload_csv_faq", summary="Upload a CSV file for FAQ data", status_code=200, response_model=ResponseBody)
-def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
+def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
     """
     Upload a CSV file containing RAG data to the database.
 
@@ -141,6 +149,62 @@ def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Sessio
 
     file.file.close()
     return {"content": "yay"}
+
+
+@app.post("/upload_pdf_rag", summary="Upload a PDF file for RAG data", status_code=200, response_model=ResponseBody)
+def upload_pdf_rag(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
+    """
+    Upload a CSV file containing RAG data to the database.
+
+    Parameters
+    ----------
+    file : UploadFile
+        The CSV file sent by the user
+    embed : bool, optional
+        Whether to embed the data or not. Defaults to False.
+    db : Session
+        Database session
+
+    Returns
+    -------
+    ResponseBody
+        A response body containing a confirmation message upon successful completion of the process.
+    """
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+        temp_filename = temp_file.name
+        shutil.copyfileobj(file.file, temp_file)
+
+    documents = PyPDFToDocument().run(sources=[Path(temp_filename )])
+
+    cleaner = DocumentCleaner(
+        remove_empty_lines=True,
+        remove_extra_whitespaces=True,
+        remove_repeated_substrings=False
+    )
+    splitter = DocumentSplitter(
+        split_by="sentence",
+        split_length=5,
+        split_overlap=1,
+        split_threshold=4
+    )
+
+    # Remove empty documents
+    documents = [doc for doc in documents["documents"] if doc.content is not None]
+
+    # Clean documents
+    documents = cleaner.run(documents=documents)
+    chunks = splitter.run(documents=documents["documents"])
+
+    # Upsert documents into VectorDB
+    url = file.filename
+    for doc in chunks["documents"]:
+        text = doc.content
+        document_service.upsert(db, DocumentCreate(url=url, text=text, source=file.filename), embed=embed)
+
+    os.remove(temp_filename)
+
+    return {"content": f"{file.filename}: PDF RAG data indexed successfully"}
+
 
 
 @app.post("/add_rag_data_from_csv", summary="Insert data for RAG without embedding from a local csv file", status_code=200, response_model=ResponseBody)
