@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from .document import DocumentBase
 
@@ -18,8 +18,7 @@ class QuestionBase(BaseModel):
     url: str
     """URL where the question-answer was found"""
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class QuestionCreate(QuestionBase):
@@ -65,5 +64,4 @@ class Question(QuestionBase):
     answer: DocumentBase
     """Related answer from Document table"""
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

@@ -2,14 +2,16 @@ import os
 import pytest
 from testcontainers.postgres import PostgresContainer
 
-from database.database import get_db
-from schemas.source import Source
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+
+from config.db_config import DBConfiguration
 
 postgres = PostgresContainer("ankane/pgvector")
 
 
-@pytest.fixture(scope="module", autouse=True)
-def setup(request):
+@pytest.fixture(scope="session")
+def engine(request):
     postgres.start()
 
     def remove_container():
@@ -23,18 +25,60 @@ def setup(request):
     os.environ["POSTGRES_PASSWORD"] = postgres.password
     os.environ["POSTGRES_DB"] = postgres.dbname
 
+    os.environ["RUN_WITHOUT_DB"] = 'true'
 
-def test_get_or_create_no_data():
+    from database.database import get_engine
+
+    return get_engine(DBConfiguration())
+
+
+@pytest.fixture(scope="session")
+def tables(engine):
+    from database.models import Base
+    with engine.connect() as con:
+        con.execute(text("""
+            CREATE EXTENSION IF NOT EXISTS vector;
+            CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
+            CREATE EXTENSION IF NOT EXISTS pg_trgm;
+        """))
+        con.commit()
+
+    Base.metadata.create_all(bind=engine)
+    yield
+    Base.metadata.drop_all(bind=engine)
+
+
+@pytest.fixture
+def dbsession(engine, tables):
+    """Returns an sqlalchemy session, and after the test tears down everything properly."""
+    print("Database ############ D BEES SEEEEEEESH")
+
+    connection = engine.connect()
+    # begin the nested transaction
+    transaction = connection.begin()
+    # use the connection with the already started transaction
+    session = Session(bind=connection)
+
+    yield session
+
+    session.close()
+    # roll back the broader transaction
+    transaction.rollback()
+    # put back the connection to the connection pool
+    connection.close()
+
+
+def test_source_0(dbsession):
     """
     Test get_or_create method with no data in the database
     Create a source.
     :return: none
     """
-    from database.database import get_db
     from database.service.source import source_service
-    db = get_db()
-    new_source = source_service.get_or_create(db, Source(id=0, url="https://www.test.ch"))
+    from schemas.source import SourceCreate
+
+    new_source = source_service.get_or_create(dbsession, SourceCreate(url="https://www.test.ch"))
 
     assert new_source.url == "https://www.test.ch"
-    assert new_source.id == 0
-    assert source_service.get_by_url(db, "https://www.test.ch") == new_source
+    assert new_source.id == 1
+    assert source_service.get_by_url(dbsession, "https://www.test.ch") == new_source

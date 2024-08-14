@@ -4,7 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
 # SQLAlchemy-2.0.30
 
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 
 
 class EmbeddedMixin (object):
@@ -81,6 +81,5 @@ class Question(Base, EmbeddedMixin):
 
 # Init relationship mappers
 Document.questions = relationship("Question", order_by=Question.id, back_populates="answer")
-Question.source = relationship("Source", back_populates="questions")
 Source.questions = relationship("Question", order_by=Question.id, back_populates="source")
 Source.documents = relationship("Document", order_by=Document.id, back_populates="source")

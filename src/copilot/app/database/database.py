@@ -4,8 +4,6 @@ from sqlalchemy.orm import sessionmaker, Session
 from . import models
 from config.db_config import DBConfiguration
 
-configuration = DBConfiguration()
-
 import time
 
 import logging
@@ -25,17 +23,22 @@ def get_db():
 
     try:
         yield db
+    except Exception:
+        db.rollback()
+        raise
     finally:
         db.close()
 
 
 # Function to check if db is up
-def get_engine(retries: int = 10, delay: int = 5):
+def get_engine(configuration: DBConfiguration, retries: int = 10, delay: int = 5):
     """
     Get an engine object that manages connection to the database
 
     Parameters
     ----------
+    configuration : DBConfiguration
+        Database configuration
     retries : int
         Number of retries before giving up on connecting to the database
     delay : int
@@ -48,7 +51,8 @@ def get_engine(retries: int = 10, delay: int = 5):
     attempt = 0
     while attempt < retries:
         try:
-            engine = create_engine(DATABASE_URL, echo=True, future=True)
+            db_url = f"postgresql://{configuration.user}:{configuration.password}@{configuration.host}:{configuration.port}/{configuration.database}"
+            engine = create_engine(db_url, echo=True, future=True)
 
             # Try to connect to check if the connection is established
             connection = engine.connect()
@@ -63,12 +67,13 @@ def get_engine(retries: int = 10, delay: int = 5):
     raise Exception("Failed to connect to the database after multiple attempts.")
 
 
-if configuration:
+configuration = DBConfiguration()
+
+if configuration.without_db is False:
     logger.info("Connecting to database...")
     logger.info(configuration)
-    DATABASE_URL = f"postgresql://{configuration.user}:{configuration.password}@{configuration.host}:{configuration.port}/{configuration.database}"
 
-    engine = get_engine()
+    engine = get_engine(configuration)
     with engine.connect() as con:
         con.execute(text("""
             CREATE EXTENSION IF NOT EXISTS vector;
