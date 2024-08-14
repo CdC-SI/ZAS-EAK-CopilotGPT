@@ -166,14 +166,39 @@ class RAGFusionRetriever(BaseRetriever):
     pass
 
 class BM25Retriever(BaseRetriever):
+    """
+    A class used to retrieve documents based on the BM25 scoring algorithm.
 
+    Attributes
+    ----------
+    k : float
+        A tuning parameter that determines how the term frequency is scaled. Default is 1.2.
+    b : float
+        A tuning parameter that determines how the document length is scaled. Default is 0.75.
+    top_k : int
+        The number of top documents to retrieve. Default is 10.
+    """
     def __init__(self, k: float = 1.2, b: float = 0.75, top_k: int = 10):
         self.k = k
         self.b = b
         self.top_k = top_k
 
     def bm25_score(self, query: str, docs: List[Any]) -> np.array:
+        """
+        Computes the BM25 score for each document given a query.
 
+        Parameters
+        ----------
+        query : str
+            The query to compute the BM25 score for.
+        docs : List[Any]
+            The documents to compute the BM25 score for.
+
+        Returns
+        -------
+        np.array
+            The BM25 scores for the documents.
+        """
         doc_len = np.array([len(doc.text) for doc in docs])
         avg_doc_len = np.mean(doc_len)
         n_docs = len(docs)
@@ -186,7 +211,25 @@ class BM25Retriever(BaseRetriever):
         return tf * idf
 
     def get_documents(self, db, query, language, k):
+        """
+        Retrieves the top k documents for a given query and language.
 
+        Parameters
+        ----------
+        db
+            The database session.
+        query : str
+            The query to retrieve the documents for.
+        language : str
+            The language of the documents to retrieve.
+        k : int
+            The number of documents to retrieve.
+
+        Returns
+        -------
+        List[Document]
+            The top k documents for the query.
+        """
         docs = document_service.get_all_documents(db)
 
         # # compute bm25 score
