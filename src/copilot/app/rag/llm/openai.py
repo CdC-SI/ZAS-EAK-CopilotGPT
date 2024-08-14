@@ -81,7 +81,7 @@ class OpenAILLM(BaseLLM):
         except Exception as e:
             raise e
 
-    def _stream(self, messages: List[Any], source_url: str):
+    def _stream(self, messages: List[Any]):
         try:
             stream = self.llm_client.chat.completions.create(
                 model=self.model_name,
@@ -92,12 +92,6 @@ class OpenAILLM(BaseLLM):
                 messages=messages
             )
 
-            for chunk in stream:
-                if chunk.choices[0].delta.content is not None:
-                    yield chunk.choices[0].delta.content.encode("utf-8")
-                else:
-                    # Send a special token indicating the end of the response
-                    yield f"\n\n<a href='{source_url}' target='_blank' class='source-link'>{source_url}</a>".encode("utf-8")
-                    return
+            return stream
         except Exception as e:
             raise e

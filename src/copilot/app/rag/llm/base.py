@@ -28,7 +28,6 @@ class BaseLLM(ABC):
     @abstractmethod
     def _stream(self,
         messages: List[dict],
-        source_url: str,
         ):
         """
         Stream an answer based on input messages using an LLM.
@@ -36,7 +35,7 @@ class BaseLLM(ABC):
         This method should be implemented to handle streaming of answers.
         """
 
-    def call_rag(self, messages: List[dict], source_url: str):
+    def call(self, messages: List[dict]):
         """
         Call the appropriate method based on the 'stream' parameter.
 
@@ -54,6 +53,6 @@ class BaseLLM(ABC):
         """
         match self.stream:
             case True:
-                return self._stream(messages, source_url)
+                return self._stream(messages)
             case False:
                 return self._generate(messages)

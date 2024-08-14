@@ -131,7 +131,9 @@ class RAGProcessor:
 
         messages = self.create_rag_message(context_docs, request.query)
 
-        return self.llm_client.call_rag(messages, source_url)
+        stream = self.llm_client.call(messages)
+
+        return self.generate(stream, source_url)
 
     async def embed(self, text_input: EmbeddingRequest):
         """
@@ -148,6 +150,15 @@ class RAGProcessor:
         """
         embedding = get_embedding(text_input.text)
         return {"data": embedding}
+
+    def generate(self, stream, source_url):
+        for chunk in stream:
+            if chunk.choices[0].delta.content is not None:
+                yield chunk.choices[0].delta.content.encode("utf-8")
+            else:
+                # Send a special token indicating the end of the response
+                yield f"\n\n<a href='{source_url}' target='_blank' class='source-link'>{source_url}</a>".encode("utf-8")
+                return
 
 
 processor = RAGProcessor(llm_model=rag_config["llm"]["model"],
