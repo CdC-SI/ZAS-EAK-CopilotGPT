@@ -1,12 +1,13 @@
-from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
+from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE, QUERY_REWRITING_PROMPT
+
 from rag.models import RAGRequest, EmbeddingRequest
 from rag.factory import RetrieverFactory
+from rag.llm.factory import LLMFactory
+from rag.llm.base import BaseLLM
 
 from sqlalchemy.orm import Session
-from database.service import document_service
 from utils.embedding import get_embedding
 
-from config.openai_config import clientAI
 from config.base_config import rag_config
 
 # Setup logging
@@ -31,17 +32,27 @@ class RAGProcessor:
     top_k : int
     client
     """
-    def __init__(self, model: str, max_token: int, stream: bool, temperature: float,
-                 top_p: float, retrieval_method: str, top_k: int, client):
-        self.model = model
+    def __init__(self, llm_model: str, max_token: int, stream: bool, temperature: float,
+                 top_p: float, retrieval_method: str, top_k: int):
+        self.llm_model = llm_model
         self.max_tokens = max_token
         self.stream = stream
         self.temperature = temperature
         self.top_p = top_p
         self.retriever_client = self.init_retriever_client(retrieval_method=retrieval_method)
         self.k_retrieve = top_k
+        self.llm_client = self.init_llm_client(llm_model)
 
-        self.client = client
+    def init_llm_client(self, llm_model: str = "gpt-4o-mini") -> BaseLLM:
+        """
+        Initialize and return an LLM client based on `llm_client`.
+
+        Returns
+        -------
+        object
+            An instance of the appropriate LLM client based on `llm_client`.
+        """
+        return LLMFactory.get_llm_client(llm_model=llm_model)
 
     def init_retriever_client(self, retrieval_method: str = "top_k"):
         """
@@ -115,6 +126,14 @@ class RAGProcessor:
         embedding = get_embedding(text_input.text)
         return {"data": embedding}
 
+    def XXgenerate(self, query):
+
+        # set n as param in config.yaml
+        openai_query_rewriting_prompt = QUERY_REWRITING_PROMPT.format(n=3, query=query)
+        messages = [{"role": "system", "content": openai_query_rewriting_prompt},]
+
+        #return self.llm_client.generate_text(messages, stream=False)
+
     def create_openai_message(self, context_docs, query):
         """
         Format the message to send to the OpenAI API.
@@ -147,12 +166,7 @@ class RAGProcessor:
         -------
         chat.completion
         """
-        return self.client.chat.completions.create(
-            model=self.model,
-            messages=messages,
-            stream=self.stream,
-            temperature=self.temperature,
-            top_p=self.top_p)
+        return self.llm_client.generate_stream(messages)
 
     def generate(self, openai_stream, source_url):
         """
@@ -176,12 +190,12 @@ class RAGProcessor:
                 return
 
 
-processor = RAGProcessor(model=rag_config["llm"]["model"],
+processor = RAGProcessor(llm_model=rag_config["llm"]["model"],
                          max_token=rag_config["llm"]["max_output_tokens"],
                          stream=rag_config["llm"]["stream"],
                          temperature=rag_config["llm"]["temperature"],
                          top_p=rag_config["llm"]["top_p"],
                          retrieval_method=rag_config["retrieval"]["retrieval_method"],
-                         top_k=rag_config["retrieval"]["top_k"],
-                         client=clientAI)
+                         top_k=rag_config["retrieval"]["top_k"],)
+                         #client=clientAI)
 
