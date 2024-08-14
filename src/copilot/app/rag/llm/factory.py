@@ -4,14 +4,16 @@ from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS#, SUPPORTED_MLX_LLM_MO
 
 class LLMFactory:
     @staticmethod
-    def get_llm_client(llm_model: str) -> BaseLLM:
+    def get_llm_client(llm_model: str, stream: bool) -> BaseLLM:
         """
         Factory method to instantiate llm clients based on a string identifier.
 
         Parameters
         ----------
         llm_model : str
-            The name of the LLM model. Currently supported models are "gpt-3.5-turbo-0125", "gpt-4-turbo-preview", "gpt-4o", "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX" and "Qwen/Qwen1.5-0.5B-Chat-GGUF".
+            The name of the LLM model. Currently supported models are in config/llm_config.py.
+        stream : bool
+            Whether to stream the response as events or return a single text response.
 
         Returns
         -------
@@ -24,7 +26,7 @@ class LLMFactory:
             If the `llm_model` is not supported.
         """
         if llm_model in SUPPORTED_OPENAI_LLM_MODELS:
-            return OpenAILLM(model_name=llm_model)
+            return OpenAILLM(model_name=llm_model, stream=stream)
         # elif llm_model in SUPPORTED_MLX_LLM_MODELS:
         #     return MlxLLM(model_name=llm_model)
         # elif llm_model in SUPPORTED_LLAMACPP_LLM_MODELS:

@@ -7,7 +7,7 @@ Classes:
 
 import logging
 
-from typing import List
+from typing import List, Dict, Any
 from rag.llm.base import BaseLLM
 from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS, DEFAULT_OPENAI_LLM_MODEL
 
@@ -32,23 +32,17 @@ class OpenAILLM(BaseLLM):
         The temperature to use for response generation.
     top_p : float
         The top-p value to use for response generation.
-    top_k : int
-        The top-k value to use for response generation.
     max_tokens : int
         The maximum number of tokens to generate.
-    verbose : bool
-        Whether to print verbose output.
-    client : openai.OpenAI
-        The OpenAI client used to generate responses.
 
     Methods
     -------
-    generate(messages: List[dict]) -> str
-        Generates a response for a list of messages using the OpenAI LLM model.
-    stream()
-        Placeholder method for streaming. Currently not implemented.
+    _generate(messages: List[dict]) -> str
+        Generates a single string response for a list of messages using the OpenAI LLM model.
+    _stream()
+        Generates a stream of events as response for a list of messages using the OpenAI LLM model.
     """
-    def __init__(self, model_name: str = DEFAULT_OPENAI_LLM_MODEL, stream: bool = True, temperature: float = 0.0, top_p: float = 0.95, max_tokens: int = 512, verbose: bool = False):
+    def __init__(self, model_name: str = DEFAULT_OPENAI_LLM_MODEL, stream: bool = True, temperature: float = 0.0, top_p: float = 0.95, max_tokens: int = 512):
         self.model_name = model_name if model_name is not None and model_name in SUPPORTED_OPENAI_LLM_MODELS else DEFAULT_OPENAI_LLM_MODEL
         self.stream = stream
         self.temperature = temperature
@@ -56,7 +50,7 @@ class OpenAILLM(BaseLLM):
         self.max_tokens = max_tokens
         self.llm_client = clientAI
 
-    def generate_text(self, messages: List[dict], stream: bool = False) -> str:
+    def _generate(self, messages: List[dict]) -> str:
         """
         Generate a response using the OpenAI LLM model.
 
@@ -64,9 +58,6 @@ class OpenAILLM(BaseLLM):
         ----------
         messages : List[dict]
             The messages to generate a response for.
-
-        stream : bool
-            Whether to stream the response generation.
 
         Returns
         -------
@@ -81,7 +72,7 @@ class OpenAILLM(BaseLLM):
         try:
             return self.llm_client.chat.completions.create(
                 model=self.model_name,
-                stream=stream,
+                stream=False,
                 temperature=self.temperature,
                 top_p=self.top_p,
                 max_tokens=self.max_tokens,
@@ -90,18 +81,23 @@ class OpenAILLM(BaseLLM):
         except Exception as e:
             raise e
 
-    def generate_stream(self, messages: List[dict]):
-        """
-
-        """
+    def _stream(self, messages: List[Any], source_url: str):
         try:
-            return self.llm_client.chat.completions.create(
+            stream = self.llm_client.chat.completions.create(
                 model=self.model_name,
-                stream=self.stream,
+                stream=True,
                 temperature=self.temperature,
                 top_p=self.top_p,
                 max_tokens=self.max_tokens,
                 messages=messages
             )
+
+            for chunk in stream:
+                if chunk.choices[0].delta.content is not None:
+                    yield chunk.choices[0].delta.content.encode("utf-8")
+                else:
+                    # Send a special token indicating the end of the response
+                    yield f"\n\n<a href='{source_url}' target='_blank' class='source-link'>{source_url}</a>".encode("utf-8")
+                    return
         except Exception as e:
             raise e
