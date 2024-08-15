@@ -4,6 +4,7 @@ from database.service import document_service
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+
 class RetrieverClient(BaseRetriever):
     """
     A client for retrieving documents using multiple retrieval strategies in parallel.
@@ -23,7 +24,7 @@ class RetrieverClient(BaseRetriever):
         Retrieves documents from the database using the provided query, language and returns top k documents. The results are aggregated into a single list of documents.
 
     """
-    def __init__(self, retrievers):
+    def __init__(self, retrievers: list):
         self.retrievers = retrievers
 
     def get_documents(self, db, query, language, k):
@@ -58,13 +59,13 @@ class RetrieverClient(BaseRetriever):
         """
         docs = []
 
-        with ThreadPoolExecutor() as executor: # Use ThreadPoolExecutor for parallel execution
+        with ThreadPoolExecutor() as executor:  # Use ThreadPoolExecutor for parallel execution
             future_to_retriever = {
                 executor.submit(retriever.get_documents, db, query, language, k): retriever
                 for retriever in self.retrievers
             }
 
-            for future in as_completed(future_to_retriever): # Collect results as they complete
+            for future in as_completed(future_to_retriever):  # Collect results as they complete
                 retriever = future_to_retriever[future]
                 try:
                     result = future.result()
@@ -73,6 +74,7 @@ class RetrieverClient(BaseRetriever):
                     print(f"Retriever {retriever} raised an exception: {e}")
 
         return docs
+
 
 class TopKRetriever(BaseRetriever):
     """
@@ -83,8 +85,6 @@ class TopKRetriever(BaseRetriever):
     get_documents(db, query, language, k)
         Retrieves the top k documents that semantically match the given query.
     """
-    def __init__(self):
-        pass
 
     def get_documents(self, db, query, language, k):
         """
@@ -109,6 +109,7 @@ class TopKRetriever(BaseRetriever):
         docs = document_service.get_semantic_match(db, query, language=language, k=k)
         return docs
 
+
 class QueryRewritingRetriever(BaseRetriever):
 
     def __init__(self):
@@ -116,7 +117,7 @@ class QueryRewritingRetriever(BaseRetriever):
 
     def get_documents(self, db, query, language, k):
 
-        # QUERY_REWRITING_PROMPT
+        # QUERY_REWRITING_PROMPT
         rewritten_queries = []
 
         docs = []
@@ -126,11 +127,16 @@ class QueryRewritingRetriever(BaseRetriever):
 
         return docs
 
+
 class ContextualCompressionRetriever(BaseRetriever):
-    pass
+    def get_documents(self, db, query, language, k):
+        pass
+
 
 class RAGFusionRetriever(BaseRetriever):
-    pass
+    def get_documents(self, db, query, language, k):
+        pass
+
 
 class BM25Retriever(BaseRetriever):
     config: Dict[str, Any]
@@ -198,5 +204,10 @@ class BM25Retriever(BaseRetriever):
 
         return docs
 
+    def get_documents(self, db, query, language, k):
+        pass
+
+
 class Reranker(BaseRetriever):
-    pass
+    def get_documents(self, db, query, language, k):
+        pass
