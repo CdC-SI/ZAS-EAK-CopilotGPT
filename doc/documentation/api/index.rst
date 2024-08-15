@@ -6,10 +6,10 @@ The ``main.py`` file sets up a FastAPI application *(/apy)* with multiple sub-ap
 Autocomplete *(/apy/autocomplete)*
     Provides an endpoint for questions autocomplete suggestions when typing a message in the search bar. This aims to help users getting a curated answer from the database, avoiding the eventual randomness of the RAG model, while lowering the cost.
 
-Indexing *(/api/indexing)*
+Indexing *(/apy/indexing)*
     Provides an endpoint for indexing new documents into the database that can be used by the autocomplete or the RAG functionalities.
 
-RAG *(/api/rag)*
+RAG *(/apy/rag)*
     Provides an endpoint for the RAG (Retrieval-Augmented Generation) model to generate responses to user queries based on the indexed documents.
 
 Beside, ``main.py`` sets up CORS (Cross-Origin Resource Sharing) middleware to allow the frontend to access the API, a lifespan context manager that initializes the databases with some example data, and a dummy endpoint to check if the API is running.

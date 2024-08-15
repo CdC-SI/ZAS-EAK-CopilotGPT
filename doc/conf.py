@@ -44,6 +44,7 @@ extensions = [
     'sphinx.ext.napoleon',  # NumPy & Google docstrings
     'sphinxcontrib.autodoc_pydantic',  # pydantic integration
     'sphinx_sqlalchemy',  # SQLAlchemy integration
+    'sphinxcontrib.httpdomain',  # API documentation
 ]
 autodoc_mock_imports = ["fastapi"]
 autodoc_member_order = 'bysource'
