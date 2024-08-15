@@ -35,14 +35,15 @@ class RAGProcessor:
     """
     def __init__(self, llm_model: str, stream: bool, max_token: int, temperature: float,
                  top_p: float, retrieval_method: str, top_k: int):
+
         self.llm_model = llm_model
         self.stream = stream
         self.max_tokens = max_token
         self.temperature = temperature
         self.top_p = top_p
+        self.llm_client = self.init_llm_client(llm_model, stream)
         self.retriever_client = self.init_retriever_client(retrieval_method=retrieval_method)
         self.k_retrieve = top_k
-        self.llm_client = self.init_llm_client(llm_model, stream)
 
     def init_llm_client(self, llm_model: str = "gpt-4o-mini", stream: bool = True) -> BaseLLM:
         """
@@ -64,7 +65,7 @@ class RAGProcessor:
         object
             An instance of the appropriate retriever client based on `retrieval_method`.
         """
-        return RetrieverFactory.get_retriever_client(retrieval_method=retrieval_method)
+        return RetrieverFactory.get_retriever_client(retrieval_method=retrieval_method, processor=self)
 
     def create_rag_message(self, context_docs: List[Any], query: str) -> List[Dict]:
         """
@@ -133,7 +134,7 @@ class RAGProcessor:
 
         stream = self.llm_client.call(messages)
 
-        return self.generate(stream, source_url)
+        return self.generate_stream(stream, source_url)
 
     async def embed(self, text_input: EmbeddingRequest):
         """
@@ -151,7 +152,7 @@ class RAGProcessor:
         embedding = get_embedding(text_input.text)
         return {"data": embedding}
 
-    def generate(self, stream, source_url):
+    def generate_stream(self, stream, source_url):
         for chunk in stream:
             if chunk.choices[0].delta.content is not None:
                 yield chunk.choices[0].delta.content.encode("utf-8")
