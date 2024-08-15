@@ -53,7 +53,8 @@ class RetrieverFactory:
                                                               n=rag_config["retrieval"]["query_rewriting_retriever_params"]["n"],
                                                               top_k=rag_config["retrieval"]["query_rewriting_retriever_params"]["top_k"]))
                 case "contextual_compression_retriever":
-                    retrievers.append(ContextualCompressionRetriever())
+                    retrievers.append(ContextualCompressionRetriever(processor=processor,
+                                                                     top_k=rag_config["retrieval"]["contextual_compression_retriever_params"]["top_k"]))
                 case "bm25_retriever":
                     retrievers.append(BM25Retriever(k=rag_config["retrieval"]["bm25_retriever_params"]["k"],
                                                     b=rag_config["retrieval"]["bm25_retriever_params"]["k"],

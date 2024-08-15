@@ -23,3 +23,15 @@ QUESTION: {query}
 RESPONSE: """
 
 QUERY_REWRITING_PROMPT = """Your task is to generate {n} different versions of the given user query to retrieve relevant documents from a vector database. By generating multiple perspectives on the user question, your goal is to help the user overcome some of the limitations of distance-based similarity search. Provide these alternative questions IN THE SAME LANGUAGE as the ORIGINAL QUERY separated by newlines. ORIGINAL QUERY: {query}"""
+
+CONTEXTUAL_COMPRESSION_PROMPT = """Given the following QUESTION and CONTEXT, extract any part of the CONTEXT *AS IS* that is relevant to answer the QUESTION. If none of the context is relevant return <IRRELEVANT_CONTEXT>.
+
+Remember, *DO NOT* edit the extracted parts of the context.
+
+QUESTION: {query}
+
+CONTEXT:
+
+{context_doc}
+
+Extracted relevant parts:"""

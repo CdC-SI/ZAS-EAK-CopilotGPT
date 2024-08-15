@@ -20,19 +20,22 @@ rag:
     model: text-embedding-ada-002
   retrieval:
     retrieval_method:
-      # - "top_k_retriever"
-      # - "bm25_retriever"
+      - "top_k_retriever"
+      - "bm25_retriever"
       - "query_rewriting_retriever"
+      - "contextual_compression_retriever"
     top_k_retriever_params:
-      top_k: 1
+      top_k: 10
     bm25_retriever_params:
       k: 1.2
       b: 0.75
-      top_k: 1
+      top_k: 10
     query_rewriting_retriever_params:
       n: 3
+      top_k: 10
+    contextual_compression_retriever_params:
       top_k: 4
-    top_k: 10
+    top_k: 100
     metric: cosine_similarity
   llm:
     model: gpt-4o-mini
