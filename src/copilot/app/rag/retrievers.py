@@ -3,7 +3,6 @@ from typing import List, Dict, Any
 from rag.base import BaseRetriever
 from rag.prompts import QUERY_REWRITING_PROMPT
 from database.models import Document
-#from rag.rag_processor import processor
 
 from database.service import document_service
 
@@ -95,7 +94,7 @@ class TopKRetriever(BaseRetriever):
 
     def get_documents(self, db, query, language, k):
         """
-        Retrieves the top K documents that semantically match the given query.
+        Retrieves the top k documents that semantically match the given query.
 
         Parameters
         ----------
@@ -117,47 +116,87 @@ class TopKRetriever(BaseRetriever):
         return docs
 
 class QueryRewritingRetriever(BaseRetriever):
-    pass
-    # def __init__(self, processor):
-    #     self.processor = processor
-    #     self.processor.stream = False
 
-    # def create_query_rewriting_message(self, query: str, n: int = 3) -> List[Dict]:
-    #     """
-    #     Format the RAG message to send to the OpenAI API.
+    def __init__(self, processor, n, top_k):
+        self.processor = processor
+        #self.processor.llm_client.stream = False
+        self.n = n
+        self.top_k = top_k
 
-    #     Parameters
-    #     ----------
-    #     query : str
-    #         User input question
+    def create_query_rewriting_message(self, query: str, n: int = 3) -> List[Dict]:
+        """
+        Format the RAG message to send to the OpenAI API.
 
-    #     Returns
-    #     -------
-    #     list of dict
-    #         Contains the message in the correct format to send to the OpenAI API
+        Parameters
+        ----------
+        query : str
+            User input question
+        n: int
+            Number of query rewrites to generate
 
-    #     """
-    #     query_rewriting_prompt = QUERY_REWRITING_PROMPT.format(n=n, query=query)
-    #     return [{"role": "system", "content": query_rewriting_prompt},]
+        Returns
+        -------
+        list of dict
+            Contains the message in the correct format to send to the OpenAI API
 
-    # def rewrite_queries(self, query: str, n: int = 3) -> List[str]:
+        """
+        query_rewriting_prompt = QUERY_REWRITING_PROMPT.format(n=n, query=query)
+        return [{"role": "system", "content": query_rewriting_prompt},]
 
-    #     messages = self.create_query_rewriting_message(query, n)
-    #     rewritten_queries = self.processor.llm_client.call(messages).choices[0].message.content
-    #     rewritten_queries = rewritten_queries.split("\n")
+    def rewrite_queries(self, query: str, n: int = 3) -> List[str]:
+        """
+        Rewrite the input query into multiple queries.
 
-    #     return rewritten_queries
+        This method uses the llm_client to rewrite the input query into multiple queries.
+        The number of rewritten queries is specified by the parameter `n`.
 
-    # def get_documents(self, db, query, language, k):
+        Parameters
+        ----------
+        query : str
+            The input query to be rewritten.
+        n : int
+            The number of rewritten queries to generate, by default 3.
 
-    #     rewritten_queries = self.rewrite_queries(query, n)
+        Returns
+        -------
+        List[str]
+            The list of rewritten queries.
 
-    #     docs = []
-    #     for query in rewritten_queries:
-    #         query_docs = document_service.get_semantic_match(db, query, language=language, k=k)
-    #         docs.extend(query_docs)
+        """
+        messages = self.create_query_rewriting_message(query, n)
+        rewritten_queries = self.processor.llm_client.generate(messages).choices[0].message.content
+        rewritten_queries = rewritten_queries.split("\n")
 
-    #     return docs
+        return rewritten_queries
+
+    def get_documents(self, db, query, language, k):
+        """
+        Retrieves the top k documents that semantically match the given original + rewritten queries.
+
+        Parameters
+        ----------
+        db : object
+            The database object where the documents are stored.
+        query : str
+            The query to match.
+        language : str
+            The language of the query.
+        k : int
+            The number of documents to retrieve.
+
+        Returns
+        -------
+        list
+            A list of the top k documents that semantically match the query.
+        """
+        rewritten_queries = self.rewrite_queries(query, n=self.n)
+
+        docs = []
+        for query in rewritten_queries:
+            query_docs = document_service.get_semantic_match(db, query, language=language, k=k)
+            docs.extend(query_docs)
+
+        return docs[:self.top_k]
 
 class ContextualCompressionRetriever(BaseRetriever):
     pass
