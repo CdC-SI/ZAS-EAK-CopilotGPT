@@ -7,7 +7,7 @@ class BaseLLM(ABC):
         self.stream = stream
 
     @abstractmethod
-    def _generate(
+    def generate(
         self,
         messages: List[dict],
         ) -> str:
@@ -55,4 +55,4 @@ class BaseLLM(ABC):
             case True:
                 return self._stream(messages)
             case False:
-                return self._generate(messages)
+                return self.generate(messages)

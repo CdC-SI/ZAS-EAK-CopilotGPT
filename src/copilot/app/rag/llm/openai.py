@@ -50,7 +50,7 @@ class OpenAILLM(BaseLLM):
         self.max_tokens = max_tokens
         self.llm_client = clientAI
 
-    def _generate(self, messages: List[dict]) -> str:
+    def generate(self, messages: List[dict]) -> str:
         """
         Generate a response using the OpenAI LLM model.
 
