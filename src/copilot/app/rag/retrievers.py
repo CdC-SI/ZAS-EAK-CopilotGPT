@@ -196,6 +196,7 @@ class QueryRewritingRetriever(BaseRetriever):
         rewritten_queries = self.rewrite_queries(query, n=self.n)
 
         docs = []
+        # TO DO: parallelize
         for query in rewritten_queries:
             query_docs = document_service.get_semantic_match(db, query, language=language, k=k)
             docs.extend(query_docs)
@@ -230,19 +231,25 @@ class ContextualCompressionRetriever(BaseRetriever):
         return [{"role": "system", "content": contextual_compression_prompt},]
 
     def compress_context(self, query: str, context_docs: List[Any]):
-
-        docs = []
-        for doc in context_docs:
-            messages = self.create_contextual_compression_message(query, doc)
-            compressed_doc = self.processor.llm_client.generate(messages).choices[0].message.content
-
-            if "<IRRELEVANT_CONTEXT>" not in compressed_doc:
-                docs.append(Document(id=doc.id,
-                                     text=compressed_doc,
-                                     url=doc.url,
-                                     language=doc.language))
-
+        with ThreadPoolExecutor() as executor:
+            future_to_doc = {executor.submit(self.compress_doc, query, doc): doc for doc in context_docs}
+            docs = []
+            for future in as_completed(future_to_doc):
+                result = future.result()
+                if result is not None:
+                    docs.append(result)
         return docs
+
+    def compress_doc(self, query, doc):
+        messages = self.create_contextual_compression_message(query, doc)
+        compressed_doc = self.processor.llm_client.generate(messages).choices[0].message.content
+
+        if "<IRRELEVANT_CONTEXT>" not in compressed_doc:
+            return Document(id=doc.id,
+                            text=compressed_doc,
+                            url=doc.url,
+                            language=doc.language)
+        return None
 
     def get_documents(self, db, query, language, k):
         """
@@ -306,6 +313,7 @@ class BM25Retriever(BaseRetriever):
         np.array
             The BM25 scores for the documents.
         """
+        # CHECK doc_len (n chars or n words)
         doc_len = np.array([len(doc.text) for doc in docs])
         avg_doc_len = np.mean(doc_len)
         n_docs = len(docs)
