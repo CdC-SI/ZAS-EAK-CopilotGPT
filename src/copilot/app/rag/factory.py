@@ -2,7 +2,7 @@ from typing import Optional
 
 from config.base_config import rag_config
 from rag.base import BaseRetriever
-from rag.retrievers import RetrieverClient, TopKRetriever, QueryRewritingRetriever, ContextualCompressionRetriever, BM25Retriever, Reranker
+from rag.retrievers import RetrieverClient, TopKRetriever, QueryRewritingRetriever, ContextualCompressionRetriever, RAGFusionRetriever, BM25Retriever, Reranker
 
 class RetrieverFactory:
     """
@@ -50,7 +50,7 @@ class RetrieverFactory:
                     retrievers.append(TopKRetriever(top_k=rag_config["retrieval"]["top_k_retriever_params"]["top_k"]))
                 case "query_rewriting_retriever":
                     retrievers.append(QueryRewritingRetriever(processor=processor,
-                                                              n=rag_config["retrieval"]["query_rewriting_retriever_params"]["n"],
+                                                              n_alt_queries=rag_config["retrieval"]["query_rewriting_retriever_params"]["n_alt_queries"],
                                                               top_k=rag_config["retrieval"]["query_rewriting_retriever_params"]["top_k"]))
                 case "contextual_compression_retriever":
                     retrievers.append(ContextualCompressionRetriever(processor=processor,
@@ -59,6 +59,11 @@ class RetrieverFactory:
                     retrievers.append(BM25Retriever(k=rag_config["retrieval"]["bm25_retriever_params"]["k"],
                                                     b=rag_config["retrieval"]["bm25_retriever_params"]["k"],
                                                     top_k=rag_config["retrieval"]["bm25_retriever_params"]["top_k"]))
+                case "rag_fusion_retriever":
+                    retrievers.append(RAGFusionRetriever(processor=processor,
+                                                         n_alt_queries=rag_config["retrieval"]["rag_fusion_retriever_params"]["n_alt_queries"],
+                                                         rrf_k=rag_config["retrieval"]["rag_fusion_retriever_params"]["rrf_k"],
+                                                         top_k=rag_config["retrieval"]["rag_fusion_retriever_params"]["top_k"]))
                 case "reranking":
                     retrievers.append(Reranker())
                 case _:

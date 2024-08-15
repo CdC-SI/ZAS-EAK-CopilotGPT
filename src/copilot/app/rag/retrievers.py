@@ -32,7 +32,7 @@ class RetrieverClient(BaseRetriever):
     def __init__(self, retrievers):
         self.retrievers = retrievers
 
-    def get_documents(self, db, query, language, k):
+    def get_documents(self, db, query, language, k) -> List[Document]:
         """
         Retrieve documents using multiple retrievers in parallel.
 
@@ -96,7 +96,7 @@ class TopKRetriever(BaseRetriever):
     def __init__(self, top_k):
         self.top_k = top_k
 
-    def get_documents(self, db, query, language, k):
+    def get_documents(self, db, query, language, k) -> List[Document]:
         """
         Retrieves the top k documents that semantically match the given query.
 
@@ -121,13 +121,13 @@ class TopKRetriever(BaseRetriever):
 
 class QueryRewritingRetriever(BaseRetriever):
 
-    def __init__(self, processor, n, top_k):
+    def __init__(self, processor, n_alt_queries, top_k):
         self.processor = processor
         #self.processor.llm_client.stream = False
-        self.n = n
+        self.n_alt_queries = n_alt_queries
         self.top_k = top_k
 
-    def create_query_rewriting_message(self, query: str, n: int = 3) -> List[Dict]:
+    def create_query_rewriting_message(self, query: str, n_alt_queries: int = 3) -> List[Dict]:
         """
         Format the RAG message to send to the client_llm.
 
@@ -144,10 +144,10 @@ class QueryRewritingRetriever(BaseRetriever):
             Contains the message in the correct format to send to the llm_client.
 
         """
-        query_rewriting_prompt = QUERY_REWRITING_PROMPT.format(n=n, query=query)
+        query_rewriting_prompt = QUERY_REWRITING_PROMPT.format(n_alt_queries=n_alt_queries, query=query)
         return [{"role": "system", "content": query_rewriting_prompt},]
 
-    def rewrite_queries(self, query: str, n: int = 3) -> List[str]:
+    def rewrite_queries(self, query: str, n_alt_queries: int = 3) -> List[str]:
         """
         Rewrite the input query into multiple queries.
 
@@ -167,13 +167,13 @@ class QueryRewritingRetriever(BaseRetriever):
             The list of rewritten queries.
 
         """
-        messages = self.create_query_rewriting_message(query, n)
+        messages = self.create_query_rewriting_message(query, n_alt_queries)
         rewritten_queries = self.processor.llm_client.generate(messages).choices[0].message.content
         rewritten_queries = rewritten_queries.split("\n")
 
         return rewritten_queries
 
-    def get_documents(self, db, query, language, k):
+    def get_documents(self, db, query, language, k) -> List[Document]:
         """
         Retrieves the top k documents that semantically match the given original + rewritten queries.
 
@@ -193,10 +193,9 @@ class QueryRewritingRetriever(BaseRetriever):
         list
             A list of the top k documents that semantically match the query.
         """
-        rewritten_queries = self.rewrite_queries(query, n=self.n)
+        rewritten_queries = self.rewrite_queries(query, n_alt_queries=self.n_alt_queries)
 
         docs = []
-        # TO DO: parallelize
         for query in rewritten_queries:
             query_docs = document_service.get_semantic_match(db, query, language=language, k=k)
             docs.extend(query_docs)
@@ -251,7 +250,7 @@ class ContextualCompressionRetriever(BaseRetriever):
                             language=doc.language)
         return None
 
-    def get_documents(self, db, query, language, k):
+    def get_documents(self, db, query, language, k) -> List[Document]:
         """
         Retrieves the top k documents that semantically match the given query, then applies contextual compression.
 
@@ -271,13 +270,96 @@ class ContextualCompressionRetriever(BaseRetriever):
         list
             A list of the top k documents that semantically match the query.
         """
-        docs = document_service.get_semantic_match(db, query, language=language, k=k)[:self.top_k]
+        docs = document_service.get_semantic_match(db, query, language=language, k=k)
         compressed_docs = self.compress_context(query, docs)
 
         return compressed_docs[:self.top_k]
 
 class RAGFusionRetriever(BaseRetriever):
-    pass
+
+    def __init__(self, processor, n_alt_queries: int = 3, rrf_k: int = 60, top_k: int = 10):
+        self.processor = processor
+        self.n_alt_queries = n_alt_queries
+        self.rrf_k = rrf_k
+        self.top_k = top_k
+
+    def create_query_rewriting_message(self, query: str, n_alt_queries: int = 3) -> List[Dict]:
+        """
+        Format the RAG message to send to the client_llm.
+
+        Parameters
+        ----------
+        query : str
+            User input question
+        n: int
+            Number of query rewrites to generate
+
+        Returns
+        -------
+        list of dict
+            Contains the message in the correct format to send to the llm_client.
+
+        """
+        query_rewriting_prompt = QUERY_REWRITING_PROMPT.format(n_alt_queries=n_alt_queries, query=query)
+        return [{"role": "system", "content": query_rewriting_prompt},]
+
+    def rewrite_queries(self, query: str, n_alt_queries: int = 3) -> List[str]:
+        """
+        Rewrite the input query into multiple queries.
+
+        This method uses the llm_client to rewrite the input query into multiple queries.
+        The number of rewritten queries is specified by the parameter `n`.
+
+        Parameters
+        ----------
+        query : str
+            The input query to be rewritten.
+        n : int
+            The number of rewritten queries to generate, by default 3.
+
+        Returns
+        -------
+        List[str]
+            The list of rewritten queries.
+
+        """
+        messages = self.create_query_rewriting_message(query, n_alt_queries)
+        rewritten_queries = self.processor.llm_client.generate(messages).choices[0].message.content
+        rewritten_queries = rewritten_queries.split("\n")
+
+        return rewritten_queries
+
+    def reciprocal_rank_fusion(self, retrieved_docs: List[List[Document]], rrf_k: int = 60):
+
+        fused_scores = {}
+        for docs in retrieved_docs:
+            for rank, doc in enumerate(docs):
+                if doc.id not in fused_scores:
+                    fused_scores[doc.id] = {"score": 0,
+                                            "text": doc.text,
+                                            "url": doc.url,
+                                            "language": doc.language}
+                fused_scores[doc.id]["score"] += 1 / (rank + rrf_k)
+
+        reranked_results = [Document(id=doc_id,
+                                     text=doc_metadata["text"],
+                                     url=doc_metadata["url"],
+                                     language=doc_metadata["language"]) for doc_id, doc_metadata in sorted(fused_scores.items(), key=lambda x: x[1]["score"], reverse=True)]
+
+        return reranked_results
+
+    def get_documents(self, db, query, language, k) -> List[Document]:
+
+        rewritten_queries = self.rewrite_queries(query, n_alt_queries=self.n_alt_queries)
+
+        docs = []
+        for query in rewritten_queries:
+            query_docs = document_service.get_semantic_match(db, query, language=language, k=k)
+            docs.append(query_docs)
+
+        reranked_docs = self.reciprocal_rank_fusion(docs, rrf_k=self.rrf_k)
+
+        return reranked_docs[:self.top_k]
 
 class BM25Retriever(BaseRetriever):
     """
@@ -325,7 +407,7 @@ class BM25Retriever(BaseRetriever):
 
         return tf * idf
 
-    def get_documents(self, db, query, language, k):
+    def get_documents(self, db, query, language, k) -> List[Document]:
         """
         Retrieves the top k documents for a given query and language.
 
