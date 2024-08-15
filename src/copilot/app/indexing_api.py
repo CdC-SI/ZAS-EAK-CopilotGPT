@@ -109,8 +109,8 @@ def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Sessio
     language_column = "language" in data.fieldnames
 
     for row in data:
-        embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
-        language = row["language"] if language_column else None
+        embedding = ast.literal_eval(row["embedding"]) if (embedding_column and row['embedding']) else None
+        language = row["language"] if (language_column and row['language']) else None
         document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file.filename, language=language)
         document_service.upsert(db, document, embed=embed)
 
@@ -142,8 +142,8 @@ def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Sessio
     language_column = "language" in data.fieldnames
 
     for row in data:
-        embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
-        language = row["language"] if language_column else None
+        embedding = ast.literal_eval(row["embedding"]) if (embedding_column and row['embedding']) else None
+        language = row["language"] if (language_column and row['language']) else None
         question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file.filename, language=language)
         question_service.upsert(db, question, embed=embed)
 
@@ -239,8 +239,8 @@ def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", em
         language_column = "language" in data.fieldnames
 
         for row in data:
-            embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
-            language = row["language"] if language_column else None
+            embedding = ast.literal_eval(row["embedding"]) if (embedding_column and row['embedding']) else None
+            language = row["language"] if (language_column and row['language']) else None
             document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file_path, language=language)
             document_service.upsert(db, document, embed=embed)
 
@@ -280,8 +280,8 @@ def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", em
         language_column = "language" in data.fieldnames
 
         for row in data:
-            embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
-            language = row["language"] if language_column else None
+            embedding = ast.literal_eval(row["embedding"]) if (embedding_column and row['embedding']) else None
+            language = row["language"] if (language_column and row['language']) else None
             question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file_path, language=language)
             question_service.upsert(db, question, embed=embed)
 

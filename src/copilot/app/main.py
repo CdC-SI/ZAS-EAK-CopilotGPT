@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from indexing_api import init_indexing, app as indexing_app
 from autocomplete_api import app as autocomplete_app
 from rag_api import app as rag_app
+from eval_api import app as eval_app
 
 import logging
 logger = logging.getLogger(__name__)
@@ -36,6 +37,7 @@ app.mount(PREFIX, api)
 api.mount("/indexing", indexing_app)
 api.mount("/autocomplete", autocomplete_app)
 api.mount("/rag", rag_app)
+api.mount("/eval", eval_app)
 
 
 @api.post("/",
