@@ -1,7 +1,7 @@
 from typing import List, Dict, Any
 
 from rag.base import BaseRetriever
-from rag.prompts import QUERY_REWRITING_PROMPT
+from rag.prompts import QUERY_REWRITING_PROMPT, CONTEXTUAL_COMPRESSION_PROMPT
 from database.models import Document
 
 from database.service import document_service
@@ -78,7 +78,11 @@ class RetrieverClient(BaseRetriever):
                 except Exception as e:
                     print(f"Retriever {retriever} raised an exception: {e}")
 
-        return docs[:k]
+        # Remove duplicate documents
+        seen = set()
+        unique_docs = [doc for doc in docs if doc.id not in seen and not seen.add(doc.id)]
+
+        return unique_docs[:k]
 
 class TopKRetriever(BaseRetriever):
     """
@@ -125,7 +129,7 @@ class QueryRewritingRetriever(BaseRetriever):
 
     def create_query_rewriting_message(self, query: str, n: int = 3) -> List[Dict]:
         """
-        Format the RAG message to send to the OpenAI API.
+        Format the RAG message to send to the client_llm.
 
         Parameters
         ----------
@@ -137,7 +141,7 @@ class QueryRewritingRetriever(BaseRetriever):
         Returns
         -------
         list of dict
-            Contains the message in the correct format to send to the OpenAI API
+            Contains the message in the correct format to send to the llm_client.
 
         """
         query_rewriting_prompt = QUERY_REWRITING_PROMPT.format(n=n, query=query)
@@ -199,7 +203,71 @@ class QueryRewritingRetriever(BaseRetriever):
         return docs[:self.top_k]
 
 class ContextualCompressionRetriever(BaseRetriever):
-    pass
+
+    def __init__(self, processor, top_k):
+        self.processor = processor
+        #self.processor.llm_client.stream = False
+        self.top_k = top_k
+
+    def create_contextual_compression_message(self, query: str, context_doc: Document) -> List[Dict]:
+        """
+        Format the contextual compression message to send to the client_llm.
+
+        Parameters
+        ----------
+        query : str
+            User input question
+        context_doc : Document
+            Context document to compress
+
+        Returns
+        -------
+        list of dict
+            Contains the message in the correct format to send to the llm_client.
+
+        """
+        contextual_compression_prompt = CONTEXTUAL_COMPRESSION_PROMPT.format(context_doc=context_doc, query=query)
+        return [{"role": "system", "content": contextual_compression_prompt},]
+
+    def compress_context(self, query: str, context_docs: List[Any]):
+
+        docs = []
+        for doc in context_docs:
+            messages = self.create_contextual_compression_message(query, doc)
+            compressed_doc = self.processor.llm_client.generate(messages).choices[0].message.content
+
+            if "<IRRELEVANT_CONTEXT>" not in compressed_doc:
+                docs.append(Document(id=doc.id,
+                                     text=compressed_doc,
+                                     url=doc.url,
+                                     language=doc.language))
+
+        return docs
+
+    def get_documents(self, db, query, language, k):
+        """
+        Retrieves the top k documents that semantically match the given query, then applies contextual compression.
+
+        Parameters
+        ----------
+        db : object
+            The database object where the documents are stored.
+        query : str
+            The query to match.
+        language : str
+            The language of the query.
+        k : int
+            The number of documents to retrieve.
+
+        Returns
+        -------
+        list
+            A list of the top k documents that semantically match the query.
+        """
+        docs = document_service.get_semantic_match(db, query, language=language, k=k)[:self.top_k]
+        compressed_docs = self.compress_context(query, docs)
+
+        return compressed_docs[:self.top_k]
 
 class RAGFusionRetriever(BaseRetriever):
     pass
