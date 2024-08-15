@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 
 from .matching import MatchingService
 from .source import source_service
@@ -45,6 +46,37 @@ class DocumentService(MatchingService):
         super()._update(db, db_obj, DocumentUpdate(**obj_in.model_dump(exclude=exclude), source_id=db_source.id))
 
         return db_obj
+
+    def get_count(self, db: Session):
+        """
+        Get the number of documents in the database
+
+        Parameters
+        ----------
+        db: Session
+            Database session
+
+        Returns
+        -------
+        int
+        """
+        return db.query(self.model).count()
+
+    def get_all_documents(self, db: Session):
+        """
+        Get all documents from the database
+
+        Parameters
+        ----------
+        db: Session
+            Database session
+
+        Returns
+        -------
+        List[Model]
+        """
+        stmt = select(self.model)
+        return db.scalars(stmt).all()
 
 
 document_service = DocumentService()

@@ -1,8 +1,13 @@
+from typing import List, Dict, Any
+
 from rag.base import BaseRetriever
-from rag.prompts import QUERY_REWRITING_PROMPT
+from rag.prompts import QUERY_REWRITING_PROMPT, CONTEXTUAL_COMPRESSION_PROMPT
+from database.models import Document
+
 from database.service import document_service
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import numpy as np
 
 
 class RetrieverClient(BaseRetriever):
@@ -73,7 +78,11 @@ class RetrieverClient(BaseRetriever):
                 except Exception as e:
                     print(f"Retriever {retriever} raised an exception: {e}")
 
-        return docs
+        # Remove duplicate documents
+        seen = set()
+        unique_docs = [doc for doc in docs if doc.id not in seen and not seen.add(doc.id)]
+
+        return unique_docs[:k]
 
 
 class TopKRetriever(BaseRetriever):
@@ -85,10 +94,12 @@ class TopKRetriever(BaseRetriever):
     get_documents(db, query, language, k)
         Retrieves the top k documents that semantically match the given query.
     """
+    def __init__(self, top_k):
+        self.top_k = top_k
 
     def get_documents(self, db, query, language, k):
         """
-        Retrieves the top K documents that semantically match the given query.
+        Retrieves the top k documents that semantically match the given query.
 
         Parameters
         ----------
@@ -106,31 +117,169 @@ class TopKRetriever(BaseRetriever):
         list
             A list of the top k documents that semantically match the query.
         """
-        docs = document_service.get_semantic_match(db, query, language=language, k=k)
+        docs = document_service.get_semantic_match(db, query, language=language, k=k)[:self.top_k]
         return docs
 
 
 class QueryRewritingRetriever(BaseRetriever):
 
-    def __init__(self):
-        self.top_k_retriever = TopKRetriever()
+    def __init__(self, processor, n, top_k):
+        self.processor = processor
+        # self.processor.llm_client.stream = False
+        self.n = n
+        self.top_k = top_k
+
+    def create_query_rewriting_message(self, query: str, n: int = 3) -> List[Dict]:
+        """
+        Format the RAG message to send to the client_llm.
+
+        Parameters
+        ----------
+        query : str
+            User input question
+        n: int
+            Number of query rewrites to generate
+
+        Returns
+        -------
+        list of dict
+            Contains the message in the correct format to send to the llm_client.
+
+        """
+        query_rewriting_prompt = QUERY_REWRITING_PROMPT.format(n=n, query=query)
+        return [{"role": "system", "content": query_rewriting_prompt},]
+
+    def rewrite_queries(self, query: str, n: int = 3) -> List[str]:
+        """
+        Rewrite the input query into multiple queries.
+
+        This method uses the llm_client to rewrite the input query into multiple queries.
+        The number of rewritten queries is specified by the parameter `n`.
+
+        Parameters
+        ----------
+        query : str
+            The input query to be rewritten.
+        n : int
+            The number of rewritten queries to generate, by default 3.
+
+        Returns
+        -------
+        List[str]
+            The list of rewritten queries.
+
+        """
+        messages = self.create_query_rewriting_message(query, n)
+        rewritten_queries = self.processor.llm_client.generate(messages).choices[0].message.content
+        rewritten_queries = rewritten_queries.split("\n")
+
+        return rewritten_queries
 
     def get_documents(self, db, query, language, k):
+        """
+        Retrieves the top k documents that semantically match the given original + rewritten queries.
 
         # QUERY_REWRITING_PROMPT
         rewritten_queries = []
+        Parameters
+        ----------
+        db : object
+            The database object where the documents are stored.
+        query : str
+            The query to match.
+        language : str
+            The language of the query.
+        k : int
+            The number of documents to retrieve.
+
+        Returns
+        -------
+        list
+            A list of the top k documents that semantically match the query.
+        """
+        rewritten_queries = self.rewrite_queries(query, n=self.n)
 
         docs = []
+        # TO DO: parallelize
         for query in rewritten_queries:
             query_docs = document_service.get_semantic_match(db, query, language=language, k=k)
             docs.extend(query_docs)
 
-        return docs
+        return docs[:self.top_k]
 
 
 class ContextualCompressionRetriever(BaseRetriever):
+
+    def __init__(self, processor, top_k):
+        self.processor = processor
+        # self.processor.llm_client.stream = False
+        self.top_k = top_k
+
+    def create_contextual_compression_message(self, query: str, context_doc: Document) -> List[Dict]:
+        """
+        Format the contextual compression message to send to the client_llm.
+
+        Parameters
+        ----------
+        query : str
+            User input question
+        context_doc : Document
+            Context document to compress
+
+        Returns
+        -------
+        list of dict
+            Contains the message in the correct format to send to the llm_client.
+
+        """
+        contextual_compression_prompt = CONTEXTUAL_COMPRESSION_PROMPT.format(context_doc=context_doc, query=query)
+        return [{"role": "system", "content": contextual_compression_prompt},]
+
+    def compress_context(self, query: str, context_docs: List[Any]):
+        with ThreadPoolExecutor() as executor:
+            future_to_doc = {executor.submit(self.compress_doc, query, doc): doc for doc in context_docs}
+            docs = []
+            for future in as_completed(future_to_doc):
+                result = future.result()
+                if result is not None:
+                    docs.append(result)
+        return docs
+
+    def compress_doc(self, query, doc):
+        messages = self.create_contextual_compression_message(query, doc)
+        compressed_doc = self.processor.llm_client.generate(messages).choices[0].message.content
+
+        if "<IRRELEVANT_CONTEXT>" not in compressed_doc:
+            return Document(id=doc.id,
+                            text=compressed_doc,
+                            url=doc.url,
+                            language=doc.language)
+        return None
+
     def get_documents(self, db, query, language, k):
-        pass
+        """
+        Retrieves the top k documents that semantically match the given query, then applies contextual compression.
+
+        Parameters
+        ----------
+        db : object
+            The database object where the documents are stored.
+        query : str
+            The query to match.
+        language : str
+            The language of the query.
+        k : int
+            The number of documents to retrieve.
+
+        Returns
+        -------
+        list
+            A list of the top k documents that semantically match the query.
+        """
+        docs = document_service.get_semantic_match(db, query, language=language, k=k)[:self.top_k]
+        compressed_docs = self.compress_context(query, docs)
+
+        return compressed_docs[:self.top_k]
 
 
 class RAGFusionRetriever(BaseRetriever):
@@ -139,73 +288,84 @@ class RAGFusionRetriever(BaseRetriever):
 
 
 class BM25Retriever(BaseRetriever):
-    config: Dict[str, Any]
-    index: Optional[Index]
-    k: Optional[float] = 1.2
-    b: Optional[float] = 0.75
-    top_k: Optional[int] = None
+    """
+    A class used to retrieve documents based on the BM25 scoring algorithm.
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.pinecone_init()
-        self.index = pinecone.Index(self.config['index']['name'])
-        self.k = self.config['retrieval']['bm25']['k']
-        self.b = self.config['retrieval']['bm25']['b']
-        self.top_k = self.config['retrieval']['bm25']['top_k']
+    Attributes
+    ----------
+    k : float
+        A tuning parameter that determines how the term frequency is scaled. Default is 1.2.
+    b : float
+        A tuning parameter that determines how the document length is scaled. Default is 0.75.
+    top_k : int
+        The number of top documents to retrieve. Default is 10.
+    """
+    def __init__(self, k: float = 1.2, b: float = 0.75, top_k: int = 10):
+        self.k = k
+        self.b = b
+        self.top_k = top_k
 
-    def pinecone_init(self):
+    def bm25_score(self, query: str, docs: List[Any]) -> np.array:
         """
-        Initializes the Pinecone client with the provided API key and environment.
+        Computes the BM25 score for each document given a query.
 
-        This method uses the global variables PINECONE_API_KEY and PINECONE_ENVIRONMENT to initialize the Pinecone client. These variables should be set in the environment where this code is running.
+        Parameters
+        ----------
+        query : str
+            The query to compute the BM25 score for.
+        docs : List[Any]
+            The documents to compute the BM25 score for.
+
+        Returns
+        -------
+        np.array
+            The BM25 scores for the documents.
         """
-        pinecone.init(
-            api_key=PINECONE_API_KEY,
-            environment=PINECONE_ENVIRONMENT
-        )
-
-    def bm25_score(self, query: str, docs: List[Document]) -> np.array:
-
-        doc_len = np.array([len(x.page_content) for x in docs])
+        # CHECK doc_len (n chars or n words)
+        doc_len = np.array([len(doc.text) for doc in docs])
         avg_doc_len = np.mean(doc_len)
         n_docs = len(docs)
-        freq = np.array([doc.page_content.count(query) for doc in docs])
+        freq = np.array([doc.text.count(query) for doc in docs])
 
         tf = np.array((freq * (1 + self.k)) / (freq + self.k * (1 - self.b + self.b * doc_len / avg_doc_len)))
-        N_q = sum([1 for doc in docs if query in doc])
+        N_q = sum([1 for doc in docs if query in doc.text])
         idf = np.log(((n_docs - N_q + 0.5) / (N_q + 0.5)) + 1)
 
         return tf * idf
 
-    def get_relevant_documents(self, query: str, token: str) -> List[Document]:
+    def get_documents(self, db, query, language, k):
+        """
+        Retrieves the top k documents for a given query and language.
 
-        # get documents from database
-        n_vectors = self.index.describe_index_stats()['namespaces'][self.config['index']['base-namespace']]['vector_count']
-        res = self.index.query(
-                vector=[0] * 768, # dummy vector, embedding dim
-                top_k=n_vectors,
-                namespace=self.config['index']['base-namespace'],
-                include_values=False,
-                include_metadata=True,
-                )
+        Parameters
+        ----------
+        db
+            The database session.
+        query : str
+            The query to retrieve the documents for.
+        language : str
+            The language of the documents to retrieve.
+        k : int
+            The number of documents to retrieve.
 
-        docs = [Document(page_content=x['metadata']['text'], metadata=x['metadata']) for x in res['matches']]
+        Returns
+        -------
+        List[Document]
+            The top k documents for the query.
+        """
+        docs = document_service.get_all_documents(db)
 
-        # compute bm25 score
+        # # compute bm25 score
         scores = self.bm25_score(query, docs)
 
-        # sort retrieved context docs according to score
+        # # sort retrieved context docs according to score
         top_docs = list(sorted(zip(docs, scores), key=lambda x: x[1], reverse=True))[:self.top_k]
 
-        # Make the score part of the document metadata
-        docs = []
-        for doc in top_docs:
-            docs.append(Document(page_content=doc[0].page_content, metadata={"bm_25_score": doc[1]}))
-
+        docs = [Document(id=doc[0].id,
+                         text=doc[0].text,
+                         url=doc[0].url,
+                         language=doc[0].language) for doc in top_docs]
         return docs
-
-    def get_documents(self, db, query, language, k):
-        pass
 
 
 class Reranker(BaseRetriever):
