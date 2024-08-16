@@ -21,9 +21,11 @@ rag:
   retrieval:
     retrieval_method:
       - "top_k_retriever"
-      - "bm25_retriever"
-      - "query_rewriting_retriever"
-      - "contextual_compression_retriever"
+      # - "bm25_retriever"
+      # - "query_rewriting_retriever"
+      # - "contextual_compression_retriever"
+      # - "rag_fusion_retriever"
+      - "reranking"
     top_k_retriever_params:
       top_k: 10
     bm25_retriever_params:
@@ -31,10 +33,17 @@ rag:
       b: 0.75
       top_k: 10
     query_rewriting_retriever_params:
-      n: 3
+      n_alt_queries: 3
       top_k: 10
     contextual_compression_retriever_params:
       top_k: 4
+    rag_fusion_retriever_params:
+      n_alt_queries: 3
+      rrf_k: 60
+      top_k: 3
+    reranking_params:
+      model: rerank-multilingual-v3.0
+      top_k: 3
     top_k: 100
     metric: cosine_similarity
   llm:
