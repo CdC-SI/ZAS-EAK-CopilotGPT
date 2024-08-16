@@ -43,31 +43,33 @@ class RetrieverFactory:
             If an unsupported retrieval method is provided.
         """
         retrievers = []
+        reranker = None
 
         for method in retrieval_method:
             match method:
                 case "top_k_retriever":
-                    retrievers.append(TopKRetriever(top_k=rag_config["retrieval"]["top_k_retriever_params"]["top_k"]))
+                    retrievers.append(TopKRetriever(top_k=rag_config["retrieval"]["top_k_retriever_params"]["top_k"],))
                 case "query_rewriting_retriever":
                     retrievers.append(QueryRewritingRetriever(processor=processor,
                                                               n_alt_queries=rag_config["retrieval"]["query_rewriting_retriever_params"]["n_alt_queries"],
-                                                              top_k=rag_config["retrieval"]["query_rewriting_retriever_params"]["top_k"]))
+                                                              top_k=rag_config["retrieval"]["query_rewriting_retriever_params"]["top_k"],))
                 case "contextual_compression_retriever":
                     retrievers.append(ContextualCompressionRetriever(processor=processor,
-                                                                     top_k=rag_config["retrieval"]["contextual_compression_retriever_params"]["top_k"]))
+                                                                     top_k=rag_config["retrieval"]["contextual_compression_retriever_params"]["top_k"],))
                 case "bm25_retriever":
                     retrievers.append(BM25Retriever(k=rag_config["retrieval"]["bm25_retriever_params"]["k"],
                                                     b=rag_config["retrieval"]["bm25_retriever_params"]["k"],
-                                                    top_k=rag_config["retrieval"]["bm25_retriever_params"]["top_k"]))
+                                                    top_k=rag_config["retrieval"]["bm25_retriever_params"]["top_k"],))
                 case "rag_fusion_retriever":
                     retrievers.append(RAGFusionRetriever(processor=processor,
                                                          n_alt_queries=rag_config["retrieval"]["rag_fusion_retriever_params"]["n_alt_queries"],
                                                          rrf_k=rag_config["retrieval"]["rag_fusion_retriever_params"]["rrf_k"],
-                                                         top_k=rag_config["retrieval"]["rag_fusion_retriever_params"]["top_k"]))
+                                                         top_k=rag_config["retrieval"]["rag_fusion_retriever_params"]["top_k"],))
                 case "reranking":
-                    retrievers.append(Reranker())
+                    reranker = Reranker(model=rag_config["retrieval"]["reranking_params"]["model"],
+                                        top_k=rag_config["retrieval"]["reranking_params"]["top_k"],)
                 case _:
                     raise ValueError(f"Unsupported retrieval method: {method}. Please see the documentation for supported methods (https://cdc-si.github.io/ZAS-EAK-CopilotGPT/).")
 
-        client = RetrieverClient(retrievers=retrievers)
+        client = RetrieverClient(retrievers=retrievers, reranker=reranker)
         return client
