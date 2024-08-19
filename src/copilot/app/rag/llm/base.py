@@ -1,16 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import List, Any, Dict
 
+
 class BaseLLM(ABC):
 
     def __init__(self, stream: bool):
         self.stream = stream
 
     @abstractmethod
-    def generate(
-        self,
-        messages: List[dict],
-        ) -> str:
+    def generate(self, messages: List[dict]) -> str:
         """
         Generate an answer based on input messages using an LLM.
 
@@ -26,9 +24,7 @@ class BaseLLM(ABC):
         """
 
     @abstractmethod
-    def _stream(self,
-        messages: List[dict],
-        ):
+    def _stream(self, messages: List[dict]):
         """
         Stream an answer based on input messages using an LLM.
 

@@ -2,9 +2,10 @@ import os
 from typing import List, Dict, Any
 from dotenv import load_dotenv
 
+from rag.llm.base import BaseLLM
 from rag.base import BaseRetriever
 from rag.prompts import QUERY_REWRITING_PROMPT, CONTEXTUAL_COMPRESSION_PROMPT
-from schemas.document import Document
+from schemas.document import Document, DocumentBase
 
 from database.service import document_service
 
@@ -17,6 +18,26 @@ load_dotenv()
 
 # Load Cohere API key
 COHERE_API_KEY = os.environ["COHERE_API_KEY"]
+
+
+class Reranker:
+
+    def __init__(self, model: str, top_k: int = 10):
+        self.reranking_client = Client(COHERE_API_KEY)
+        self.model = model
+        self.top_k = top_k
+
+    def rerank(self, query: str, documents: List[Document]) -> List[Document]:
+
+        reranked_docs = self.reranking_client.rerank(
+            model=self.model,
+            query=query,
+            documents=documents,
+            top_n=self.top_k,
+        )
+
+        return reranked_docs
+
 
 class RetrieverClient(BaseRetriever):
     """
@@ -37,7 +58,7 @@ class RetrieverClient(BaseRetriever):
         Retrieves documents from the database using the provided query, language and returns top k documents. The results are aggregated into a single list of documents.
 
     """
-    def __init__(self, retrievers, reranker):
+    def __init__(self, retrievers: list[BaseRetriever], reranker: Reranker):
         self.retrievers = retrievers
         self.reranker = reranker
 
@@ -79,7 +100,7 @@ class RetrieverClient(BaseRetriever):
                 for retriever in self.retrievers
             }
 
-            for future in as_completed(future_to_retriever): # Collect results as they complete
+            for future in as_completed(future_to_retriever):  # Collect results as they complete
                 retriever = future_to_retriever[future]
                 try:
                     result = future.result()
@@ -87,7 +108,7 @@ class RetrieverClient(BaseRetriever):
                 except Exception as e:
                     print(f"Retriever {retriever} raised an exception: {e}")
 
-        # Remove duplicate documents
+        # Remove duplicate documents
         seen = set()
         unique_docs = [Document.from_orm(doc) for doc in docs if doc.id not in seen and not seen.add(doc.id)]
 
@@ -102,6 +123,7 @@ class RetrieverClient(BaseRetriever):
                 return unique_docs[:k]
 
         return unique_docs[:k]
+
 
 class TopKRetriever(BaseRetriever):
     """
@@ -141,11 +163,10 @@ class TopKRetriever(BaseRetriever):
 
 class QueryRewritingRetriever(BaseRetriever):
 
-    def __init__(self, processor, n_alt_queries, top_k):
-        self.processor = processor
-        # self.processor.llm_client.stream = False
+    def __init__(self, n_alt_queries, top_k, llm_client):
         self.n_alt_queries = n_alt_queries
         self.top_k = top_k
+        self.llm_client = llm_client
 
     def create_query_rewriting_message(self, query: str, n_alt_queries: int = 3) -> List[Dict]:
         """
@@ -155,7 +176,7 @@ class QueryRewritingRetriever(BaseRetriever):
         ----------
         query : str
             User input question
-        n: int
+        n_alt_queries: int
             Number of query rewrites to generate
 
         Returns
@@ -188,7 +209,7 @@ class QueryRewritingRetriever(BaseRetriever):
 
         """
         messages = self.create_query_rewriting_message(query, n_alt_queries)
-        rewritten_queries = self.processor.llm_client.generate(messages).choices[0].message.content
+        rewritten_queries = self.llm_client.generate(messages).choices[0].message.content
         rewritten_queries = rewritten_queries.split("\n")
 
         return rewritten_queries
@@ -213,7 +234,7 @@ class QueryRewritingRetriever(BaseRetriever):
         list
             A list of the top k documents that semantically match the query.
         """
-        rewritten_queries = self.rewrite_queries(query, n_alt_queries=self.n_alt_queries)
+        rewritten_queries = self.rewrite_queries(query=query, n_alt_queries=self.n_alt_queries)
 
         docs = []
         for query in rewritten_queries:
@@ -225,10 +246,9 @@ class QueryRewritingRetriever(BaseRetriever):
 
 class ContextualCompressionRetriever(BaseRetriever):
 
-    def __init__(self, processor, top_k):
-        self.processor = processor
-        # self.processor.llm_client.stream = False
+    def __init__(self, top_k, llm_client):
         self.top_k = top_k
+        self.llm_client = llm_client
 
     def create_contextual_compression_message(self, query: str, context_doc: Document) -> List[Dict]:
         """
@@ -262,7 +282,7 @@ class ContextualCompressionRetriever(BaseRetriever):
 
     def compress_doc(self, query, doc):
         messages = self.create_contextual_compression_message(query, doc)
-        compressed_doc = self.processor.llm_client.generate(messages).choices[0].message.content
+        compressed_doc = self.llm_client.generate(messages).choices[0].message.content
 
         if "<IRRELEVANT_CONTEXT>" not in compressed_doc:
             return Document(id=doc.id,
@@ -294,13 +314,13 @@ class ContextualCompressionRetriever(BaseRetriever):
         docs = document_service.get_semantic_match(db, query, language=language, k=k)
         compressed_docs = self.compress_context(query, docs)
 
-        return compressed_docs[:self.top_k]
+        return compressed_docs[:self.top_k] + ([DocumentBase(text="", url="")]*(self.top_k - len(compressed_docs)))
 
 
 class RAGFusionRetriever(BaseRetriever):
 
-    def __init__(self, processor, n_alt_queries: int = 3, rrf_k: int = 60, top_k: int = 10):
-        self.processor = processor
+    def __init__(self, llm_client, n_alt_queries: int = 3, rrf_k: int = 60, top_k: int = 10):
+        self.llm_client = llm_client
         self.n_alt_queries = n_alt_queries
         self.rrf_k = rrf_k
         self.top_k = top_k
@@ -313,7 +333,7 @@ class RAGFusionRetriever(BaseRetriever):
         ----------
         query : str
             User input question
-        n: int
+        n_alt_queries: int
             Number of query rewrites to generate
 
         Returns
@@ -346,7 +366,7 @@ class RAGFusionRetriever(BaseRetriever):
 
         """
         messages = self.create_query_rewriting_message(query, n_alt_queries)
-        rewritten_queries = self.processor.llm_client.generate(messages).choices[0].message.content
+        rewritten_queries = self.llm_client.generate(messages).choices[0].message.content
         rewritten_queries = rewritten_queries.split("\n")
 
         return rewritten_queries
@@ -463,22 +483,3 @@ class BM25Retriever(BaseRetriever):
                          url=doc[0].url,
                          language=doc[0].language) for doc in top_docs]
         return docs
-
-
-class Reranker:
-
-    def __init__(self, model: str, top_k: int = 10):
-        self.reranking_client = Client(COHERE_API_KEY)
-        self.model = model
-        self.top_k = top_k
-
-    def rerank(self, query: str, documents: List[Document]) -> List[Document]:
-
-        reranked_docs = self.reranking_client.rerank(
-            model=self.model,
-            query=query,
-            documents=documents,
-            top_n=self.top_k,
-        )
-
-        return reranked_docs
