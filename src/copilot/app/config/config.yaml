@@ -25,7 +25,7 @@ rag:
       # - "query_rewriting_retriever"
       # - "contextual_compression_retriever"
       # - "rag_fusion_retriever"
-      - "reranking"
+      # - "reranking"
     top_k_retriever_params:
       top_k: 10
     bm25_retriever_params:
@@ -44,6 +44,8 @@ rag:
     reranking_params:
       model: rerank-multilingual-v3.0
       top_k: 3
+    routing:
+      model: openai
     top_k: 100
     metric: cosine_similarity
   llm:
