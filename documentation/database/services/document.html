@@ -348,6 +348,34 @@
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="database.service.document.DocumentService.get_count">
+<span class="sig-name descname"><span class="pre">get_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#database.service.document.DocumentService.get_count" title="Link to this definition">¶</a></dt>
+<dd><p>Get the number of documents in the database</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>db</strong> (<em>Session</em>) – Database session</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="database.service.document.DocumentService.get_all_documents">
+<span class="sig-name descname"><span class="pre">get_all_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#database.service.document.DocumentService.get_all_documents" title="Link to this definition">¶</a></dt>
+<dd><p>Get all documents from the database</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>db</strong> (<em>Session</em>) – Database session</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[Model]</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -410,6 +438,8 @@
 <li><a class="reference internal" href="#">Document</a><ul>
 <li><a class="reference internal" href="#database.service.document.DocumentService"><code class="docutils literal notranslate"><span class="pre">DocumentService</span></code></a><ul>
 <li><a class="reference internal" href="#database.service.document.DocumentService.get_by_url"><code class="docutils literal notranslate"><span class="pre">DocumentService.get_by_url()</span></code></a></li>
+<li><a class="reference internal" href="#database.service.document.DocumentService.get_count"><code class="docutils literal notranslate"><span class="pre">DocumentService.get_count()</span></code></a></li>
+<li><a class="reference internal" href="#database.service.document.DocumentService.get_all_documents"><code class="docutils literal notranslate"><span class="pre">DocumentService.get_all_documents()</span></code></a></li>
 </ul>
 </li>
 </ul>

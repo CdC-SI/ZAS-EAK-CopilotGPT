@@ -447,9 +447,7 @@
           <li><a href="documentation/database/services/embedding.html#database.service.base.EmbeddingService.create_all">(database.service.base.EmbeddingService method)</a>
 </li>
         </ul></li>
-        <li><a href="documentation/rag/index.html#rag.rag_processor.RAGProcessor.create_openai_message">create_openai_message() (rag.rag_processor.RAGProcessor method)</a>
-</li>
-        <li><a href="documentation/rag/index.html#rag.rag_processor.RAGProcessor.create_openai_stream">create_openai_stream() (rag.rag_processor.RAGProcessor method)</a>
+        <li><a href="documentation/rag/index.html#rag.rag_processor.RAGProcessor.create_rag_message">create_rag_message() (rag.rag_processor.RAGProcessor method)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -552,9 +550,9 @@
   <h2>G</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="documentation/rag/index.html#rag.rag_processor.RAGProcessor.generate">generate() (rag.rag_processor.RAGProcessor method)</a>
-</li>
         <li><a href="documentation/database/services/base.html#database.service.base.BaseService.get">get() (database.service.base.BaseService method)</a>
+</li>
+        <li><a href="documentation/database/services/document.html#database.service.document.DocumentService.get_all_documents">get_all_documents() (database.service.document.DocumentService method)</a>
 </li>
         <li><a href="documentation/autocomplete/index.html#autocomplete.autocompleter.Autocompleter.get_autocomplete">get_autocomplete() (autocomplete.autocompleter.Autocompleter method)</a>
 </li>
@@ -566,12 +564,14 @@
           <li><a href="documentation/database/services/source.html#database.service.source.SourceService.get_by_url">(database.service.source.SourceService method)</a>
 </li>
         </ul></li>
-        <li><a href="documentation/database/index.html#database.database.get_db">get_db() (in module database.database)</a>
+        <li><a href="documentation/database/services/document.html#database.service.document.DocumentService.get_count">get_count() (database.service.document.DocumentService method)</a>
 </li>
-        <li><a href="documentation/database/index.html#database.database.get_engine">get_engine() (in module database.database)</a>
+        <li><a href="documentation/database/index.html#database.database.get_db">get_db() (in module database.database)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="documentation/database/index.html#database.database.get_engine">get_engine() (in module database.database)</a>
+</li>
         <li><a href="documentation/database/services/matching.html#database.service.matching.MatchingService.get_exact_match">get_exact_match() (database.service.matching.MatchingService method)</a>
 </li>
         <li><a href="documentation/database/services/matching.html#database.service.matching.MatchingService.get_fuzzy_match">get_fuzzy_match() (database.service.matching.MatchingService method)</a>
@@ -669,6 +669,8 @@
 </li>
         </ul></li>
         <li><a href="documentation/api/indexing.html#indexing_api.init_indexing">init_indexing() (in module indexing_api)</a>
+</li>
+        <li><a href="documentation/rag/index.html#rag.rag_processor.RAGProcessor.init_retriever_client">init_retriever_client() (rag.rag_processor.RAGProcessor method)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -961,6 +963,26 @@
   <h2>T</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="documentation/schemas/document.html#schemas.document.Document.tag">tag (schemas.document.Document attribute)</a>
+
+        <ul>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentBase.tag">(schemas.document.DocumentBase attribute)</a>
+</li>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentCreate.tag">(schemas.document.DocumentCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentUpdate.tag">(schemas.document.DocumentUpdate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.Question.tag">(schemas.question.Question attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.QuestionBase.tag">(schemas.question.QuestionBase attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.QuestionCreate.tag">(schemas.question.QuestionCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.QuestionItem.tag">(schemas.question.QuestionItem attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.QuestionUpdate.tag">(schemas.question.QuestionUpdate attribute)</a>
+</li>
+        </ul></li>
         <li><a href="documentation/schemas/document.html#schemas.document.Document.text">text (schemas.document.Document attribute)</a>
 
         <ul>

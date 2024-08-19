@@ -350,6 +350,18 @@
 <span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Language&quot;</span>
 <span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;tag&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">         </span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tag&quot;</span>
+<span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Text&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
@@ -375,6 +387,7 @@
 <dt class="field-even">Fields<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="#schemas.document.DocumentBase.language" title="schemas.document.DocumentBase.language"><code class="xref py py-obj docutils literal notranslate"><span class="pre">language</span> <span class="pre">(str</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#schemas.document.DocumentBase.tag" title="schemas.document.DocumentBase.tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tag</span> <span class="pre">(str</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.DocumentBase.text" title="schemas.document.DocumentBase.text"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span> <span class="pre">(str)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.DocumentBase.url" title="schemas.document.DocumentBase.url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">url</span> <span class="pre">(str)</span></code></a></p></li>
 </ul>
@@ -384,6 +397,12 @@
 <dt class="sig sig-object py" id="schemas.document.DocumentBase.language">
 <em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">language</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#schemas.document.DocumentBase.language" title="Link to this definition">¶</a></dt>
 <dd><p>Language of the document text</p>
+</dd></dl>
+
+<dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="schemas.document.DocumentBase.tag">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tag</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#schemas.document.DocumentBase.tag" title="Link to this definition">¶</a></dt>
+<dd><p>Tag of the document text</p>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -426,6 +445,18 @@
 <span class="w">         </span><span class="p">],</span>
 <span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Language&quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;tag&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">         </span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tag&quot;</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Text&quot;</span><span class="p">,</span>
@@ -474,6 +505,7 @@
 <li><p><a class="reference internal" href="#schemas.document.DocumentCreate.embedding" title="schemas.document.DocumentCreate.embedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">embedding</span> <span class="pre">(list[float]</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.DocumentCreate.language" title="schemas.document.DocumentCreate.language"><code class="xref py py-obj docutils literal notranslate"><span class="pre">language</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.DocumentCreate.source" title="schemas.document.DocumentCreate.source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source</span> <span class="pre">(str)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#schemas.document.DocumentCreate.tag" title="schemas.document.DocumentCreate.tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tag</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.DocumentCreate.text" title="schemas.document.DocumentCreate.text"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.DocumentCreate.url" title="schemas.document.DocumentCreate.url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">url</span> <span class="pre">()</span></code></a></p></li>
 </ul>
@@ -494,6 +526,12 @@
 <dt class="sig sig-object py" id="schemas.document.DocumentCreate.source">
 <em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">source</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#schemas.document.DocumentCreate.source" title="Link to this definition">¶</a></dt>
 <dd><p>How the document was found, can be a URL or a file path for example</p>
+</dd></dl>
+
+<dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="schemas.document.DocumentCreate.tag">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tag</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#schemas.document.DocumentCreate.tag" title="Link to this definition">¶</a></dt>
+<dd><p>Tag of the document text</p>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -548,6 +586,18 @@
 <span class="w">               </span><span class="p">],</span>
 <span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Language&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;tag&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                  </span><span class="p">{</span>
+<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">                  </span><span class="p">},</span>
+<span class="w">                  </span><span class="p">{</span>
+<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
+<span class="w">                  </span><span class="p">}</span>
+<span class="w">               </span><span class="p">],</span>
+<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tag&quot;</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Text&quot;</span><span class="p">,</span>
@@ -629,6 +679,18 @@
 <span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Language&quot;</span>
 <span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;tag&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">         </span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tag&quot;</span>
+<span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Text&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
@@ -683,6 +745,7 @@
 <li><p><a class="reference internal" href="#schemas.document.DocumentUpdate.embedding" title="schemas.document.DocumentUpdate.embedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">embedding</span> <span class="pre">(list[float]</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.DocumentUpdate.language" title="schemas.document.DocumentUpdate.language"><code class="xref py py-obj docutils literal notranslate"><span class="pre">language</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.DocumentUpdate.source_id" title="schemas.document.DocumentUpdate.source_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_id</span> <span class="pre">(int</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#schemas.document.DocumentUpdate.tag" title="schemas.document.DocumentUpdate.tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tag</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.DocumentUpdate.text" title="schemas.document.DocumentUpdate.text"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.DocumentUpdate.url" title="schemas.document.DocumentUpdate.url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">url</span> <span class="pre">()</span></code></a></p></li>
 </ul>
@@ -703,6 +766,12 @@
 <dt class="sig sig-object py" id="schemas.document.DocumentUpdate.source_id">
 <em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">source_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#schemas.document.DocumentUpdate.source_id" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="schemas.document.DocumentUpdate.tag">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tag</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#schemas.document.DocumentUpdate.tag" title="Link to this definition">¶</a></dt>
+<dd><p>Tag of the document text</p>
+</dd></dl>
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="schemas.document.DocumentUpdate.text">
@@ -743,6 +812,18 @@
 <span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Language&quot;</span>
 <span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;tag&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">         </span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tag&quot;</span>
+<span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Text&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
@@ -775,6 +856,7 @@
 <dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="#schemas.document.Document.id" title="schemas.document.Document.id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">id</span> <span class="pre">(int)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.Document.language" title="schemas.document.Document.language"><code class="xref py py-obj docutils literal notranslate"><span class="pre">language</span> <span class="pre">()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#schemas.document.Document.tag" title="schemas.document.Document.tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tag</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.Document.text" title="schemas.document.Document.text"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.Document.url" title="schemas.document.Document.url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">url</span> <span class="pre">()</span></code></a></p></li>
 </ul>
@@ -789,6 +871,12 @@
 <dt class="sig sig-object py" id="schemas.document.Document.language">
 <em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">language</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#schemas.document.Document.language" title="Link to this definition">¶</a></dt>
 <dd><p>Language of the document text</p>
+</dd></dl>
+
+<dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="schemas.document.Document.tag">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tag</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#schemas.document.Document.tag" title="Link to this definition">¶</a></dt>
+<dd><p>Tag of the document text</p>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -870,6 +958,7 @@
 <li><a class="reference internal" href="#">Document</a><ul>
 <li><a class="reference internal" href="#schemas.document.DocumentBase"><code class="docutils literal notranslate"><span class="pre">DocumentBase</span></code></a><ul>
 <li><a class="reference internal" href="#schemas.document.DocumentBase.language"><code class="docutils literal notranslate"><span class="pre">DocumentBase.language</span></code></a></li>
+<li><a class="reference internal" href="#schemas.document.DocumentBase.tag"><code class="docutils literal notranslate"><span class="pre">DocumentBase.tag</span></code></a></li>
 <li><a class="reference internal" href="#schemas.document.DocumentBase.text"><code class="docutils literal notranslate"><span class="pre">DocumentBase.text</span></code></a></li>
 <li><a class="reference internal" href="#schemas.document.DocumentBase.url"><code class="docutils literal notranslate"><span class="pre">DocumentBase.url</span></code></a></li>
 <li><a class="reference internal" href="#schemas.document.DocumentBase.Config"><code class="docutils literal notranslate"><span class="pre">DocumentBase.Config</span></code></a></li>
@@ -879,6 +968,7 @@
 <li><a class="reference internal" href="#schemas.document.DocumentCreate.embedding"><code class="docutils literal notranslate"><span class="pre">DocumentCreate.embedding</span></code></a></li>
 <li><a class="reference internal" href="#schemas.document.DocumentCreate.language"><code class="docutils literal notranslate"><span class="pre">DocumentCreate.language</span></code></a></li>
 <li><a class="reference internal" href="#schemas.document.DocumentCreate.source"><code class="docutils literal notranslate"><span class="pre">DocumentCreate.source</span></code></a></li>
+<li><a class="reference internal" href="#schemas.document.DocumentCreate.tag"><code class="docutils literal notranslate"><span class="pre">DocumentCreate.tag</span></code></a></li>
 <li><a class="reference internal" href="#schemas.document.DocumentCreate.text"><code class="docutils literal notranslate"><span class="pre">DocumentCreate.text</span></code></a></li>
 <li><a class="reference internal" href="#schemas.document.DocumentCreate.url"><code class="docutils literal notranslate"><span class="pre">DocumentCreate.url</span></code></a></li>
 <li><a class="reference internal" href="#schemas.document.DocumentCreate.Config"><code class="docutils literal notranslate"><span class="pre">DocumentCreate.Config</span></code></a></li>
@@ -892,6 +982,7 @@
 <li><a class="reference internal" href="#schemas.document.DocumentUpdate.embedding"><code class="docutils literal notranslate"><span class="pre">DocumentUpdate.embedding</span></code></a></li>
 <li><a class="reference internal" href="#schemas.document.DocumentUpdate.language"><code class="docutils literal notranslate"><span class="pre">DocumentUpdate.language</span></code></a></li>
 <li><a class="reference internal" href="#schemas.document.DocumentUpdate.source_id"><code class="docutils literal notranslate"><span class="pre">DocumentUpdate.source_id</span></code></a></li>
+<li><a class="reference internal" href="#schemas.document.DocumentUpdate.tag"><code class="docutils literal notranslate"><span class="pre">DocumentUpdate.tag</span></code></a></li>
 <li><a class="reference internal" href="#schemas.document.DocumentUpdate.text"><code class="docutils literal notranslate"><span class="pre">DocumentUpdate.text</span></code></a></li>
 <li><a class="reference internal" href="#schemas.document.DocumentUpdate.url"><code class="docutils literal notranslate"><span class="pre">DocumentUpdate.url</span></code></a></li>
 <li><a class="reference internal" href="#schemas.document.DocumentUpdate.Config"><code class="docutils literal notranslate"><span class="pre">DocumentUpdate.Config</span></code></a></li>
@@ -900,6 +991,7 @@
 <li><a class="reference internal" href="#schemas.document.Document"><code class="docutils literal notranslate"><span class="pre">Document</span></code></a><ul>
 <li><a class="reference internal" href="#schemas.document.Document.id"><code class="docutils literal notranslate"><span class="pre">Document.id</span></code></a></li>
 <li><a class="reference internal" href="#schemas.document.Document.language"><code class="docutils literal notranslate"><span class="pre">Document.language</span></code></a></li>
+<li><a class="reference internal" href="#schemas.document.Document.tag"><code class="docutils literal notranslate"><span class="pre">Document.tag</span></code></a></li>
 <li><a class="reference internal" href="#schemas.document.Document.text"><code class="docutils literal notranslate"><span class="pre">Document.text</span></code></a></li>
 <li><a class="reference internal" href="#schemas.document.Document.url"><code class="docutils literal notranslate"><span class="pre">Document.url</span></code></a></li>
 <li><a class="reference internal" href="#schemas.document.Document.Config"><code class="docutils literal notranslate"><span class="pre">Document.Config</span></code></a></li>
