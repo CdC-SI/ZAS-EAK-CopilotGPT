@@ -10,10 +10,11 @@ import io
 import ast
 import numpy as np
 import codecs
-import json
+
 from enum import Enum
 from rag.retrievers import TopKRetriever, QueryRewritingRetriever, ContextualCompressionRetriever, RAGFusionRetriever
 from rag.rag_processor import llm_client
+from sklearn.metrics import ndcg_score
 
 from sqlalchemy.orm import Session
 from database.database import get_db
@@ -42,6 +43,11 @@ class RetrieverType(str, Enum):
     fusion = "RAG fusion retriever"
 
 
+class EvalMetric(str, Enum):
+    recall_at_k = "Recall@k"
+    ndcg = "Normalized Discounted Cumulative Gain (NDCG)"
+
+
 def format_string(s: str):
     return ' '.join(s.split())
 
@@ -49,7 +55,7 @@ def format_string(s: str):
 @app.post("/retriever",
          summary="Eval the accuracy of the retriever",
          response_description="csv file with the results, named with the mean score")
-async def retriever(file: UploadFile = File(...), retriever_type: RetrieverType = "top_k retriever", db: Session = Depends(get_db)):
+async def retriever(file: UploadFile = File(...), retriever_type: RetrieverType = "top_k retriever", metric: EvalMetric = "Recall@k", db: Session = Depends(get_db)):
     """
     Evaluate the accuracy of the requested retriever. The mean recall score is given in the name of the CSV file.
 
@@ -86,7 +92,8 @@ async def retriever(file: UploadFile = File(...), retriever_type: RetrieverType 
     dtype = np.dtype([("recall", "<f8"), ("query", "U200"), ("y_true", "O"), ("retrieved_answers", "O")])
 
     data = []
-    total_recall = 0
+    total_score = 0
+
     for row in data_iter:
         query, true_answers = row["query"], format_string(row["y_true"])
 
@@ -99,11 +106,16 @@ async def retriever(file: UploadFile = File(...), retriever_type: RetrieverType 
         retrieved_answers = retriever.get_documents(db, query, '', k)
         retrieved_answers = [format_string(doc.text) for doc in retrieved_answers]
 
-        # Compute recall
-        recall = sum([true_answer in retrieved_answers for true_answer in true_answers]) / len(true_answers)
-        total_recall += recall
+        # Compute metrics
+        if metric is EvalMetric.ndcg:
+            y_true = [k if answer in true_answers else 0 for answer in retrieved_answers]
+            y_score = [i for i in range(k, 0, -1)]
+            score = ndcg_score([y_true], [y_score])
+        else:
+            score = sum([true_answer in retrieved_answers for true_answer in true_answers]) / len(true_answers)
+        total_score += score
 
-        data.append((recall, query, true_answers, retrieved_answers))
+        data.append((score, query, true_answers, retrieved_answers))
 
     # Write the data to a stream
     data_array = np.array(data, dtype=dtype)
@@ -117,6 +129,6 @@ async def retriever(file: UploadFile = File(...), retriever_type: RetrieverType 
     stream.seek(0)
     response = StreamingResponse(stream, media_type="text/csv")
 
-    response.headers["Content-Disposition"] = f"attachment; filename=recall_{total_recall/len(data):.4f}.csv"
+    response.headers["Content-Disposition"] = f"attachment; filename=recall_{total_score/len(data):.4f}.csv"
     return response
 

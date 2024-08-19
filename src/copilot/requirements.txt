@@ -24,3 +24,6 @@ trafilatura==1.11.0
 # sqlAlchemy
 pgvector
 SQLAlchemy
+
+# eval
+scikit-learn==1.5.1
