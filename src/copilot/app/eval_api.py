@@ -7,6 +7,7 @@ from config.network_config import CORS_ALLOWED_ORIGINS
 
 import csv
 import io
+import ast
 import numpy as np
 import codecs
 import json
@@ -82,23 +83,27 @@ async def retriever(file: UploadFile = File(...), retriever_type: RetrieverType 
     data_iter = csv.DictReader(codecs.iterdecode(file.file, 'utf-8'))
 
     # Compute dtype for structured numpy array
-    answer_dtype = [(f"retrieved_answer_{i}", "U1000") for i in range(k)]
-    dtype = np.dtype([("recall", "<i4"), ("query", "U200"), ("y_true", "U1000")] + answer_dtype)
+    dtype = np.dtype([("recall", "<f8"), ("query", "U200"), ("y_true", "O"), ("retrieved_answers", "O")])
 
     data = []
     total_recall = 0
     for row in data_iter:
-        query, true_answer = row["query"], format_string(row["y_true"])
+        query, true_answers = row["query"], format_string(row["y_true"])
+
+        try:
+            true_answers = ast.literal_eval(true_answers)
+        except:
+            true_answers = [true_answers]
 
         # Retrieve the documents
         retrieved_answers = retriever.get_documents(db, query, '', k)
-        answers = [format_string(doc.text) for doc in retrieved_answers]
+        retrieved_answers = [format_string(doc.text) for doc in retrieved_answers]
 
         # Compute recall
-        recall = 1 if true_answer in answers else 0
+        recall = sum([true_answer in retrieved_answers for true_answer in true_answers]) / len(true_answers)
         total_recall += recall
 
-        data.append((recall, query, true_answer) + tuple(answers))
+        data.append((recall, query, true_answers, retrieved_answers))
 
     # Write the data to a stream
     data_array = np.array(data, dtype=dtype)
