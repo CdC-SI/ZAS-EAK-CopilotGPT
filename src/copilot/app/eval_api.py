@@ -71,22 +71,38 @@ async def retriever(file: UploadFile = File(...), retriever_type: RetrieverType 
         retriever = TopKRetriever(k)
 
     data_iter = csv.DictReader(codecs.iterdecode(file.file, 'utf-8'))
+    # answer_dtype = [(f"retrieved_answer_{i}", "U1000") for i in range(k)]
+    dtype = np.dtype([("recall", "<i4"), ("query", "U200"), ("y_true", "U1000"), ("retrieved_answer", "O")])
 
-    data = [data for data in data_iter]
-    data_array = np.asarray(data)
+    data = []
+    total_recall = 0
+    for row in data_iter:
+        retrieved_answers = retriever.get_documents(db, row["query"], '', k)
+        answers = [doc.text for doc in retrieved_answers]
+        recall = 1 if row["y_true"] in answers else 0
+        logger.info(f"Recall: {recall}")
+        data.append((recall, row["query"], row["y_true"], answers))
+        total_recall += recall
 
-    for row in data_array:
-        retrieved_answer = retriever.get_documents(db, row["query"], '', k)
-        answers = [doc.answer for doc in retrieved_answer]
+    logger.info([len(row) for row in data])
+    data_array = np.array(data, dtype=dtype)
 
-        row["retrieved_answer"] = answers
+    # for row in data_array:
+    #     # retrieved_answer = retriever.get_documents(db, row["query"], '', k)
+    #     retrieved_answer = []
+    #     answers = [doc.text for doc in retrieved_answer]
+    #     row["retrieved_answer"] = answers
 
     stream = io.StringIO()
-    np.savetxt(stream, data_array, delimiter=",", fmt='%s')
-    response = StreamingResponse(iter([stream.getvalue()]),
-                                 media_type="text/csv"
-                                 )
 
-    response.headers["Content-Disposition"] = "attachment; filename=export.csv"
+    writer = csv.writer(stream)
+    writer.writerow(data_array.dtype.names)  # Write header
+    for row in data_array:
+        writer.writerow(row)
+
+    stream.seek(0)
+    response = StreamingResponse(stream, media_type="text/csv")
+
+    response.headers["Content-Disposition"] = f"attachment; filename=recall_{total_recall/len(data)}.csv"
     return response
 
