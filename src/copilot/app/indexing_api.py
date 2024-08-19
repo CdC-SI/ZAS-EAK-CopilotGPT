@@ -152,7 +152,7 @@ def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Sessio
 
 
 @app.post("/upload_pdf_rag", summary="Upload a PDF file for RAG data", status_code=200, response_model=ResponseBody)
-def upload_pdf_rag(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
+async def upload_pdf_rag(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
     """
     Upload a CSV file containing RAG data to the database.
 
@@ -174,36 +174,11 @@ def upload_pdf_rag(file: UploadFile = File(...), embed: bool = False, db: Sessio
         temp_filename = temp_file.name
         shutil.copyfileobj(file.file, temp_file)
 
-    documents = PyPDFToDocument().run(sources=[Path(temp_filename )])
-
-    cleaner = DocumentCleaner(
-        remove_empty_lines=True,
-        remove_extra_whitespaces=True,
-        remove_repeated_substrings=False
-    )
-    splitter = DocumentSplitter(
-        split_by="sentence",
-        split_length=5,
-        split_overlap=1,
-        split_threshold=4
-    )
-
-    # Remove empty documents
-    documents = [doc for doc in documents["documents"] if doc.content is not None]
-
-    # Clean documents
-    documents = cleaner.run(documents=documents)
-    chunks = splitter.run(documents=documents["documents"])
-
-    # Upsert documents into VectorDB
-    url = file.filename
-    for doc in chunks["documents"]:
-        text = doc.content
-        document_service.upsert(db, DocumentCreate(url=url, text=text, source=file.filename), embed=embed)
+    await ahv_indexer.add_content_to_db(db, content=[Path(temp_filename)], source=file.filename, embed=embed)
 
     os.remove(temp_filename)
 
-    return {"content": f"{file.filename}: PDF RAG data indexed successfully"}
+    return {"content": f"{file.filename}: PDF file indexed successfully"}
 
 
 
