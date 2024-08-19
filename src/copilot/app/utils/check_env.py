@@ -3,7 +3,7 @@ import sys
 def check_env_vars(config):
 
     # Documentation
-    documentation = {"eak_copilot": "https://cdc-si.github.io/eak-copilot/",
+    documentation = {"eak_copilot": "https://cdc-si.github.io/ZAS-EAK-CopilotGPT/",
                      "openai_api": "https://platform.openai.com/docs/models",}
 
     # Define supported configs
@@ -37,7 +37,7 @@ def check_env_vars(config):
         if config["rag"]["embedding"]["model"] not in supported_embedding_models:
             print(f'Invalid value for "rag.embedding.model" in config/config.yaml. Please read the documentation at {documentation["openai_api"]}/embeddings for more information.')
             sys.exit(1)
-        if config["rag"]["retrieval"]["top_k"] != 1:
+        if config["rag"]["retrieval"]["top_k"] <= 0:
             print(f'Invalid value for "rag.retrieval.top_k" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information. NOTE: Will be extended soon to more than 1 retrieved document.')
             sys.exit(1)
         if config["rag"]["retrieval"]["metric"] not in supported_similarity_metrics:

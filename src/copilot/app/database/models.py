@@ -11,6 +11,7 @@ class EmbeddedMixin (object):
     text: Mapped[str] = mapped_column(Text, nullable=False)
     embedding: Mapped[Optional[Vector]] = mapped_column(Vector(1536), nullable=True)
     language: Mapped[Optional[str]] = mapped_column(String(3), nullable=True)
+    tag: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
     url: Mapped[str] = mapped_column(Text, nullable=False)
 
