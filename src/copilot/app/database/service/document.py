@@ -62,7 +62,7 @@ class DocumentService(MatchingService):
         """
         return db.query(self.model).count()
 
-    def get_all_documents(self, db: Session):
+    def get_all_documents(self, db: Session, tag: str = None):
         """
         Get all documents from the database
 
@@ -76,6 +76,8 @@ class DocumentService(MatchingService):
         List[Model]
         """
         stmt = select(self.model)
+        if tag:
+            stmt = stmt.filter(self.model.tag.ilike(f'%{tag}%'))
         return db.scalars(stmt).all()
 
 
