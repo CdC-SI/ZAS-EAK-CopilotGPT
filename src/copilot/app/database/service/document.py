@@ -15,7 +15,7 @@ class DocumentService(MatchingService):
     def _create(self, db: Session, obj_in: DocumentCreate, embed=False):
         source = source_service.get_or_create(db, SourceCreate(url=obj_in.source))
 
-        db_document = Document(url=obj_in.url, language=obj_in.language, text=obj_in.text, embedding=obj_in.embedding, source=source, source_id=source.id)
+        db_document = Document(url=obj_in.url, language=obj_in.language, text=obj_in.text, tag=obj_in.tag, embedding=obj_in.embedding, source=source, source_id=source.id)
         if embed:
             db_document = self._embed(db_document)
 
