@@ -1,11 +1,15 @@
-from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
+from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE, QUERY_REWRITING_PROMPT
+
+from typing import List, Dict, Any
+
 from rag.models import RAGRequest, EmbeddingRequest
+from rag.factory import RetrieverFactory
+from rag.llm.factory import LLMFactory
+from rag.llm.base import BaseLLM
 
 from sqlalchemy.orm import Session
-from database.service import document_service
 from utils.embedding import get_embedding
 
-from config.openai_config import clientAI
 from config.base_config import rag_config
 
 # Setup logging
@@ -20,95 +24,37 @@ class RAGProcessor:
 
     Parameters
     ----------
-    model : str
-        LLM Model used for generating chatbot answers
+    llm_client : BaseLLM
     max_token : int
-    stream : bool
     temperature : float
     top_p : float
+    retriever :
     top_k : int
-    client
     """
-    def __init__(self, model: str, max_token: int, stream: bool, temperature: float,
-                 top_p: float, top_k: int, client):
-        self.model = model
+    def __init__(self, llm: BaseLLM, max_token: int, temperature: float,
+                 top_p: float, retriever, top_k: int):
+
+        self.llm_client = llm
         self.max_tokens = max_token
-        self.stream = stream
         self.temperature = temperature
         self.top_p = top_p
+        self.retriever_client = retriever
         self.k_retrieve = top_k
 
-        self.client = client
-
-    def retrieve(self, db: Session, request: RAGRequest, language: str = None, k: int = 0):
+    def init_retriever_client(self, retrieval_method: str = "top_k"):
         """
-        Retrieve context documents related to the user input question.
-
-        Only supports retrieval of 1 document at the moment (set in /config/config.yaml).
-
-        .. todo::
-            multi-doc retrieval later
-
-        Parameters
-        ----------
-        db : Session
-            Database session
-        request : RAGRequest
-            User input question
-        language : str
-            Question and context documents language
-        k : int, default 0
-            Number of context documents to return (need to be revised, current logic in the code is confusing)
-        """
-        rows = document_service.get_semantic_match(db, request.query, language=language, k=k)
-
-        return rows[0] if len(rows) > 0 else {"text": "", "url": ""}
-
-    def process(self, db: Session, request: RAGRequest, language: str = None):
-        """
-        Execute the RAG process and query the LLM model.
-
-        Parameters
-        ----------
-        db : Session
-            Database session
-        request : RAGRequest
-            User input question
-        language : str
-            Question and context documents language
+        Initialize and return a retriever client based on `retrieval_method`.
 
         Returns
         -------
-        str
-            LLM generated answer to the question
+        object
+            An instance of the appropriate retriever client based on `retrieval_method`.
         """
-        documents = self.retrieve(db, request, language=language, k=self.k_retrieve)
-        context_doc = documents.text
-        source_url = documents.url
-        messages = self.create_openai_message(context_doc, request.query)
-        openai_stream = self.create_openai_stream(messages)
+        return RetrieverFactory.get_retriever_client(retrieval_method=retrieval_method)
 
-        return self.generate(openai_stream, source_url)
-
-    async def embed(self, text_input: EmbeddingRequest):
+    def create_rag_message(self, context_docs: List[Any], query: str) -> List[Dict]:
         """
-        Get the embedding of an embedding request.
-
-        Parameters
-        ----------
-        text_input : EmbeddingRequest
-
-        Returns
-        -------
-        dict
-            The requested text embedding
-        """
-        embedding = get_embedding(text_input.text)
-        return {"data": embedding}
-
-    def create_openai_message(self, context_docs, query):
-        """
-        Format the message to send to the OpenAI API.
+        Format the RAG message to send to the OpenAI API.
 
         Parameters
         ----------
@@ -126,39 +72,73 @@ class RAGProcessor:
         openai_rag_system_prompt = OPENAI_RAG_SYSTEM_PROMPT_DE.format(context_docs=context_docs, query=query)
         return [{"role": "system", "content": openai_rag_system_prompt},]
 
-    def create_openai_stream(self, messages):
+    def retrieve(self, db: Session, request: RAGRequest, language: str = None, tag: str = None, k: int = 0):
         """
-        Create a stream to communicate with OpenAI.
+        Retrieve context documents related to the user input question.
 
         Parameters
         ----------
-        messages : dict
-
-        Returns
-        -------
-        chat.completion
+        db : Session
+            Database session
+        request : RAGRequest
+            User input question
+        language : str
+            Question and context documents language
+        k : int, default 0
+            Number of context documents to return
         """
-        return self.client.chat.completions.create(
-            model=self.model,
-            messages=messages,
-            stream=self.stream,
-            temperature=self.temperature,
-            top_p=self.top_p)
+        rows = self.retriever_client.get_documents(db, request.query, language=language, tag=tag, k=k)
 
-    def generate(self, openai_stream, source_url):
+        return rows if len(rows) > 0 else [{"text": "", "url": ""}]
+
+    def process(self, db: Session, request: RAGRequest, language: str = None, tag: str = None):
         """
-        Generate the answer using LLM.
+        Process a RAGRequest to retrieve relevant documents and generate a response.
+
+        This method retrieves relevant documents from the database, constructs a context from the documents, and then uses an LLM client to generate a response based on the request query and the context.
 
         Parameters
         ----------
-        openai_stream
-        source_url
+        db : Session
+            The database session to use for retrieving documents.
+        request : RAGRequest
+            The request to process.
+        language : str, optional
+            The language of the documents to retrieve. If not specified, documents in all languages are considered.
 
         Returns
         -------
-
+        str
+            The response generated by the LLM client.
         """
-        for chunk in openai_stream:
+        documents = self.retrieve(db, request, language=language, tag=tag, k=self.k_retrieve)
+        context_docs = "\n\n".join([doc.text for doc in documents])  # TO UPDATE
+        source_url = documents[0].url  # TO UPDATE
+
+        messages = self.create_rag_message(context_docs, request.query)
+
+        stream = self.llm_client.call(messages)
+
+        return self.generate_stream(stream, source_url)
+
+    async def embed(self, text_input: EmbeddingRequest):
+        """
+        Get the embedding of an embedding request.
+
+        Parameters
+        ----------
+        text_input : EmbeddingRequest
+
+        Returns
+        -------
+        dict
+            The requested text embedding
+        """
+        embedding = get_embedding(text_input.text)
+        return {"data": embedding}
+
+    def generate_stream(self, stream, source_url):
+        for chunk in stream:
             if chunk.choices[0].delta.content is not None:
                 yield chunk.choices[0].delta.content.encode("utf-8")
             else:
@@ -167,11 +147,12 @@ class RAGProcessor:
                 return
 
 
-processor = RAGProcessor(model=rag_config["llm"]["model"],
+llm_client = LLMFactory.get_llm_client(llm_model=rag_config["llm"]["model"], stream=rag_config["llm"]["stream"])
+retriever_client = RetrieverFactory.get_retriever_client(retrieval_method=rag_config["retrieval"]["retrieval_method"], llm_client=llm_client)
+
+processor = RAGProcessor(llm=llm_client,
                          max_token=rag_config["llm"]["max_output_tokens"],
-                         stream=rag_config["llm"]["stream"],
                          temperature=rag_config["llm"]["temperature"],
                          top_p=rag_config["llm"]["top_p"],
-                         top_k=rag_config["retrieval"]["top_k"],
-                         client=clientAI)
-
+                         retriever=retriever_client,
+                         top_k=rag_config["retrieval"]["top_k"],)

@@ -10,7 +10,7 @@ class MatchingService(EmbeddingService):
     Class that provide services for matching text with database entries
     """
 
-    def get_exact_match(self, db: Session, user_input: str, language: str = None, k: int = 0):
+    def get_exact_match(self, db: Session, user_input: str, language: str = None, k: int = 0, tag: str = None):
         """
         Get exact match from database
 
@@ -33,6 +33,8 @@ class MatchingService(EmbeddingService):
         stmt = select(self.model)
         if language:
             stmt = stmt.filter(self.model.language == language)
+        if tag:
+            stmt = stmt.filter(self.model.tag.ilike(f'%{tag}%'))
 
         stmt = stmt.filter(self.model.text.like(search))
         if k > 0:
@@ -40,7 +42,7 @@ class MatchingService(EmbeddingService):
 
         return db.scalars(stmt).all()
 
-    def get_fuzzy_match(self, db: Session, user_input: str, threshold: int = 150, language: str = None, k: int = 0):
+    def get_fuzzy_match(self, db: Session, user_input: str, threshold: int = 150, language: str = None, k: int = 0, tag: str = None):
         """
         Get fuzzy match from database using levenshtein distance
 
@@ -62,6 +64,8 @@ class MatchingService(EmbeddingService):
         stmt = select(self.model)
         if language:
             stmt = stmt.filter(self.model.language == language)
+        if tag:
+            stmt = stmt.filter(self.model.tag.ilike(f'%{tag}%'))
 
         stmt = (stmt
                 .filter(func.levenshtein_less_equal(self.model.text, user_input, threshold) < threshold)
@@ -72,7 +76,7 @@ class MatchingService(EmbeddingService):
 
         return db.scalars(stmt).all()
 
-    def get_trigram_match(self, db: Session, user_input: str, threshold: int = 0.4, language: str = None, k: int = 0):
+    def get_trigram_match(self, db: Session, user_input: str, threshold: int = 0.4, language: str = None, k: int = 0, tag: str = None):
         """
         Get trigram match from database
 
@@ -91,6 +95,8 @@ class MatchingService(EmbeddingService):
         stmt = select(self.model)
         if language:
             stmt = stmt.filter(self.model.language == language)
+        if tag:
+            stmt = stmt.filter(self.model.tag.ilike(f'%{tag}%'))
 
         stmt = (stmt
                 .filter(func.word_similarity(user_input, self.model.text) > threshold)
@@ -100,7 +106,7 @@ class MatchingService(EmbeddingService):
 
         return db.scalars(stmt).all()
 
-    def get_semantic_match(self, db: Session, user_input: str, symbol: str = "<=>", language: str = None, k: int = 0):
+    def get_semantic_match(self, db: Session, user_input: str, language: str = None, k: int = 0, symbol: str = "<=>", tag: str = None):
         """
         Get semantic similarity match from database
 
@@ -126,6 +132,8 @@ class MatchingService(EmbeddingService):
         stmt = stmt.filter(self.model.embedding.isnot(None))  # filter out entries without embedding
         if language:
             stmt = stmt.filter(self.model.language == language)
+        if tag:
+            stmt = stmt.filter(self.model.tag.ilike(f'%{tag}%'))
 
         stmt = stmt.order_by(self.model.embedding.op(symbol)(q_embedding).asc())
         if k > 0:
@@ -133,20 +141,20 @@ class MatchingService(EmbeddingService):
 
         return db.scalars(stmt).all()
 
-    def semantic_similarity_match_l1(self, db: Session, user_input: str, language: str = None, k: int = 0):
+    def semantic_similarity_match_l1(self, db: Session, user_input: str, language: str = None, k: int = 0, tag: str = None):
         """
         Get semantic similarity match from database using L1 distance
         """
-        return self.get_semantic_match(db, user_input, symbol="<+>", language=language, k=k)
+        return self.get_semantic_match(db, user_input, language=language, k=k, symbol="<+>", tag=tag)
 
-    def semantic_similarity_match_l2(self, db: Session, user_input: str, language: str = None, k: int = 0):
+    def semantic_similarity_match_l2(self, db: Session, user_input: str, language: str = None, k: int = 0, tag: str = None):
         """
         Get semantic similarity match from database using L2 distance
         """
-        return self.get_semantic_match(db, user_input, symbol="<->", language=language, k=k)
+        return self.get_semantic_match(db, user_input, language=language, k=k, symbol="<->", tag=tag)
 
-    def semantic_similarity_match_inner_prod(self, db: Session, user_input: str, language: str = None, k: int = 0):
+    def semantic_similarity_match_inner_prod(self, db: Session, user_input: str, language: str = None, k: int = 0, tag: str = None):
         """
         Get semantic similarity match from database using inner product
         """
-        return self.get_semantic_match(db, user_input, symbol="<#>", language=language, k=k)
+        return self.get_semantic_match(db, user_input, language=language, k=k, symbol="<#>", tag=tag)
