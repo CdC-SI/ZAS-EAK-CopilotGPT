@@ -1,9 +1,13 @@
-from typing import Optional
+import csv
 
 from config.base_config import rag_config
-from rag.base import BaseRetriever
+from rag.base import BaseRetriever, BaseRouter
 from rag.retrievers import RetrieverClient, TopKRetriever, QueryRewritingRetriever, ContextualCompressionRetriever, RAGFusionRetriever, BM25Retriever, Reranker
 from rag.llm.base import BaseLLM
+
+from semantic_router import Route
+from semantic_router.layer import RouteLayer
+from semantic_router.encoders import OpenAIEncoder
 
 class RetrieverFactory:
     """
@@ -76,3 +80,65 @@ class RetrieverFactory:
 
         client = RetrieverClient(retrievers=retrievers, reranker=reranker)
         return client
+
+fz_utterances_q = []
+with open('./indexing/data/fz_utterances_q.csv', 'r', encoding='utf-8') as f:
+    reader = csv.reader(f)
+    for row in reader:
+        fz_utterances_q.append(row[0])
+
+allgemeines_utterances_q = []
+with open('./indexing/data/allgemeines_utterances_q.csv', 'r', encoding='utf-8') as f:
+    reader = csv.reader(f)
+    for row in reader:
+        allgemeines_utterances_q.append(row[0])
+
+familienzulage = Route(
+    name="familienzulage",
+    utterances=fz_utterances_q,
+)
+
+allgemeines = Route(
+    name="allgemeines",
+    utterances=allgemeines_utterances_q,
+)
+
+routes = [familienzulage, allgemeines]
+
+class RouterFactory:
+    """
+    A factory class for creating a RouterClient based on the specified router model.
+
+    Methods
+    -------
+    get_router_client(router: str) -> BaseRouter
+        Creates a RouterClient instance configured with the specified embedding model.
+
+    """
+    @staticmethod
+    def get_router_client(router: str) -> BaseRouter:
+        """
+        Create a RouterClient based on the given retrieval method(s).
+
+        Parameters
+        ----------
+        router : str
+            A string specifying the routing model to use. Supported models are:
+            - "openai"
+
+        Returns
+        -------
+        BaseRouter
+            A RouterClient instance configured with the specified embedding model.
+
+        Raises
+        ------
+        ValueError
+            If an unsupported retrieval method is provided.
+        """
+        match router:
+            case "openai":
+                return RouteLayer(encoder=OpenAIEncoder(), routes=routes)
+            case _:
+                raise ValueError(f"Unsupported router model: {router}. Please refer to the documentation for supported models (https://cdc-si.github.io/ZAS-EAK-CopilotGPT/).")
+

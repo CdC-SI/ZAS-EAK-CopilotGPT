@@ -3,7 +3,7 @@ from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE, QUERY_REWRITING_PROMPT
 from typing import List, Dict, Any
 
 from rag.models import RAGRequest, EmbeddingRequest
-from rag.factory import RetrieverFactory
+from rag.factory import RetrieverFactory, RouterFactory
 from rag.llm.factory import LLMFactory
 from rag.llm.base import BaseLLM
 
@@ -32,7 +32,7 @@ class RAGProcessor:
     top_k : int
     """
     def __init__(self, llm: BaseLLM, max_token: int, temperature: float,
-                 top_p: float, retriever, top_k: int):
+                 top_p: float, retriever, top_k: int, semantic_router):
 
         self.llm_client = llm
         self.max_tokens = max_token
@@ -40,6 +40,7 @@ class RAGProcessor:
         self.top_p = top_p
         self.retriever_client = retriever
         self.k_retrieve = top_k
+        self.router_client = semantic_router
 
     def init_retriever_client(self, retrieval_method: str = "top_k"):
         """
@@ -87,6 +88,7 @@ class RAGProcessor:
         k : int, default 0
             Number of context documents to return
         """
+        tag = self.router_client(request.query).name if tag is None else tag # TO UPDATE: will always run semantic routing
         rows = self.retriever_client.get_documents(db, request.query, language=language, tag=tag, k=k)
 
         return rows if len(rows) > 0 else [{"text": "", "url": ""}]
@@ -149,10 +151,12 @@ class RAGProcessor:
 
 llm_client = LLMFactory.get_llm_client(llm_model=rag_config["llm"]["model"], stream=rag_config["llm"]["stream"])
 retriever_client = RetrieverFactory.get_retriever_client(retrieval_method=rag_config["retrieval"]["retrieval_method"], llm_client=llm_client)
+router_client = RouterFactory.get_router_client(router=rag_config["retrieval"]["routing"]["model"])
 
 processor = RAGProcessor(llm=llm_client,
                          max_token=rag_config["llm"]["max_output_tokens"],
                          temperature=rag_config["llm"]["temperature"],
                          top_p=rag_config["llm"]["top_p"],
                          retriever=retriever_client,
-                         top_k=rag_config["retrieval"]["top_k"],)
+                         top_k=rag_config["retrieval"]["top_k"],
+                         semantic_router=router_client)
