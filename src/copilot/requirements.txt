@@ -22,7 +22,3 @@ trafilatura==1.11.0
 pgvector
 SQLAlchemy
 psycopg2-binary
-
-# tests (à sortir vers un autre fichier requirements.txt si besoin pour le scope test)
-testcontainers==4.7.1
-pytest==8.2.2
