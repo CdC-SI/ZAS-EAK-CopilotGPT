@@ -13,17 +13,27 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import numpy as np
 from cohere import Client
 
+# Setup logging
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 # Load environment variables from .env file
 load_dotenv()
 
 # Load Cohere API key
 COHERE_API_KEY = os.environ["COHERE_API_KEY"]
 
+import httpx
+
+HTTP_PROXY = os.environ.get("HTTP_PROXY", None)
+REQUESTS_CA_BUNDLE = os.environ.get("REQUESTS_CA_BUNDLE", None)
+
 
 class Reranker:
 
     def __init__(self, model: str, top_k: int = 10):
-        self.reranking_client = Client(COHERE_API_KEY)
+        self.reranking_client = Client(api_key=COHERE_API_KEY, httpx_client=httpx.Client(proxy=HTTP_PROXY, verify=REQUESTS_CA_BUNDLE))
         self.model = model
         self.top_k = top_k
 
@@ -35,6 +45,8 @@ class Reranker:
             documents=documents,
             top_n=self.top_k,
         )
+
+        logger.info(f"Reranked documents: {reranked_docs}")
 
         return reranked_docs
 
