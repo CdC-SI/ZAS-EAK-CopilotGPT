@@ -7,9 +7,9 @@ Classes:
 
 import logging
 
-from typing import List, Dict, Any
+from typing import List, Any
 from rag.llm.base import BaseLLM
-from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS, DEFAULT_OPENAI_LLM_MODEL
+from config.llm_config import DEFAULT_OPENAI_LLM_MODEL
 
 from config.openai_config import clientAI
 
@@ -43,7 +43,7 @@ class OpenAILLM(BaseLLM):
         Generates a stream of events as response for a list of messages using the OpenAI LLM model.
     """
     def __init__(self, model_name: str = DEFAULT_OPENAI_LLM_MODEL, stream: bool = True, temperature: float = 0.0, top_p: float = 0.95, max_tokens: int = 512):
-        self.model_name = model_name if model_name is not None and model_name in SUPPORTED_OPENAI_LLM_MODELS else DEFAULT_OPENAI_LLM_MODEL
+        self.model_name = model_name
         self.stream = stream
         self.temperature = temperature
         self.top_p = top_p

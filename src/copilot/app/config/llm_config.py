@@ -34,6 +34,10 @@ DEFAULT_ST_EMBEDDING_MODEL : str
 SUPPORTED_OPENAI_LLM_MODELS = ["gpt-3.5-turbo-0125", "gpt-4-turbo-preview", "gpt-4o", "gpt-4o-mini"]
 DEFAULT_OPENAI_LLM_MODEL = "gpt-4o-mini"
 
+# Groq
+SUPPORTED_GROQ_LLM_MODELS = ["llama-3.1-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768", "gemma-7b-it", "gemma2-9b-it"]
+DEFAULT_GROQ_LLM_MODEL = "llama-3.1-8b-instant"
+
 # Huggingface
 SUPPORTED_HUGGINGFACE_LLM_MODELS = []
 DEFAULT_HUGGINGFACE_LLM_MODEL = ""

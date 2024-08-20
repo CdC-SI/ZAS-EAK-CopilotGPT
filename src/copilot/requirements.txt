@@ -10,6 +10,7 @@ pyaml-env==1.2.1
 openai==1.30.5
 cohere==5.8.0
 semantic-router==0.0.59
+groq==0.9.0
 
 # indexing
 requests==2.31.0

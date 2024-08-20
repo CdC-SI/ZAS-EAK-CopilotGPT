@@ -1,5 +1,9 @@
 import sys
 
+from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS, SUPPORTED_GROQ_LLM_MODELS
+
+supported_llm_models = SUPPORTED_OPENAI_LLM_MODELS + SUPPORTED_GROQ_LLM_MODELS
+
 def check_env_vars(config):
 
     # Documentation
@@ -9,7 +13,6 @@ def check_env_vars(config):
     # Define supported configs
     supported_similarity_metrics = ["cosine_similarity"]
     supported_embedding_models = ["text-embedding-ada-002"]
-    supported_llm_models = ["gpt-3.5-turbo-0125", "gpt-4-turbo-preview", "gpt-4o-mini"]
 
     # Check environment variables for autocomplete
     if config["autocomplete"]["enabled"]:

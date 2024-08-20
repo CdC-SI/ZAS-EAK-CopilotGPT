@@ -88,7 +88,7 @@ class RAGProcessor:
         k : int, default 0
             Number of context documents to return
         """
-        tag = self.router_client(request.query).name if tag is None else tag # TO UPDATE: will always run semantic routing
+        #tag = self.router_client(request.query).name if tag is None else tag # TO UPDATE: will always run semantic routing
         rows = self.retriever_client.get_documents(db, request.query, language=language, tag=tag, k=k)
 
         return rows if len(rows) > 0 else [{"text": "", "url": ""}]

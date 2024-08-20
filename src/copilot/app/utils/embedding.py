@@ -1,23 +1,21 @@
 from typing import List, Union
 import logging
 
-# Import env vars
-from config.base_config import rag_config
-from config.openai_config import clientAI
-
 import openai
 
-supported_models = ["text-embedding-ada-002"]
+# Import env vars
+from config.base_config import rag_config
+from config.llm_config import SUPPORTED_OPENAI_EMBEDDING_MODELS
+from config.openai_config import EmbeddingClientAI
 
 logger = logging.getLogger(__name__)
-
 
 # Function to get embeddings for a text
 def get_embedding(text: Union[List[str], str]):
     model = rag_config["embedding"]["model"]
-    if model in supported_models:
+    if model in SUPPORTED_OPENAI_EMBEDDING_MODELS:
         try:
-            response = clientAI.embeddings.create(
+            response = EmbeddingClientAI.embeddings.create(
                 input=text,
                 model=model,
             )
