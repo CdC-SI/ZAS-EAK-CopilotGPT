@@ -125,7 +125,15 @@ def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Sessio
 @app.post("/upload_csv_faq", summary="Upload a CSV file for FAQ data", status_code=200, response_model=ResponseBody)
 def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
     """
-    Upload a CSV file containing RAG data to the database.
+    Upload a CSV file containing RAG data to the database with optional embeddings.
+    The function acknowledges the following columns:
+
+    - *url:* source URL of the information
+    - *text:* Text content of the question
+    - *answer:* Text content of the answer
+    - *language (optional):* Language of the question and answer
+    - *embedding (optional):* Embedding of the question
+    - *tag (optional):* Tag of the document
 
     Parameters
     ----------
@@ -162,7 +170,15 @@ def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Sessio
 @app.post("/upload_pdf_rag", summary="Upload a PDF file for RAG data", status_code=200, response_model=ResponseBody)
 async def upload_pdf_rag(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
     """
-    Upload a CSV file containing RAG data to the database.
+    Upload a CSV file containing RAG data to the database with optional embeddings.
+    The function acknowledges the following columns:
+
+    - *url:* source URL of the information
+    - *text:* Text content of the question
+    - *answer:* Text content of the answer
+    - *language (optional):* Language of the question and answer
+    - *embedding (optional):* Embedding of the question
+    - *tag (optional):* Tag of the document
 
     Parameters
     ----------
@@ -193,13 +209,14 @@ async def upload_pdf_rag(file: UploadFile = File(...), embed: bool = False, db: 
 @app.post("/add_rag_data_from_csv", summary="Insert data for RAG without embedding from a local csv file", status_code=200, response_model=ResponseBody)
 def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", embed: bool = False, db: Session = Depends(get_db)):
     """
-    Add and index test data for RAG from csv files without embeddings.
+    Add and index test data for RAG from csv files with optional embeddings.
     The function acknowledges the following columns:
 
     - *url:* source URL of the document
     - *text:* Text content of the document
     - *language (optional):* Language of the document
     - *embedding (optional):* Embedding of the document
+    - *tag (optional):* Tag of the document
 
     Parameters
     ----------
@@ -236,7 +253,7 @@ def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", em
 @app.post("/add_faq_data_from_csv", summary="Insert data for FAQ without embedding from a local csv file", status_code=200, response_model=ResponseBody)
 def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", embed: bool = False, db: Session = Depends(get_db)):
     """
-    Add and index test data for RAG from csv files without embeddings.
+    Add and index test data for RAG from csv files with optional embeddings.
     The function acknowledges the following columns:
 
     - *url:* source URL of the information
@@ -244,6 +261,7 @@ def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", em
     - *answer:* Text content of the answer
     - *language (optional):* Language of the question and answer
     - *embedding (optional):* Embedding of the question
+    - *tag (optional):* Tag of the document
 
     Parameters
     ----------
