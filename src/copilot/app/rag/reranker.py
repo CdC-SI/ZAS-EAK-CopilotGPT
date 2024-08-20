@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 from config.clients_config import clientRerank
 
-from schemas.document import Document
+from database.models import Document
 
 # Setup logging
 import logging
@@ -17,7 +17,7 @@ class Reranker:
         self.model = model
         self.top_k = top_k
 
-    def rerank(self, query: str, documents: List[Document]):
+    def _rerank(self, query: str, documents: List[str]):
         try:
             response = self.reranking_client.rerank(
                 model=self.model,
@@ -30,11 +30,12 @@ class Reranker:
         except Exception as e:
             logger.error(f"Reranker raised an exception: {e}")
 
-    def process_documents(self, query, documents: List[Document]) -> Tuple[List[Document], List[int]]:
+    def rerank(self, query, documents: List[Document]) -> Tuple[List[Document], List[int]]:
         relevance_score = [0] * self.top_k  # Initialize relevance scores to 0
+        text_documents = [doc.text for doc in documents]
 
         try:
-            reranked_res = self.rerank(query, documents)
+            reranked_res = self._rerank(query, text_documents)
             documents = [documents[item.index] for item in reranked_res]
             relevance_score = [item.relevance_score for item in reranked_res]
 
