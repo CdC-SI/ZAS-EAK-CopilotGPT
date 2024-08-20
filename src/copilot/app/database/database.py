@@ -2,8 +2,7 @@ from sqlalchemy import create_engine, text, Engine
 from sqlalchemy.orm import sessionmaker, Session
 
 from . import models
-
-from config.db_config import DB_PARAMS
+from config.db_config import DBConfiguration
 
 import time
 
@@ -24,17 +23,22 @@ def get_db():
 
     try:
         yield db
+    except Exception:
+        db.rollback()
+        raise
     finally:
         db.close()
 
 
 # Function to check if db is up
-def get_engine(retries: int = 10, delay: int = 5):
+def get_engine(configuration: DBConfiguration, retries: int = 10, delay: int = 5):
     """
     Get an engine object that manages connection to the database
 
     Parameters
     ----------
+    configuration : DBConfiguration
+        Database configuration
     retries : int
         Number of retries before giving up on connecting to the database
     delay : int
@@ -47,7 +51,8 @@ def get_engine(retries: int = 10, delay: int = 5):
     attempt = 0
     while attempt < retries:
         try:
-            engine = create_engine(DATABASE_URL, echo=True, future=True)
+            db_url = f"postgresql://{configuration.user}:{configuration.password}@{configuration.host}:{configuration.port}/{configuration.database}"
+            engine = create_engine(db_url, echo=True, future=True)
 
             # Try to connect to check if the connection is established
             connection = engine.connect()
@@ -62,12 +67,13 @@ def get_engine(retries: int = 10, delay: int = 5):
     raise Exception("Failed to connect to the database after multiple attempts.")
 
 
-if DB_PARAMS:
-    logger.info("Connecting to database...")
-    logger.info(DB_PARAMS)
-    DATABASE_URL = f"postgresql://{DB_PARAMS['user']}:{DB_PARAMS['password']}@{DB_PARAMS['host']}:{DB_PARAMS['port']}/{DB_PARAMS['database']}"
+configuration = DBConfiguration()
 
-    engine = get_engine()
+if configuration.without_db is False:
+    logger.info("Connecting to database...")
+    logger.info(configuration)
+
+    engine = get_engine(configuration)
     with engine.connect() as con:
         con.execute(text("""
             CREATE EXTENSION IF NOT EXISTS vector;
