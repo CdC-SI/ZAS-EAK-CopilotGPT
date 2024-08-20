@@ -88,7 +88,14 @@ app.add_middleware(
 @app.post("/upload_csv_rag", summary="Upload a CSV file for RAG data", status_code=200, response_model=ResponseBody)
 def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
     """
-    Upload a CSV file containing RAG data to the database.
+    Upload a CSV file containing RAG data to the database with optional embeddings.
+    The function acknowledges the following columns:
+
+    - *url:* source URL of the document
+    - *text:* Text content of the document
+    - *language (optional):* Language of the document
+    - *embedding (optional):* Embedding of the document
+    - *tag (optional):* Tag of the document
 
     Parameters
     ----------
@@ -170,20 +177,12 @@ def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Sessio
 @app.post("/upload_pdf_rag", summary="Upload a PDF file for RAG data", status_code=200, response_model=ResponseBody)
 async def upload_pdf_rag(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
     """
-    Upload a CSV file containing RAG data to the database with optional embeddings.
-    The function acknowledges the following columns:
-
-    - *url:* source URL of the information
-    - *text:* Text content of the question
-    - *answer:* Text content of the answer
-    - *language (optional):* Language of the question and answer
-    - *embedding (optional):* Embedding of the question
-    - *tag (optional):* Tag of the document
+    Upload a CSV file containing RAG data to the database.
 
     Parameters
     ----------
     file : UploadFile
-        The CSV file sent by the user
+        The PDF file sent by the user
     embed : bool, optional
         Whether to embed the data or not. Defaults to False.
     db : Session
