@@ -5,6 +5,7 @@ from rag.base import BaseRetriever
 from rag.retrievers import RetrieverClient, TopKRetriever, QueryRewritingRetriever, ContextualCompressionRetriever, RAGFusionRetriever, BM25Retriever, Reranker
 from rag.llm.base import BaseLLM
 
+
 class RetrieverFactory:
     """
     A factory class for creating a RetrieverClient based on the specified retrieval methods.

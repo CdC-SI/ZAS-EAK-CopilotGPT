@@ -1,4 +1,4 @@
-from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE, QUERY_REWRITING_PROMPT
+from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
 
 from typing import List, Dict, Any
 
@@ -84,6 +84,8 @@ class RAGProcessor:
             User input question
         language : str
             Question and context documents language
+        tag : str
+            Tag to filter the context documents
         k : int, default 0
             Number of context documents to return
         """
@@ -105,6 +107,8 @@ class RAGProcessor:
             The request to process.
         language : str, optional
             The language of the documents to retrieve. If not specified, documents in all languages are considered.
+        tag : str, optional
+            The tag to filter the documents to retrieve. If not specified, all documents are considered.
 
         Returns
         -------

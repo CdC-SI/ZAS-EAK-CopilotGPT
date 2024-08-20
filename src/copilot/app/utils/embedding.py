@@ -3,7 +3,7 @@ import logging
 
 # Import env vars
 from config.base_config import rag_config
-from config.openai_config import clientAI
+from config.clients_config import clientEmbed
 
 import openai
 
@@ -17,7 +17,7 @@ def get_embedding(text: Union[List[str], str]):
     model = rag_config["embedding"]["model"]
     if model in supported_models:
         try:
-            response = clientAI.embeddings.create(
+            response = clientEmbed.embeddings.create(
                 input=text,
                 model=model,
             )
