@@ -24,7 +24,7 @@ class RAGProcessor:
 
     Parameters
     ----------
-    llm_client : BaseLLM
+    llm : BaseLLM
     max_token : int
     temperature : float
     top_p : float
@@ -159,4 +159,4 @@ processor = RAGProcessor(llm=llm_client,
                          temperature=rag_config["llm"]["temperature"],
                          top_p=rag_config["llm"]["top_p"],
                          retriever=retriever_client,
-                         top_k=rag_config["retrieval"]["top_k"],)
+                         top_k=rag_config["retrieval"]["top_k"])
