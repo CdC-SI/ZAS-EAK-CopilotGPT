@@ -493,22 +493,18 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="id0">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sitemap_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
-<dd><p>Abstract method to index content from a URL into a vectorDB.</p>
+<dt class="sig sig-object py" id="indexing.pipelines.ahv.AHVIndexer.from_pages_to_content">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_pages_to_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ByteStream</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.pipelines.ahv.AHVIndexer.from_pages_to_content" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract method to convert URLs to content.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>url</strong> (<em>str</em>) – The sitemap URL to index content from.</p></li>
-<li><p><strong>db</strong> (<em>Session</em>) – The database session to use.</p></li>
-<li><p><strong>embed</strong> (<em>bool</em><em>, </em><em>optional</em>)</p></li>
-</ul>
+<dd class="field-odd"><p><strong>pages</strong> (<em>List</em><em>[</em><em>ByteStream</em><em>]</em>) – The HTML pages to convert to content.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>content: Success message</p>
+<dd class="field-even"><p>The content extracted from the URLs.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
+<dd class="field-odd"><p>List[Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -591,7 +587,7 @@
 <li><a class="reference internal" href="#indexing.pipelines.ahv.AHVIndexer.scraper"><code class="docutils literal notranslate"><span class="pre">AHVIndexer.scraper</span></code></a></li>
 <li><a class="reference internal" href="#indexing.pipelines.ahv.AHVIndexer.parser"><code class="docutils literal notranslate"><span class="pre">AHVIndexer.parser</span></code></a></li>
 <li><a class="reference internal" href="#indexing.pipelines.ahv.AHVIndexer.index"><code class="docutils literal notranslate"><span class="pre">AHVIndexer.index()</span></code></a></li>
-<li><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">AHVIndexer.index()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.ahv.AHVIndexer.from_pages_to_content"><code class="docutils literal notranslate"><span class="pre">AHVIndexer.from_pages_to_content()</span></code></a></li>
 </ul>
 </li>
 </ul>

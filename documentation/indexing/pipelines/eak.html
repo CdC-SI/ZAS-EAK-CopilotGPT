@@ -452,17 +452,6 @@
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="indexing.pipelines.admin.AdminIndexer.embedding_client">
-<span class="sig-name descname"><span class="pre">embedding_client</span></span><a class="headerlink" href="#indexing.pipelines.admin.AdminIndexer.embedding_client" title="Link to this definition">¶</a></dt>
-<dd><p>An instance of Embedding to embed documents.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Embedding</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="indexing.pipelines.admin.AdminIndexer.index">
 <span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sitemap_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#indexing.pipelines.admin.AdminIndexer.index" title="Link to this definition">¶</a></dt>
@@ -470,17 +459,20 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="id0">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sitemap_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
-<dd><p>Should implement the following steps:
-1. Fetch the sitemap content
-2. Parse the sitemap content (get URLs)
-3. Fetch HTML content for all URLs
-4. Convert HTML to Documents
-5. Clean the documents
-6. Split the documents
-7. Embed the documents
-8. Upsert the documents</p>
+<dt class="sig sig-object py" id="indexing.pipelines.admin.AdminIndexer.from_pages_to_content">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_pages_to_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ByteStream</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.pipelines.admin.AdminIndexer.from_pages_to_content" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract method to convert URLs to content.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pages</strong> (<em>List</em><em>[</em><em>ByteStream</em><em>]</em>) – The HTML pages to convert to content.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The content extracted from the URLs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Any]</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -558,9 +550,8 @@
 <li><a class="reference internal" href="#indexing.pipelines.admin.AdminIndexer"><code class="docutils literal notranslate"><span class="pre">AdminIndexer</span></code></a><ul>
 <li><a class="reference internal" href="#indexing.pipelines.admin.AdminIndexer.scraper"><code class="docutils literal notranslate"><span class="pre">AdminIndexer.scraper</span></code></a></li>
 <li><a class="reference internal" href="#indexing.pipelines.admin.AdminIndexer.parser"><code class="docutils literal notranslate"><span class="pre">AdminIndexer.parser</span></code></a></li>
-<li><a class="reference internal" href="#indexing.pipelines.admin.AdminIndexer.embedding_client"><code class="docutils literal notranslate"><span class="pre">AdminIndexer.embedding_client</span></code></a></li>
 <li><a class="reference internal" href="#indexing.pipelines.admin.AdminIndexer.index"><code class="docutils literal notranslate"><span class="pre">AdminIndexer.index()</span></code></a></li>
-<li><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">AdminIndexer.index()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.admin.AdminIndexer.from_pages_to_content"><code class="docutils literal notranslate"><span class="pre">AdminIndexer.from_pages_to_content()</span></code></a></li>
 </ul>
 </li>
 </ul>
