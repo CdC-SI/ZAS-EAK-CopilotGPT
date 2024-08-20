@@ -12,12 +12,13 @@ import numpy as np
 import codecs
 
 from enum import Enum
-from rag.retrievers import TopKRetriever, QueryRewritingRetriever, ContextualCompressionRetriever, RAGFusionRetriever
+from rag.retrievers import Reranker, TopKRetriever, QueryRewritingRetriever, ContextualCompressionRetriever, RAGFusionRetriever
 from rag.rag_processor import llm_client
 from sklearn.metrics import ndcg_score
 
 from sqlalchemy.orm import Session
 from database.database import get_db
+from schemas.document import Document
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -48,6 +49,13 @@ class EvalMetric(str, Enum):
     ndcg = "Normalized Discounted Cumulative Gain (NDCG)"
 
 
+class RerankModel(str, Enum):
+    multi_v3 = "rerank-multilingual-v3.0"
+    multi_v2 = "rerank-multilingual-v2.0"
+    eng_v3 = "rerank-english-v3.0"
+    eng_v2 = "rerank-english-v2.0"
+
+
 def format_string(s: str):
     return ' '.join(s.split())
 
@@ -55,7 +63,11 @@ def format_string(s: str):
 @app.post("/retriever",
          summary="Eval the accuracy of the retriever",
          response_description="csv file with the results, named with the mean score")
-async def retriever(file: UploadFile = File(...), retriever_type: RetrieverType = "top_k retriever", metric: EvalMetric = "Recall@k", db: Session = Depends(get_db)):
+async def retriever(file: UploadFile = File(...),
+                    retriever_type: RetrieverType = "top_k retriever",
+                    rerank_model: RerankModel = None,
+                    metric: EvalMetric = "Recall@k",
+                    db: Session = Depends(get_db)):
     """
     Evaluate the accuracy of the requested retriever. The mean recall score is given in the name of the CSV file.
 
@@ -65,6 +77,10 @@ async def retriever(file: UploadFile = File(...), retriever_type: RetrieverType 
         CSV file containing the questions to evaluate and the expected answers
     retriever_type: RetrieverType
         Type of retriever to evaluate
+    rerank_model: RerankModel
+        Reranker model to use
+    metric: EvalMetric
+        Metric to use for evaluation
     db: Session
         Database session
 
@@ -85,6 +101,10 @@ async def retriever(file: UploadFile = File(...), retriever_type: RetrieverType 
     else:
         retriever = TopKRetriever(k)
 
+    reranker = None
+    if rerank_model:
+        reranker = Reranker(rerank_model, k)
+
     # Read the data
     data_iter = csv.DictReader(codecs.iterdecode(file.file, 'utf-8'))
 
@@ -103,12 +123,14 @@ async def retriever(file: UploadFile = File(...), retriever_type: RetrieverType 
             true_answers = [true_answers]
 
         # Retrieve the documents
-        retrieved_answers = retriever.get_documents(db, query, '', k)
+        retrieved_answers = retriever.get_documents(db, query, k=k)
         retrieved_answers = [format_string(doc.text) for doc in retrieved_answers]
+        if reranker:
+            retrieved_answers = reranker.rerank(query, retrieved_answers)
 
         # Compute metrics
         if metric is EvalMetric.ndcg:
-            y_true = [k if answer in true_answers else 0 for answer in retrieved_answers]
+            y_true = [1 if answer in true_answers else 0 for answer in retrieved_answers]
             y_score = [i for i in range(k, 0, -1)]
             score = ndcg_score([y_true], [y_score])
         else:

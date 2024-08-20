@@ -31,6 +31,7 @@ class RetrieverFactory:
             - "top_k"
             - "query_rewriting"
             - "contextual_compression"
+            - "RAGFusion"
             - "bm25"
             - "reranking"
         llm_client : BaseLLM, optional

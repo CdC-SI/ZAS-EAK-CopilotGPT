@@ -105,13 +105,17 @@ def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Sessio
         A response body containing a confirmation message upon successful completion of the process.
     """
     data = csv.DictReader(codecs.iterdecode(file.file, 'utf-8'))
+
     embedding_column = "embedding" in data.fieldnames
     language_column = "language" in data.fieldnames
+    tag_column = "tag" in data.fieldnames
 
     for row in data:
-        embedding = ast.literal_eval(row["embedding"]) if (embedding_column and row['embedding']) else None
-        language = row["language"] if (language_column and row['language']) else None
-        document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file.filename, language=language)
+        embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
+        language = row["language"] if language_column else None
+        tag = row["tag"] if tag_column else None
+
+        document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file.filename, language=language, tag=tag)
         document_service.upsert(db, document, embed=embed)
 
     file.file.close()
@@ -138,13 +142,17 @@ def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Sessio
         A response body containing a confirmation message upon successful completion of the process.
     """
     data = csv.DictReader(codecs.iterdecode(file.file, 'utf-8'))
+
     embedding_column = "embedding" in data.fieldnames
     language_column = "language" in data.fieldnames
+    tag_column = "tag" in data.fieldnames
 
     for row in data:
-        embedding = ast.literal_eval(row["embedding"]) if (embedding_column and row['embedding']) else None
-        language = row["language"] if (language_column and row['language']) else None
-        question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file.filename, language=language)
+        embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
+        language = row["language"] if language_column else None
+        tag = row["tag"] if tag_column else None
+
+        question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file.filename, language=language, tag=tag)
         question_service.upsert(db, question, embed=embed)
 
     file.file.close()
@@ -152,7 +160,7 @@ def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Sessio
 
 
 @app.post("/upload_pdf_rag", summary="Upload a PDF file for RAG data", status_code=200, response_model=ResponseBody)
-def upload_pdf_rag(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
+async def upload_pdf_rag(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
     """
     Upload a CSV file containing RAG data to the database.
 
@@ -174,36 +182,11 @@ def upload_pdf_rag(file: UploadFile = File(...), embed: bool = False, db: Sessio
         temp_filename = temp_file.name
         shutil.copyfileobj(file.file, temp_file)
 
-    documents = PyPDFToDocument().run(sources=[Path(temp_filename )])
-
-    cleaner = DocumentCleaner(
-        remove_empty_lines=True,
-        remove_extra_whitespaces=True,
-        remove_repeated_substrings=False
-    )
-    splitter = DocumentSplitter(
-        split_by="sentence",
-        split_length=5,
-        split_overlap=1,
-        split_threshold=4
-    )
-
-    # Remove empty documents
-    documents = [doc for doc in documents["documents"] if doc.content is not None]
-
-    # Clean documents
-    documents = cleaner.run(documents=documents)
-    chunks = splitter.run(documents=documents["documents"])
-
-    # Upsert documents into VectorDB
-    url = file.filename
-    for doc in chunks["documents"]:
-        text = doc.content
-        document_service.upsert(db, DocumentCreate(url=url, text=text, source=file.filename), embed=embed)
+    await ahv_indexer.add_content_to_db(db, content=[Path(temp_filename)], source=file.filename, embed=embed)
 
     os.remove(temp_filename)
 
-    return {"content": f"{file.filename}: PDF RAG data indexed successfully"}
+    return {"content": f"{file.filename}: PDF file indexed successfully"}
 
 
 
@@ -237,11 +220,14 @@ def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", em
 
         embedding_column = "embedding" in data.fieldnames
         language_column = "language" in data.fieldnames
+        tag_column = "tag" in data.fieldnames
 
         for row in data:
-            embedding = ast.literal_eval(row["embedding"]) if (embedding_column and row['embedding']) else None
-            language = row["language"] if (language_column and row['language']) else None
-            document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file_path, language=language)
+            embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
+            language = row["language"] if language_column else None
+            tag = row["tag"] if tag_column else None
+
+            document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file_path, language=language, tag=tag)
             document_service.upsert(db, document, embed=embed)
 
     return {"content": "yay"}
@@ -278,11 +264,14 @@ def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", em
 
         embedding_column = "embedding" in data.fieldnames
         language_column = "language" in data.fieldnames
+        tag_column = "tag" in data.fieldnames
 
         for row in data:
-            embedding = ast.literal_eval(row["embedding"]) if (embedding_column and row['embedding']) else None
-            language = row["language"] if (language_column and row['language']) else None
-            question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file_path, language=language)
+            embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
+            language = row["language"] if language_column else None
+            tag = row["tag"] if tag_column else None
+
+            question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file_path, language=language, tag=tag)
             question_service.upsert(db, question, embed=embed)
 
     return {"content": "yay"}

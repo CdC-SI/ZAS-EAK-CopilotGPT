@@ -44,7 +44,7 @@ class Autocompleter:
         """
         return hashlib.md5(f"{question}_{language}".encode()).hexdigest()
 
-    async def get_autocomplete(self, db: Session, question: str, language: str = None, k: int = 0):
+    async def get_autocomplete(self, db: Session, question: str, language: str = None, k: int = 0, tag: str = None):
         """
         Returns matching results according to a defined behaviour.
 
@@ -75,7 +75,8 @@ class Autocompleter:
                                                             question,
                                                             threshold=self.trigram_match_threshold,
                                                             language=language,
-                                                            k=self.limit)
+                                                            k=self.limit,
+                                                            tag=tag)
 
         # If the combined results from exact match and fuzzy match are more than 5, return results
         # note: value should be parametrized
@@ -90,7 +91,7 @@ class Autocompleter:
             if cache_key in self.semantic_matches_cache:
                 semantic_match = self.semantic_matches_cache[cache_key]
             else:
-                semantic_match = await question_service.get_semantic_match(db, question, language, k=self.limit)
+                semantic_match = await question_service.get_semantic_match(db, question, language, k=self.limit, tag=tag)
                 self.semantic_matches_cache[cache_key] = semantic_match
 
             # Remove duplicates and preserve order

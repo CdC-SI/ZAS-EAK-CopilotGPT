@@ -65,7 +65,7 @@ async def process_query(request: RAGRequest, language: str = None, db: Session =
           response_description="Return context docs from semantic search",
           response_model=List[Document],
           status_code=200)
-async def docs(request: RAGRequest, language: str = None, k: int = 0, db: Session = Depends(get_db)):
+async def docs(request: RAGRequest, language: str = None, tag: str = None, k: int = 0, db: Session = Depends(get_db)):
     """
     Retrieve context documents for a given query.
 
@@ -86,7 +86,7 @@ async def docs(request: RAGRequest, language: str = None, k: int = 0, db: Sessio
         The retrieved documents.
     """
 
-    return processor.retrieve(db, request, language, k=k)
+    return processor.retrieve(db, request, language, tag=tag, k=k)
 
 
 @app.get("/rerank",

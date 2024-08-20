@@ -12,6 +12,9 @@ class QuestionBase(BaseModel):
     language: Optional[str] = None
     """Language of the question and answer text"""
 
+    tag: Optional[str] = None
+    """Tag of the document text"""
+
     text: str
     """Content of the question"""
 
