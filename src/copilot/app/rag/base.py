@@ -7,11 +7,3 @@ class BaseRetriever(ABC):
     @abstractmethod
     def get_documents(self, db, query, k, language=None, tag=None) -> List[Document]:
         pass
-
-class BaseRouter(ABC):
-    def __init__(self):
-        self.encoder = None
-        self.routes = None
-
-    def load_routes(self):
-        pass

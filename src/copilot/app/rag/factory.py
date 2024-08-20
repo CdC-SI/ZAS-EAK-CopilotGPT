@@ -1,5 +1,3 @@
-import csv
-
 from config.base_config import rag_config
 from rag.base import BaseRetriever, BaseRouter
 from rag.retrievers import RetrieverClient, TopKRetriever, QueryRewritingRetriever, ContextualCompressionRetriever, RAGFusionRetriever, BM25Retriever, Reranker
