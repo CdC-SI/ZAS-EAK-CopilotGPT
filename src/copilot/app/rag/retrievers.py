@@ -1,54 +1,14 @@
-import os
 from typing import List, Dict, Any
-from dotenv import load_dotenv
 
-from rag.llm.base import BaseLLM
 from rag.base import BaseRetriever
 from rag.prompts import QUERY_REWRITING_PROMPT, CONTEXTUAL_COMPRESSION_PROMPT
-from schemas.document import Document, DocumentBase
+from rag.reranker import Reranker
 
+from schemas.document import Document, DocumentBase
 from database.service import document_service
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import numpy as np
-from cohere import Client
-
-# Setup logging
-import logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
-
-# Load environment variables from .env file
-load_dotenv()
-
-# Load Cohere API key
-COHERE_API_KEY = os.environ["COHERE_API_KEY"]
-
-import httpx
-
-HTTP_PROXY = os.environ.get("HTTP_PROXY", None)
-REQUESTS_CA_BUNDLE = os.environ.get("REQUESTS_CA_BUNDLE", None)
-
-
-class Reranker:
-
-    def __init__(self, model: str, top_k: int = 10):
-        self.reranking_client = Client(api_key=COHERE_API_KEY, httpx_client=httpx.Client(proxy=HTTP_PROXY, verify=REQUESTS_CA_BUNDLE))
-        self.model = model
-        self.top_k = top_k
-
-    def rerank(self, query: str, documents: List[Document]) -> List[Document]:
-
-        reranked_docs = self.reranking_client.rerank(
-            model=self.model,
-            query=query,
-            documents=documents,
-            top_n=self.top_k,
-        )
-
-        logger.info(f"Reranked documents: {reranked_docs}")
-
-        return reranked_docs
 
 
 class RetrieverClient(BaseRetriever):
@@ -93,6 +53,8 @@ class RetrieverClient(BaseRetriever):
             The language in which the documents are retrieved.
         k : int
             The number of top documents to retrieve from each retriever.
+        tag : str
+            The tag used to filter documents based on a specific category or topic.
 
         Returns
         -------
@@ -122,17 +84,9 @@ class RetrieverClient(BaseRetriever):
 
         # Remove duplicate documents
         seen = set()
-        unique_docs = [Document.from_orm(doc) for doc in docs if doc.id not in seen and not seen.add(doc.id)]
+        unique_docs = [doc for doc in docs if doc.id not in seen and not seen.add(doc.id)]
 
-        if self.reranker:
-            try:
-                rerank_res = self.reranker.rerank(query, unique_docs).results
-                rerank_idx = [res.index for res in rerank_res]
-                reranked_docs = [unique_docs[i] for i in rerank_idx]
-                return reranked_docs[:k]
-            except Exception as e:
-                print(f"Reranker raised an exception: {e}")
-                return unique_docs[:k]
+        unique_docs, _ = self.reranker.rerank(query, unique_docs)
 
         return unique_docs[:k]
 

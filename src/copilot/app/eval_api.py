@@ -18,7 +18,6 @@ from sklearn.metrics import ndcg_score
 
 from sqlalchemy.orm import Session
 from database.database import get_db
-from schemas.document import Document
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -124,14 +123,16 @@ async def retriever(file: UploadFile = File(...),
 
         # Retrieve the documents
         retrieved_answers = retriever.get_documents(db, query, k=k)
-        retrieved_answers = [format_string(doc.text) for doc in retrieved_answers]
+        y_score = None
         if reranker:
-            retrieved_answers = reranker.rerank(query, retrieved_answers)
+            retrieved_answers, y_score = reranker.rerank(query, retrieved_answers)
+        retrieved_answers = [format_string(doc.text) for doc in retrieved_answers]
 
         # Compute metrics
         if metric is EvalMetric.ndcg:
             y_true = [1 if answer in true_answers else 0 for answer in retrieved_answers]
-            y_score = [i for i in range(k, 0, -1)]
+            y_score = [i for i in range(k, 0, -1)] if y_score is None else y_score
+            logger.info(f"y_true: {y_true}, y_score: {y_score}")
             score = ndcg_score([y_true], [y_score])
         else:
             score = sum([true_answer in retrieved_answers for true_answer in true_answers]) / len(true_answers)

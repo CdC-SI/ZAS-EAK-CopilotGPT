@@ -1,7 +1,7 @@
 import psycopg2
 
 from config.db_config import DB_PARAMS
-from config.openai_config import clientAI
+from config.clients_config import clientAI
 
 
 def create_db_connection():

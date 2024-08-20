@@ -1,7 +1,7 @@
 from .document import DocumentBase
 from .question import QuestionBase
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class SourceBase(BaseModel):
@@ -31,5 +31,4 @@ class Source(SourceBase):
     documents: list[DocumentBase] = []
     """A list of documents from this source"""
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
