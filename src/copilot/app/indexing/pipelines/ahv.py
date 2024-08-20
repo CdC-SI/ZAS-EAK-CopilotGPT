@@ -2,6 +2,7 @@ import logging
 from typing import List, Any
 from urllib.parse import unquote
 
+from haystack.dataclasses import ByteStream
 from haystack.components.converters import PyPDFToDocument
 
 from bs4 import BeautifulSoup
@@ -9,8 +10,6 @@ from bs4 import BeautifulSoup
 from indexing.base import BaseParser, BaseIndexer
 
 from sqlalchemy.orm import Session
-from database.service.document import document_service
-from schemas.document import DocumentCreate
 
 from indexing.scraper import scraper
 
@@ -121,24 +120,17 @@ class AHVIndexer(BaseIndexer):
     index(sitemap_url: str) -> dict
         Scraps, parses and indexes PDF content from the given sitemap URL into the VectorDB.
     """
-    async def index(self, sitemap_url: str, db: Session, embed: bool = True) -> dict:
-        # Get sitemap
-        sitemap = await self.scraper.fetch(sitemap_url)
-
-        # Extract URLs of memento sections from sitemap (Allgemeines, Beiträge, etc.)
-        url_list = self.parser.parse_urls(sitemap)
-
-        # Get HTML from each memento section link
-        content = self.scraper.scrap_urls(url_list)
-
+    async def from_pages_to_content(self, pages: List[ByteStream]) -> List[Any]:
         soups = []
-        for page in content:
+        for page in pages:
             soups.append(BeautifulSoup(page.data, features="html.parser"))
 
         # Get PDF paths from each memento section
         pdf_paths = []
         for soup in soups:
             pdf_paths.extend(self.parser.get_pdf_paths(soup))
+
+        # PROCESSING URLS
 
         # Scrap PDFs from each memento section
         pdf_urls = ["https://ahv-iv.ch" + pdf_path for pdf_path in pdf_paths]
@@ -147,28 +139,7 @@ class AHVIndexer(BaseIndexer):
         pdf_urls.extend([pdf_url.replace(".d", ".f") for pdf_url in pdf_urls])
         pdf_urls.extend([pdf_url.replace(".d", ".i") for pdf_url in pdf_urls])
 
-        content = self.scraper.scrap_urls(pdf_urls)
-
-        # Convert PDF content to Document objects
-        documents = self.parser.convert_to_documents(content)
-
-        # Remove empty documents
-        documents = self.parser.remove_empty_documents(documents["documents"])
-
-        # Clean documents
-        documents = self.parser.clean_documents(documents)
-
-        # Split documents into chunks
-        chunks = self.parser.split_documents(documents["documents"])
-
-        # TO DO: refactor embedding logic to embed from documents (add from_documents method)
-        # Upsert documents into VectorDB
-        for doc in chunks["documents"]:
-            text = doc.content
-            url = doc.meta["url"]
-            document_service.upsert(db, DocumentCreate(url=url, text=text, source=sitemap_url), embed=embed)
-
-        return {"content": f"{sitemap_url}: PDF RAG data indexed successfully"}
+        return self.scraper.scrap_urls(pdf_urls)
 
 
 ahv_indexer = AHVIndexer(

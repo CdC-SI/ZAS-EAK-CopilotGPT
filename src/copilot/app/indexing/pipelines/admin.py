@@ -5,12 +5,9 @@ from haystack.components.converters import HTMLToDocument
 
 from bs4 import BeautifulSoup
 
+from haystack.dataclasses import ByteStream
 from indexing.base import BaseParser, BaseIndexer
 from indexing.scraper import scraper
-
-from sqlalchemy.orm import Session
-from database.service.document import document_service
-from schemas.document import DocumentCreate
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -76,57 +73,15 @@ class AdminIndexer(BaseIndexer):
         An instance of Scraper to scrape URLs and extract content from them.
     parser : Parser
         An instance of Parser to parse and clean documents.
-    embedding_client : Embedding
-        An instance of Embedding to embed documents.
 
     Methods
     -------
     index(sitemap_url: str) -> dict
         Scraps, parses and indexes HTML webpage content from the given sitemap URL into the VectorDB.
     """
-    # TO DO: index multiple languages: ["de", "fr", "it"]
-    async def index(self, sitemap_url: str, db: Session, embed: bool = True) -> dict:
-        """
-        Should implement the following steps:
-        1. Fetch the sitemap content
-        2. Parse the sitemap content (get URLs)
-        3. Fetch HTML content for all URLs
-        4. Convert HTML to Documents
-        5. Clean the documents
-        6. Split the documents
-        7. Embed the documents
-        8. Upsert the documents
-        """
 
-        # Get sitemap
-        sitemap = await self.scraper.fetch(sitemap_url)
-
-        # Extract URLs from sitemap
-        url_list = self.parser.parse_urls(sitemap)
-
-        # Scrap HTML from URLs
-        content = self.scraper.scrap_urls(url_list)
-
-        # Convert HTML content to Document objects
-        documents = self.parser.convert_to_documents(content)
-
-        # Remove empty documents
-        documents = self.parser.remove_empty_documents(documents["documents"])
-
-        # Clean documents
-        documents = self.parser.clean_documents(documents)
-
-        # Split documents into chunks
-        chunks = self.parser.split_documents(documents["documents"])
-
-        # TO DO: refactor embedding logic to embed from documents (add from_documents method)
-        # Upsert documents into VectorDB
-        for doc in chunks["documents"]:
-            text = doc.content
-            url = doc.meta["url"]
-            document_service.upsert(db, DocumentCreate(url=url, text=text, source=sitemap_url), embed=embed)
-
-        return {"content": f"{sitemap_url}: RAG data indexed successfully"}
+    async def from_pages_to_content(self, pages: List[ByteStream]) -> List[Any]:
+        return pages
 
 
 admin_indexer = AdminIndexer(

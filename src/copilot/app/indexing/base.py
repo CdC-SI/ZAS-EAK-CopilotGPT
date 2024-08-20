@@ -6,11 +6,12 @@ from typing import List, Any
 import aiohttp
 from bs4 import BeautifulSoup
 
-from haystack.dataclasses import Document
-from haystack.components.preprocessors import DocumentCleaner
-from haystack.components.preprocessors import DocumentSplitter
+from haystack.dataclasses import Document, ByteStream
+from haystack.components.preprocessors import DocumentCleaner, DocumentSplitter
 
 from sqlalchemy.orm import Session
+from database.service.document import document_service
+from schemas.document import DocumentCreate
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -259,21 +260,76 @@ class BaseIndexer(ABC):
         self.scraper = scraper
         self.parser = parser
 
+    async def get_pages_from_sitemap(self, sitemap_url: str) -> List[ByteStream]:
+        # Get sitemap
+        sitemap = await self.scraper.fetch(sitemap_url)
+
+        # Extract URLs from sitemap
+        url_list = self.parser.parse_urls(sitemap)
+
+        # Get HTML from each URL
+        return self.scraper.scrap_urls(url_list)
+
     @abstractmethod
-    async def index(self, url: str, db: Session, embed: bool = True) -> dict:
+    async def from_pages_to_content(self, pages: List[ByteStream]) -> List[Any]:
         """
-        Abstract method to index content from a URL into a vectorDB.
+        Abstract method to convert URLs to content.
 
         Parameters
         ----------
-        url : str
-            The sitemap URL to index content from.
+        pages : List[ByteStream]
+            The HTML pages to convert to content.
+
+        Returns
+        -------
+        List[Any]
+            The content extracted from the URLs.
+        """
+
+    async def add_content_to_db(self, db: Session, content: List[Any], source: str, embed: bool):
+        """
+        Add content to the database.
+
+        Parameters
+        ----------
         db : Session
             The database session to use.
-        embed : bool, optional
+        content : List[Any]
+            Content to add to the database.
+        source : str
+            The source of the content.
+        embed : bool
+            Whether to embed the content
 
         Returns
         -------
         dict
             content: Success message
         """
+        # Convert content to Document objects
+        documents = self.parser.convert_to_documents(content)
+
+        # Remove empty documents
+        documents = self.parser.remove_empty_documents(documents["documents"])
+
+        # Clean documents
+        documents = self.parser.clean_documents(documents)
+
+        # Split documents into chunks
+        chunks = self.parser.split_documents(documents["documents"])
+
+        # TO DO: refactor embedding logic to embed from documents (add from_documents method)
+        # Upsert documents into VectorDB
+        for doc in chunks["documents"]:
+            text = doc.content
+            logger.info(doc.meta)
+            url = doc.meta["url"] if "url" in doc.meta else source
+            document_service.upsert(db, DocumentCreate(url=url, text=text, source=source), embed=embed)
+
+    async def index(self, sitemap_url: str, db: Session, embed: bool = True) -> dict:
+        urls = await self.get_pages_from_sitemap(sitemap_url)
+        content = await self.from_pages_to_content(urls)
+
+        await self.add_content_to_db(db, content, source=sitemap_url, embed=embed)
+
+        return {"content": f"{sitemap_url}: data indexed successfully"}
