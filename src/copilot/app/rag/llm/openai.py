@@ -11,7 +11,7 @@ from typing import List, Any
 from rag.llm.base import BaseLLM
 from config.llm_config import DEFAULT_OPENAI_LLM_MODEL
 
-from config.openai_config import clientAI
+from config.clients_config import clientLLM
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -44,11 +44,11 @@ class OpenAILLM(BaseLLM):
     """
     def __init__(self, model_name: str = DEFAULT_OPENAI_LLM_MODEL, stream: bool = True, temperature: float = 0.0, top_p: float = 0.95, max_tokens: int = 512):
         self.model_name = model_name
-        self.stream = stream
         self.temperature = temperature
         self.top_p = top_p
         self.max_tokens = max_tokens
-        self.llm_client = clientAI
+        self.llm_client = clientLLM
+        super().__init__(stream)
 
     def generate(self, messages: List[dict]) -> str:
         """
