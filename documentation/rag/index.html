@@ -335,7 +335,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>llm_client</strong> (<em>BaseLLM</em>)</p></li>
+<li><p><strong>llm</strong> (<em>BaseLLM</em>)</p></li>
 <li><p><strong>max_token</strong> (<em>int</em>)</p></li>
 <li><p><strong>temperature</strong> (<em>float</em>)</p></li>
 <li><p><strong>top_p</strong> (<em>float</em>)</p></li>
@@ -388,6 +388,7 @@
 <li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
 <li><p><strong>request</strong> (<em>RAGRequest</em>) – User input question</p></li>
 <li><p><strong>language</strong> (<em>str</em>) – Question and context documents language</p></li>
+<li><p><strong>tag</strong> (<em>str</em>) – Tag to filter the context documents</p></li>
 <li><p><strong>k</strong> (<em>int</em><em>, </em><em>default 0</em>) – Number of context documents to return</p></li>
 </ul>
 </dd>
@@ -405,6 +406,7 @@
 <li><p><strong>db</strong> (<em>Session</em>) – The database session to use for retrieving documents.</p></li>
 <li><p><strong>request</strong> (<em>RAGRequest</em>) – The request to process.</p></li>
 <li><p><strong>language</strong> (<em>str</em><em>, </em><em>optional</em>) – The language of the documents to retrieve. If not specified, documents in all languages are considered.</p></li>
+<li><p><strong>tag</strong> (<em>str</em><em>, </em><em>optional</em>) – The tag to filter the documents to retrieve. If not specified, all documents are considered.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
