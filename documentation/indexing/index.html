@@ -203,7 +203,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -320,7 +320,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -329,6 +329,57 @@
           <section id="indexing">
 <h1>Indexing<a class="headerlink" href="#indexing" title="Link to this heading">¶</a></h1>
 <p>Create a pipeline to index data from a source to the database, using a parser and a scraper.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="indexing.base.BaseIndexer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing.base.</span></span><span class="sig-name descname"><span class="pre">BaseIndexer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scraper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing.base.BaseIndexer" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract base class for indexing models.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.base.BaseIndexer.index">
+<span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sitemap_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict:</span></span></span><a class="headerlink" href="#indexing.base.BaseIndexer.index" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract method to index content from a URL into a vectorDB.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.base.BaseIndexer.from_pages_to_content">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_pages_to_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ByteStream</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.base.BaseIndexer.from_pages_to_content" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract method to convert URLs to content.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pages</strong> (<em>List</em><em>[</em><em>ByteStream</em><em>]</em>) – The HTML pages to convert to content.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The content extracted from the URLs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.base.BaseIndexer.add_content_to_db">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add_content_to_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing.base.BaseIndexer.add_content_to_db" title="Link to this definition">¶</a></dt>
+<dd><p>Add content to the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>db</strong> (<em>Session</em>) – The database session to use.</p></li>
+<li><p><strong>content</strong> (<em>List</em><em>[</em><em>Any</em><em>]</em>) – Content to add to the database.</p></li>
+<li><p><strong>source</strong> (<em>str</em>) – The source of the content.</p></li>
+<li><p><strong>embed</strong> (<em>bool</em>) – Whether to embed the content</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>content: Success message</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <div class="toctree-wrapper compound">
 </div>
 </section>
@@ -376,8 +427,32 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Indexing</a><ul>
+<li><a class="reference internal" href="#indexing.base.BaseIndexer"><code class="docutils literal notranslate"><span class="pre">BaseIndexer</span></code></a><ul>
+<li><a class="reference internal" href="#indexing.base.BaseIndexer.index"><code class="docutils literal notranslate"><span class="pre">BaseIndexer.index()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.base.BaseIndexer.from_pages_to_content"><code class="docutils literal notranslate"><span class="pre">BaseIndexer.from_pages_to_content()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.base.BaseIndexer.add_content_to_db"><code class="docutils literal notranslate"><span class="pre">BaseIndexer.add_content_to_db()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

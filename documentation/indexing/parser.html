@@ -203,7 +203,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -320,7 +320,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -328,6 +328,184 @@
         <article role="main" id="furo-main-content">
           <section id="parser">
 <h1>Parser<a class="headerlink" href="#parser" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="indexing.base.BaseParser">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing.base.</span></span><span class="sig-name descname"><span class="pre">BaseParser</span></span><a class="headerlink" href="#indexing.base.BaseParser" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract base class for parsing models.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.base.BaseParser.parse_xml">
+<span class="sig-name descname"><span class="pre">parse_xml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xml</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List[str]:</span></span></span><a class="headerlink" href="#indexing.base.BaseParser.parse_xml" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract method to parse XML content.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.base.BaseParser.parse_html">
+<span class="sig-name descname"><span class="pre">parse_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">html</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List[str]:</span></span></span><a class="headerlink" href="#indexing.base.BaseParser.parse_html" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract method to parse HTML content.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.base.BaseParser.convert_html_to_documents">
+<span class="sig-name descname"><span class="pre">convert_html_to_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List[Document]:</span></span></span><a class="headerlink" href="#indexing.base.BaseParser.convert_html_to_documents" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract method to convert HTML content to documents.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.base.BaseParser.convert_pdf_to_documents">
+<span class="sig-name descname"><span class="pre">convert_pdf_to_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List[Document]:</span></span></span><a class="headerlink" href="#indexing.base.BaseParser.convert_pdf_to_documents" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract method to convert PDF content to documents.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.base.BaseParser.clean_documents">
+<span class="sig-name descname"><span class="pre">clean_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">documents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../schemas/document.html#schemas.document.Document" title="schemas.document.Document"><span class="pre">Document</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List[Document]:</span></span></span><a class="headerlink" href="#indexing.base.BaseParser.clean_documents" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract method to clean documents.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.base.BaseParser.split_documents">
+<span class="sig-name descname"><span class="pre">split_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">documents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../schemas/document.html#schemas.document.Document" title="schemas.document.Document"><span class="pre">Document</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List[Document]:</span></span></span><a class="headerlink" href="#indexing.base.BaseParser.split_documents" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract method to split documents into chunks.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.base.BaseParser.remove_empty_documents">
+<span class="sig-name descname"><span class="pre">remove_empty_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">documents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.base.BaseParser.remove_empty_documents" title="Link to this definition">¶</a></dt>
+<dd><p>Remove documents from the list that have their data attribute set to None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>documents</strong> (<em>list</em>) – Document objects to be filtered.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Document objects where the content attribute is not None.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.base.BaseParser.remove_duplicate_links">
+<span class="sig-name descname"><span class="pre">remove_duplicate_links</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">links</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing.base.BaseParser.remove_duplicate_links" title="Link to this definition">¶</a></dt>
+<dd><p>Removes duplicate links from a list of tags.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>links</strong> (<em>list</em><em> of </em><em>bs4.element.Tag</em>) – The list of tags to remove duplicates from.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The list of tags without duplicates.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of bs4.element.Tag</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.base.BaseParser.contains_tag">
+<span class="sig-name descname"><span class="pre">contains_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing.base.BaseParser.contains_tag" title="Link to this definition">¶</a></dt>
+<dd><p>Check if a tag contains a specific string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tag</strong> (<em>bs4.element.Tag</em>) – The tag to check.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the tag contains the string, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.base.BaseParser.get_pdf_paths">
+<span class="sig-name descname"><span class="pre">get_pdf_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soup</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing.base.BaseParser.get_pdf_paths" title="Link to this definition">¶</a></dt>
+<dd><p>Get the paths to PDF files from a BeautifulSoup object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>soup</strong> (<em>BeautifulSoup</em>) – The BeautifulSoup object to extract PDF paths from.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The list of PDF paths.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.base.BaseParser.parse_urls">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_urls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.base.BaseParser.parse_urls" title="Link to this definition">¶</a></dt>
+<dd><p>Extracts URLs from the given content.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>content</strong> (<em>str</em>) – The content to extract URLs from.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of URLs extracted from the content.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.base.BaseParser.convert_to_documents">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">convert_to_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.base.BaseParser.convert_to_documents" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract method to convert some content to documents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>content</strong> (<em>list</em><em> of </em><em>Any</em>) – The content to convert.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The converted documents.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of <a class="reference internal" href="../schemas/document.html#schemas.document.Document" title="schemas.document.Document">Document</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">clean_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">documents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Document</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Document</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
+<dd><p>Removes docs with None content and cleans the given documents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>documents</strong> (<em>List</em><em>[</em><a class="reference internal" href="../schemas/document.html#schemas.document.Document" title="schemas.document.Document"><em>Document</em></a><em>]</em>) – The documents to clean.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Cleaned documents.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="../schemas/document.html#schemas.document.Document" title="schemas.document.Document">Document</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">split_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">documents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Document</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Document</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#id1" title="Link to this definition">¶</a></dt>
+<dd><p>Removes docs with None content and splits the given documents into chunks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>documents</strong> (<em>List</em><em>[</em><a class="reference internal" href="../schemas/document.html#schemas.document.Document" title="schemas.document.Document"><em>Document</em></a><em>]</em>) – The documents to split into chunks.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of documents split into chunks.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="../schemas/document.html#schemas.document.Document" title="schemas.document.Document">Document</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
         </article>
@@ -373,8 +551,43 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Parser</a><ul>
+<li><a class="reference internal" href="#indexing.base.BaseParser"><code class="docutils literal notranslate"><span class="pre">BaseParser</span></code></a><ul>
+<li><a class="reference internal" href="#indexing.base.BaseParser.parse_xml"><code class="docutils literal notranslate"><span class="pre">BaseParser.parse_xml()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.base.BaseParser.parse_html"><code class="docutils literal notranslate"><span class="pre">BaseParser.parse_html()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.base.BaseParser.convert_html_to_documents"><code class="docutils literal notranslate"><span class="pre">BaseParser.convert_html_to_documents()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.base.BaseParser.convert_pdf_to_documents"><code class="docutils literal notranslate"><span class="pre">BaseParser.convert_pdf_to_documents()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.base.BaseParser.clean_documents"><code class="docutils literal notranslate"><span class="pre">BaseParser.clean_documents()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.base.BaseParser.split_documents"><code class="docutils literal notranslate"><span class="pre">BaseParser.split_documents()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.base.BaseParser.remove_empty_documents"><code class="docutils literal notranslate"><span class="pre">BaseParser.remove_empty_documents()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.base.BaseParser.remove_duplicate_links"><code class="docutils literal notranslate"><span class="pre">BaseParser.remove_duplicate_links()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.base.BaseParser.contains_tag"><code class="docutils literal notranslate"><span class="pre">BaseParser.contains_tag()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.base.BaseParser.get_pdf_paths"><code class="docutils literal notranslate"><span class="pre">BaseParser.get_pdf_paths()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.base.BaseParser.parse_urls"><code class="docutils literal notranslate"><span class="pre">BaseParser.parse_urls()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.base.BaseParser.convert_to_documents"><code class="docutils literal notranslate"><span class="pre">BaseParser.convert_to_documents()</span></code></a></li>
+<li><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">BaseParser.clean_documents()</span></code></a></li>
+<li><a class="reference internal" href="#id1"><code class="docutils literal notranslate"><span class="pre">BaseParser.split_documents()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
