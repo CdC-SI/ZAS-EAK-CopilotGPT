@@ -131,7 +131,7 @@ def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Sessio
 
     file.file.close()
     logger.info(f'Finished adding {i} entries to RAG database.')
-    return {"content": "Successfully added {i} entries to RAG database."}
+    return {"content": f"Successfully added {i} entries to RAG database."}
 
 
 @app.post("/upload_csv_faq", summary="Upload a CSV file for FAQ data", status_code=200, response_model=ResponseBody)
@@ -181,7 +181,7 @@ def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Sessio
 
     file.file.close()
     logger.info(f'Finished adding {len(list(data))} entries to FAQ database.')
-    return {"content": "Successfully added {i} entries to FAQ database."}
+    return {"content": f"Successfully added {i} entries to FAQ database."}
 
 
 @app.post("/upload_pdf_rag", summary="Upload a PDF file for RAG data", status_code=200, response_model=ResponseBody)
@@ -259,7 +259,7 @@ def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", em
             i += 1
             
     logger.info(f'Finished adding {i} entries to RAG database.')
-    return {"content": "Successfully added {i} entries to RAG database."}
+    return {"content": f"Successfully added {i} entries to RAG database."}
 
 
 @app.post("/add_faq_data_from_csv", summary="Insert data for FAQ without embedding from a local csv file", status_code=200, response_model=ResponseBody)
@@ -305,7 +305,7 @@ def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", em
             question_service.upsert(db, question, embed=embed)
 
     logger.info(f'Finished adding {i} entries to FAQ database.')
-    return {"content": "Successfully added {i} entries to FAQ database."}
+    return {"content": f"Successfully added {i} entries to FAQ database."}
 
 
 @app.post("/embed_rag_data", summary="Embed all data for RAG that have not been embedded yet", status_code=200, response_model=ResponseBody)
