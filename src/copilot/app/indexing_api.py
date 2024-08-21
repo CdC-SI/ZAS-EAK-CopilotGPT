@@ -119,6 +119,7 @@ def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Sessio
     tag_column = "tag" in data.fieldnames
 
     logger.info(f'Start adding data to database...')
+    i = 0
     for row in data:
         embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
         language = row["language"] if language_column else None
@@ -126,10 +127,11 @@ def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Sessio
         
         document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file.filename, language=language, tag=tag)
         document_service.upsert(db, document, embed=embed)
+        i += 1
 
     file.file.close()
-    logger.info(f'Finished adding {len(list(data))} document to database.')
-    return {"content": "yay"}
+    logger.info(f'Finished adding {i} entries to RAG database.')
+    return {"content": "Successfully added {i} entries to RAG database."}
 
 
 @app.post("/upload_csv_faq", summary="Upload a CSV file for FAQ data", status_code=200, response_model=ResponseBody)
@@ -167,6 +169,7 @@ def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Sessio
     tag_column = "tag" in data.fieldnames
 
     logger.info(f'Start adding data to database...')
+    i = 0
     for row in data:
         embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
         language = row["language"] if language_column else None
@@ -174,10 +177,11 @@ def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Sessio
         
         question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file.filename, language=language, tag=tag)
         question_service.upsert(db, question, embed=embed)
+        i += 1
 
     file.file.close()
-    logger.info(f'Finished adding {len(list(data))} document to database.')
-    return {"content": "yay"}
+    logger.info(f'Finished adding {len(list(data))} entries to FAQ database.')
+    return {"content": "Successfully added {i} entries to FAQ database."}
 
 
 @app.post("/upload_pdf_rag", summary="Upload a PDF file for RAG data", status_code=200, response_model=ResponseBody)
@@ -244,6 +248,7 @@ def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", em
         language_column = "language" in data.fieldnames
         tag_column = "tag" in data.fieldnames
 
+        i = 0
         for row in data:
             embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
             language = row["language"] if language_column else None
@@ -251,8 +256,10 @@ def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", em
 
             document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file_path, language=language, tag=tag)
             document_service.upsert(db, document, embed=embed)
-
-    return {"content": "yay"}
+            i += 1
+            
+    logger.info(f'Finished adding {i} entries to RAG database.')
+    return {"content": "Successfully added {i} entries to RAG database."}
 
 
 @app.post("/add_faq_data_from_csv", summary="Insert data for FAQ without embedding from a local csv file", status_code=200, response_model=ResponseBody)
@@ -297,7 +304,8 @@ def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", em
             question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file_path, language=language, tag=tag)
             question_service.upsert(db, question, embed=embed)
 
-    return {"content": "yay"}
+    logger.info(f'Finished adding {i} entries to FAQ database.')
+    return {"content": "Successfully added {i} entries to FAQ database."}
 
 
 @app.post("/embed_rag_data", summary="Embed all data for RAG that have not been embedded yet", status_code=200, response_model=ResponseBody)
