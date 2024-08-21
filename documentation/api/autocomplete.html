@@ -203,7 +203,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -320,118 +320,14 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="module-autocomplete_api">
-<span id="autocomplete-api"></span><h1>Autocomplete API<a class="headerlink" href="#module-autocomplete_api" title="Link to this heading">¶</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="autocomplete_api.autocomplete">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autocomplete_api.</span></span><span class="sig-name descname"><span class="pre">autocomplete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autocomplete_api.autocomplete" title="Link to this definition">¶</a></dt>
-<dd><p>If the user input ends with a “?” character, return a set of questions that may be relevant to the user.
-If there are at lest 5 results from fuzzy matching, they are returned. Otherwise, results of semantic similarity
-matching are returned alongside the fuzzy matching results.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>question</strong> (<em>str</em>) – User input to match database entries</p></li>
-<li><p><strong>language</strong> (<em>str</em><em>, </em><em>optional</em>) – Question and results language</p></li>
-<li><p><strong>tag</strong> (<em>str</em><em>, </em><em>optional</em>) – Tag of the documents to search</p></li>
-<li><p><strong>k</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of results to return</p></li>
-<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autocomplete_api.exact_match">
-<span class="sig-prename descclassname"><span class="pre">autocomplete_api.</span></span><span class="sig-name descname"><span class="pre">exact_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autocomplete_api.exact_match" title="Link to this definition">¶</a></dt>
-<dd><p>Return results from Exact matching</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>question</strong> (<em>str</em>) – User input to match database entries</p></li>
-<li><p><strong>language</strong> (<em>str</em><em>, </em><em>optional</em>) – Question and results language</p></li>
-<li><p><strong>tag</strong> (<em>str</em><em>, </em><em>optional</em>) – Tag of the documents to search</p></li>
-<li><p><strong>k</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of results to return</p></li>
-<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autocomplete_api.fuzzy_match">
-<span class="sig-prename descclassname"><span class="pre">autocomplete_api.</span></span><span class="sig-name descname"><span class="pre">fuzzy_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autocomplete_api.fuzzy_match" title="Link to this definition">¶</a></dt>
-<dd><p>Return results from Fuzzy matching, using Levenshtein distance</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>question</strong> (<em>str</em>) – User input to match database entries</p></li>
-<li><p><strong>language</strong> (<em>str</em><em>, </em><em>optional</em>) – Question and results language</p></li>
-<li><p><strong>tag</strong> (<em>str</em><em>, </em><em>optional</em>) – Tag of the documents to search</p></li>
-<li><p><strong>k</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of results to return</p></li>
-<li><p><strong>threshold</strong> (<em>int</em><em>, </em><em>optional</em>) – Levenshtein threshold</p></li>
-<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autocomplete_api.trigram_match">
-<span class="sig-prename descclassname"><span class="pre">autocomplete_api.</span></span><span class="sig-name descname"><span class="pre">trigram_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autocomplete_api.trigram_match" title="Link to this definition">¶</a></dt>
-<dd><p>Return results from Trigram matching</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>question</strong> (<em>str</em>) – User input to match database entries</p></li>
-<li><p><strong>language</strong> (<em>str</em><em>, </em><em>optional</em>) – Question and results language</p></li>
-<li><p><strong>tag</strong> (<em>str</em><em>, </em><em>optional</em>) – Tag of the documents to search</p></li>
-<li><p><strong>k</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of results to return</p></li>
-<li><p><strong>threshold</strong> (<em>float</em><em>, </em><em>optional</em>) – Trigram threshold, between 0 and 1</p></li>
-<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autocomplete_api.semantic_similarity_match">
-<span class="sig-prename descclassname"><span class="pre">autocomplete_api.</span></span><span class="sig-name descname"><span class="pre">semantic_similarity_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autocomplete_api.semantic_similarity_match" title="Link to this definition">¶</a></dt>
-<dd><p>Return results from Semantic Similarity matching</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>question</strong> (<em>str</em>) – User input to match database entries</p></li>
-<li><p><strong>language</strong> (<em>str</em><em>, </em><em>optional</em>) – Question and results language</p></li>
-<li><p><strong>tag</strong> (<em>str</em><em>, </em><em>optional</em>) – Tag of the documents to search</p></li>
-<li><p><strong>k</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of results to return</p></li>
-<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of dict</p>
-</dd>
-</dl>
-</dd></dl>
-
+          <section id="autocomplete-api">
+<h1>Autocomplete API<a class="headerlink" href="#autocomplete-api" title="Link to this heading">¶</a></h1>
 </section>
 
         </article>
@@ -477,31 +373,8 @@ matching are returned alongside the fuzzy matching results.</p>
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">Autocomplete API</a><ul>
-<li><a class="reference internal" href="#autocomplete_api.autocomplete"><code class="docutils literal notranslate"><span class="pre">autocomplete()</span></code></a></li>
-<li><a class="reference internal" href="#autocomplete_api.exact_match"><code class="docutils literal notranslate"><span class="pre">exact_match()</span></code></a></li>
-<li><a class="reference internal" href="#autocomplete_api.fuzzy_match"><code class="docutils literal notranslate"><span class="pre">fuzzy_match()</span></code></a></li>
-<li><a class="reference internal" href="#autocomplete_api.trigram_match"><code class="docutils literal notranslate"><span class="pre">trigram_match()</span></code></a></li>
-<li><a class="reference internal" href="#autocomplete_api.semantic_similarity_match"><code class="docutils literal notranslate"><span class="pre">semantic_similarity_match()</span></code></a></li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>

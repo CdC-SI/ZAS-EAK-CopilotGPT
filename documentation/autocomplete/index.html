@@ -203,7 +203,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -320,79 +320,14 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="module-autocomplete.autocompleter">
-<span id="autocomplete"></span><h1>Autocomplete<a class="headerlink" href="#module-autocomplete.autocompleter" title="Link to this heading">¶</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="autocomplete.autocompleter.Autocompleter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autocomplete.autocompleter.</span></span><span class="sig-name descname"><span class="pre">Autocompleter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuzzy_match_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trigram_match_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autocomplete.autocompleter.Autocompleter" title="Link to this definition">¶</a></dt>
-<dd><p>Autocomplete user input by providing matching questions from the database.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autocomplete.autocompleter.Autocompleter.limit">
-<span class="sig-name descname"><span class="pre">limit</span></span><a class="headerlink" href="#autocomplete.autocompleter.Autocompleter.limit" title="Link to this definition">¶</a></dt>
-<dd><p>number of results to return</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autocomplete.autocompleter.Autocompleter.fuzzy_match_threshold">
-<span class="sig-name descname"><span class="pre">fuzzy_match_threshold</span></span><a class="headerlink" href="#autocomplete.autocompleter.Autocompleter.fuzzy_match_threshold" title="Link to this definition">¶</a></dt>
-<dd><p>threshold for fuzzy matching with levenshtein, only results with a similarity score below this threshold will be returned</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autocomplete.autocompleter.Autocompleter.trigram_match_threshold">
-<span class="sig-name descname"><span class="pre">trigram_match_threshold</span></span><a class="headerlink" href="#autocomplete.autocompleter.Autocompleter.trigram_match_threshold" title="Link to this definition">¶</a></dt>
-<dd><p>threshold for trigram matching, only results with a similarity score above this threshold will be returned</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="autocomplete.autocompleter.Autocompleter.get_autocomplete">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_autocomplete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autocomplete.autocompleter.Autocompleter.get_autocomplete" title="Link to this definition">¶</a></dt>
-<dd><p>Returns matching results according to a defined behaviour.</p>
-<p>If the user input ends with a “?” character, return a set of questions that may be relevant to the user.
-Else return the results stored in the cache from the previous query.</p>
-<p>If there are at lest 5 results from fuzzy matching, fuzzy matching returned. Otherwise, results of semantic
-similarity matching are returned alongside the fuzzy matching results.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>db</strong> (<em>Session</em>) – database session</p></li>
-<li><p><strong>question</strong> (<em>str</em>) – question to match</p></li>
-<li><p><strong>language</strong> (<em>str</em>) – question and results language</p></li>
-<li><p><strong>k</strong> (<em>int</em>) – number of results to return</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>a list of matching results</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of str</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+          <section id="autocomplete">
+<h1>Autocomplete<a class="headerlink" href="#autocomplete" title="Link to this heading">¶</a></h1>
 </section>
 
         </article>
@@ -438,33 +373,8 @@ similarity matching are returned alongside the fuzzy matching results.</p>
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">Autocomplete</a><ul>
-<li><a class="reference internal" href="#autocomplete.autocompleter.Autocompleter"><code class="docutils literal notranslate"><span class="pre">Autocompleter</span></code></a><ul>
-<li><a class="reference internal" href="#autocomplete.autocompleter.Autocompleter.limit"><code class="docutils literal notranslate"><span class="pre">Autocompleter.limit</span></code></a></li>
-<li><a class="reference internal" href="#autocomplete.autocompleter.Autocompleter.fuzzy_match_threshold"><code class="docutils literal notranslate"><span class="pre">Autocompleter.fuzzy_match_threshold</span></code></a></li>
-<li><a class="reference internal" href="#autocomplete.autocompleter.Autocompleter.trigram_match_threshold"><code class="docutils literal notranslate"><span class="pre">Autocompleter.trigram_match_threshold</span></code></a></li>
-<li><a class="reference internal" href="#autocomplete.autocompleter.Autocompleter.get_autocomplete"><code class="docutils literal notranslate"><span class="pre">Autocompleter.get_autocomplete()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>

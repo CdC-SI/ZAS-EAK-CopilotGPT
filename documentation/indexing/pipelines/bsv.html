@@ -203,7 +203,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -320,7 +320,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -329,78 +329,6 @@
           <section id="bsv-pipeline">
 <h1>BSV pipeline<a class="headerlink" href="#bsv-pipeline" title="Link to this heading">¶</a></h1>
 <p>Index the website <a class="reference external" href="https://www.bsv.admin.ch/">https://www.bsv.admin.ch/</a> for Autocomplete data.</p>
-<dl class="py class" id="module-indexing.pipelines.bsv">
-<dt class="sig sig-object py" id="indexing.pipelines.bsv.BSVIndexer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing.pipelines.bsv.</span></span><span class="sig-name descname"><span class="pre">BSVIndexer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing.pipelines.bsv.BSVIndexer" title="Link to this definition">¶</a></dt>
-<dd><p>Indexer that can extract FAQ questions from a specified website.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>base_url</strong> (<em>str</em>) – sitemap URL of the website to scrap</p></li>
-<li><p><strong>proxy</strong> (<em>str</em><em>, </em><em>optional</em>) – Proxy URL if necessary</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="indexing.pipelines.bsv.BSVIndexer.run">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing.pipelines.bsv.BSVIndexer.run" title="Link to this definition">¶</a></dt>
-<dd><p>Retrieves and processes FAQ data from <cite>base_url</cite> to insert into the database.</p>
-<p>Each extracted FAQ entry is then upserted (inserted or updated if already exists) into the database, with
-detailed logging to track the operation’s progress and identify any errors.</p>
-<p>If <cite>test</cite>&gt;0, then extract only the specified number of articles and log them instead of upserting them.</p>
-<p>Log a confirmation message upon successful completion of the process.</p>
-<div class="admonition-todo admonition" id="id1">
-<p class="admonition-title">Todo</p>
-<ul class="simple">
-<li><p>Consider implementing error handling at a more granular level to retry failed insertions or updates, enhancing the robustness of the data ingestion process.</p></li>
-<li><p>Explore optimization opportunities in text extraction and processing to improve efficiency and reduce runtime, especially for large sitemaps.</p></li>
-</ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>k</strong> (<em>int</em><em>, </em><em>default 0</em>) – Number of articles to scrape and log to test the method</p></li>
-<li><p><strong>test</strong> (<em>bool</em><em>, </em><em>default False</em>) – Flag to indicate whether to test the method by logging the extracted articles instead of upserting them</p></li>
-<li><p><strong>embed</strong> (<em>Union</em><em>[</em><em>Tuple</em><em>[</em><em>bool</em><em>, </em><em>bool</em><em>]</em><em>, </em><em>bool</em><em>]</em><em>, </em><em>default False</em>) – Flag to indicate whether to embed the source and/or answer documents in the question object</p></li>
-<li><p><strong>db</strong> (<em>Session</em><em>, </em><em>optional</em>) – Database session to use for upserting the extracted</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of urls which got extracted</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="indexing.pipelines.bsv.BSVIndexer.get_sitemap_urls">
-<span class="sig-name descname"><span class="pre">get_sitemap_urls</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.pipelines.bsv.BSVIndexer.get_sitemap_urls" title="Link to this definition">¶</a></dt>
-<dd><p>Extract URLs from the sitemap. The endpoint ‘/sitemap.xml’ is used to discover all relevant FAQ URLs.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="indexing.pipelines.bsv.BSVIndexer.extract_article">
-<span class="sig-name descname"><span class="pre">extract_article</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing.pipelines.bsv.BSVIndexer.extract_article" title="Link to this definition">¶</a></dt>
-<dd><p>Given an url, extracts the primary question (denoted by the ‘h1’ tag) and its corresponding answer (within an
-‘article’ tag).</p>
-<p>Unnecessary boilerplate text will be removed for clarity and conciseness.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>url</strong> (<em>str</em>) – URL of the website where the article needs to be extracted.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The article language, its question and its answer.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str, str, str</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 
         </article>
@@ -446,32 +374,8 @@ detailed logging to track the operation’s progress and identify any errors.</p
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">BSV pipeline</a><ul>
-<li><a class="reference internal" href="#indexing.pipelines.bsv.BSVIndexer"><code class="docutils literal notranslate"><span class="pre">BSVIndexer</span></code></a><ul>
-<li><a class="reference internal" href="#indexing.pipelines.bsv.BSVIndexer.run"><code class="docutils literal notranslate"><span class="pre">BSVIndexer.run()</span></code></a></li>
-<li><a class="reference internal" href="#indexing.pipelines.bsv.BSVIndexer.get_sitemap_urls"><code class="docutils literal notranslate"><span class="pre">BSVIndexer.get_sitemap_urls()</span></code></a></li>
-<li><a class="reference internal" href="#indexing.pipelines.bsv.BSVIndexer.extract_article"><code class="docutils literal notranslate"><span class="pre">BSVIndexer.extract_article()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>

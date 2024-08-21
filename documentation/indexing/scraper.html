@@ -203,7 +203,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -320,7 +320,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -328,113 +328,6 @@
         <article role="main" id="furo-main-content">
           <section id="scraper">
 <h1>Scraper<a class="headerlink" href="#scraper" title="Link to this heading">¶</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="indexing.base.BaseScraper">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing.base.</span></span><span class="sig-name descname"><span class="pre">BaseScraper</span></span><a class="headerlink" href="#indexing.base.BaseScraper" title="Link to this definition">¶</a></dt>
-<dd><p>Abstract base class for scraping models.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="indexing.base.BaseScraper.fetch">
-<span class="sig-name descname"><span class="pre">fetch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes:</span></span></span><a class="headerlink" href="#indexing.base.BaseScraper.fetch" title="Link to this definition">¶</a></dt>
-<dd><p>Fetches the content from a given URL.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="indexing.base.BaseScraper.scrap_urls">
-<span class="sig-name descname"><span class="pre">scrap_urls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List[Any]:</span></span></span><a class="headerlink" href="#indexing.base.BaseScraper.scrap_urls" title="Link to this definition">¶</a></dt>
-<dd><p>Abstract method to scrape HTML content from a list of URLs.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="indexing.base.BaseScraper.html_content_from_sitemap">
-<span class="sig-name descname"><span class="pre">html_content_from_sitemap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sitemap_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List[Any]:</span></span></span><a class="headerlink" href="#indexing.base.BaseScraper.html_content_from_sitemap" title="Link to this definition">¶</a></dt>
-<dd><p>Abstract method to scrape HTML content from a sitemap.xml URL.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="indexing.base.BaseScraper.pdf_content_from_sitemap">
-<span class="sig-name descname"><span class="pre">pdf_content_from_sitemap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sitemap_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List[Any]:</span></span></span><a class="headerlink" href="#indexing.base.BaseScraper.pdf_content_from_sitemap" title="Link to this definition">¶</a></dt>
-<dd><p>Abstract method to scrape PDF content from a specific sitemap URL.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="id0">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fetch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
-<dd><p>Fetches the content from a given URL.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>url</strong> (<em>str</em>) – The URL to fetch content from.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The content of the URL.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>bytes</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>aiohttp.ClientError</strong> – If the fetch operation fails.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="id1">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">scrap_urls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">urls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#id1" title="Link to this definition">¶</a></dt>
-<dd><p>Abstract method to scrape HTML content from a list of URLs.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>urls</strong> (<em>list</em><em> of </em><em>str</em>) – The URLs to scrape content from.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The scraped content.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of Any</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="indexing.scraper.Scraper">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing.scraper.</span></span><span class="sig-name descname"><span class="pre">Scraper</span></span><a class="headerlink" href="#indexing.scraper.Scraper" title="Link to this definition">¶</a></dt>
-<dd><p>A class used to scrap URLs from <a href="#id2"><span class="problematic" id="id3">*</span></a>.admin.ch websites.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="indexing.scraper.Scraper.fetcher">
-<span class="sig-name descname"><span class="pre">fetcher</span></span><a class="headerlink" href="#indexing.scraper.Scraper.fetcher" title="Link to this definition">¶</a></dt>
-<dd><p>An instance of LinkContentFetcher to fetch the content of URLs.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>LinkContentFetcher</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="indexing.scraper.Scraper.scrap_urls">
-<span class="sig-name descname"><span class="pre">scrap_urls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ByteStream</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.scraper.Scraper.scrap_urls" title="Link to this definition">¶</a></dt>
-<dd><p>Scrapes the given URLs and returns the content as a list of ByteStreams.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="id4">
-<span class="sig-name descname"><span class="pre">scrap_urls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">urls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ByteStream</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#id4" title="Link to this definition">¶</a></dt>
-<dd><p>Scrapes the given URLs and returns the content as a list of ByteStreams.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>urls</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – A list of URLs to scrape.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A list of ByteStreams containing the content of the scraped URLs.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[ByteStream]</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 
         </article>
@@ -480,41 +373,8 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">Scraper</a><ul>
-<li><a class="reference internal" href="#indexing.base.BaseScraper"><code class="docutils literal notranslate"><span class="pre">BaseScraper</span></code></a><ul>
-<li><a class="reference internal" href="#indexing.base.BaseScraper.fetch"><code class="docutils literal notranslate"><span class="pre">BaseScraper.fetch()</span></code></a></li>
-<li><a class="reference internal" href="#indexing.base.BaseScraper.scrap_urls"><code class="docutils literal notranslate"><span class="pre">BaseScraper.scrap_urls()</span></code></a></li>
-<li><a class="reference internal" href="#indexing.base.BaseScraper.html_content_from_sitemap"><code class="docutils literal notranslate"><span class="pre">BaseScraper.html_content_from_sitemap()</span></code></a></li>
-<li><a class="reference internal" href="#indexing.base.BaseScraper.pdf_content_from_sitemap"><code class="docutils literal notranslate"><span class="pre">BaseScraper.pdf_content_from_sitemap()</span></code></a></li>
-<li><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">BaseScraper.fetch()</span></code></a></li>
-<li><a class="reference internal" href="#id1"><code class="docutils literal notranslate"><span class="pre">BaseScraper.scrap_urls()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#indexing.scraper.Scraper"><code class="docutils literal notranslate"><span class="pre">Scraper</span></code></a><ul>
-<li><a class="reference internal" href="#indexing.scraper.Scraper.fetcher"><code class="docutils literal notranslate"><span class="pre">Scraper.fetcher</span></code></a></li>
-<li><a class="reference internal" href="#indexing.scraper.Scraper.scrap_urls"><code class="docutils literal notranslate"><span class="pre">Scraper.scrap_urls()</span></code></a></li>
-<li><a class="reference internal" href="#id4"><code class="docutils literal notranslate"><span class="pre">Scraper.scrap_urls()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>
