@@ -111,12 +111,14 @@ def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Sessio
     ResponseBody
         A response body containing a confirmation message upon successful completion of the process.
     """
+    logger.info(f'Downloading {file.filename}...')
     data = csv.DictReader(codecs.iterdecode(file.file, 'utf-8'))
     
     embedding_column = "embedding" in data.fieldnames
     language_column = "language" in data.fieldnames
     tag_column = "tag" in data.fieldnames
 
+    logger.info(f'Start adding data to database...')
     for row in data:
         embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
         language = row["language"] if language_column else None
@@ -126,6 +128,7 @@ def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Sessio
         document_service.upsert(db, document, embed=embed)
 
     file.file.close()
+    logger.info(f'Finished adding {len(data)} document to database.')
     return {"content": "yay"}
 
 
@@ -156,12 +159,14 @@ def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Sessio
     ResponseBody
         A response body containing a confirmation message upon successful completion of the process.
     """
+    logger.info(f'Downloading {file.filename}...')
     data = csv.DictReader(codecs.iterdecode(file.file, 'utf-8'))
     
     embedding_column = "embedding" in data.fieldnames
     language_column = "language" in data.fieldnames
     tag_column = "tag" in data.fieldnames
 
+    logger.info(f'Start adding data to database...')
     for row in data:
         embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
         language = row["language"] if language_column else None
@@ -171,6 +176,7 @@ def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Sessio
         question_service.upsert(db, question, embed=embed)
 
     file.file.close()
+    logger.info(f'Finished adding {len(data)} document to database.')
     return {"content": "yay"}
 
 
