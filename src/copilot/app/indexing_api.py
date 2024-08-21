@@ -459,6 +459,8 @@ async def index_data(item: QuestionItem, db: Session = Depends(get_db)):
     logger.info("Upserting data")
     logger.info(item)
 
+    item.source = "username"
+
     if item.id:
         return question_service.update(db, item)
     else:
