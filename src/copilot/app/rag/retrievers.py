@@ -70,7 +70,7 @@ class RetrieverClient(BaseRetriever):
 
         with ThreadPoolExecutor() as executor:  # Use ThreadPoolExecutor for parallel execution
             future_to_retriever = {
-                executor.submit(retriever.get_documents, db, query, language, tag, k): retriever
+                executor.submit(retriever.get_documents, db, query, k, language, tag): retriever
                 for retriever in self.retrievers
             }
 
