@@ -128,7 +128,7 @@ def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Sessio
         document_service.upsert(db, document, embed=embed)
 
     file.file.close()
-    logger.info(f'Finished adding {len(data)} document to database.')
+    logger.info(f'Finished adding {len(list(data))} document to database.')
     return {"content": "yay"}
 
 
@@ -176,7 +176,7 @@ def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Sessio
         question_service.upsert(db, question, embed=embed)
 
     file.file.close()
-    logger.info(f'Finished adding {len(data)} document to database.')
+    logger.info(f'Finished adding {len(list(data))} document to database.')
     return {"content": "yay"}
 
 
