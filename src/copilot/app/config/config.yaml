@@ -23,7 +23,7 @@ rag:
       - "top_k_retriever"
       # - "bm25_retriever"
       # - "query_rewriting_retriever"
-      # - "contextual_compression_retriever"
+      - "contextual_compression_retriever"
       # - "rag_fusion_retriever"
       - "reranking"
     top_k_retriever_params:
@@ -36,7 +36,7 @@ rag:
       n_alt_queries: 3
       top_k: 10
     contextual_compression_retriever_params:
-      top_k: 4
+      top_k: 10
     rag_fusion_retriever_params:
       n_alt_queries: 3
       rrf_k: 60
@@ -46,7 +46,7 @@ rag:
       top_k: 10
     routing:
       model: openai
-    top_k: 100
+    top_k: 10
     metric: cosine_similarity
   llm:
     model: gpt-4o

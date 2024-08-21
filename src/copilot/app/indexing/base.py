@@ -316,7 +316,10 @@ class BaseIndexer(ABC):
         documents = self.parser.clean_documents(documents)
 
         # Split documents into chunks
-        chunks = self.parser.split_documents(documents["documents"])
+        if self.parser.splitter:
+            chunks = self.parser.split_documents(documents["documents"])
+        else:
+            chunks = documents
 
         # TO DO: refactor embedding logic to embed from documents (add from_documents method)
         # Upsert documents into VectorDB

@@ -1,4 +1,6 @@
-from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
+import ast
+
+from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE, SOURCE_ISOLATION_PROMPT
 
 from typing import List, Dict, Any
 
@@ -6,6 +8,7 @@ from rag.models import RAGRequest, EmbeddingRequest
 from rag.factory import RetrieverFactory
 from rag.llm.factory import LLMFactory
 from rag.llm.base import BaseLLM
+from rag.retrievers import ContextualCompressionRetriever
 
 from sqlalchemy.orm import Session
 from utils.embedding import get_embedding
@@ -40,6 +43,7 @@ class RAGProcessor:
         self.top_p = top_p
         self.retriever_client = retriever
         self.k_retrieve = top_k
+        self.compressor = ContextualCompressionRetriever(top_k=top_k, llm_client=self.llm_client)
 
     def init_retriever_client(self, retrieval_method: str = "top_k"):
         """
@@ -119,6 +123,17 @@ class RAGProcessor:
         context_docs = "\n\n".join([doc.text for doc in documents])  # TO UPDATE
         source_url = documents[0].url  # TO UPDATE
 
+        # source_isolation_prompt = SOURCE_ISOLATION_PROMPT.format(context_docs=context_docs, query=request.query)
+        # messages = [{"role": "system", "content": source_isolation_prompt},]
+        # source_id = self.llm_client.generate(messages).choices[0].message.content
+
+        # try:
+        #     source_id = ast.literal_eval(source_id)
+        #     source_url = documents[source_id["doc_id"][0]].url
+        # except Exception as e:
+        #     source_url = ""
+        #     logger.error(f"Error while isolating source: {e}")
+
         messages = self.create_rag_message(context_docs, request.query)
 
         stream = self.llm_client.call(messages)
@@ -159,4 +174,5 @@ processor = RAGProcessor(llm=llm_client,
                          temperature=rag_config["llm"]["temperature"],
                          top_p=rag_config["llm"]["top_p"],
                          retriever=retriever_client,
-                         top_k=rag_config["retrieval"]["top_k"])
+                         top_k=rag_config["retrieval"]["top_k"],
+                         )
