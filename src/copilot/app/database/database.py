@@ -69,7 +69,7 @@ def get_engine(configuration: DBConfiguration, retries: int = 10, delay: int = 5
 
 configuration = DBConfiguration()
 
-if configuration.without_db is False:
+if configuration.enabled:
     logger.info("Connecting to database...")
     logger.info(configuration)
 

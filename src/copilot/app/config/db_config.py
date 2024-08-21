@@ -2,14 +2,10 @@ import os
 from dotenv import load_dotenv
 from dataclasses import dataclass
 
-
-import logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
-
 # Database connection parameters
 @dataclass
 class DBConfiguration:
+    enabled: bool
     user: str
     password: str
     database: str
@@ -20,7 +16,7 @@ class DBConfiguration:
         # Load environment variables from .env file
         load_dotenv()
 
-        self.without_db = os.getenv("RUN_WITHOUT_DB") == 'true'
+        self.enabled = os.getenv("ENABLED", "true").lower() in ('true', '1', 't')
 
         self.user = os.getenv("POSTGRES_USER", "postgres")
         self.password = os.getenv("POSTGRES_PASSWORD", "postgres")

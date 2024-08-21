@@ -461,4 +461,8 @@ async def index_data(item: QuestionItem, db: Session = Depends(get_db)):
 
     item.source = "username"
     logger.info(item)
-    return question_service.upsert(db, item)
+
+    if item.id:
+        return question_service.update(db, item)
+    else:
+        return question_service.create(db, item)
