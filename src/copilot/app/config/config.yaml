@@ -44,6 +44,8 @@ rag:
     reranking_params:
       model: rerank-multilingual-v3.0
       top_k: 10
+    routing:
+      model: openai
     top_k: 100
     metric: cosine_similarity
   llm:

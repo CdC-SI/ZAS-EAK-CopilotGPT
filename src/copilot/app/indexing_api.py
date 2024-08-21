@@ -1,8 +1,14 @@
 import logging
+import os
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from config.network_config import CORS_ALLOWED_ORIGINS
+
+from haystack.dataclasses import ByteStream
+from haystack.components.converters import PyPDFToDocument
+from haystack.components.preprocessors import DocumentCleaner, DocumentSplitter
+from pathlib import Path
 
 # Load env variables
 from config.base_config import indexing_config, indexing_app_config
@@ -22,8 +28,11 @@ from database.database import get_db
 # Load models
 from rag.models import ResponseBody
 
+import tempfile
+import shutil
 import ast
 import csv
+import codecs
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -76,16 +85,137 @@ app.add_middleware(
 )
 
 
-@app.post("/add_rag_data_from_csv", summary="Insert data for RAG without embedding from a local csv file", status_code=200, response_model=ResponseBody)
-def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", embed: bool = False, db: Session = Depends(get_db)):
+@app.post("/upload_csv_rag", summary="Upload a CSV file for RAG data", status_code=200, response_model=ResponseBody)
+def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
     """
-    Add and index test data for RAG from csv files without embeddings.
+    Upload a CSV file containing RAG data to the database with optional embeddings.
     The function acknowledges the following columns:
 
     - *url:* source URL of the document
     - *text:* Text content of the document
     - *language (optional):* Language of the document
     - *embedding (optional):* Embedding of the document
+    - *tag (optional):* Tag of the document
+
+    Parameters
+    ----------
+    file : UploadFile
+        The CSV file sent by the user
+    embed : bool, optional
+        Whether to embed the data or not. Defaults to False.
+    db : Session
+        Database session
+
+    Returns
+    -------
+    ResponseBody
+        A response body containing a confirmation message upon successful completion of the process.
+    """
+    data = csv.DictReader(codecs.iterdecode(file.file, 'utf-8'))
+    
+    embedding_column = "embedding" in data.fieldnames
+    language_column = "language" in data.fieldnames
+    tag_column = "tag" in data.fieldnames
+
+    for row in data:
+        embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
+        language = row["language"] if language_column else None
+        tag = row["tag"] if tag_column else None
+        
+        document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file.filename, language=language, tag=tag)
+        document_service.upsert(db, document, embed=embed)
+
+    file.file.close()
+    return {"content": "yay"}
+
+
+@app.post("/upload_csv_faq", summary="Upload a CSV file for FAQ data", status_code=200, response_model=ResponseBody)
+def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
+    """
+    Upload a CSV file containing RAG data to the database with optional embeddings.
+    The function acknowledges the following columns:
+
+    - *url:* source URL of the information
+    - *text:* Text content of the question
+    - *answer:* Text content of the answer
+    - *language (optional):* Language of the question and answer
+    - *embedding (optional):* Embedding of the question
+    - *tag (optional):* Tag of the document
+
+    Parameters
+    ----------
+    file : UploadFile
+        The CSV file sent by the user
+    embed : bool, optional
+        Whether to embed the data or not. Defaults to False.
+    db : Session
+        Database session
+
+    Returns
+    -------
+    ResponseBody
+        A response body containing a confirmation message upon successful completion of the process.
+    """
+    data = csv.DictReader(codecs.iterdecode(file.file, 'utf-8'))
+    
+    embedding_column = "embedding" in data.fieldnames
+    language_column = "language" in data.fieldnames
+    tag_column = "tag" in data.fieldnames
+
+    for row in data:
+        embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
+        language = row["language"] if language_column else None
+        tag = row["tag"] if tag_column else None
+        
+        question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file.filename, language=language, tag=tag)
+        question_service.upsert(db, question, embed=embed)
+
+    file.file.close()
+    return {"content": "yay"}
+
+
+@app.post("/upload_pdf_rag", summary="Upload a PDF file for RAG data", status_code=200, response_model=ResponseBody)
+async def upload_pdf_rag(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
+    """
+    Upload a CSV file containing RAG data to the database.
+
+    Parameters
+    ----------
+    file : UploadFile
+        The PDF file sent by the user
+    embed : bool, optional
+        Whether to embed the data or not. Defaults to False.
+    db : Session
+        Database session
+
+    Returns
+    -------
+    ResponseBody
+        A response body containing a confirmation message upon successful completion of the process.
+    """
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+        temp_filename = temp_file.name
+        shutil.copyfileobj(file.file, temp_file)
+
+    await ahv_indexer.add_content_to_db(db, content=[Path(temp_filename)], source=file.filename, embed=embed)
+
+    os.remove(temp_filename)
+
+    return {"content": f"{file.filename}: PDF file indexed successfully"}
+
+
+
+@app.post("/add_rag_data_from_csv", summary="Insert data for RAG without embedding from a local csv file", status_code=200, response_model=ResponseBody)
+def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", embed: bool = False, db: Session = Depends(get_db)):
+    """
+    Add and index test data for RAG from csv files with optional embeddings.
+    The function acknowledges the following columns:
+
+    - *url:* source URL of the document
+    - *text:* Text content of the document
+    - *language (optional):* Language of the document
+    - *embedding (optional):* Embedding of the document
+    - *tag (optional):* Tag of the document
 
     Parameters
     ----------
@@ -122,7 +252,7 @@ def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", em
 @app.post("/add_faq_data_from_csv", summary="Insert data for FAQ without embedding from a local csv file", status_code=200, response_model=ResponseBody)
 def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", embed: bool = False, db: Session = Depends(get_db)):
     """
-    Add and index test data for RAG from csv files without embeddings.
+    Add and index test data for RAG from csv files with optional embeddings.
     The function acknowledges the following columns:
 
     - *url:* source URL of the information
@@ -130,6 +260,7 @@ def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", em
     - *answer:* Text content of the answer
     - *language (optional):* Language of the question and answer
     - *embedding (optional):* Embedding of the question
+    - *tag (optional):* Tag of the document
 
     Parameters
     ----------

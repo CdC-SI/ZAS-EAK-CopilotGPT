@@ -1,6 +1,6 @@
 from rag.llm.base import BaseLLM
 from rag.llm import OpenAILLM#, MlxLLM, LlamaCppLLM, HuggingFaceLLM
-from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS#, SUPPORTED_MLX_LLM_MODELS, SUPPORTED_LLAMACPP_LLM_MODELS, SUPPORTED_HUGGINGFACE_LLM_MODELS
+from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS, SUPPORTED_GROQ_LLM_MODELS#, SUPPORTED_MLX_LLM_MODELS, SUPPORTED_LLAMACPP_LLM_MODELS, SUPPORTED_HUGGINGFACE_LLM_MODELS
 
 
 class LLMFactory:
@@ -27,6 +27,8 @@ class LLMFactory:
             If the `llm_model` is not supported.
         """
         if llm_model in SUPPORTED_OPENAI_LLM_MODELS:
+            return OpenAILLM(model_name=llm_model, stream=stream)
+        if llm_model in SUPPORTED_GROQ_LLM_MODELS:
             return OpenAILLM(model_name=llm_model, stream=stream)
         # elif llm_model in SUPPORTED_MLX_LLM_MODELS:
         #     return MlxLLM(model_name=llm_model)
