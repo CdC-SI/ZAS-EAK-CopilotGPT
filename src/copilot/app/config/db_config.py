@@ -10,6 +10,9 @@ logger = logging.getLogger(__name__)
 # Database connection parameters
 @dataclass
 class DBConfiguration:
+    without_db: bool
+    echo: bool
+    
     user: str
     password: str
     database: str
