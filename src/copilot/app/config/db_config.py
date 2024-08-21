@@ -6,6 +6,8 @@ from dataclasses import dataclass
 @dataclass
 class DBConfiguration:
     enabled: bool
+    echo: bool
+
     user: str
     password: str
     database: str
@@ -17,6 +19,7 @@ class DBConfiguration:
         load_dotenv()
 
         self.enabled = os.getenv("ENABLED", "true").lower() in ('true', '1', 't')
+        self.echo = os.getenv("DEBUG_SQL", "true").lower() in ('true', '1', 't')
 
         self.user = os.getenv("POSTGRES_USER", "postgres")
         self.password = os.getenv("POSTGRES_PASSWORD", "postgres")

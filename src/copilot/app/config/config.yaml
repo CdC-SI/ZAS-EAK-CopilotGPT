@@ -21,13 +21,9 @@ rag:
   retrieval:
     retrieval_method:
       - "top_k_retriever"
-      # - "bm25_retriever"
-      # - "query_rewriting_retriever"
-      # - "contextual_compression_retriever"
-      # - "rag_fusion_retriever"
       - "reranking"
     top_k_retriever_params:
-      top_k: 10
+      top_k: 100
     bm25_retriever_params:
       k: 1.2
       b: 0.75
@@ -43,15 +39,15 @@ rag:
       top_k: 3
     reranking_params:
       model: rerank-multilingual-v3.0
-      top_k: 10
+      top_k: 5
     routing:
       model: openai
-    top_k: 100
+    top_k: 10
     metric: cosine_similarity
   llm:
-    model: gpt-4o-mini
+    model: gpt-4o
     temperature: 0
-    max_output_tokens: 512
+    max_output_tokens: 2048
     top_p: 0.95
     stream: true
 indexing:

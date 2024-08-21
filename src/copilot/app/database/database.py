@@ -52,7 +52,7 @@ def get_engine(configuration: DBConfiguration, retries: int = 10, delay: int = 5
     while attempt < retries:
         try:
             db_url = f"postgresql://{configuration.user}:{configuration.password}@{configuration.host}:{configuration.port}/{configuration.database}"
-            engine = create_engine(db_url, future=True)
+            engine = create_engine(db_url, future=True, echo=configuration.echo)
 
             # Try to connect to check if the connection is established
             connection = engine.connect()
