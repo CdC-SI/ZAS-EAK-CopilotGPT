@@ -1,15 +1,17 @@
 import sys
 
+from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS, SUPPORTED_GROQ_LLM_MODELS, SUPPORTED_OPENAI_EMBEDDING_MODELS
+
 def check_env_vars(config):
 
-    # Documentation
+    # Documentation
     documentation = {"eak_copilot": "https://cdc-si.github.io/ZAS-EAK-CopilotGPT/",
                      "openai_api": "https://platform.openai.com/docs/models",}
 
-    # Define supported configs
+    supported_llm_models = SUPPORTED_OPENAI_LLM_MODELS + SUPPORTED_GROQ_LLM_MODELS
+
+    # Define supported configs
     supported_similarity_metrics = ["cosine_similarity"]
-    supported_embedding_models = ["text-embedding-ada-002"]
-    supported_llm_models = ["gpt-3.5-turbo-0125", "gpt-4-turbo-preview", "gpt-4o-mini"]
 
     # Check environment variables for autocomplete
     if config["autocomplete"]["enabled"]:
@@ -34,7 +36,7 @@ def check_env_vars(config):
 
     # Check environment variables for rag
     if config["rag"]["enabled"]:
-        if config["rag"]["embedding"]["model"] not in supported_embedding_models:
+        if config["rag"]["embedding"]["model"] not in SUPPORTED_OPENAI_EMBEDDING_MODELS:
             print(f'Invalid value for "rag.embedding.model" in config/config.yaml. Please read the documentation at {documentation["openai_api"]}/embeddings for more information.')
             sys.exit(1)
         if config["rag"]["retrieval"]["top_k"] <= 0:
@@ -61,7 +63,7 @@ def check_env_vars(config):
 
     # Check environment variables for indexing
     if config["indexing"]["enabled"]:
-        if not isinstance (config["indexing"]["dev_mode"], bool):
+        if not isinstance(config["indexing"]["dev_mode"], bool):
             print('Invalid value for "indexing.dev_mode" in config/config.yaml. Please read the documentation at https://cdc-si.github.io/eak-copilot/ for more information.')
             sys.exit(1)
         if not isinstance(config["indexing"]["faq"]["auto_index"], bool):
