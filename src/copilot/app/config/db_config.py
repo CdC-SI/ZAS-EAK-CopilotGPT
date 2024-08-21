@@ -20,7 +20,8 @@ class DBConfiguration:
         # Load environment variables from .env file
         load_dotenv()
 
-        self.without_db = os.getenv("RUN_WITHOUT_DB") == 'true'
+        self.without_db = os.getenv("RUN_WITHOUT_DB", "true").lower() in ('true', '1', 't')
+        self.without_db = os.getenv("DEBUG_SQL", "true").lower() in ('true', '1', 't')
 
         self.user = os.getenv("POSTGRES_USER", "postgres")
         self.password = os.getenv("POSTGRES_PASSWORD", "postgres")
