@@ -27,7 +27,7 @@ rag:
       # - "rag_fusion_retriever"
       - "reranking"
     top_k_retriever_params:
-      top_k: 10
+      top_k: 100
     bm25_retriever_params:
       k: 1.2
       b: 0.75
@@ -46,7 +46,7 @@ rag:
       top_k: 10
     routing:
       model: openai
-    top_k: 100
+    top_k: 10
     metric: cosine_similarity
   llm:
     model: gpt-4o-mini
