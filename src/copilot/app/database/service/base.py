@@ -297,7 +297,7 @@ class EmbeddingService(BaseService):
         Base
             Database object
         """
-        return db.query(self.model).filter(self.model.text == text)..first()
+        return db.query(self.model).filter(self.model.text == text).first()
 
     def _update(self, db: Session, db_obj, obj_in, embed=False):
         super()._update(db, db_obj, obj_in)
