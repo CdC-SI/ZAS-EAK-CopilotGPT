@@ -1,4 +1,5 @@
 from typing import List, Union
+import logging
 
 # Import env vars
 from config.base_config import rag_config
