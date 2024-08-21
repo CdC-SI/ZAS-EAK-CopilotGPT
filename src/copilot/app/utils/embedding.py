@@ -7,7 +7,7 @@ from config.openai_config import clientAI
 
 import openai
 
-supported_models = ["text-embedding-ada-002"]
+supported_models = ["text-embedding-ada-002", "text-embedding-3-large", "text-embedding-3-small"]
 
 logger = logging.getLogger(__name__)
 
