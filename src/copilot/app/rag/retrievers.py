@@ -80,7 +80,8 @@ class RetrieverClient(BaseRetriever):
                     result = future.result()
                     docs.extend(result)
                 except Exception as e:
-                    print(f"Retriever {retriever} raised an exception: {e}")
+                    logger.exception(f"Retriever {retriever} raised an exception.")
+                    return docs
 
         # Remove duplicate documents
         seen = set()
