@@ -1,4 +1,6 @@
-from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
+import os
+import logging
+from dotenv import load_dotenv
 
 from typing import List, Dict, Any
 
@@ -6,17 +8,30 @@ from rag.models import RAGRequest, EmbeddingRequest
 from rag.factory import RetrieverFactory
 from rag.llm.factory import LLMFactory
 from rag.llm.base import BaseLLM
+from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
 
 from sqlalchemy.orm import Session
 from utils.embedding import get_embedding
 
 from config.base_config import rag_config
 
+from langfuse.decorators import observe
+from langfuse import Langfuse
+
 # Setup logging
-import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+load_dotenv()
+LANGFUSE_SECRET_KEY = os.getenv("LANGFUSE_SECRET_KEY", None)
+LANGFUSE_PUBLIC_KEY = os.getenv("LANGFUSE_PUBLIC_KEY", None)
+LANGFUSE_HOST = os.getenv("LANGFUSE_HOST", None)
+
+langfuse = Langfuse(
+  secret_key=LANGFUSE_SECRET_KEY,
+  public_key=LANGFUSE_PUBLIC_KEY,
+  host=LANGFUSE_HOST
+)
 
 class RAGProcessor:
     """
@@ -72,6 +87,7 @@ class RAGProcessor:
         openai_rag_system_prompt = OPENAI_RAG_SYSTEM_PROMPT_DE.format(context_docs=context_docs, query=query)
         return [{"role": "system", "content": openai_rag_system_prompt},]
 
+    @observe()
     def retrieve(self, db: Session, request: RAGRequest, language: str = None, tag: str = None, k: int = 0):
         """
         Retrieve context documents related to the user input question.
@@ -93,6 +109,7 @@ class RAGProcessor:
 
         return rows if len(rows) > 0 else [{"text": "", "url": ""}]
 
+    @observe()
     def process(self, db: Session, request: RAGRequest, language: str = None, tag: str = None):
         """
         Process a RAGRequest to retrieve relevant documents and generate a response.
@@ -141,6 +158,7 @@ class RAGProcessor:
         embedding = get_embedding(text_input.text)
         return {"data": embedding}
 
+    @observe()
     def generate_stream(self, stream, source_url):
         for chunk in stream:
             if chunk.choices[0].delta.content is not None:
