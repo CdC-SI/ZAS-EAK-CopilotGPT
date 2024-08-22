@@ -38,7 +38,7 @@ class RetrieverClient(BaseRetriever):
         self.retrievers = retrievers
         self.reranker = reranker
 
-    def get_documents(self, db, query, k, language=None, tag=None) -> List[Document]:
+    def get_documents(self, db, query, k, language=None, tag=None) -> List[Dict]:
         """
         Retrieve documents using multiple retrievers in parallel, optionally rerank retrieved documents if a reranker is defined.
 
@@ -89,7 +89,7 @@ class RetrieverClient(BaseRetriever):
 
         # Remove duplicate documents
         seen = set()
-        unique_docs = [doc for doc in docs if doc.id not in seen and not seen.add(doc.id)]
+        unique_docs = [doc for doc in docs if doc["id"] not in seen and not seen.add(doc["id"])]
 
         unique_docs, _ = self.reranker.rerank(query, unique_docs)
 
@@ -108,7 +108,7 @@ class TopKRetriever(BaseRetriever):
     def __init__(self, top_k):
         self.top_k = top_k
 
-    def get_documents(self, db, query, k, language=None, tag=None) -> List[Document]:
+    def get_documents(self, db, query, k, language=None, tag=None) -> List[Dict]:
         """
         Retrieves the top k documents that semantically match the given query.
 

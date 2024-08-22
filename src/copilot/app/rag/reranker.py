@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 from config.clients_config import clientRerank
 
@@ -30,9 +30,9 @@ class Reranker:
         except Exception as e:
             logger.error(f"Reranker raised an exception: {e}")
 
-    def rerank(self, query, documents: List[Document]) -> Tuple[List[Document], List[int]]:
+    def rerank(self, query, documents: List[Dict]) -> Tuple[List[Dict], List[int]]:
         relevance_score = [0] * self.top_k  # Initialize relevance scores to 0
-        text_documents = [doc.text for doc in documents]
+        text_documents = [doc["text"] for doc in documents]
 
         logger.info(f"Reranking {len(documents)} documents...")
 
