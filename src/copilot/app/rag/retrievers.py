@@ -1,3 +1,4 @@
+import logging
 from typing import List, Dict, Any
 
 from rag.base import BaseRetriever
@@ -10,6 +11,9 @@ from database.service import document_service
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import numpy as np
 
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 class RetrieverClient(BaseRetriever):
     """
