@@ -42,5 +42,5 @@ class Reranker:
             relevance_score = [item.relevance_score for item in reranked_res]
 
         finally:
-            logger.info("Documents reranked.")
+            logger.info(f"Finished reranking {len(documents)} documents.")
             return documents[:self.top_k], relevance_score
