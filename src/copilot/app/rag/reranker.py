@@ -34,7 +34,7 @@ class Reranker:
         relevance_score = [0] * self.top_k  # Initialize relevance scores to 0
         text_documents = [doc.text for doc in documents]
 
-        logger.info("Starting reranking...")
+        logger.info(f"Reranking {len(documents)} documents...")
 
         try:
             reranked_res = self._rerank(query, text_documents)
