@@ -25,3 +25,6 @@ trafilatura==1.11.0
 pgvector
 SQLAlchemy
 psycopg2-binary
+
+# logging
+langfuse==2.44.0
