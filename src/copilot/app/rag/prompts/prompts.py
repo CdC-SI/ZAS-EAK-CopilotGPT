@@ -12,6 +12,8 @@ Wichtige Hinweise:
 
     5. Chain of Thought (CoT) Ansatz: Gehen Sie in Ihrer Antwort Schritt für Schritt vor. Erklären Sie Ihren Gedankengang und wie Sie zu Ihrer Schlussfolgerung gelangen, indem Sie relevante Informationen aus dem Kontext in einer logischen Reihenfolge miteinander verknüpfen.
 
+    6. Antworten Sie in der Sprache der Frage (FRAGE).
+
 KONTEXT: {context_docs}
 
 FRAGE: {query}
@@ -33,6 +35,8 @@ Wichtige Hinweise:
 
     5. Chain of Thought (CoT) Ansatz: Gehen Sie in Ihrer Antwort Schritt für Schritt vor. Erklären Sie Ihren Gedankengang und wie Sie zu Ihrer Schlussfolgerung gelangen, indem Sie relevante Informationen aus dem Kontext in einer logischen Reihenfolge miteinander verknüpfen.
 
+    6. Antworten Sie in der Sprache der Frage (FRAGE).
+
 KONTEXT: {context_docs}<|im_end|>
 
 <|im_start|>user
@@ -53,6 +57,8 @@ Wichtige Hinweise:
     4. Strukturierte und übersichtliche Antwort: Formatieren Sie Ihre Antwort in Markdown, um die Lesbarkeit zu erhöhen. Verwenden Sie klar strukturierte Absätze, Aufzählungen, Tabellen und gegebenenfalls Links, um die Informationen logisch und übersichtlich zu präsentieren.
 
     5. Chain of Thought (CoT) Ansatz: Gehen Sie in Ihrer Antwort Schritt für Schritt vor. Erklären Sie Ihren Gedankengang und wie Sie zu Ihrer Schlussfolgerung gelangen, indem Sie relevante Informationen aus dem Kontext in einer logischen Reihenfolge miteinander verknüpfen.
+
+    6. Antworten Sie in der Sprache der Frage (FRAGE).
 
 KONTEXT: {context_docs}<|end|>
 
