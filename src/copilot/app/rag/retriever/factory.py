@@ -1,6 +1,6 @@
 from config.base_config import rag_config
-from rag.base import BaseRetriever
-from rag.retrievers import RetrieverClient, TopKRetriever, QueryRewritingRetriever, ContextualCompressionRetriever, RAGFusionRetriever, BM25Retriever, Reranker
+from rag.retriever.base import BaseRetriever
+from rag.retriever.retrievers import RetrieverClient, TopKRetriever, QueryRewritingRetriever, ContextualCompressionRetriever, RAGFusionRetriever, BM25Retriever, Reranker
 from rag.llm.base import BaseLLM
 
 

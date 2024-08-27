@@ -1,9 +1,9 @@
 import logging
 from typing import List, Dict, Any
 
-from rag.base import BaseRetriever
-from rag.prompts import QUERY_REWRITING_PROMPT, CONTEXTUAL_COMPRESSION_PROMPT
-from rag.reranker import Reranker
+from rag.retriever.base import BaseRetriever
+from rag.prompts.prompts import QUERY_REWRITING_PROMPT, CONTEXTUAL_COMPRESSION_PROMPT
+from rag.retriever.reranker import Reranker
 
 from schemas.document import Document, DocumentBase
 from database.service import document_service
@@ -91,7 +91,8 @@ class RetrieverClient(BaseRetriever):
         seen = set()
         unique_docs = [doc for doc in docs if doc["id"] not in seen and not seen.add(doc["id"])]
 
-        unique_docs, _ = self.reranker.rerank(query, unique_docs)
+        if self.reranker:
+            unique_docs, _ = self.reranker.rerank(query, unique_docs)
 
         return unique_docs[:k]
 
