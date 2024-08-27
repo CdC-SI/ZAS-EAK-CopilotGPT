@@ -43,7 +43,7 @@ SUPPORTED_HUGGINGFACE_LLM_MODELS = []
 DEFAULT_HUGGINGFACE_LLM_MODEL = ""
 
 # mlx
-SUPPORTED_MLX_LLM_MODELS = ["mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX"]
+SUPPORTED_MLX_LLM_MODELS = ["mlx-community/SmolLM-360M-Instruct", "mlx-community/Phi-3.5-mini-instruct-8bit", "mlx-community/Llama-2-7b-chat-mlx", "mlx-community/Llama-3-8B-Instruct-1048k-4bit", "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX"]
 DEFAULT_MLX_LLM_MODEL = "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX"
 
 # Llama-cpp
@@ -52,9 +52,9 @@ DEFAULT_LLAMACPP_LLM_MODEL = "Qwen/Qwen1.5-0.5B-Chat-GGUF"
 
 # Embedding models
 # OpenAI
-SUPPORTED_OPENAI_EMBEDDING_MODELS = ["text-embedding-ada-002"]
+SUPPORTED_OPENAI_EMBEDDING_MODELS = ["text-embedding-ada-002", "text-embedding-3-small", "text-embedding-3-large"]
 DEFAULT_OPENAI_EMBEDDING_MODEL = "text-embedding-ada-002"
 
 # Sentence-transformers
-SUPPORTED_ST_EMBEDDING_MODELS = []
-DEFAULT_ST_EMBEDDING_MODEL = ""
+SUPPORTED_ST_EMBEDDING_MODELS = ["sentence-transformers/distiluse-base-multilingual-cased-v1"]
+DEFAULT_ST_EMBEDDING_MODEL = "sentence-transformers/distiluse-base-multilingual-cased-v1"

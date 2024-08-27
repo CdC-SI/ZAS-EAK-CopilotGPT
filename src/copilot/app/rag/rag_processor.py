@@ -5,10 +5,11 @@ from dotenv import load_dotenv
 from typing import List, Dict, Any
 
 from rag.models import RAGRequest, EmbeddingRequest
-from rag.factory import RetrieverFactory
+from rag.retriever.factory import RetrieverFactory
 from rag.llm.factory import LLMFactory
+from rag.prompts.factory import PromptFactory
 from rag.llm.base import BaseLLM
-from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
+from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS
 
 from sqlalchemy.orm import Session
 from utils.embedding import get_embedding
@@ -47,7 +48,7 @@ class RAGProcessor:
     top_k : int
     """
     def __init__(self, llm: BaseLLM, max_token: int, temperature: float,
-                 top_p: float, retriever, top_k: int):
+                 top_p: float, retriever, top_k: int, prompt: str):
 
         self.llm_client = llm
         self.max_tokens = max_token
@@ -55,17 +56,7 @@ class RAGProcessor:
         self.top_p = top_p
         self.retriever_client = retriever
         self.k_retrieve = top_k
-
-    def init_retriever_client(self, retrieval_method: str = "top_k"):
-        """
-        Initialize and return a retriever client based on `retrieval_method`.
-
-        Returns
-        -------
-        object
-            An instance of the appropriate retriever client based on `retrieval_method`.
-        """
-        return RetrieverFactory.get_retriever_client(retrieval_method=retrieval_method)
+        self.prompt = prompt
 
     def create_rag_message(self, context_docs: List[Any], query: str) -> List[Dict]:
         """
@@ -84,8 +75,12 @@ class RAGProcessor:
             Contains the message in the correct format to send to the OpenAI API
 
         """
-        openai_rag_system_prompt = OPENAI_RAG_SYSTEM_PROMPT_DE.format(context_docs=context_docs, query=query)
-        return [{"role": "system", "content": openai_rag_system_prompt},]
+        system_prompt = self.prompt.format(context_docs=context_docs, query=query)
+
+        if self.llm_client.model_name in SUPPORTED_OPENAI_LLM_MODELS:
+            system_prompt = [{"role": "system", "content": system_prompt},]
+
+        return system_prompt
 
     @observe()
     def retrieve(self, db: Session, request: RAGRequest, language: str = None, tag: str = None, k: int = 0):
@@ -107,7 +102,7 @@ class RAGProcessor:
         """
         rows = self.retriever_client.get_documents(db, request.query, language=language, tag=tag, k=k)
 
-        return rows if len(rows) > 0 else [{"text": "", "url": ""}]
+        return rows if len(rows) > 0 else [{"id": -99, "text": "", "url": ""}]
 
     @observe()
     def process(self, db: Session, request: RAGRequest, language: str = None, tag: str = None):
@@ -171,10 +166,12 @@ class RAGProcessor:
 
 llm_client = LLMFactory.get_llm_client(llm_model=rag_config["llm"]["model"], stream=rag_config["llm"]["stream"])
 retriever_client = RetrieverFactory.get_retriever_client(retrieval_method=rag_config["retrieval"]["retrieval_method"], llm_client=llm_client)
+prompt = PromptFactory.get_prompt(llm_model=rag_config["llm"]["model"])
 
 processor = RAGProcessor(llm=llm_client,
                          max_token=rag_config["llm"]["max_output_tokens"],
                          temperature=rag_config["llm"]["temperature"],
                          top_p=rag_config["llm"]["top_p"],
                          retriever=retriever_client,
-                         top_k=rag_config["retrieval"]["top_k"])
+                         top_k=rag_config["retrieval"]["top_k"],
+                         prompt=prompt)
