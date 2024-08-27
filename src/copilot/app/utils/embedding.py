@@ -2,22 +2,23 @@ from typing import List, Union
 
 # Import env vars
 from config.base_config import rag_config
-from config.clients_config import clientEmbed
+from rag.embedding.factory import EmbeddingFactory
 
 import openai
 
 import logging
 logger = logging.getLogger(__name__)
 
+embedding_client = EmbeddingFactory.get_embedding_client(model_name=rag_config["embedding"]["model"])
 
 # Function to get embeddings for a text
-def get_embedding(text: Union[List[str], str]):
+def get_embedding(texts: Union[List[str], str]) -> Union[List[float], List[List[float]]]:
+
     try:
-        response = clientEmbed.embeddings.create(
-            input=text,
-            model=rag_config["embedding"]["model"],
+        embedding = embedding_client.embed(
+            texts=texts,
         )
-        return response.data[0].embedding
+        return embedding
     except openai.BadRequestError as e:
         logger.error(e.message)
         logger.error(f"Failed to get embeddings for text of length: {len(text)}")
