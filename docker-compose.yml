@@ -105,6 +105,20 @@ services:
       - langfuse-db
     restart: "no"
 
+  # Neo4j service
+  neo4j:
+    image: neo4j:latest
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD}
+    volumes:
+      - neo4j_data:/data
+    networks:
+      - copilot-network
+    restart: "no"
+
 networks:
   copilot-network:
     driver: bridge
@@ -113,3 +127,4 @@ networks:
 
 volumes:
   langfuse_db_data:
+  neo4j_data:
