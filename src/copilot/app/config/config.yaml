@@ -42,8 +42,9 @@ rag:
       top_k: 5
     routing:
       model: openai
-    top_k: 10
+    top_k: 5
     metric: cosine_similarity
+  source_isolation: false
   llm:
     model: gpt-4o
     temperature: 0
