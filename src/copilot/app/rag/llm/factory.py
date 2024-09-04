@@ -1,20 +1,22 @@
 from rag.llm.base import BaseLLM
-from rag.llm import OpenAILLM#, MlxLLM, LlamaCppLLM, HuggingFaceLLM
-from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS, SUPPORTED_GROQ_LLM_MODELS#, SUPPORTED_MLX_LLM_MODELS, SUPPORTED_LLAMACPP_LLM_MODELS, SUPPORTED_HUGGINGFACE_LLM_MODELS
+from rag.llm import OpenAILLM  # , MlxLLM, LlamaCppLLM, HuggingFaceLLM
+from config.config import RAGConfig
+from config.rag.config import LLMConfig
+
+from dataclasses import asdict
+from utils.enum import Client
 
 
 class LLMFactory:
     @staticmethod
-    def get_llm_client(llm_model: str, stream: bool) -> BaseLLM:
+    def get_llm_client(llm_config: LLMConfig) -> BaseLLM:
         """
         Factory method to instantiate llm clients based on a string identifier.
 
         Parameters
         ----------
-        llm_model : str
-            The name of the LLM model. Currently supported models are in config/llm_config.py.
-        stream : bool
-            Whether to stream the response as events or return a single text response.
+        llm_config : LLMConfig
+            LLM model configuration. Currently supported models are in config/rag/ai_models/supported.py.
 
         Returns
         -------
@@ -26,15 +28,14 @@ class LLMFactory:
         ValueError
             If the `llm_model` is not supported.
         """
-        if llm_model in SUPPORTED_OPENAI_LLM_MODELS:
-            return OpenAILLM(model_name=llm_model, stream=stream)
-        if llm_model in SUPPORTED_GROQ_LLM_MODELS:
-            return OpenAILLM(model_name=llm_model, stream=stream)
-        # elif llm_model in SUPPORTED_MLX_LLM_MODELS:
+        api = llm_config.model.value.api
+        if api == Client.OPENAI:  # or api == Client.GROQ:
+            return OpenAILLM(**asdict(llm_config))
+        # elif api == Client.LOCAL:
         #     return MlxLLM(model_name=llm_model)
-        # elif llm_model in SUPPORTED_LLAMACPP_LLM_MODELS:
+        # elif api == SUPPORTED_LLAMACPP_LLM_MODELS:
         #     return LlamaCppLLM(model_name=llm_model)
-        # elif llm_model in SUPPORTED_HUGGINGFACE_LLM_MODELS:
+        # elif api == SUPPORTED_HUGGINGFACE_LLM_MODELS:
         #     return HuggingFaceLLM(model_name=llm_model)
         else:
-            raise ValueError(f"Unsupported llm model type: {llm_model}")
+            raise ValueError(f"Unsupported api: {api}")

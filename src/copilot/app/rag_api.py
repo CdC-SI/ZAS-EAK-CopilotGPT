@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from config.network_config import CORS_ALLOWED_ORIGINS
 
 # Load env variables
-from config.base_config import rag_app_config
+from config.config import RAGConfigApp
 
 # Load models
 from rag.rag_processor import processor
@@ -22,7 +22,7 @@ from database.database import get_db
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-app = FastAPI(**rag_app_config)
+app = FastAPI(**RAGConfigApp)
 
 # Setup CORS
 app.add_middleware(
@@ -75,6 +75,8 @@ async def docs(request: RAGRequest, language: str = None, tag: str = None, k: in
         The request object containing the query and context.
     language: str
         The language of the query.
+    tag: str
+        The tag of the documents to retrieve.
     k: int
         The number of documents to retrieve.
     db: Session

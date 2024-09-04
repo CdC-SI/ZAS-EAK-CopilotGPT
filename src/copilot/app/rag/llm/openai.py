@@ -9,9 +9,9 @@ import logging
 
 from typing import List, Any
 from rag.llm.base import BaseLLM
-from config.llm_config import DEFAULT_OPENAI_LLM_MODEL
 
-from config.clients_config import clientLLM
+from config.clients_config import Clients
+from config.rag.ai_models.supported import LLM
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -42,12 +42,12 @@ class OpenAILLM(BaseLLM):
     _stream()
         Generates a stream of events as response for a list of messages using the OpenAI LLM model.
     """
-    def __init__(self, model_name: str = DEFAULT_OPENAI_LLM_MODEL, stream: bool = True, temperature: float = 0.0, top_p: float = 0.95, max_tokens: int = 512):
-        self.model_name = model_name
+    def __init__(self, model: LLM, stream: bool, temperature: float, top_p: float, max_tokens: int):
+        self.model_name = model.value.name
         self.temperature = temperature
         self.top_p = top_p
         self.max_tokens = max_tokens
-        self.llm_client = clientLLM
+        self.llm_client = Clients.LLM.value
         super().__init__(stream)
 
     def generate(self, messages: List[dict]) -> str:

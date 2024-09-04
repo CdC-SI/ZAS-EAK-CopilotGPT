@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath('../src/copilot/app/rag'))
 # sys.path.insert(0, os.path.abspath('../other/app/path'))
 # missing survey pipeline and gui
 
-os.environ['ENABLED'] = 'false'
+os.environ['DB_ENABLED'] = 'false'
 
 # -- Project information -----------------------------------------------------
 

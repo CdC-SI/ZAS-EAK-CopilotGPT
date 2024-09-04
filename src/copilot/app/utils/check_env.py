@@ -2,6 +2,7 @@ import sys
 
 from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS, SUPPORTED_GROQ_LLM_MODELS, SUPPORTED_OPENAI_EMBEDDING_MODELS
 
+
 def check_env_vars(config):
 
     # Documentation
@@ -21,11 +22,11 @@ def check_env_vars(config):
         if config["autocomplete"]["exact_match"]["limit"] < 0:
             print(f'Invalid value for "autocomplete.exact_match.limit" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')
             sys.exit(1)
-        if not config["autocomplete"]["fuzzy_match"]["threshold"] >= 1:
-            print(f'Invalid value for "autocomplete.fuzzy_match.threshold" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')
+        if not config["autocomplete"]["levenshtein_match"]["threshold"] >= 1:
+            print(f'Invalid value for "autocomplete.levenshtein_match.threshold" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')
             sys.exit(1)
-        if config["autocomplete"]["fuzzy_match"]["limit"] < 0:
-            print(f'Invalid value for "autocomplete.fuzzy_match.limit" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')
+        if config["autocomplete"]["levenshtein_match"]["limit"] < 0:
+            print(f'Invalid value for "autocomplete.levenshtein_match.limit" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')
             sys.exit(1)
         if config["autocomplete"]["semantic_similarity_match"]["limit"] < 0:
             print(f'Invalid value for "autocomplete.semantic_similarity_match.limit" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.')

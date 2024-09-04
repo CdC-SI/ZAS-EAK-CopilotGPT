@@ -2,6 +2,9 @@ from typing import Optional
 from sqlalchemy import Integer, ForeignKey, String, Text, DateTime, func, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
+
+from config.config import RAGConfig
+
 # SQLAlchemy-2.0.30
 
 from sqlalchemy.orm import declarative_base
@@ -9,7 +12,7 @@ from sqlalchemy.orm import declarative_base
 
 class EmbeddedMixin (object):
     text: Mapped[str] = mapped_column(Text, nullable=False)
-    embedding: Mapped[Optional[Vector]] = mapped_column(Vector(1536), nullable=True)
+    embedding: Mapped[Optional[Vector]] = mapped_column(Vector(RAGConfig.Embedding.value.output_dimension), nullable=True)
     language: Mapped[Optional[str]] = mapped_column(String(3), nullable=True)
     tag: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 

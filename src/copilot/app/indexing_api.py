@@ -4,14 +4,10 @@ import os
 from fastapi import FastAPI, Depends, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from config.network_config import CORS_ALLOWED_ORIGINS
-
-from haystack.dataclasses import ByteStream
-from haystack.components.converters import PyPDFToDocument
-from haystack.components.preprocessors import DocumentCleaner, DocumentSplitter
 from pathlib import Path
 
 # Load env variables
-from config.base_config import indexing_config, indexing_app_config
+from config.config import IndexingConfig, IndexingConfigApp
 
 # Load utility functions
 from indexing.pipelines.admin import admin_indexer
@@ -43,37 +39,16 @@ async def init_indexing():
     """
     Initialize the database according to the configuration ``indexing_config`` specified in ``config.yaml``
     """
-    if indexing_config["faq"]["auto_index"]:
-        # With dev-mode, only index sample FAQ data
-        if indexing_config["dev_mode"]:
-            try:
-                logger.info("Auto-indexing sample FAQ data")
-                add_faq_data_from_csv()
-            except Exception as e:
-                logger.error("Dev-mode: Failed to index sample FAQ data: %s", e)
-        # If dev-mode is deactivated, scrap and index all bsv.admin.ch FAQ data
-        else:
-            try:
-                logger.info("Auto-indexing bsv.admin.ch FAQ data")
-                await index_faq_data()
-            except Exception as e:
-                logger.error("Failed to index bsv.admin.ch FAQ data: %s", e)
+    if IndexingConfig.enabled:
+        logger.info("Auto-indexing FAQ data from csv file")
+        add_faq_data_from_csv()
 
-    if indexing_config["rag"]["auto_index"]:
-        # With dev-mode, only index sample data
-        if indexing_config["dev_mode"]:
-            try:
-                logger.info("Auto-indexing sample RAG data")
-                add_rag_data_from_csv()
-            except Exception as e:
-                logger.error("Failed to index sample RAG data: %s", e)
-        # If dev-mode is deactivated, scrap and index all RAG data (NOTE: Will be implemented soon.)
-        else:
-            raise NotImplementedError("Feature is not implemented yet.")
+        logger.info("Auto-indexing sample RAG data")
+        add_rag_data_from_csv()
 
 
 # Create an instance of FastAPI
-app = FastAPI(**indexing_app_config)
+app = FastAPI(**IndexingConfigApp)
 
 # Setup CORS
 app.add_middleware(
@@ -214,7 +189,6 @@ async def upload_pdf_rag(file: UploadFile = File(...), embed: bool = False, db: 
     return {"content": f"{file.filename}: PDF file indexed successfully"}
 
 
-
 @app.post("/add_rag_data_from_csv", summary="Insert data for RAG without embedding from a local csv file", status_code=200, response_model=ResponseBody)
 def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", embed: bool = False, db: Session = Depends(get_db)):
     """
@@ -296,6 +270,7 @@ def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", em
         language_column = "language" in data.fieldnames
         tag_column = "tag" in data.fieldnames
 
+        i = 0
         for row in data:
             embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
             language = row["language"] if language_column else None
@@ -303,6 +278,7 @@ def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", em
 
             question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file_path, language=language, tag=tag)
             question_service.upsert(db, question, embed=embed)
+            i += 1
 
     logger.info(f'Finished adding {i} entries to FAQ database.')
     return {"content": f"Successfully added {i} entries to FAQ database."}

@@ -1,7 +1,7 @@
 import hashlib
 from sqlalchemy.orm import Session
 
-from config.base_config import autocomplete_config
+from config.config import AutocompleteConfig
 from database.service.question import question_service
 
 
@@ -13,15 +13,15 @@ class Autocompleter:
     ----------
         limit : int
             number of results to return
-        fuzzy_match_threshold : int
-            threshold for fuzzy matching with levenshtein, only results with a similarity score below this threshold will be returned
+        levenshtein_match_threshold : int
+            threshold for trigram matching with levenshtein, only results with a similarity score below this threshold will be returned
         trigram_match_threshold : int
             threshold for trigram matching, only results with a similarity score above this threshold will be returned
     """
 
-    def __init__(self, limit: int, fuzzy_match_threshold: int, trigram_match_threshold: int):
+    def __init__(self, limit: int, levenshtein_match_threshold: int, trigram_match_threshold: int):
         self.limit = limit
-        self.fuzzy_match_threshold = fuzzy_match_threshold
+        self.levenshtein_match_threshold = levenshtein_match_threshold
         self.trigram_match_threshold = trigram_match_threshold
 
         self.semantic_matches_cache = {}
@@ -51,8 +51,8 @@ class Autocompleter:
         If the user input ends with a "?" character, return a set of questions that may be relevant to the user.
         Else return the results stored in the cache from the previous query.
 
-        If there are at lest 5 results from fuzzy matching, fuzzy matching returned. Otherwise, results of semantic
-        similarity matching are returned alongside the fuzzy matching results.
+        If there are at lest 5 results from trigram matching, trigram matching returned. Otherwise, results of semantic
+        similarity matching are returned alongside the trigram matching results.
 
         Parameters
         ----------
@@ -70,7 +70,7 @@ class Autocompleter:
         list of str
             a list of matching results
         """
-        # Get fuzzy match
+        # Get trigram match
         unique_matches = question_service.get_trigram_match(db,
                                                             question,
                                                             threshold=self.trigram_match_threshold,
@@ -78,12 +78,13 @@ class Autocompleter:
                                                             k=self.limit,
                                                             tag=tag)
 
-        # If the combined results from exact match and fuzzy match are more than 5, return results
+        # If the combined results from exact match and trigram match are more than 5, return results
         # note: value should be parametrized
         if len(unique_matches) >= 5:
             return unique_matches
 
-        # If the combined results from exact match and fuzzy match are less than 5, and the question ends with a space or a question mark, perform semantic matching
+        # If the combined results from exact match and trigram match are less than 5, and the question
+        # ends with a question mark, perform semantic matching
         if question[-1] == "?":
 
             # Get semantic matches from cached results
@@ -109,6 +110,6 @@ class Autocompleter:
 
 
 autocompleter = Autocompleter(
-    limit=autocomplete_config["results"]["limit"],
-    fuzzy_match_threshold=autocomplete_config["fuzzy_match"]["limit"],
-    trigram_match_threshold=autocomplete_config["trigram_match"]["threshold"])
+    limit=AutocompleteConfig.limit,
+    levenshtein_match_threshold=AutocompleteConfig.levenshtein_match.threshold,
+    trigram_match_threshold=AutocompleteConfig.trigram_match.threshold)

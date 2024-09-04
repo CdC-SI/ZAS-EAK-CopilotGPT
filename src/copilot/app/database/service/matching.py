@@ -42,9 +42,9 @@ class MatchingService(EmbeddingService):
 
         return db.scalars(stmt).all()
 
-    def get_fuzzy_match(self, db: Session, user_input: str, threshold: int = 150, language: str = None, k: int = 0, tag: str = None):
+    def get_levenshtein_match(self, db: Session, user_input: str, threshold: int = 150, language: str = None, k: int = 0, tag: str = None):
         """
-        Get fuzzy match from database using levenshtein distance
+        Get levenshtein match from database using levenshtein distance
 
         Parameters
         ----------

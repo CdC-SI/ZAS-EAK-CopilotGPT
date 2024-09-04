@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from dataclasses import dataclass
 
+
 # Database connection parameters
 @dataclass
 class DBConfiguration:
@@ -14,11 +15,13 @@ class DBConfiguration:
     host: str
     port: int
 
+    url: str
+
     def __init__(self):
         # Load environment variables from .env file
         load_dotenv()
 
-        self.enabled = os.getenv("ENABLED", "true").lower() in ('true', '1', 't')
+        self.enabled = os.getenv("DB_ENABLED", "true").lower() in ('true', '1', 't')
         self.echo = os.getenv("DEBUG_SQL", "true").lower() in ('true', '1', 't')
 
         self.user = os.getenv("POSTGRES_USER", "postgres")
@@ -27,4 +30,7 @@ class DBConfiguration:
         self.host = os.getenv("POSTGRES_HOST", "localhost")
         self.port = int(os.getenv("POSTGRES_PORT", "5432"))
 
+        self.url = f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}"
 
+
+DBCONFIG = DBConfiguration()

@@ -48,7 +48,7 @@ Please check the ```CONTRIBUTORS.md``` file to contribute to the ZAS/EAK Copilot
 ## How it works
 
 The ZAS/EAK CopilotGPT currently features:
-- **Question autosuggest**: High quality curated questions (from FAQ) are suggested in the chatbar based on the user input. Validated answers with sources are then returned in the chat. Autocomplete currently supports exact match, fuzzy match and semantic similarity match.
+- **Question autosuggest**: High quality curated questions (from FAQ) are suggested in the chatbar based on the user input. Validated answers with sources are then returned in the chat. Autocomplete currently supports exact match, levenshtein distance match, trigram match and semantic similarity match.
 - **RAG**: When no known question/answer pairs are found through autosuggest, RAG is initiated. A semantic similarity search will match the most relevant indexed documents in a vector database and an LLM will generate an answer based on these documents, providing the source of the answer.
 
 ## Getting Started
