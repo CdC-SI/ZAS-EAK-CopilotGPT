@@ -139,5 +139,5 @@ llm_client = LLMFactory.get_llm_client(RAGConfig.LLM)
 retrievers = RetrieverFactory.get_retriever_client(**asdict(RAGConfig.Retrieval))
 
 processor = RAGProcessor(llm=llm_client,
-                         stream=RAGConfig.Streaming.value,
+                         stream=RAGConfig.stream,
                          retriever_client=retrievers)
