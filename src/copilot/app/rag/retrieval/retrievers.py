@@ -1,3 +1,4 @@
+import logging
 from typing import List, Dict, Any
 from enum import Enum
 from utils.enum import GetItemUpper
@@ -14,6 +15,9 @@ from config.clients_config import Clients
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import numpy as np
 
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 class RetrieverClient(BaseRetriever):
     """
@@ -85,7 +89,8 @@ class RetrieverClient(BaseRetriever):
                     result = future.result()
                     docs.extend(result)
                 except Exception as e:
-                    print(f"Retriever {retriever} raised an exception: {e}")
+                    logger.exception(f"Retriever {retriever} raised an exception.")
+                    return docs
 
         # Remove duplicate documents
         seen = set()

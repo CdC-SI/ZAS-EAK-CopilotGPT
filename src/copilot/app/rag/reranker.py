@@ -34,9 +34,11 @@ class Reranker:
             return documents, [0] * len(documents)
 
         text_documents = [doc.text for doc in documents]
+        logger.info(f"Reranking {len(documents)} documents...")
 
         reranked_res = self._rerank(query, text_documents)
         documents = [documents[item.index] for item in reranked_res]
         relevance_score = [item.relevance_score for item in reranked_res]
 
+        logger.info(f"Finished reranking {len(documents)} documents.")
         return documents[:self.top_k], relevance_score

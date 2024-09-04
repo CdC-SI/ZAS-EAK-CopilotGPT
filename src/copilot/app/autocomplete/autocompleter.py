@@ -92,7 +92,7 @@ class Autocompleter:
             if cache_key in self.semantic_matches_cache:
                 semantic_match = self.semantic_matches_cache[cache_key]
             else:
-                semantic_match = await question_service.get_semantic_match(db, question, language, k=self.limit, tag=tag)
+                semantic_match = question_service.get_semantic_match(db, question, language, k=self.limit, tag=tag)
                 self.semantic_matches_cache[cache_key] = semantic_match
 
             # Remove duplicates and preserve order
