@@ -27,11 +27,12 @@ class RAGProcessor:
     Parameters
     ----------
     llm : BaseLLM
+    stream: bool
     retriever_client : RetrieverClient
     """
-    def __init__(self, llm: BaseLLM, retriever_client: RetrieverClient):
-
+    def __init__(self, llm: BaseLLM, stream: bool, retriever_client: RetrieverClient):
         self.llm_client = llm
+        self.stream = stream
         self.retriever_client = retriever_client
 
     def create_rag_message(self, context_docs: List[Any], query: str) -> List[Dict]:
@@ -49,7 +50,6 @@ class RAGProcessor:
         -------
         list of dict
             Contains the message in the correct format to send to the OpenAI API
-
         """
         openai_rag_system_prompt = OPENAI_RAG_SYSTEM_PROMPT_DE.format(context_docs=context_docs, query=query)
         return [{"role": "system", "content": openai_rag_system_prompt},]
@@ -68,8 +68,6 @@ class RAGProcessor:
             Question and context documents language
         tag : str
             Tag to filter the context documents
-        k : int, default 0
-            Number of context documents to return
         """
         rows = self.retriever_client.get_documents(db, request.query, language=language, tag=tag)
         logger.info(f"Retrieved {len(rows)} documents")
@@ -80,7 +78,8 @@ class RAGProcessor:
         """
         Process a RAGRequest to retrieve relevant documents and generate a response.
 
-        This method retrieves relevant documents from the database, constructs a context from the documents, and then uses an LLM client to generate a response based on the request query and the context.
+        This method retrieves relevant documents from the database, constructs a context from the documents, and then
+        uses an LLM client to generate a response based on the request query and the context.
 
         Parameters
         ----------
@@ -106,7 +105,7 @@ class RAGProcessor:
         messages = self.create_rag_message(context_docs, request.query)
         logger.info(messages)
 
-        stream = self.llm_client.call(messages)
+        stream = self.llm_client.generate(messages, self.stream)
 
         return self.generate_stream(stream, source_url)
 
@@ -140,4 +139,5 @@ llm_client = LLMFactory.get_llm_client(RAGConfig.LLM)
 retrievers = RetrieverFactory.get_retriever_client(**asdict(RAGConfig.Retrieval))
 
 processor = RAGProcessor(llm=llm_client,
+                         stream=RAGConfig.Streaming.value,
                          retriever_client=retrievers)

@@ -63,7 +63,7 @@ class RetrieverFactory:
         reranker = None
         if Reranking:
             if not isinstance(Reranking, dict):
-                reranker_config = RerankingConfig()
+                Reranking = RerankingConfig()
             reranker = Reranker(**Reranking)
             logger.info(f"Adding a reranker: {Reranking}")
 

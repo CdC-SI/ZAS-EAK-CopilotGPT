@@ -12,8 +12,6 @@ class LLMConfig:
     max_tokens: int = 2048
     top_p: float = 0.95
 
-    stream: bool = True
-
     def __post_init__(self):
         if not isinstance(self.model, LLM):
             self.model = LLM[str(self.model)]
@@ -31,6 +29,7 @@ class LLMConfig:
 @dataclass
 class RAGConfig:
     enabled: bool = True
+    stream: bool = True
 
     Embedding: EmbeddingConfig = EmbeddingConfig.TEXT_EMBEDDING_ADA_002
     Retrieval: RetrievalConfig = RetrievalConfig()
