@@ -6,8 +6,8 @@ from config.clients_config import Clients
 
 import openai
 
-import logging
-logger = logging.getLogger(__name__)
+from utils.logging import get_logger
+logger = get_logger(__name__)
 
 embedding_client = Clients.EMBEDDING.value
 
