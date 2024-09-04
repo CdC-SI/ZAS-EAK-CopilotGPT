@@ -3,10 +3,14 @@ import os
 import yaml
 from enum import Enum
 from typing import Dict
+from dataclasses import asdict, is_dataclass
 
 from .autocomplete.config import AutocompleteConfig as AutocompleteParams
 from .rag.config import RAGConfig as RAGParams
 from config.indexing.config import IndexingConfig as IndexingParams
+
+from utils.logging import get_logger
+logger = get_logger(__name__)
 
 
 class Services(Enum):
@@ -21,19 +25,43 @@ def get_path(path: str) -> str:
 
 # Path to the YAML configuration file
 CONFIG_PATH = get_path('config.yaml')
+RUNNING_CONFIG_PATH = get_path('running_config.yaml')
 APP_CONFIG_PATH = get_path('app_config.yaml')
+
+
+def enum_handling_dict(data):
+    d = {}
+    for k, v in data:
+        logger.info(f'key: {k}, value: {v}')
+        if isinstance(v, Enum):
+            if is_dataclass(v.value):
+                d.update({k: enum_handling_dict(asdict(v.value).items())})
+            else:
+                d.update({k: v.name})
+        else:
+            d.update({k: v})
+            if k == 'enabled' and not v:
+                return d
+    return d
 
 
 def load_config():
     with open(CONFIG_PATH, 'r') as file:
         config = yaml.safe_load(file)
+        config = config if isinstance(config, dict) else {}
 
     configs = {}
     for service in Services:
         params = config.get(service.name)
-        params = params if isinstance(params, dict) else {'enabled': bool(params)}
+        if not isinstance(params, dict):
+            params = {'enabled': bool(params)} if params is not None else {}
 
         configs.update({service.name: service.value(**params)})
+
+    with open(RUNNING_CONFIG_PATH, 'w+') as file:
+        yaml.dump({key: asdict(value, dict_factory=enum_handling_dict) for key, value in configs.items()},
+                  file,
+                  allow_unicode=True)
 
     return configs
 
