@@ -6,12 +6,13 @@ from utils.enum import GetItemUpper
 from rag.retrieval.base import BaseRetriever
 from rag.prompts import QUERY_REWRITING_PROMPT, CONTEXTUAL_COMPRESSION_PROMPT
 
-from schemas.document import Document
+from schemas.document import Document, DocumentBase
 from database.service import document_service
 
 from config.clients_config import Clients
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
 import numpy as np
 
 # Setup logging
@@ -188,7 +189,7 @@ class ContextualCompressionRetriever(BaseRetriever):
                             tag=doc.tag)
         return None
 
-    def get_documents(self, db, query, language=None, tag=None) -> List[Document]:
+    def get_documents(self, db, query, language=None, tag=None) -> List[str]:
         """
         Retrieves the top k documents that semantically match the given query, then applies contextual compression.
 
@@ -208,10 +209,10 @@ class ContextualCompressionRetriever(BaseRetriever):
         list
             A list of the top k documents that semantically match the query.
         """
-        docs = document_service.get_semantic_match(db, query, language=language, tag=tag, k=self.top_k)
+        docs = document_service.get_semantic_match(db, query, language=language, tag=tag, k=self.k)
         compressed_docs = self.compress_context(query, docs)
 
-        return compressed_docs[:self.top_k] + ([Document(text="", url="")]*(self.top_k - len(compressed_docs)))
+        return compressed_docs[:self.top_k] + ([""]*(self.top_k - len(compressed_docs)))
 
 
 class RAGFusionRetriever(BaseRetriever):
@@ -321,7 +322,7 @@ class BM25Retriever(BaseRetriever):
         self.b = b
         self.top_k = top_k
 
-    def bm25_score(self, query: str, docs: List[Any]) -> np.array:
+    def bm25_score(self, query: str, docs: List[str]) -> np.array:
         """
         Computes the BM25 score for each document given a query.
 
@@ -338,18 +339,20 @@ class BM25Retriever(BaseRetriever):
             The BM25 scores for the documents.
         """
         # CHECK doc_len (n chars or n words)
-        doc_len = np.array([len(doc.text) for doc in docs])
-        avg_doc_len = np.mean(doc_len)
-        n_docs = len(docs)
-        freq = np.array([doc.text.count(query) for doc in docs])
+        text = np.array(docs, dtype=object)
+        length = np.frompyfunc(len, 1, 1)(text)
+        avg_length = np.mean(length)
+        n_docs = len(text)
+        freq = np.char.count(text, query)
+        tf = np.array((freq * (1 + self.k)) / (freq + self.k * (1 - self.b + self.b * length / avg_length)))
 
-        tf = np.array((freq * (1 + self.k)) / (freq + self.k * (1 - self.b + self.b * doc_len / avg_doc_len)))
-        N_q = sum([1 for doc in docs if query in doc.text])
+        freq[freq > 0] = 1
+        N_q = freq.sum()
         idf = np.log(((n_docs - N_q + 0.5) / (N_q + 0.5)) + 1)
 
         return tf * idf
 
-    def get_documents(self, db, query, language=None, tag=None) -> List[Document]:
+    def get_documents(self, db, query, language=None, tag=None) -> List[str]:
         """
         Retrieves the top k documents for a given query and language.
 
@@ -361,15 +364,15 @@ class BM25Retriever(BaseRetriever):
             The query to retrieve the documents for.
         language : str
             The language of the documents to retrieve.
-        k : int
-            The number of documents to retrieve.
+        tag : str
+            The tag to filter the documents to retrieve.
 
         Returns
         -------
         List[Document]
             The top k documents for the query.
         """
-        docs = document_service.get_all_documents(db, tag=tag)
+        docs = document_service.get_all_text(db, tag=tag)
 
         # compute bm25 score
         scores = self.bm25_score(query, docs)
@@ -377,7 +380,8 @@ class BM25Retriever(BaseRetriever):
         # sort retrieved context docs according to score
         top_docs = list(sorted(zip(docs, scores), key=lambda x: x[1], reverse=True))[:self.top_k]
 
-        docs = [Document.from_orm(doc) for doc, _ in top_docs]
+        docs = [doc for doc, _ in top_docs]
+
         return docs
 
 
