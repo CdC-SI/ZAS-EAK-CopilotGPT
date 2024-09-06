@@ -1,6 +1,5 @@
 from rag.llm.base import BaseLLM
 from rag.llm import OpenAILLM  # , MlxLLM, LlamaCppLLM, HuggingFaceLLM
-from config.config import RAGConfig
 from config.rag.config import LLMConfig
 
 from dataclasses import asdict

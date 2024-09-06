@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from ..models import Base, EmbeddedMixin
 from pydantic import BaseModel
 
-from utils.embedding import get_embedding
+from database.embedding import Embedder
 
 from abc import ABCMeta, abstractmethod
 from typing import Type
@@ -172,7 +172,7 @@ class EmbeddingService(BaseService):
     """
 
     def _embedding(self, db_obj: EmbeddedMixin, text: str):
-        db_obj.embedding = get_embedding(text)
+        db_obj.embedding = Embedder.embed(text)
         return db_obj
 
     def _embed(self, db_obj: EmbeddedMixin):

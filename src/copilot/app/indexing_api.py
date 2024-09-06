@@ -1,6 +1,6 @@
 import os
 
-from fastapi import FastAPI, Depends, File, UploadFile
+from fastapi import FastAPI, Depends, File, UploadFile, Response
 from fastapi.middleware.cors import CORSMiddleware
 from config.network_config import CORS_ALLOWED_ORIGINS
 from pathlib import Path
@@ -19,9 +19,6 @@ from database.service.document import document_service
 from schemas.question import Question, QuestionItem
 
 from database.database import get_db, Session
-
-# Load models
-from rag.models import ResponseBody
 
 import tempfile
 import shutil
@@ -43,7 +40,7 @@ app.add_middleware(
 )
 
 
-@app.post("/upload_csv_rag", summary="Upload a CSV file for RAG data", status_code=200, response_model=ResponseBody)
+@app.post("/upload_csv_rag", summary="Upload a CSV file for RAG data", status_code=200)
 def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
     """
     Upload a CSV file containing RAG data to the database with optional embeddings.
@@ -60,14 +57,14 @@ def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Sessio
 
     Returns
     -------
-    ResponseBody
-        A response body containing a confirmation message upon successful completion of the process.
+    Response
+        A confirmation message upon successful completion of the process.
     """
     n_entries = add_data_from_upload(file, db, CreateService.RAG, embed)
-    return {"content": f"Successfully added {n_entries} entries to RAG database."}
+    return {"message": f"Successfully added {n_entries} entries to RAG database."}
 
 
-@app.post("/upload_csv_faq", summary="Upload a CSV file for FAQ data", status_code=200, response_model=ResponseBody)
+@app.post("/upload_csv_faq", summary="Upload a CSV file for FAQ data", status_code=200)
 def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
     """
     Upload a CSV file containing RAG data to the database with optional embeddings.
@@ -84,14 +81,14 @@ def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Sessio
 
     Returns
     -------
-    ResponseBody
-        A response body containing a confirmation message upon successful completion of the process.
+    Response
+        Confirmation message upon successful completion of the process.
     """
     n_entries = add_data_from_upload(file, db, CreateService.FAQ, embed)
-    return {"content": f"Successfully added {n_entries} entries to FAQ database."}
+    return {"message": f"Successfully added {n_entries} entries to FAQ database."}
 
 
-@app.post("/upload_pdf_rag", summary="Upload a PDF file for RAG data", status_code=200, response_model=ResponseBody)
+@app.post("/upload_pdf_rag", summary="Upload a PDF file for RAG data", status_code=200)
 async def upload_pdf_rag(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
     """
     Upload a CSV file containing RAG data to the database.
@@ -107,8 +104,8 @@ async def upload_pdf_rag(file: UploadFile = File(...), embed: bool = False, db: 
 
     Returns
     -------
-    ResponseBody
-        A response body containing a confirmation message upon successful completion of the process.
+    Response
+        Confirmation message upon successful completion of the process.
     """
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
         temp_filename = temp_file.name
@@ -118,10 +115,10 @@ async def upload_pdf_rag(file: UploadFile = File(...), embed: bool = False, db: 
 
     os.remove(temp_filename)
 
-    return {"content": f"{file.filename}: PDF file indexed successfully"}
+    return {"message": f"{file.filename}: PDF file indexed successfully"}
 
 
-@app.post("/embed_rag_data", summary="Embed all data for RAG that have not been embedded yet", status_code=200, response_model=ResponseBody)
+@app.post("/embed_rag_data", summary="Embed all data for RAG that have not been embedded yet", status_code=200)
 def embed_rag_data(db: Session = Depends(get_db), embed_empty_only: bool = True, k: int = 0):
     """
     Embed all RAG data (documents) that have not been embedded yet.
@@ -137,14 +134,14 @@ def embed_rag_data(db: Session = Depends(get_db), embed_empty_only: bool = True,
 
     Returns
     -------
-    str
+    Response
         Confirmation message upon successful completion of the process
     """
     document_service.embed_many(db, embed_empty_only, k)
-    return {"content": "yay"}
+    return {"message": "Successfully embedded all RAG data"}
 
 
-@app.post("/embed_faq_data", summary="Embed all data for FAQ that have not been embedded yet", status_code=200, response_model=ResponseBody)
+@app.post("/embed_faq_data", summary="Embed all data for FAQ that have not been embedded yet", status_code=200)
 def embed_faq_data(db: Session = Depends(get_db), embed_empty_only: bool = True, k: int = 0):
     """
     Embed all FAQ questions that have not been embedded yet.
@@ -160,18 +157,17 @@ def embed_faq_data(db: Session = Depends(get_db), embed_empty_only: bool = True,
 
     Returns
     -------
-    str
+    Response
         Confirmation message upon successful completion of the process
     """
     question_service.embed_many(db, embed_empty_only, k)
-    return {"content": "yay"}
+    return {"message": "Successfully embedded all FAQ data"}
 
 
 @app.post("/index_pdfs_from_sitemap",
           summary="Index memento PDFs from the https://www.ahv-iv.ch/de/Sitemap-DE sitemap",
           response_description="Confirmation message upon successful indexing",
-          status_code=200,
-          response_model=ResponseBody)
+          status_code=200)
 async def index_pdfs_from_sitemap(sitemap_url: str = "https://www.ahv-iv.ch/de/Sitemap-DE", embed: bool = False, db: Session = Depends(get_db)):
     """
     Indexes PDFs from a given sitemap URL. The PDFs are scraped and their data is added to the
@@ -188,17 +184,17 @@ async def index_pdfs_from_sitemap(sitemap_url: str = "https://www.ahv-iv.ch/de/S
 
     Returns
     -------
-    ResponseBody
-        A response body containing a confirmation message upon successful completion of the process.
+    Response
+        Confirmation message upon successful completion of the process.
     """
-    return await ahv_indexer.index(sitemap_url, db, embed=embed)
+    docs = await ahv_indexer.index(sitemap_url, db, embed=embed)
+    return {"message": f"Successfully indexed {len(docs)} PDFs from the {sitemap_url}"}
 
 
 @app.post("/index_html_from_sitemap",
           summary="Index HTML from a sitemap",
           response_description="Confirmation message upon successful indexing",
-          status_code=200,
-          response_model=ResponseBody)
+          status_code=200)
 async def index_html_from_sitemap(sitemap_url: str = "https://eak.admin.ch/eak/de/home.sitemap.xml", embed: bool = False, db: Session = Depends(get_db)):
     """
     Indexes HTML from a given sitemap URL. The HTML pages are scraped and their data is added to the
@@ -215,10 +211,11 @@ async def index_html_from_sitemap(sitemap_url: str = "https://eak.admin.ch/eak/d
 
     Returns
     -------
-    ResponseBody
-        A response body containing a confirmation message upon successful completion of the process.
+    Response
+        Confirmation message upon successful completion of the process.
     """
-    return await admin_indexer.index(sitemap_url, db, embed=embed)
+    docs = await admin_indexer.index(sitemap_url, db, embed=embed)
+    return {"message": f"Successfully indexed {len(docs)} PDFs from the {sitemap_url}"}
 
 
 @app.put("/index_faq_data", summary="Insert Data from faq.bsv.admin.ch", response_description="Insert Data from faq.bsv.admin.ch")
@@ -241,7 +238,7 @@ async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xm
 
     Returns
     -------
-    str
+    Response
         Confirmation message upon successful completion of the process
     """
     scraper = BSVIndexer(sitemap_url)

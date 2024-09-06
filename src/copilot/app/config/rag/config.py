@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from .ai_models.supported import Embedding as EmbeddingConfig, LLM
+from config.ai_models.supported import LLM
 from .retrieval import RetrievalConfig
 
 
@@ -31,16 +31,18 @@ class RAGConfig:
     enabled: bool = True
     stream: bool = True
 
-    Embedding: EmbeddingConfig = EmbeddingConfig.TEXT_EMBEDDING_ADA_002
     Retrieval: RetrievalConfig = RetrievalConfig()
     LLM: LLMConfig = LLMConfig()
 
     def __post_init__(self):
-        if not isinstance(self.Embedding, EmbeddingConfig):
-            self.Embedding = EmbeddingConfig[str(self.Embedding)]
-
         if not isinstance(self.Retrieval, RetrievalConfig):
-            params = self.Retrieval if isinstance(self.Retrieval, dict) else {}
+            params = {}
+            if isinstance(self.Retrieval, dict):
+                params = self.Retrieval
+            elif isinstance(self.Retrieval, list):
+                params = {'retrievers': self.Retrieval}
+            elif isinstance(self.Retrieval, str):
+                params = {'retrievers': [self.Retrieval]}
             self.Retrieval = RetrievalConfig(**params)
 
         if not isinstance(self.LLM, LLMConfig):

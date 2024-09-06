@@ -13,16 +13,13 @@ class Autocompleter:
     ----------
         limit : int
             number of results to return
-        levenshtein_match_threshold : int
-            threshold for trigram matching with levenshtein, only results with a similarity score below this threshold will be returned
-        trigram_match_threshold : int
-            threshold for trigram matching, only results with a similarity score above this threshold will be returned
+        threshold : int
+            threshold for fuzzy matching
     """
 
-    def __init__(self, limit: int, levenshtein_match_threshold: int, trigram_match_threshold: int):
+    def __init__(self, limit: int, threshold: int):
         self.limit = limit
-        self.levenshtein_match_threshold = levenshtein_match_threshold
-        self.trigram_match_threshold = trigram_match_threshold
+        self.threshold = threshold
 
         self.semantic_matches_cache = {}
 
@@ -44,7 +41,7 @@ class Autocompleter:
         """
         return hashlib.md5(f"{question}_{language}".encode()).hexdigest()
 
-    async def get_autocomplete(self, db: Session, question: str, language: str = None, k: int = 0, tag: str = None):
+    async def get_autocomplete(self, db: Session, question: str, language: str = None, tag: str = None, k: int = 0):
         """
         Returns matching results according to a defined behaviour.
 
@@ -62,6 +59,8 @@ class Autocompleter:
             question to match
         language : str
             question and results language
+        tag : str
+            tag of the documents to search
         k : int
             number of results to return
 
@@ -73,7 +72,7 @@ class Autocompleter:
         # Get trigram match
         unique_matches = question_service.get_trigram_match(db,
                                                             question,
-                                                            threshold=self.trigram_match_threshold,
+                                                            threshold=self.threshold,
                                                             language=language,
                                                             k=self.limit,
                                                             tag=tag)
@@ -111,5 +110,4 @@ class Autocompleter:
 
 autocompleter = Autocompleter(
     limit=AutocompleteConfig.limit,
-    levenshtein_match_threshold=AutocompleteConfig.levenshtein_match.threshold,
-    trigram_match_threshold=AutocompleteConfig.trigram_match.threshold)
+    threshold=AutocompleteConfig.trigram_match.threshold)

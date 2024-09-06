@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func, select
 
-from .base import EmbeddingService
-from utils.embedding import get_embedding
+from config.config import AutocompleteConfig
+
+from .base import EmbeddingService, Embedder
 
 
 class MatchingService(EmbeddingService):
@@ -10,7 +11,12 @@ class MatchingService(EmbeddingService):
     Class that provide services for matching text with database entries
     """
 
-    def get_exact_match(self, db: Session, user_input: str, language: str = None, k: int = 0, tag: str = None):
+    def get_exact_match(self,
+                        db: Session,
+                        user_input: str,
+                        language: str = None,
+                        tag: str = None,
+                        k: int = AutocompleteConfig.exact_match.limit):
         """
         Get exact match from database
 
@@ -21,8 +27,10 @@ class MatchingService(EmbeddingService):
             User input to match database entries
         language : str, optional
             Question and results language
+        tag : str, optional
+            Tag of the document text
         k : int, optional
-            Number of results to return
+            Number of results to return, default to config settings (10)
 
         Returns
         -------
@@ -42,7 +50,13 @@ class MatchingService(EmbeddingService):
 
         return db.scalars(stmt).all()
 
-    def get_levenshtein_match(self, db: Session, user_input: str, threshold: int = 150, language: str = None, k: int = 0, tag: str = None):
+    def get_levenshtein_match(self,
+                              db: Session,
+                              user_input: str,
+                              language: str = None,
+                              tag: str = None,
+                              k: int = AutocompleteConfig.levenshtein_match.limit,
+                              threshold: int = AutocompleteConfig.levenshtein_match.threshold):
         """
         Get levenshtein match from database using levenshtein distance
 
@@ -51,11 +65,14 @@ class MatchingService(EmbeddingService):
         db : Session
         user_input : str
             User input to match database entries
-        threshold : int, optional
         language : str, optional
             Question and results language
+        tag : str, optional
+            Tag of the document text
         k : int, optional
-            Number of results to return
+            Number of results to return, default to config settings (10)
+        threshold : int, optional
+            Levenshtein distance threshold, default to config settings (150)
 
         Returns
         -------
@@ -76,7 +93,13 @@ class MatchingService(EmbeddingService):
 
         return db.scalars(stmt).all()
 
-    def get_trigram_match(self, db: Session, user_input: str, threshold: int = 0.4, language: str = None, k: int = 0, tag: str = None):
+    def get_trigram_match(self,
+                          db: Session,
+                          user_input: str,
+                          language: str = None,
+                          tag: str = None,
+                          k: int = AutocompleteConfig.trigram_match.limit,
+                          threshold: int = AutocompleteConfig.trigram_match.threshold):
         """
         Get trigram match from database
 
@@ -85,12 +108,14 @@ class MatchingService(EmbeddingService):
         db : Session
         user_input : str
             User input to match database entries
-        threshold : int, optional
-            Trigram similarity threshold, default to 0.4
         language : str, optional
             Question and results language
+        tag : str, optional
+            Tag of the document text
         k : int, optional
-            Number of results to return, default to 0 (return all results)
+            Number of results to return, default to config settings (0, return all results)
+        threshold : int, optional
+            Trigram similarity threshold, default to config settings (0.4)
         """
         stmt = select(self.model)
         if language:
@@ -106,7 +131,13 @@ class MatchingService(EmbeddingService):
 
         return db.scalars(stmt).all()
 
-    def get_semantic_match(self, db: Session, user_input: str, language: str = None, k: int = 0, symbol: str = "<=>", tag: str = None):
+    def get_semantic_match(self,
+                           db: Session,
+                           user_input: str,
+                           language: str = None,
+                           tag: str = None,
+                           k: int = AutocompleteConfig.semantic_match.limit,
+                           symbol: str = AutocompleteConfig.semantic_match.metric.value):
         """
         Get semantic similarity match from database
 
@@ -115,18 +146,20 @@ class MatchingService(EmbeddingService):
         db : Session
         user_input : str
             User input to match database entries
-        symbol : str, optional
-            distance function symbol, default to `<=>` (cosine distance). For other options, see https://github.com/pgvector/pgvector
         language : str, optional
             Question and results language
+        tag : str, optional
+            Tag of the document text
         k : int, optional
-            Number of results to return, default to 0 (return all results)
+            Number of results to return, default to config settings (return all results)
+        symbol : str, optional
+            distance function symbol, default to config settings. For other options, see https://github.com/pgvector/pgvector
 
         Returns
         -------
         list of dict
         """
-        q_embedding = get_embedding(user_input)
+        q_embedding = Embedder.embed(user_input)
 
         stmt = select(self.model)
         stmt = stmt.filter(self.model.embedding.isnot(None))  # filter out entries without embedding
@@ -140,6 +173,12 @@ class MatchingService(EmbeddingService):
             stmt = stmt.limit(k)
 
         return db.scalars(stmt).all()
+
+    def semantic_similarity_match_cosine(self, db: Session, user_input: str, language: str = None, k: int = 0, tag: str = None):
+        """
+        Get semantic similarity match from database using cosine distance
+        """
+        return self.get_semantic_match(db, user_input, language=language, k=k, symbol="<=>", tag=tag)
 
     def semantic_similarity_match_l1(self, db: Session, user_input: str, language: str = None, k: int = 0, tag: str = None):
         """

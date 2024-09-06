@@ -7,11 +7,11 @@ Classes:
 
 import logging
 
-from typing import List, Any
+from typing import List
 from rag.llm.base import BaseLLM
 
 from config.clients_config import Clients
-from config.rag.ai_models.supported import LLM
+from config.ai_models.supported import LLM
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

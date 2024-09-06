@@ -1,14 +1,13 @@
 from typing import List, Tuple
 
 from config.clients_config import Clients
-from config.rag.ai_models.supported import Reranker as RerankerModel
+from config.ai_models.supported import Reranker as RerankerModel
 
 from database.models import Document
 
 # Setup logging
-import logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+from utils.logging import get_logger
+logger = get_logger(__name__)
 
 
 class Reranker:

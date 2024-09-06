@@ -9,7 +9,7 @@ class Matching(ABC):
 
     def __post_init__(self):
         if self.limit < 0:
-            self.limit = 1
+            self.limit = 10
 
 
 @dataclass
@@ -19,13 +19,13 @@ class ExactMatching(Matching):
 
 @dataclass
 class LevenshteinMatching(Matching):
-    limit: int = 50
-    threshold: int = 10
+    limit: int = 10
+    threshold: int = 50
 
     def __post_init__(self):
         super().__post_init__()
         if self.threshold < 0:
-            self.threshold = 0
+            self.threshold = 50
 
 
 @dataclass

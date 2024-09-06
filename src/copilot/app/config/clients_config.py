@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from enum import Enum
 
-from config.config import RAGConfig
+from config.config import RAGConfig, IndexingConfig
 from utils.enum import Client
 
 import logging
@@ -11,9 +11,8 @@ logger = logging.getLogger(__name__)
 
 
 def get_required_clients():
-    required_clients = {}
+    required_clients = {'Embedding': IndexingConfig.Embedding.value.api}
     if RAGConfig.enabled:
-        required_clients.update({'Embedding': RAGConfig.Embedding.value.api})
         required_clients.update({'LLM': RAGConfig.LLM.model.value.api})
         if RAGConfig.Retrieval.Reranking.enabled:
             required_clients.update({'Reranking': RAGConfig.Retrieval.Reranking.model.value.api})
@@ -59,7 +58,7 @@ def create_api_clients():
                     case Client.COHERE:
                         from cohere import Client as Cohere
                         client_val = Cohere(api_key=api_key, httpx_client=httpx_client)
-                    case _ :
+                    case _:
                         client_val = None
 
                 instanced_clients.update({client.name: client_val})

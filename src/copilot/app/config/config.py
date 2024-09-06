@@ -25,8 +25,8 @@ def get_path(path: str) -> str:
 
 # Path to the YAML configuration file
 CONFIG_PATH = get_path('config.yaml')
-RUNNING_CONFIG_PATH = get_path('running_config.yaml')
-APP_CONFIG_PATH = get_path('app_config.yaml')
+RUNNING_CONFIG_PATH = get_path('config_running.yaml')
+APP_CONFIG_PATH = get_path('config_app.yaml')
 
 
 def enum_handling_dict(data):

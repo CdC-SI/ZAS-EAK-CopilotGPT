@@ -13,7 +13,7 @@ from config.config import RAGConfigApp
 
 # Load models
 from rag.rag_processor import processor
-from rag.models import RAGRequest
+from schemas.common import RAGRequest
 
 from sqlalchemy.orm import Session
 from database.database import get_db
@@ -38,16 +38,14 @@ app.add_middleware(
           summary="Process RAG query endpoint",
           response_description="Return result from processing RAG query",
           status_code=200)
-async def process_query(request: RAGRequest, language: str = None, db: Session = Depends(get_db)):
+async def process_query(request: RAGRequest, db: Session = Depends(get_db)):
     """
     Main endpoint for the RAG service, processes a RAG query.
 
     Parameters
     ----------
     request: RAGRequest
-        The request object containing the query and context.
-    language: str
-        The language of the query.
+        The request object containing the query, optional language and optional tag.
     db: Session
         The database session.
 
@@ -56,8 +54,8 @@ async def process_query(request: RAGRequest, language: str = None, db: Session =
     StreamingResponse
         The response from the RAG processor
     """
-    content = processor.process(db, request, language=language)
-    return StreamingResponse(content, media_type="text/event-stream")
+    answer = processor.process(db, **request.model_dump())
+    return StreamingResponse(answer, media_type="text/event-stream")
 
 
 @app.post("/context_docs",
@@ -65,20 +63,14 @@ async def process_query(request: RAGRequest, language: str = None, db: Session =
           response_description="Return context docs from semantic search",
           response_model=List[Document],
           status_code=200)
-async def docs(request: RAGRequest, language: str = None, tag: str = None, k: int = 0, db: Session = Depends(get_db)):
+async def docs(request: RAGRequest, db: Session = Depends(get_db)):
     """
     Retrieve context documents for a given query.
 
     Parameters
     ----------
     request: RAGRequest
-        The request object containing the query and context.
-    language: str
-        The language of the query.
-    tag: str
-        The tag of the documents to retrieve.
-    k: int
-        The number of documents to retrieve.
+        The request object containing the query, optional language and optional tag.
     db: Session
         The database session.
 
@@ -88,7 +80,7 @@ async def docs(request: RAGRequest, language: str = None, tag: str = None, k: in
         The retrieved documents.
     """
 
-    return processor.retrieve(db, request, language, tag=tag, k=k)
+    return processor.retrieve(db, **request.model_dump())
 
 
 @app.get("/rerank",

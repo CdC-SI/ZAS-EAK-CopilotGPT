@@ -1,14 +1,15 @@
 from typing import Optional
+from dataclasses import asdict
 
-from rag.retrieval.base import BaseRetriever
-from rag.retrieval.retrievers import RetrieverClient, TopKRetriever, QueryRewritingRetriever, ContextualCompressionRetriever, RAGFusionRetriever, BM25Retriever, Retrievers
-from rag.reranker import Reranker
+from .client import RetrieverClient
+from .retrievers import Retrievers
+from .reranker import Reranker
+from .base import BaseRetriever
 
-from utils.enum import VectorMetric, RetrieverType
+from utils.enum import VectorMetric
 
 from config.rag import retrievers as config
 from config.rag.retrieval import RerankingConfig
-from dataclasses import asdict
 
 import logging
 # Setup logging
@@ -40,12 +41,8 @@ class RetrieverFactory:
             The number of documents to retrieve.
         metric : VectorMetric
             The metric to use for ranking the retrieved documents
-        retrievers : list[str] or list[config.Retriever]
-            A string or a list of strings or configuration items specifying the retrieval methods to use. Supported methods are:
-            - "top_k"
-            - "query_rewriting"
-            - "contextual_compression"
-            - "RAGFusion"
+        retrievers : list[dict]
+            A list of dict specifying the retrieval methods to use and their parameters.
         Reranking : RerankingConfig
 
         Returns
@@ -58,21 +55,46 @@ class RetrieverFactory:
         ValueError
             If an unsupported retrieval method is provided.
         """
-        all_retrievers = []
-
         reranker = None
         if Reranking:
             if not isinstance(Reranking, dict):
-                Reranking = RerankingConfig()
+                Reranking = asdict(RerankingConfig())
             reranker = Reranker(**Reranking)
             logger.info(f"Adding a reranker: {Reranking}")
+
+        all_retrievers = RetrieverFactory.get_retrievers(retrievers)
+
+        client = RetrieverClient(top_k=top_k, retrievers=all_retrievers, reranker=reranker)
+        return client
+
+    @staticmethod
+    def get_retrievers(retrievers: list[dict]) -> list[BaseRetriever]:
+        """
+        Create a list of retrievers based on the given retrieval method(s).
+
+        Parameters
+        ----------
+        retrievers : list[str] or list[config.Retriever]
+            A string or a list of strings or configuration items specifying the retrieval methods to use.
+            Supported methods are specified in the `Retrievers` enum.
+
+        Returns
+        -------
+        list[BaseRetriever]
+            A list of retrievers configured with the specified retrieval methods.
+        """
+        all_retrievers = []
 
         for retriever in retrievers:
             logger.info(f"Adding a retriever: {retriever}")
             if isinstance(retriever, dict):
                 all_retrievers.append(Retrievers[retriever.pop('type_').name].value(**retriever))
+            elif isinstance(retriever, BaseRetriever):
+                all_retrievers.append(retriever)
             else:
-                all_retrievers.append(Retrievers[str(retriever)].value())
+                try:
+                    all_retrievers.append(Retrievers[str(retriever)].value())
+                except KeyError:
+                    logger.error(f"Unsupported retrieval method: {retriever}")
 
-        client = RetrieverClient(top_k=top_k, retrievers=all_retrievers, reranker=reranker)
-        return client
+        return all_retrievers
