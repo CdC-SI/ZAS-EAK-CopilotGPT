@@ -135,7 +135,7 @@ class QueryRewritingRetriever(BaseRetriever):
 
         docs = []
         for query in rewritten_queries:
-            query_docs = document_service.get_semantic_match(db, query, language=language, tag=tag, k=self.k)
+            query_docs = document_service.get_semantic_match_text(db, query, language=language, tag=tag, k=self.top_k)
             docs.extend(query_docs)
 
         return docs

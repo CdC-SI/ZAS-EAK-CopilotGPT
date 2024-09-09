@@ -33,7 +33,7 @@ def get_httpx_client():
         logger.info(f"Setting up HTTP_PROXY: {http_proxy}")
         logger.info(f"Setting up REQUESTS_CA_BUNDLE: {requests_ca_bundle}")
 
-        from httpx import Client as HTTPXClient
+        from httpx import AsyncClient as HTTPXClient
         httpx_client = HTTPXClient(proxy=http_proxy, verify=requests_ca_bundle)
 
     return httpx_client

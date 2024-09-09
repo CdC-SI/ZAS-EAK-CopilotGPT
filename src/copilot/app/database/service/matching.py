@@ -131,15 +131,38 @@ class MatchingService(EmbeddingService):
 
         return db.scalars(stmt).all()
 
+    def _get_semantic_match(self,
+                            db: Session,
+                            selection,
+                            user_input: str,
+                            language: str = None,
+                            tag: str = None,
+                            k: int = AutocompleteConfig.semantic_match.limit,
+                            symbol: str = AutocompleteConfig.semantic_match.metric.value):
+        q_embedding = Embedder.embed(user_input)
+
+        stmt = select(selection)
+        stmt = stmt.filter(self.model.embedding.isnot(None))  # filter out entries without embedding
+        if language:
+            stmt = stmt.filter(self.model.language == language)
+        if tag:
+            stmt = stmt.filter(self.model.tag.ilike(f'%{tag}%'))
+
+        stmt = stmt.order_by(self.model.embedding.op(symbol)(q_embedding).asc())
+        if k > 0:
+            stmt = stmt.limit(k)
+
+        return db.scalars(stmt).all()
+
     def get_semantic_match(self,
                            db: Session,
                            user_input: str,
                            language: str = None,
                            tag: str = None,
-                           k: int = AutocompleteConfig.semantic_match.limit,
-                           symbol: str = AutocompleteConfig.semantic_match.metric.value):
+                           k: int = None,
+                           symbol: str = None):
         """
-        Get semantic similarity match from database
+        Get semantic similarity match from database, with all columns returned
 
         Parameters
         ----------
@@ -159,20 +182,13 @@ class MatchingService(EmbeddingService):
         -------
         list of dict
         """
-        q_embedding = Embedder.embed(user_input)
+        return self._get_semantic_match(db, self.model, user_input, language=language, tag=tag, k=k, symbol=symbol)
 
-        stmt = select(self.model)
-        stmt = stmt.filter(self.model.embedding.isnot(None))  # filter out entries without embedding
-        if language:
-            stmt = stmt.filter(self.model.language == language)
-        if tag:
-            stmt = stmt.filter(self.model.tag.ilike(f'%{tag}%'))
-
-        stmt = stmt.order_by(self.model.embedding.op(symbol)(q_embedding).asc())
-        if k > 0:
-            stmt = stmt.limit(k)
-
-        return db.scalars(stmt).all()
+    def get_semantic_match_text(self, db: Session, user_input: str, language: str = None, tag: str = None, k: int = 0, symbol: str = None):
+        """
+        Get semantic similarity match from database, with only text returned
+        """
+        return self._get_semantic_match(db, self.model.text, user_input, language=language, tag=tag, k=k, symbol=symbol)
 
     def semantic_similarity_match_cosine(self, db: Session, user_input: str, language: str = None, k: int = 0, tag: str = None):
         """
