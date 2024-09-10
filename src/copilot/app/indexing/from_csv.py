@@ -29,7 +29,7 @@ def init_indexing():
     """
     Initialize the database according to the configuration ``indexing_config`` specified in ``config.yaml``
     """
-    if IndexingConfig.enabled:
+    if IndexingConfig.auto_init:
         db: Session = SessionLocal()
         try:
             for create_service in CreateService:

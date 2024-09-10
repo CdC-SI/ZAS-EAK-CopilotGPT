@@ -200,8 +200,6 @@ class ContextualCompressionRetriever(BaseRetriever):
             The query to match.
         language : str
             The language of the query.
-        k : int
-            The number of documents to retrieve.
 
         Returns
         -------
@@ -306,6 +304,7 @@ class RAGFusionRetriever(BaseRetriever):
 class BM25Retriever(BaseRetriever):
     """
     A class used to retrieve documents based on the BM25 scoring algorithm.
+    BM25 is a bag-of-words retrieval function that ranks a set of documents based on the query terms appearing in them.
 
     Attributes
     ----------

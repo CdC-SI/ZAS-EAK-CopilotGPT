@@ -6,6 +6,9 @@ from dataclasses import dataclass
 # Database connection parameters
 @dataclass
 class DBConfiguration:
+    """
+    Dataclass for database connection parameters.
+    """
     enabled: bool
     echo: bool
 
@@ -34,3 +37,5 @@ class DBConfiguration:
 
 
 DBCONFIG = DBConfiguration()
+"""
+Database connection parameters."""

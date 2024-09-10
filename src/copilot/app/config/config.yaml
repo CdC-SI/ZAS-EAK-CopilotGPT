@@ -1,2 +1,6 @@
 # Check https://cdc-si.github.io/eak-copilot/ to access config.yaml documentation
 indexing: false
+rag:
+  Retrieval:
+    retrievers:
+      - top_k

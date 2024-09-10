@@ -30,7 +30,7 @@ class QueryRewriting(Retriever):
     def __post_init__(self):
         super().__post_init__()
         if self.n_alt_queries < 1:
-            self.n_alt_queries = 1
+            self.n_alt_queries = 3
 
 
 @dataclass
@@ -49,7 +49,7 @@ class RAGFusion(Retriever):
     def __post_init__(self):
         super().__post_init__()
         if self.n_alt_queries < 1:
-            self.n_alt_queries = 1
+            self.n_alt_queries = 3
 
 
 @dataclass

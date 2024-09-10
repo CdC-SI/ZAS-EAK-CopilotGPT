@@ -21,4 +21,5 @@ Every time a request is made to the server, a new session is created through :me
    :hidden:
 
    tables
+   embedding
    services/index

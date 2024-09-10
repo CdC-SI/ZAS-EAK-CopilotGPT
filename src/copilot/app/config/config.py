@@ -2,7 +2,7 @@ import os
 
 import yaml
 from enum import Enum
-from typing import Dict
+from typing import Dict, ItemsView
 from dataclasses import asdict, is_dataclass
 
 from .autocomplete.config import AutocompleteConfig as AutocompleteParams
@@ -30,9 +30,11 @@ APP_CONFIG_PATH = get_path('config_app.yaml')
 
 
 def enum_handling_dict(data):
+    """
+    Used in the dataclasses.asdict() method to handle Enum values, as the dict_factory parameter.
+    """
     d = {}
     for k, v in data:
-        logger.info(f'key: {k}, value: {v}')
         if isinstance(v, Enum):
             if is_dataclass(v.value):
                 d.update({k: enum_handling_dict(asdict(v.value).items())})
@@ -46,6 +48,14 @@ def enum_handling_dict(data):
 
 
 def load_config():
+    """
+    Load the app configuration from config.yaml file to dataclasses then save the running config in config.running.yaml.
+
+    Returns
+    -------
+    dict
+        A dictionary of service names and their respective configuration dataclasses.
+    """
     with open(CONFIG_PATH, 'r') as file:
         config = yaml.safe_load(file)
         config = config if isinstance(config, dict) else {}
@@ -53,8 +63,10 @@ def load_config():
     configs = {}
     for service in Services:
         params = config.get(service.name)
-        if not isinstance(params, dict):
-            params = {'enabled': bool(params)} if params is not None else {}
+        if params is None:
+            params = {}  # Default values
+        elif not isinstance(params, dict):
+            params = {'enabled': bool(params)}
 
         configs.update({service.name: service.value(**params)})
 
@@ -67,6 +79,14 @@ def load_config():
 
 
 def load_fastapi_config() -> dict:
+    """
+    Load the FastAPI Swagger interface configuration from config_app.yaml file.
+
+    Returns
+    -------
+    dict
+        A dictionary of service names and their respective configuration dataclasses
+    """
     with open(APP_CONFIG_PATH, 'r') as file:
         app_config = yaml.safe_load(file)
 
@@ -83,11 +103,38 @@ def load_fastapi_config() -> dict:
 
 
 Config = load_config()
+"""
+A dictionary of service names and their respective configuration dataclasses to run the copilot."""
+
 AutocompleteConfig = Config.get(Services.autocomplete.name)
+"""
+The configuration dataclass for the autocomplete service."""
+
 IndexingConfig = Config.get(Services.indexing.name)
+""""
+The configuration dataclass for the indexing service."""
+
 RAGConfig = Config.get(Services.rag.name)
+"""
+The configuration dataclass for the RAG service."""
+
+EmbeddingConfig = Config.get('embedding')
+"""
+The configuration dataclass for the embedding model."""
+
 
 AppConfig = load_fastapi_config()
+"""
+A dictionary of service names and their respective configuration dataclasses for the FastAPI Swagger app."""
+
 AutocompleteConfigApp = AppConfig.get(Services.autocomplete.name)
+"""
+The configuration dataclass for the autocomplete service in the FastAPI Swagger app."""
+
 IndexingConfigApp = AppConfig.get(Services.indexing.name)
+"""
+The configuration dataclass for the indexing service in the FastAPI Swagger app."""
+
 RAGConfigApp = AppConfig.get(Services.rag.name)
+"""
+The configuration dataclass for the RAG service in the FastAPI Swagger app."""

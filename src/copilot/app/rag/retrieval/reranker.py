@@ -11,6 +11,17 @@ logger = get_logger(__name__)
 
 
 class Reranker:
+    """
+    Class to rerank a list of documents based on their relevance to a query. It uses a AI powered reranking model to do so.
+
+    Parameters
+    ----------
+    model: RerankerModel
+        The reranking model to use
+    top_k: int
+        The number of documents to return
+    enabled: bool
+    """
 
     def __init__(self, model: RerankerModel, top_k: int = 10, enabled: bool = True):
         self.reranking_client = Clients.RERANKING.value
@@ -27,7 +38,23 @@ class Reranker:
         )
         return response.results
 
-    def rerank(self, query, documents: List[Document]) -> Tuple[List[Document], List[int]]:
+    def rerank(self, query: str, documents: List[Document]) -> Tuple[List[Document], List[int]]:
+        """
+        Rerank the documents based on their relevance to the query.
+
+        Parameters
+        ----------
+        query: str
+            The query to use for reranking
+        documents: List[Document]
+            The documents to rerank
+
+        Returns
+        -------
+        Tuple[List[Document], List[int]]
+            The reranked documents and their relevance scores
+        """
+
         if not self.enabled:
             logger.error("Reranker is not enabled.")
             return documents, [0] * len(documents)

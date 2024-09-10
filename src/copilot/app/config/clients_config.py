@@ -1,4 +1,6 @@
 import os
+
+import httpx
 from dotenv import load_dotenv
 from enum import Enum
 
@@ -10,16 +12,32 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 
-def get_required_clients():
+def get_required_clients() -> dict:
+    """
+    Get the required API clients based on the enabled services in the configuration.
+
+    Returns
+    -------
+    dict
+        A dictionary of the required clients for the enabled services
+    """
     required_clients = {'Embedding': IndexingConfig.Embedding.value.api}
-    if RAGConfig.enabled:
+    if RAGConfig.auto_init:
         required_clients.update({'LLM': RAGConfig.LLM.model.value.api})
-        if RAGConfig.Retrieval.Reranking.enabled:
+        if RAGConfig.Retrieval.Reranking.auto_init:
             required_clients.update({'Reranking': RAGConfig.Retrieval.Reranking.model.value.api})
     return required_clients
 
 
-def get_httpx_client():
+def get_httpx_client() -> httpx.Client:
+    """
+    Get the HTTPX client with proxy settings if specified in the environment variables.
+
+    Returns
+    -------
+    httpx.Client
+        A HTTPX client with proxy settings if specified in the environment variables.
+    """
     load_dotenv()
 
     # Load Proxy settings
@@ -39,7 +57,15 @@ def get_httpx_client():
     return httpx_client
 
 
-def create_api_clients():
+def create_api_clients() -> dict:
+    """
+    Create the required API clients based on the enabled services in the configuration.
+
+    Returns
+    -------
+    dict
+        A dictionary of the required API clients for the enabled services.
+    """
     instanced_clients = {}
     required_clients = get_required_clients()
 
@@ -72,6 +98,8 @@ def create_api_clients():
 
 
 CLIENTS = create_api_clients()
+"""
+A dictionary of the required API clients for the enabled services."""
 
 
 class Clients(Enum):

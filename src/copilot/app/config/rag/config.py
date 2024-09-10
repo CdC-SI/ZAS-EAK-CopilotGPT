@@ -7,7 +7,7 @@ from .retrieval import RetrievalConfig
 
 @dataclass
 class LLMConfig:
-    model: Optional[LLM] = LLM.GPT_4O
+    model: Optional[LLM] = LLM.GPT_4O_MINI
     temperature: float = 0
     max_tokens: int = 2048
     top_p: float = 0.95

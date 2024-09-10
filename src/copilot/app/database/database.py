@@ -64,6 +64,7 @@ def get_engine(retries: int = 10, delay: int = 5):
     raise Exception("Failed to connect to the database after multiple attempts.")
 
 
+SessionLocal = None
 if DBCONFIG.enabled:
     logger.info("Connecting to database...")
     logger.info(DBCONFIG)
