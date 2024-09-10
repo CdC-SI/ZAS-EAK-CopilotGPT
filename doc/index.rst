@@ -42,6 +42,7 @@ Demo
 
    documentation/api/index
    documentation/autocomplete/index
+   documentation/config/index
    documentation/database/index
    documentation/indexing/index
    documentation/rag/index

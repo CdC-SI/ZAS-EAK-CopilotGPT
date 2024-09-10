@@ -320,16 +320,17 @@ class BaseIndexer(ABC):
 
         # TO DO: refactor embedding logic to embed from documents (add from_documents method)
         # Upsert documents into VectorDB
+        upserted_docs = []
         for doc in chunks["documents"]:
             text = doc.content
             logger.info(doc.meta)
             url = doc.meta["url"] if "url" in doc.meta else source
-            document_service.upsert(db, DocumentCreate(url=url, text=text, source=source), embed=embed)
+            upserted_docs.append(document_service.upsert(db, DocumentCreate(url=url, text=text, source=source), embed=embed))
+
+        return upserted_docs
 
     async def index(self, sitemap_url: str, db: Session, embed: bool = True) -> dict:
         urls = await self.get_pages_from_sitemap(sitemap_url)
         content = await self.from_pages_to_content(urls)
 
-        await self.add_content_to_db(db, content, source=sitemap_url, embed=embed)
-
-        return {"content": f"{sitemap_url}: data indexed successfully"}
+        return await self.add_content_to_db(db, content, source=sitemap_url, embed=embed)

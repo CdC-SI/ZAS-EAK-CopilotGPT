@@ -11,4 +11,5 @@ Create a pipeline to index data from a source to the database, using a parser an
 
    parser
    scraper
+   from_csv
    pipelines/index

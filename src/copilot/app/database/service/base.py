@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from ..models import Base, EmbeddedMixin
 from pydantic import BaseModel
 
-from utils.embedding import get_embedding
+from database.embedding import Embedder
 
 from abc import ABCMeta, abstractmethod
 from typing import Type
@@ -172,7 +172,7 @@ class EmbeddingService(BaseService):
     """
 
     def _embedding(self, db_obj: EmbeddedMixin, text: str):
-        db_obj.embedding = get_embedding(text)
+        db_obj.embedding = Embedder.embed(text)
         return db_obj
 
     def _embed(self, db_obj: EmbeddedMixin):
@@ -328,12 +328,8 @@ class EmbeddingService(BaseService):
             # specified embedding from obj_in has priority on requesting a new one
             # embed only if the text has changed
             if embed and ((db_obj.text != obj_in.text) or (db_obj.embedding is None)):
-                logger.info(f'Embedding updated')
                 self._embedding(db_obj, obj_in.text)
-            else:
-                logger.info(f'Embedding not updated')
 
-        logger.info(f'Excluded fields: {exclude}')
         return exclude
 
     def update(self, db: Session, db_obj, obj_in: BaseModel, embed=False):

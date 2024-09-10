@@ -2,14 +2,13 @@ import logging
 from typing import List
 
 from autocomplete.autocompleter import autocompleter
-from config.base_config import autocomplete_config
 
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from config.network_config import CORS_ALLOWED_ORIGINS
 
 # Load env variables
-from config.base_config import autocomplete_app_config
+from config.config import AutocompleteConfig, AutocompleteConfigApp
 
 from sqlalchemy.orm import Session
 from schemas.question import Question
@@ -21,7 +20,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 # Create required class instances
-app = FastAPI(**autocomplete_app_config)
+app = FastAPI(**AutocompleteConfigApp)
 
 # Setup CORS
 app.add_middleware(
@@ -40,12 +39,12 @@ app.add_middleware(
 async def autocomplete(question: str,
                        language: str = None,
                        tag: str = None,
-                       k: int = autocomplete_config['results']['limit'],
+                       k: int = AutocompleteConfig.limit,
                        db: Session = Depends(get_db)):
     """
     If the user input ends with a "?" character, return a set of questions that may be relevant to the user.
-    If there are at lest 5 results from fuzzy matching, they are returned. Otherwise, results of semantic similarity
-    matching are returned alongside the fuzzy matching results.
+    If there are at lest 5 results from trigram matching, they are returned. Otherwise, results of semantic similarity
+    matching are returned alongside the trigram matching results.
 
     Parameters
     ----------
@@ -74,7 +73,7 @@ async def autocomplete(question: str,
 def exact_match(question: str,
                 language: str = None,
                 tag: str = None,
-                k: int = autocomplete_config['exact_match']['limit'],
+                k: int = AutocompleteConfig.exact_match.limit,
                 db: Session = Depends(get_db)):
     """
     Return results from Exact matching
@@ -99,18 +98,18 @@ def exact_match(question: str,
     return question_service.get_exact_match(db, question, language, k=k, tag=tag)
 
 
-@app.get("/fuzzy_match",
-         summary="Search Questions with fuzzy match",
+@app.get("/levenshtein_match",
+         summary="Search Questions with levenshtein match",
          response_model=List[Question],
          response_description="List of matching questions")
-def fuzzy_match(question: str,
-                language: str = None,
-                tag: str = None,
-                k: int = autocomplete_config['fuzzy_match']['limit'],
-                threshold=autocomplete_config['fuzzy_match']['threshold'],
-                db: Session = Depends(get_db)):
+def levenshtein_match(question: str,
+                      language: str = None,
+                      tag: str = None,
+                      k: int = AutocompleteConfig.levenshtein_match.limit,
+                      threshold: int = AutocompleteConfig.levenshtein_match.threshold,
+                      db: Session = Depends(get_db)):
     """
-    Return results from Fuzzy matching, using Levenshtein distance
+    Return results from Levenshtein matching, using Levenshtein distance
 
     Parameters
     ----------
@@ -131,7 +130,7 @@ def fuzzy_match(question: str,
     ------
     list of dict
     """
-    return question_service.get_fuzzy_match(db, question, threshold=threshold, language=language, k=k, tag=tag)
+    return question_service.get_levenshtein_match(db, question, threshold=threshold, language=language, k=k, tag=tag)
 
 
 @app.get("/trigram_match",
@@ -141,8 +140,8 @@ def fuzzy_match(question: str,
 def trigram_match(question: str,
                   language: str = None,
                   tag: str = None,
-                  k: int = autocomplete_config['trigram_match']['limit'],
-                  threshold: float = autocomplete_config['trigram_match']['threshold'],
+                  k: int = AutocompleteConfig.trigram_match.limit,
+                  threshold: float = AutocompleteConfig.trigram_match.threshold,
                   db: Session = Depends(get_db)):
     """
     Return results from Trigram matching
@@ -176,7 +175,7 @@ def trigram_match(question: str,
 def semantic_similarity_match(question: str,
                               language: str = None,
                               tag: str = None,
-                              k: int = autocomplete_config['semantic_similarity_match']['limit'],
+                              k: int = AutocompleteConfig.semantic_match.limit,
                               db: Session = Depends(get_db)):
     """
     Return results from Semantic Similarity matching

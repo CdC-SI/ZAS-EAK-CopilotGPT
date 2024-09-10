@@ -70,12 +70,32 @@ class DocumentService(MatchingService):
         ----------
         db: Session
             Database session
+        tag: str
 
         Returns
         -------
         List[Model]
         """
         stmt = select(self.model)
+        if tag:
+            stmt = stmt.filter(self.model.tag.ilike(f'%{tag}%'))
+        return db.scalars(stmt).all()
+
+    def get_all_text(self, db: Session, tag: str = None):
+        """
+        Get text from all the documents in the database
+
+        Parameters
+        ----------
+        db: Session
+            Database session
+        tag: str
+
+        Returns
+        -------
+        List[str]
+        """
+        stmt = select(self.model.text)
         if tag:
             stmt = stmt.filter(self.model.tag.ilike(f'%{tag}%'))
         return db.scalars(stmt).all()

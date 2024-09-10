@@ -7,4 +7,5 @@ RAG
 .. toctree::
    :hidden:
 
-   retrieval
+   retrieval/index
+   llm/index
