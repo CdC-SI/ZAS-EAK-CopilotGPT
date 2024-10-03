@@ -122,4 +122,4 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
 
     - To index more extensive FAQ data from https://faq.bsv.admin.ch (AHV related data), navigate to http://localhost:8000/apy/indexing/docs and make a request to the ```/index_faq_data``` endpoint.
 
-    - To index more extensive AHV RAG data, navigate to http://localhost:8000/apy/indexing/docs and make a request to the ```/index_html_from_sitemap``` (scraps any *.amin.ch website by specifying the sitemap URL) and ```/index_pdfs_from_sitemap``` (scraps Memento PDFs from ahv-iv.ch) endpoints (set ```embed``` parameter to ```true``` to enable semantic search).
+    - To index more extensive AHV RAG data, navigate to http://localhost:8000/apy/indexing/docs and make a request to the ```/index_html_from_sitemap``` (scraps any *.admin.ch website by specifying the sitemap URL) and ```/index_pdfs_from_sitemap``` (scraps Memento PDFs from ahv-iv.ch) endpoints (set ```embed``` parameter to ```true``` to enable semantic search).
