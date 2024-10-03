@@ -1,7 +1,12 @@
 from rag.llm.base import BaseLLM
 from rag.llm import OpenAILLM#, MlxLLM, LlamaCppLLM, HuggingFaceLLM
-from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS, SUPPORTED_GROQ_LLM_MODELS#, SUPPORTED_MLX_LLM_MODELS, SUPPORTED_LLAMACPP_LLM_MODELS, SUPPORTED_HUGGINGFACE_LLM_MODELS
+from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS, SUPPORTED_AZUREOPENAI_LLM_MODELS, SUPPORTED_GROQ_LLM_MODELS#, SUPPORTED_MLX_LLM_MODELS, SUPPORTED_LLAMACPP_LLM_MODELS, SUPPORTED_HUGGINGFACE_LLM_MODELS
 
+
+import logging
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 class LLMFactory:
     @staticmethod
@@ -26,9 +31,7 @@ class LLMFactory:
         ValueError
             If the `llm_model` is not supported.
         """
-        if llm_model in SUPPORTED_OPENAI_LLM_MODELS:
-            return OpenAILLM(model_name=llm_model, stream=stream)
-        if llm_model in SUPPORTED_GROQ_LLM_MODELS:
+        if llm_model in SUPPORTED_OPENAI_LLM_MODELS or llm_model in SUPPORTED_AZUREOPENAI_LLM_MODELS or llm_model in SUPPORTED_GROQ_LLM_MODELS:
             return OpenAILLM(model_name=llm_model, stream=stream)
         # elif llm_model in SUPPORTED_MLX_LLM_MODELS:
         #     return MlxLLM(model_name=llm_model)

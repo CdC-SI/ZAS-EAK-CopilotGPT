@@ -1,6 +1,6 @@
 import sys
 
-from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS, SUPPORTED_GROQ_LLM_MODELS, SUPPORTED_OPENAI_EMBEDDING_MODELS
+from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS, SUPPORTED_AZUREOPENAI_LLM_MODELS, SUPPORTED_GROQ_LLM_MODELS, SUPPORTED_OPENAI_EMBEDDING_MODELS, SUPPORTED_AZUREOPENAI_EMBEDDING_MODELS
 
 def check_env_vars(config):
 
@@ -8,7 +8,8 @@ def check_env_vars(config):
     documentation = {"eak_copilot": "https://cdc-si.github.io/ZAS-EAK-CopilotGPT/",
                      "openai_api": "https://platform.openai.com/docs/models",}
 
-    supported_llm_models = SUPPORTED_OPENAI_LLM_MODELS + SUPPORTED_GROQ_LLM_MODELS
+    supported_llm_models = SUPPORTED_OPENAI_LLM_MODELS + SUPPORTED_AZUREOPENAI_LLM_MODELS + SUPPORTED_GROQ_LLM_MODELS
+    supported_embedding_models = SUPPORTED_OPENAI_EMBEDDING_MODELS + SUPPORTED_AZUREOPENAI_EMBEDDING_MODELS
 
     # Define supported configs
     supported_similarity_metrics = ["cosine_similarity"]
@@ -36,7 +37,7 @@ def check_env_vars(config):
 
     # Check environment variables for rag
     if config["rag"]["enabled"]:
-        if config["rag"]["embedding"]["model"] not in SUPPORTED_OPENAI_EMBEDDING_MODELS:
+        if config["rag"]["embedding"]["model"] not in supported_embedding_models:
             print(f'Invalid value for "rag.embedding.model" in config/config.yaml. Please read the documentation at {documentation["openai_api"]}/embeddings for more information.')
             sys.exit(1)
         if config["rag"]["retrieval"]["top_k"] <= 0:
