@@ -77,7 +77,7 @@ services:
 
   # Logging db service for langfuse
   langfuse-db:
-    image: postgres:latest
+    image: postgres:16
     environment:
       - POSTGRES_USER=langfuse_user
       - POSTGRES_PASSWORD=langfuse_password
