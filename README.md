@@ -60,7 +60,6 @@ Here you will find instructions for installing and setting up ZAS/EAK CopilotGPT
 Before starting, ensure you have the following software installed on your computer:
 - **Git**: Needed for source code management. Install from [here](https://git-scm.com/downloads).
 - **Docker**: Required for running containers. Install from [here](https://docs.docker.com/get-docker/).
-- **Docker Compose**: Necessary for managing multi-container Docker applications. Install from [here](https://docs.docker.com/compose/install/).
 
 Linux users may need to prepend `sudo` to Docker commands depending on their Docker configuration.
 
@@ -80,20 +79,36 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
 
 2. **Setting Up Environment Variables**
 
-    To use the ZAS/EAK Copilot, you need to set up some environment variables. The `OPENAI_API_KEY` is a required field that must be filled in, all other fields are preconfigured with default settings (but can be configured as well).  Copy the `.env.example` file to a new file named `.env` and fill in the appropriate values:
+    To use the ZAS/EAK Copilot, you need to set up some environment variables.
+
+    - The `OPENAI_API_KEY` is a required field that must be filled in (get it at: https://platform.openai.com/api-keys).
+    - The `COHERE_API_KEY` is a required field that must be filled in (get it at: https://dashboard.cohere.com/api-keys).
+    - Note: You can also use AzureOpenAI by setting the `AZUREOPENAI_API_KEY`, `AZUREOPENAI_API_VERSION` and `AZUREOPENAI_ENDPOINT` variables. Ensure that your model deployment name (eg. `azure-gpt-4-32k`) is set accordingly in `src/copilot/app/config/config.yaml` under the `rag/llm/model` field.
+
+    All other fields are preconfigured with default settings (but can be configured as well).  Copy the `.env.example` file to a new file named `.env` and fill in the appropriate values from above:
 
     ```bash
     cp .env.example .env
     ```
 
-3. **Build Docker Images**
+3. **OPTIONAL: Copilot Configuration**
+
+    The Copilot is configured with default settings, but you can customize every aspect (eg. LLM model, embedding model, autocomplete, RAG, etc.).
+
+    Here are some tips to customize some parameters in `src/copilot/app/config/config.yaml`:
+
+    - `rag/llm/model`: set a specific LLM (eg. `gpt-4o-mini` with an OpenAI API key or `llama-3.1-8b-instant` with a GROQ API key)
+    - `rag/embedding/model`: set a specific embedding model (eg. `text-embedding-3-small` with an OpenAI API key. RAG performance might vary if embedding data with a different embedding model in the vectorDB).
+    - `rag/retrieval/retrieval_method`: add a `query_rewriting_retriever_params` to the list of retrievers and see how this affects your RAG.
+
+4. **Build Docker Images**
 
     Build the Docker images using the Docker Compose configuration. This step compiles and launches your Docker environment.
 
     ```bash docker
     docker-compose up --build -d
     ```
-4. **Verifying the Installation**
+5. **Verifying the Installation**
 
     Check the status of the containers to confirm everything is running as expected:
     ```bash
@@ -101,10 +116,10 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
     ```
     After the containers are successfully started, verify that the application is running correctly by accessing it through your web browser at http://localhost:4200.
 
-5. **Notes**
+6. **Index some data**
 
-    - To add some sample data for FAQ and RAG, you can navigate to http://localhost:8000/apy/indexing/docs/ and make a request to ```/add_faq_data_from_csv``` and ```/add_rag_data_from_csv``` (set ```embed``` parameter to ```true``` to enable semantic search).
+    - To add some sample data for FAQ and RAG, you can navigate to http://localhost:8000/apy/indexing/docs/ and make a request to ```/add_faq_data_from_csv``` and ```/add_rag_data_from_csv``` (set ```embed``` parameter to ```true``` to enable semantic search). See API reference for required csv structure.
 
-    - To index more extensive FAQ data from https://faq.bsv.admin.ch, navigate to http://localhost:8000/apy/indexing/docs and make a request to the ```/index_faq_data``` endpoint.
+    - To index more extensive FAQ data from https://faq.bsv.admin.ch (AHV related data), navigate to http://localhost:8000/apy/indexing/docs and make a request to the ```/index_faq_data``` endpoint.
 
-    - To index more extensive RAG data, navigate to http://localhost:8000/apy/indexing/docs and make a request to the ```/index_html_from_sitemap``` and ```/index_pdfs_from_sitemap``` endpoints (set ```embed``` parameter to ```true``` to enable semantic search).
+    - To index more extensive AHV RAG data, navigate to http://localhost:8000/apy/indexing/docs and make a request to the ```/index_html_from_sitemap``` (scraps any *.amin.ch website by specifying the sitemap URL) and ```/index_pdfs_from_sitemap``` (scraps Memento PDFs from ahv-iv.ch) endpoints (set ```embed``` parameter to ```true``` to enable semantic search).
