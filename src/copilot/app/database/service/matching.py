@@ -40,7 +40,8 @@ class MatchingService(EmbeddingService):
         if k > 0:
             stmt = stmt.limit(k)
 
-        return db.scalars(stmt).all()
+        rows = db.scalars(stmt).all()
+        return [row.to_dict() for row in rows]
 
     def get_fuzzy_match(self, db: Session, user_input: str, threshold: int = 150, language: str = None, k: int = 0, tag: str = None):
         """
@@ -74,7 +75,8 @@ class MatchingService(EmbeddingService):
         if k > 0:
             stmt = stmt.limit(k)
 
-        return db.scalars(stmt).all()
+        rows = db.scalars(stmt).all()
+        return [row.to_dict() for row in rows]
 
     def get_trigram_match(self, db: Session, user_input: str, threshold: int = 0.4, language: str = None, k: int = 0, tag: str = None):
         """
@@ -104,7 +106,8 @@ class MatchingService(EmbeddingService):
         if k > 0:
             stmt = stmt.limit(k)
 
-        return db.scalars(stmt).all()
+        rows = db.scalars(stmt).all()
+        return [row.to_dict() for row in rows]
 
     def get_semantic_match(self, db: Session, user_input: str, language: str = None, k: int = 0, symbol: str = "<=>", tag: str = None):
         """
@@ -139,7 +142,8 @@ class MatchingService(EmbeddingService):
         if k > 0:
             stmt = stmt.limit(k)
 
-        return db.scalars(stmt).all()
+        rows = db.scalars(stmt).all()
+        return [row.to_dict() for row in rows]
 
     def semantic_similarity_match_l1(self, db: Session, user_input: str, language: str = None, k: int = 0, tag: str = None):
         """

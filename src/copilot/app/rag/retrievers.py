@@ -89,7 +89,7 @@ class RetrieverClient(BaseRetriever):
 
         # Remove duplicate documents
         seen = set()
-        unique_docs = [doc for doc in docs if doc.id not in seen and not seen.add(doc.id)]
+        unique_docs = [doc for doc in docs if doc["id"] not in seen and not seen.add(doc["id"])]
 
         unique_docs, _ = self.reranker.rerank(query, unique_docs)
 

@@ -2,6 +2,7 @@ from typing import Optional
 from sqlalchemy import Integer, ForeignKey, String, Text, DateTime, func, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
+from sqlalchemy.inspection import inspect
 # SQLAlchemy-2.0.30
 
 from sqlalchemy.orm import declarative_base
@@ -56,6 +57,15 @@ class Document(Base, EmbeddedMixin):
 
     def __repr__(self) -> str:
         return f"Document(id={self.id!r}, url={self.url!r}, text={self.text!r}, language={self.language!r})"
+
+    def to_dict(self):
+        """
+        Convert the SQLAlchemy model instance to a dictionary
+        that only includes serializable fields.
+        """
+        serialized_data = {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
+
+        return serialized_data
 
 
 class Question(Base, EmbeddedMixin):
