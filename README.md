@@ -99,7 +99,7 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
 
     - `rag/llm/model`: set a specific LLM (eg. `gpt-4o-mini` with an OpenAI API key or `llama-3.1-8b-instant` with a GROQ API key)
     - `rag/embedding/model`: set a specific embedding model (eg. `text-embedding-3-small` with an OpenAI API key. RAG performance might vary if embedding data with a different embedding model in the vectorDB).
-    - `rag/retrieval/retrieval_method`: add a `query_rewriting_retriever_params` to the list of retrievers and see how this affects your RAG.
+    - `rag/retrieval/retrieval_method`: add a different retriever (eg. `query_rewriting_retriever`, `bm25_retriever` and/or a `contextual_compression_retriever`)  to the list of retrievers and see how this affects your RAG.
 
 4. **Build Docker Images**
 
