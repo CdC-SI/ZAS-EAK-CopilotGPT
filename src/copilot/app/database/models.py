@@ -2,7 +2,6 @@ from typing import Optional
 from sqlalchemy import Integer, ForeignKey, String, Text, DateTime, func, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
-from sqlalchemy.inspection import inspect
 # SQLAlchemy-2.0.30
 
 from sqlalchemy.orm import declarative_base

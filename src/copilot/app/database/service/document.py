@@ -22,22 +22,43 @@ class DocumentService(MatchingService):
         db.add(db_document)
         return db_document
 
+    def search_by_text(self, db: Session, search_term: str):
+        """
+        Search documents by a substring match in the 'text' column.
+
+        Parameters
+        ----------
+        db: Session
+            Database session
+        search_term: str
+            The term to search for in the 'text' column.
+
+        Returns
+        -------
+        List[Document]
+        """
+        stmt = select(self.model).where(self.model.text.ilike(f'%{search_term}%'))  # Case-insensitive match
+        result = db.execute(stmt).scalars().all()
+        return result
+
     def get_by_url(self, db: Session, url: str):
         """
-        Get a document by its URL field
+        Get a document by its URL field using SQLAlchemy's select statement.
 
         Parameters
         ----------
         db: Session
             Database session
         url: str
-            Document
+            URL of the document to retrieve.
 
         Returns
         -------
-        Document
+        Document or None
         """
-        return db.query(self.model).filter(self.model.url == url).one_or_none()
+        stmt = select(self.model).where(self.model.url == url)
+        result = db.execute(stmt).scalars().one_or_none()
+        return result
 
     def _update(self, db: Session, db_obj, obj_in, embed=False):
         db_source = source_service.get_or_create(db, SourceCreate(url=obj_in.source))

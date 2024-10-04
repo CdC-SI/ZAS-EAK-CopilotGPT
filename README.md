@@ -84,6 +84,7 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
     - The `OPENAI_API_KEY` is a required field that must be filled in (get it at: https://platform.openai.com/api-keys).
     - The `COHERE_API_KEY` is a required field that must be filled in (get it at: https://dashboard.cohere.com/api-keys).
     - Note: You can also use AzureOpenAI by setting the `AZUREOPENAI_API_KEY`, `AZUREOPENAI_API_VERSION` and `AZUREOPENAI_ENDPOINT` variables. Ensure that your model deployment name (eg. `azure-gpt-4-32k`) is set accordingly in `src/copilot/app/config/config.yaml` under the `rag/llm/model` field.
+    - Note: You can also use Anthropic or Groq models by setting the `ANTHROPIC_API_KEY`/`GROQ_API_KEY` and model accordingly in `src/copilot/app/config/config.yaml` under the `rag/llm/model` field.
 
     All other fields are preconfigured with default settings (but can be configured as well).  Copy the `.env.example` file to a new file named `.env` and fill in the appropriate values from above:
 
@@ -97,9 +98,9 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
 
     Here are some tips to customize some parameters in `src/copilot/app/config/config.yaml`:
 
-    - `rag/llm/model`: set a specific LLM (eg. `gpt-4o-mini` with an OpenAI API key or `llama-3.1-8b-instant` with a GROQ API key)
-    - `rag/embedding/model`: set a specific embedding model (eg. `text-embedding-3-small` with an OpenAI API key. RAG performance might vary if embedding data with a different embedding model in the vectorDB).
-    - `rag/retrieval/retrieval_method`: add a different retriever (eg. `query_rewriting_retriever`, `bm25_retriever` and/or a `contextual_compression_retriever`)  to the list of retrievers and see how this affects your RAG.
+    - `rag/llm/model`: set a specific LLM (eg. `gpt-4o-mini` with a valid OpenAI API key, `claude-3-5-sonnet-20240620` with a valid Anthropic API key or `llama-3.1-8b-instant` with a valid GROQ API key)
+    - `rag/embedding/model`: set a specific embedding model (eg. `text-embedding-3-small` with a valid OpenAI API key. Please note RAG performance will drop critically when embedding initial data and querying the vectorDB with different embedding models).
+    - `rag/retrieval/retrieval_method`: add a different retriever (eg. `query_rewriting_retriever`, `bm25_retriever` and/or a `contextual_compression_retriever`) to the list of retrievers and see how this affects your RAG.
 
 4. **Build Docker Images**
 

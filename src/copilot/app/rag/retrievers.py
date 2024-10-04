@@ -2,7 +2,7 @@ import logging
 from typing import List, Dict, Any
 
 from rag.base import BaseRetriever
-from rag.prompts import QUERY_REWRITING_PROMPT, CONTEXTUAL_COMPRESSION_PROMPT
+from rag.prompts.prompts import QUERY_REWRITING_PROMPT, CONTEXTUAL_COMPRESSION_PROMPT
 from rag.reranker import Reranker
 
 from schemas.document import Document, DocumentBase

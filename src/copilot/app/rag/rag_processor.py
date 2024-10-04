@@ -7,13 +7,15 @@ from typing import List, Dict, Any
 from rag.models import RAGRequest, EmbeddingRequest
 from rag.factory import RetrieverFactory
 from rag.llm.factory import LLMFactory
+from rag.prompts.factory import PromptFactory
 from rag.llm.base import BaseLLM
-from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE
 
 from sqlalchemy.orm import Session
 from utils.embedding import get_embedding
+from utils.streaming import stream_tokens
 
 from config.base_config import rag_config
+from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS, SUPPORTED_ANTHROPIC_LLM_MODELS
 
 from langfuse.decorators import observe
 from langfuse import Langfuse
@@ -47,7 +49,7 @@ class RAGProcessor:
     top_k : int
     """
     def __init__(self, llm: BaseLLM, max_token: int, temperature: float,
-                 top_p: float, retriever, top_k: int):
+                 top_p: float, retriever, top_k: int, prompt: str):
 
         self.llm_client = llm
         self.max_tokens = max_token
@@ -55,6 +57,7 @@ class RAGProcessor:
         self.top_p = top_p
         self.retriever_client = retriever
         self.k_retrieve = top_k
+        self.prompt = prompt
 
     def init_retriever_client(self, retrieval_method: str = "top_k"):
         """
@@ -85,8 +88,16 @@ class RAGProcessor:
             Contains the message in the correct format to send to the OpenAI API
 
         """
-        openai_rag_system_prompt = OPENAI_RAG_SYSTEM_PROMPT_DE.format(context_docs=context_docs, query=query)
-        return [{"role": "system", "content": openai_rag_system_prompt},]
+        system_prompt = self.prompt.format(context_docs=context_docs, query=query)
+
+        if self.llm_client.model_name in SUPPORTED_OPENAI_LLM_MODELS:
+            system_prompt = [{"role": "system", "content": system_prompt},]
+        elif self.llm_client.model_name in SUPPORTED_ANTHROPIC_LLM_MODELS:
+            system_prompt = [{"role": "user", "content": system_prompt},]
+
+        return system_prompt
+        #openai_rag_system_prompt = OPENAI_RAG_SYSTEM_PROMPT_DE.format(context_docs=context_docs, query=query)
+        #return [{"role": "system", "content": openai_rag_system_prompt},]
 
     @observe()
     def retrieve(self, db: Session, request: RAGRequest, language: str = None, tag: str = None, k: int = 0):
@@ -141,7 +152,7 @@ class RAGProcessor:
 
         stream = self.llm_client.call(messages)
 
-        return self.generate_stream(stream, source_url)
+        return stream_tokens(stream, source_url)
 
     async def embed(self, text_input: EmbeddingRequest):
         """
@@ -159,33 +170,14 @@ class RAGProcessor:
         embedding = get_embedding(text_input.text)
         return {"data": embedding}
 
-    @observe()
-    def generate_stream(self, stream, source_url):
-        content_received = False
-
-        for chunk in stream:
-            # Check if the content is not None
-            if chunk.choices[0].delta.content is not None:
-                content_received = True  # Set flag when content is processed
-                yield chunk.choices[0].delta.content.encode("utf-8")
-
-            # If the current token is None and content has been processed, it's the end of the stream
-            elif chunk.choices[0].delta.content is None and content_received:
-                # Send the special end token
-                yield f"\n\n<a href='{source_url}' target='_blank' class='source-link'>{source_url}</a>".encode("utf-8")
-                return
-
-            # If it's a None token but no content has been processed (AzureOpenAI case), skip it
-            elif chunk.choices[0].delta.content is None and not content_received:
-                continue
-
-
 llm_client = LLMFactory.get_llm_client(llm_model=rag_config["llm"]["model"], stream=rag_config["llm"]["stream"])
 retriever_client = RetrieverFactory.get_retriever_client(retrieval_method=rag_config["retrieval"]["retrieval_method"], llm_client=llm_client)
+prompt = PromptFactory.get_prompt(llm_model=rag_config["llm"]["model"])
 
 processor = RAGProcessor(llm=llm_client,
                          max_token=rag_config["llm"]["max_output_tokens"],
                          temperature=rag_config["llm"]["temperature"],
                          top_p=rag_config["llm"]["top_p"],
                          retriever=retriever_client,
-                         top_k=rag_config["retrieval"]["top_k"])
+                         top_k=rag_config["retrieval"]["top_k"],
+                         prompt=prompt)

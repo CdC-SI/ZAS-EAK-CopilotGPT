@@ -8,6 +8,7 @@ pyaml-env==1.2.1
 
 # rag
 openai==1.30.5
+anthropic==0.34.2
 cohere==5.8.0
 groq==0.9.0
 
@@ -20,6 +21,12 @@ haystack-ai==2.2.3
 aiohttp==3.9.5
 pypdf==4.2.0
 trafilatura==1.11.0
+
+# preprocessing
+streamlit==1.39.0
+matplotlib==3.9.2
+pandas==2.2.3
+scikit-learn==1.5.2
 
 # sqlAlchemy
 pgvector
