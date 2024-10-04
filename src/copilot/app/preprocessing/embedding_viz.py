@@ -167,7 +167,7 @@ def main():
         if "d_embedding" not in st.session_state:
             st.session_state.d_embedding = None
         if "document_text" not in st.session_state:
-            st.session_state.document_text = ""
+            st.session_state.documents = None
 
         # Test query
         with col1:
@@ -181,29 +181,36 @@ def main():
 
             # Document search
             st.header("2. Document Search")
-            document = None
+            documents = None
 
             # Text search
             text_input = st.text_input("Search for documents by text")
             if text_input:
-                document = document_service.search_by_text(db, text_input)[0]
-                st.session_state.document_text = document.text
+                documents = document_service.search_by_text(db, text_input)
+                st.session_state.documents = documents
 
             # URL search
-            document_url_input = st.text_input("Get document by URL", value="https://ahv-iv.ch/p/1.01.f")
+            document_url_input = st.text_input("Get document by URL", value="https://www.ahv-iv.ch/p/1.01.f")
             if document_url_input:
-                document = document_service.get_by_url(db, document_url_input)
-                st.session_state.document_text = document.text
+                documents = document_service.get_by_url(db, document_url_input)
+                st.session_state.documents = documents
 
-            if document:
-                st.subheader("Document Metadata")
-                st.write(f"Doc ID: {document.id}")
-                st.write(f"Doc Language: {document.language}")
+            # Use embeddings adapter
+            st.header("3. Apply Embeddings Adapter")
+            adapter = st.selectbox("", [False, True])
 
         # Display document in text area and embed when button clicked
         with col2:
             st.header("3. Edit Document")
-            edited_document_text = st.text_area("Document:", value=st.session_state.document_text, height=500)
+            chunk_id = st.text_input("Chunk ID", value=0)
+            edited_document_text = st.text_area("Document:", value=st.session_state.documents[int(chunk_id)].text, height=500)
+
+            if edited_document_text:
+                meta_col1, meta_col2 = st.columns(2)
+                with meta_col1:
+                    st.write(f"Doc ID: {st.session_state.documents[int(chunk_id)].id}")
+                with meta_col2:
+                    st.write(f"Doc Language: {st.session_state.documents[int(chunk_id)].language}")
 
             # Name for edited document run
             run_name = st.text_input("Edit Description", value="")

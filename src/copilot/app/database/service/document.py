@@ -57,7 +57,7 @@ class DocumentService(MatchingService):
         Document or None
         """
         stmt = select(self.model).where(self.model.url == url)
-        result = db.execute(stmt).scalars().one_or_none()
+        result = db.execute(stmt).scalars().all()
         return result
 
     def _update(self, db: Session, db_obj, obj_in, embed=False):
