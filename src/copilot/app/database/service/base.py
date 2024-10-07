@@ -171,14 +171,14 @@ class EmbeddingService(BaseService):
     Base class for embedding services
     """
 
-    def _embedding(self, db_obj: EmbeddedMixin, text: str):
-        db_obj.embedding = get_embedding(text)
+    async def _embedding(self, db_obj: EmbeddedMixin, text: str):
+        db_obj.embedding = await get_embedding(text)
         return db_obj
 
-    def _embed(self, db_obj: EmbeddedMixin):
-        return self._embedding(db_obj, db_obj.text)
+    async def _embed(self, db_obj: EmbeddedMixin):
+        return await self._embedding(db_obj, db_obj.text)
 
-    def embed_one(self, db: Session, db_obj: EmbeddedMixin):
+    async def embed_one(self, db: Session, db_obj: EmbeddedMixin):
         """
         Embed a single object in the database
 
@@ -194,11 +194,11 @@ class EmbeddingService(BaseService):
         EmbeddedMixin
             Embedded database object
         """
-        db_obj = self._embed(db_obj)
+        db_obj = await self._embed(db_obj)
         db.commit()
         return db_obj
 
-    def embed_many(self, db: Session, embed_empty_only: bool = True, k: int = 0):
+    async def embed_many(self, db: Session, embed_empty_only: bool = True, k: int = 0):
         """
         Embed multiple objects in the database
 
@@ -224,7 +224,7 @@ class EmbeddingService(BaseService):
         i = 0
         for db_obj in db_objs:
             i += 1
-            self._embed(db_obj)
+            await self._embed(db_obj)
             logger.info(f'Embedded: {db_obj}')
             if i == k:
                 break
@@ -302,7 +302,7 @@ class EmbeddingService(BaseService):
     def _update(self, db: Session, db_obj, obj_in, embed=False):
         super()._update(db, db_obj, obj_in)
 
-    def _update_embed_exclude(self, db_obj, obj_in, embed=False):
+    async def _update_embed_exclude(self, db_obj, obj_in, embed=False):
         """
         Return fields to exclude when updating an object
 
@@ -329,7 +329,7 @@ class EmbeddingService(BaseService):
             # embed only if the text has changed
             if embed and ((db_obj.text != obj_in.text) or (db_obj.embedding is None)):
                 logger.info(f'Embedding updated')
-                self._embedding(db_obj, obj_in.text)
+                await self._embedding(db_obj, obj_in.text)
             else:
                 logger.info(f'Embedding not updated')
 

@@ -109,7 +109,7 @@ class MatchingService(EmbeddingService):
         rows = db.scalars(stmt).all()
         return [row.to_dict() for row in rows]
 
-    def get_semantic_match(self, db: Session, user_input: str, language: str = None, k: int = 0, symbol: str = "<=>", tag: str = None):
+    async def get_semantic_match(self, db: Session, user_input: str, language: str = None, k: int = 0, symbol: str = "<=>", tag: str = None):
         """
         Get semantic similarity match from database
 
@@ -129,7 +129,7 @@ class MatchingService(EmbeddingService):
         -------
         list of dict
         """
-        q_embedding = get_embedding(user_input)
+        q_embedding = await get_embedding(user_input)
 
         stmt = select(self.model)
         stmt = stmt.filter(self.model.embedding.isnot(None))  # filter out entries without embedding
@@ -145,19 +145,19 @@ class MatchingService(EmbeddingService):
         rows = db.scalars(stmt).all()
         return [row.to_dict() for row in rows]
 
-    def semantic_similarity_match_l1(self, db: Session, user_input: str, language: str = None, k: int = 0, tag: str = None):
+    async def semantic_similarity_match_l1(self, db: Session, user_input: str, language: str = None, k: int = 0, tag: str = None):
         """
         Get semantic similarity match from database using L1 distance
         """
         return self.get_semantic_match(db, user_input, language=language, k=k, symbol="<+>", tag=tag)
 
-    def semantic_similarity_match_l2(self, db: Session, user_input: str, language: str = None, k: int = 0, tag: str = None):
+    async def semantic_similarity_match_l2(self, db: Session, user_input: str, language: str = None, k: int = 0, tag: str = None):
         """
         Get semantic similarity match from database using L2 distance
         """
         return self.get_semantic_match(db, user_input, language=language, k=k, symbol="<->", tag=tag)
 
-    def semantic_similarity_match_inner_prod(self, db: Session, user_input: str, language: str = None, k: int = 0, tag: str = None):
+    async def semantic_similarity_match_inner_prod(self, db: Session, user_input: str, language: str = None, k: int = 0, tag: str = None):
         """
         Get semantic similarity match from database using inner product
         """

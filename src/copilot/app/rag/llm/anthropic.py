@@ -43,7 +43,7 @@ class AnthropicLLM(BaseLLM):
         self.llm_client = clientLLM
         super().__init__(stream)
 
-    def generate(self, messages: List[dict]) -> str:
+    async def generate(self, messages: List[dict]) -> str:
         """
         Generate a response using the LLM model.
 
@@ -63,7 +63,7 @@ class AnthropicLLM(BaseLLM):
             If an error occurs during generation.
         """
         try:
-            return self.llm_client.messages.create(
+            return await self.llm_client.messages.create(
                 model=self.model_name,
                 stream=False,
                 temperature=self.temperature,
@@ -74,9 +74,9 @@ class AnthropicLLM(BaseLLM):
         except Exception as e:
             raise e
 
-    def _stream(self, messages: List[Any]):
+    async def _stream(self, messages: List[Any]):
         try:
-            stream = self.llm_client.messages.create(
+            return await self.llm_client.messages.create(
                 model=self.model_name,
                 stream=True,
                 temperature=self.temperature,
@@ -84,7 +84,5 @@ class AnthropicLLM(BaseLLM):
                 max_tokens=self.max_tokens,
                 messages=messages
             )
-
-            return stream
         except Exception as e:
             raise e

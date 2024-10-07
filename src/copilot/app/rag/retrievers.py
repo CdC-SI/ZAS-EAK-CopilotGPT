@@ -8,7 +8,7 @@ from rag.reranker import Reranker
 from schemas.document import Document, DocumentBase
 from database.service import document_service
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import asyncio
 import numpy as np
 
 # Setup logging
@@ -38,63 +38,39 @@ class RetrieverClient(BaseRetriever):
         self.retrievers = retrievers
         self.reranker = reranker
 
-    def get_documents(self, db, query, k, language=None, tag=None) -> List[Document]:
+    async def get_documents(self, db, query, k, language=None, tag=None) -> List[Document]:
         """
         Retrieve documents using multiple retrievers in parallel, optionally rerank retrieved documents if a reranker is defined.
 
-        This method executes the `get_documents` method of each retriever in parallel using a
-        ThreadPoolExecutor. The results from all retrievers are aggregated into a single list,
-        which is then returned. If any retriever raises an exception, it is caught and logged,
-        but the retrieval process continues for the remaining retrievers. Results are reranked if a reranker is defined.
-
-        Parameters
-        ----------
-        db : Any
-            The database connection or session object used by the retrievers to query documents.
-        query : str
-            The search query used to retrieve relevant documents.
-        language : str
-            The language in which the documents are retrieved.
-        k : int
-            The number of top documents to retrieve from each retriever.
-        tag : str
-            The tag used to filter documents based on a specific category or topic.
-
-        Returns
-        -------
-        docs : list
-            A list of documents retrieved from the database, aggregated from all the retrievers.
-
-        Raises
-        ------
-        None
-            Exceptions raised by individual retrievers are caught and logged, not propagated.
+        This method executes the `get_documents` method of each retriever concurrently using asyncio.
+        The results from all retrievers are aggregated into a single list, which is then returned.
+        If any retriever raises an exception, it is caught and logged, but the retrieval process continues for the remaining retrievers.
+        Results are reranked if a reranker is defined.
         """
         docs = []
 
-        with ThreadPoolExecutor() as executor:  # Use ThreadPoolExecutor for parallel execution
-            future_to_retriever = {
-                executor.submit(retriever.get_documents, db, query, k, language, tag): retriever
-                for retriever in self.retrievers
-            }
+        # Create tasks for each retriever's async get_documents method
+        tasks = [
+            asyncio.create_task(retriever.get_documents(db, query, k, language, tag))
+            for retriever in self.retrievers
+        ]
 
-            for future in as_completed(future_to_retriever):  # Collect results as they complete
-                retriever = future_to_retriever[future]
-                try:
-                    result = future.result()
-                    docs.extend(result)
-                except Exception as e:
-                    logger.exception(f"Retriever {retriever} raised an exception.")
-                    return docs
+        # Gather results as they complete
+        for task in asyncio.as_completed(tasks):
+            try:
+                result = await task
+                docs.extend(result)
+            except Exception as e:
+                logger.exception("A retriever raised an exception during document retrieval: %s", e)
 
-        # Remove duplicate documents
+        # Remove duplicate documents based on unique 'id'
         seen = set()
         unique_docs = [doc for doc in docs if doc["id"] not in seen and not seen.add(doc["id"])]
 
+        # Rerank the documents and get the top-k
         unique_docs, _ = self.reranker.rerank(query, unique_docs)
 
         return unique_docs[:k]
-
 
 class TopKRetriever(BaseRetriever):
     """
@@ -108,7 +84,7 @@ class TopKRetriever(BaseRetriever):
     def __init__(self, top_k):
         self.top_k = top_k
 
-    def get_documents(self, db, query, k, language=None, tag=None) -> List[Document]:
+    async def get_documents(self, db, query, k, language=None, tag=None) -> List[Document]:
         """
         Retrieves the top k documents that semantically match the given query.
 
@@ -130,9 +106,8 @@ class TopKRetriever(BaseRetriever):
         list
             A list of the top k documents that semantically match the query.
         """
-        docs = document_service.get_semantic_match(db, query, language=language, tag=tag, k=k)[:self.top_k]
-        return docs
-
+        docs = await document_service.get_semantic_match(db, query, language=language, tag=tag, k=k)
+        return docs[:self.top_k]
 
 class QueryRewritingRetriever(BaseRetriever):
 
@@ -161,7 +136,7 @@ class QueryRewritingRetriever(BaseRetriever):
         query_rewriting_prompt = QUERY_REWRITING_PROMPT.format(n_alt_queries=n_alt_queries, query=query)
         return [{"role": "system", "content": query_rewriting_prompt},]
 
-    def rewrite_queries(self, query: str, n_alt_queries: int = 3) -> List[str]:
+    async def rewrite_queries(self, query: str, n_alt_queries: int = 3) -> List[str]:
         """
         Rewrite the input query into multiple queries.
 
@@ -182,12 +157,12 @@ class QueryRewritingRetriever(BaseRetriever):
 
         """
         messages = self.create_query_rewriting_message(query, n_alt_queries)
-        rewritten_queries = self.llm_client.generate(messages).choices[0].message.content
-        rewritten_queries = rewritten_queries.split("\n")
+        rewritten_queries = await self.llm_client.generate(messages)
+        rewritten_queries = rewritten_queries.choices[0].message.content.split("\n")
 
         return rewritten_queries
 
-    def get_documents(self, db, query, k, language=None, tag=None) -> List[Document]:
+    async def get_documents(self, db, query, k, language=None, tag=None) -> List[Document]:
         """
         Retrieves the top k documents that semantically match the given original + rewritten queries.
 
@@ -207,15 +182,14 @@ class QueryRewritingRetriever(BaseRetriever):
         list
             A list of the top k documents that semantically match the query.
         """
-        rewritten_queries = self.rewrite_queries(query=query, n_alt_queries=self.n_alt_queries)
+        rewritten_queries = await self.rewrite_queries(query=query, n_alt_queries=self.n_alt_queries)
 
         docs = []
         for query in rewritten_queries:
-            query_docs = document_service.get_semantic_match(db, query, language=language, tag=tag, k=k)
+            query_docs = await document_service.get_semantic_match(db, query, language=language, tag=tag, k=k)
             docs.extend(query_docs)
 
         return docs[:self.top_k]
-
 
 class ContextualCompressionRetriever(BaseRetriever):
 
@@ -226,72 +200,49 @@ class ContextualCompressionRetriever(BaseRetriever):
     def create_contextual_compression_message(self, query: str, context_doc: Document) -> List[Dict]:
         """
         Format the contextual compression message to send to the client_llm.
-
-        Parameters
-        ----------
-        query : str
-            User input question
-        context_doc : Document
-            Context document to compress
-
-        Returns
-        -------
-        list of dict
-            Contains the message in the correct format to send to the llm_client.
-
         """
         contextual_compression_prompt = CONTEXTUAL_COMPRESSION_PROMPT.format(context_doc=context_doc, query=query)
-        return [{"role": "system", "content": contextual_compression_prompt},]
+        return [{"role": "system", "content": contextual_compression_prompt}]
 
-    def compress_context(self, query: str, context_docs: List[Any]):
-        with ThreadPoolExecutor() as executor:
-            future_to_doc = {executor.submit(self.compress_doc, query, doc): doc for doc in context_docs}
-            docs = []
-            for future in as_completed(future_to_doc):
-                result = future.result()
-                if result is not None:
-                    docs.append(result)
-        return docs
+    async def compress_context(self, query: str, context_docs: List[Any]) -> List[Document]:
+        # Create async tasks for each document compression
+        tasks = [self.compress_doc(query, doc) for doc in context_docs]
 
-    def compress_doc(self, query, doc):
+        # Execute the tasks concurrently and gather results
+        docs = await asyncio.gather(*tasks)
+
+        # Filter out None results (for irrelevant contexts)
+        return [doc for doc in docs if doc is not None]
+
+    async def compress_doc(self, query, doc):
         messages = self.create_contextual_compression_message(query, doc)
-        compressed_doc = self.llm_client.generate(messages).choices[0].message.content
+        response = await self.llm_client.generate(messages)
+        compressed_doc = response.choices[0].message.content
 
         if "<IRRELEVANT_CONTEXT>" not in compressed_doc:
-            return Document(id=doc.id,
-                            text=compressed_doc,
-                            url=doc.url,
-                            language=doc.language,
-                            tag=doc.tag)
+            return {
+                "id": doc["id"],
+                "text": compressed_doc,
+                "url": doc["url"],
+                "language": doc["language"],
+                "tag": doc["tag"]
+            }
         return None
 
-    def get_documents(self, db, query, k, language=None, tag=None) -> List[Document]:
+    async def get_documents(self, db, query, k, language=None, tag=None) -> List[Document]:
         """
         Retrieves the top k documents that semantically match the given query, then applies contextual compression.
-
-        Parameters
-        ----------
-        db : object
-            The database object where the documents are stored.
-        query : str
-            The query to match.
-        language : str
-            The language of the query.
-        k : int
-            The number of documents to retrieve.
-
-        Returns
-        -------
-        list
-            A list of the top k documents that semantically match the query.
         """
-        docs = document_service.get_semantic_match(db, query, language=language, tag=tag, k=k)
-        compressed_docs = self.compress_context(query, docs)
+        docs = await document_service.get_semantic_match(db, query, language=language, tag=tag, k=k)
 
-        return compressed_docs[:self.top_k] + ([DocumentBase(text="", url="")]*(self.top_k - len(compressed_docs)))
+        # Compress the documents asynchronously
+        compressed_docs = await self.compress_context(query, docs)
 
+        # Return up to self.top_k documents
+        #return compressed_docs[:self.top_k] + ([DocumentBase(text="", url="")] * (self.top_k - len(compressed_docs)))
+        return compressed_docs[:self.top_k]
 
-class RAGFusionRetriever(BaseRetriever):
+class RAGFusionRetriever(QueryRewritingRetriever):
 
     def __init__(self, llm_client, n_alt_queries: int = 3, rrf_k: int = 60, top_k: int = 10):
         self.llm_client = llm_client
@@ -299,86 +250,39 @@ class RAGFusionRetriever(BaseRetriever):
         self.rrf_k = rrf_k
         self.top_k = top_k
 
-    def create_query_rewriting_message(self, query: str, n_alt_queries: int = 3) -> List[Dict]:
-        """
-        Format the RAG message to send to the client_llm.
-
-        Parameters
-        ----------
-        query : str
-            User input question
-        n_alt_queries: int
-            Number of query rewrites to generate
-
-        Returns
-        -------
-        list of dict
-            Contains the message in the correct format to send to the llm_client.
-
-        """
-        query_rewriting_prompt = QUERY_REWRITING_PROMPT.format(n_alt_queries=n_alt_queries, query=query)
-        return [{"role": "system", "content": query_rewriting_prompt},]
-
-    def rewrite_queries(self, query: str, n_alt_queries: int = 3) -> List[str]:
-        """
-        Rewrite the input query into multiple queries.
-
-        This method uses the llm_client to rewrite the input query into multiple queries.
-        The number of rewritten queries is specified by the parameter `n`.
-
-        Parameters
-        ----------
-        query : str
-            The input query to be rewritten.
-        n_alt_queries : int
-            The number of rewritten queries to generate, by default 3.
-
-        Returns
-        -------
-        List[str]
-            The list of rewritten queries.
-
-        """
-        messages = self.create_query_rewriting_message(query, n_alt_queries)
-        rewritten_queries = self.llm_client.generate(messages).choices[0].message.content
-        rewritten_queries = rewritten_queries.split("\n")
-
-        return rewritten_queries
-
     def reciprocal_rank_fusion(self, retrieved_docs: List[List[Document]], rrf_k: int = 60):
 
         fused_scores = {}
         for docs in retrieved_docs:
             for rank, doc in enumerate(docs):
-                if doc.id not in fused_scores:
-                    fused_scores[doc.id] = {"score": 0,
-                                            "text": doc.text,
-                                            "url": doc.url,
-                                            "language": doc.language,
-                                            "tag": doc.tag}
-                fused_scores[doc.id]["score"] += 1 / (rank + rrf_k)
+                if doc["id"] not in fused_scores:
+                    fused_scores[doc["id"]] = {"score": 0,
+                                            "text": doc["text"],
+                                            "url": doc["url"],
+                                            "language": doc["language"],
+                                            "tag": doc["tag"]}
+                fused_scores[doc["id"]]["score"] += 1 / (rank + rrf_k)
 
-        reranked_results = [Document(id=doc_id,
-                                     text=doc_metadata["text"],
-                                     url=doc_metadata["url"],
-                                     language=doc_metadata["language"],
-                                     tag=doc_metadata["tag"]) for doc_id, doc_metadata in sorted(fused_scores.items(), key=lambda x: x[1]["score"], reverse=True)]
+        reranked_results = [{"id": doc_id,
+                             "text": doc_metadata["text"],
+                             "url": doc_metadata["url"],
+                             "language": doc_metadata["language"],
+                             "tag": doc_metadata["tag"]} for doc_id, doc_metadata in sorted(fused_scores.items(), key=lambda x: x[1]["score"], reverse=True)]
 
         return reranked_results
 
-    def get_documents(self, db, query, k, language=None, tag=None) -> List[Document]:
+    async def get_documents(self, db, query, k, language=None, tag=None) -> List[Document]:
 
-        rewritten_queries = self.rewrite_queries(query, n_alt_queries=self.n_alt_queries)
+        rewritten_queries = await self.rewrite_queries(query, n_alt_queries=self.n_alt_queries)
 
         docs = []
         for query in rewritten_queries:
-            query_docs = document_service.get_semantic_match(db, query, language=language, tag=tag, k=k)
+            query_docs = await document_service.get_semantic_match(db, query, language=language, tag=tag, k=k)
             docs.append(query_docs)
 
         reranked_docs = self.reciprocal_rank_fusion(docs, rrf_k=self.rrf_k)
 
         return reranked_docs[:self.top_k]
-
 
 class BM25Retriever(BaseRetriever):
     """
@@ -426,7 +330,7 @@ class BM25Retriever(BaseRetriever):
 
         return tf * idf
 
-    def get_documents(self, db, query, k, language=None, tag=None) -> List[Document]:
+    async def get_documents(self, db, query, k, language=None, tag=None) -> List[Document]:
         """
         Retrieves the top k documents for a given query and language.
 
@@ -454,9 +358,9 @@ class BM25Retriever(BaseRetriever):
         # sort retrieved context docs according to score
         top_docs = list(sorted(zip(docs, scores), key=lambda x: x[1], reverse=True))[:self.top_k]
 
-        docs = [Document(id=doc[0].id,
-                         text=doc[0].text,
-                         url=doc[0].url,
-                         language=doc[0].language,
-                         tag=doc[0].tag) for doc in top_docs]
+        docs = [{"id": doc[0].id,
+                 "text": doc[0].text,
+                 "url": doc[0].url,
+                 "language": doc[0].language,
+                 "tag": doc[0].tag} for doc in top_docs]
         return docs

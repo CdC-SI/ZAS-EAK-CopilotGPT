@@ -56,7 +56,7 @@ async def process_query(request: RAGRequest, language: str = None, db: Session =
     StreamingResponse
         The response from the RAG processor
     """
-    content = processor.process_request(db, request, language=language)
+    content = await processor.process_request(db, request, language=language)
     return StreamingResponse(content, media_type="text/event-stream")
 
 

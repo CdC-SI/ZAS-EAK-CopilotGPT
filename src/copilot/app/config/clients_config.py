@@ -2,7 +2,6 @@ import os
 from dotenv import load_dotenv
 
 import openai
-from openai import AzureOpenAI
 import cohere
 
 import logging
@@ -46,9 +45,9 @@ clientEmbed = None
 
 # Initialize Embedding client
 if embedding_model in SUPPORTED_OPENAI_EMBEDDING_MODELS and OPENAI_API_KEY:
-    clientEmbed = openai.OpenAI(api_key=OPENAI_API_KEY, http_client=httpx_client)
+    clientEmbed = openai.AsyncOpenAI(api_key=OPENAI_API_KEY, http_client=httpx_client)
 elif embedding_model in SUPPORTED_AZUREOPENAI_EMBEDDING_MODELS and AZUREOPENAI_API_KEY:
-    clientEmbed = AzureOpenAI(
+    clientEmbed = openai.AsyncAzureOpenAI(
         api_key=AZUREOPENAI_API_KEY,
         api_version=AZUREOPENAI_API_VERSION,
         azure_endpoint=AZUREOPENAI_ENDPOINT,
@@ -57,22 +56,19 @@ elif embedding_model in SUPPORTED_AZUREOPENAI_EMBEDDING_MODELS and AZUREOPENAI_A
 
 # Initialize LLM client based on OpenAI, AzureOpenAI or Groq model
 if llm_model in SUPPORTED_OPENAI_LLM_MODELS and OPENAI_API_KEY:
-    clientLLM = openai.OpenAI(api_key=OPENAI_API_KEY, http_client=httpx_client)
+    clientLLM = openai.AsyncOpenAI(api_key=OPENAI_API_KEY, http_client=httpx_client)
 elif llm_model in SUPPORTED_AZUREOPENAI_LLM_MODELS and AZUREOPENAI_API_KEY:
-    clientLLM = AzureOpenAI(
+    clientLLM = openai.AsyncAzureOpenAI(
         api_key=AZUREOPENAI_API_KEY,
         api_version=AZUREOPENAI_API_VERSION,
         azure_endpoint=AZUREOPENAI_ENDPOINT,
         http_client=httpx_client
     )
 elif llm_model in SUPPORTED_ANTHROPIC_LLM_MODELS and ANTHROPIC_API_KEY:
-    from anthropic import Anthropic
-    clientLLM = Anthropic(api_key=ANTHROPIC_API_KEY, http_client=httpx_client)
+    from anthropic import AsyncAnthropic
+    clientLLM = AsyncAnthropic(api_key=ANTHROPIC_API_KEY, http_client=httpx_client)
 elif llm_model in SUPPORTED_GROQ_LLM_MODELS and GROQ_API_KEY:
-    from groq import Groq
-    clientLLM = Groq(api_key=GROQ_API_KEY, http_client=httpx_client)
+    from groq import AsyncGroq
+    clientLLM = AsyncGroq(api_key=GROQ_API_KEY, http_client=httpx_client)
 
 clientRerank = cohere.Client(api_key=COHERE_API_KEY, httpx_client=httpx_client)
-
-logger.info(f"---------LLMMODEL: {llm_model}---------")
-logger.info(f"---------CLIENTLLM: {clientLLM}, CLIENTEMBED: {clientEmbed}, CLIENTRERANK: {clientRerank}---------")

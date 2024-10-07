@@ -11,9 +11,9 @@ logger = logging.getLogger(__name__)
 
 
 # Function to get embeddings for a text
-def get_embedding(text: Union[List[str], str]):
+async def get_embedding(text: Union[List[str], str]):
     try:
-        response = clientEmbed.embeddings.create(
+        response = await clientEmbed.embeddings.create(
             input=text,
             model=rag_config["embedding"]["model"],
         )
