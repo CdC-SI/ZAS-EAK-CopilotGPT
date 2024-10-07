@@ -25,7 +25,7 @@ class OpenAILLM(BaseLLM):
     Attributes
     ----------
     model_name : str
-        The name of the OpenAI LLM model to use for response generation.
+        The name of the LLM model to use for response generation.
     stream : bool
         Whether to stream the response generation.
     temperature : float
@@ -34,15 +34,8 @@ class OpenAILLM(BaseLLM):
         The top-p value to use for response generation.
     max_tokens : int
         The maximum number of tokens to generate.
-
-    Methods
-    -------
-    _generate(messages: List[dict]) -> str
-        Generates a single string response for a list of messages using the OpenAI LLM model.
-    _stream()
-        Generates a stream of events as response for a list of messages using the OpenAI LLM model.
     """
-    def __init__(self, model_name: str = DEFAULT_OPENAI_LLM_MODEL, stream: bool = True, temperature: float = 0.0, top_p: float = 0.95, max_tokens: int = 512):
+    def __init__(self, model_name: str = DEFAULT_OPENAI_LLM_MODEL, stream: bool = True, temperature: float = 0.0, top_p: float = 0.95, max_tokens: int = 2048):
         self.model_name = model_name
         self.temperature = temperature
         self.top_p = top_p
@@ -52,7 +45,7 @@ class OpenAILLM(BaseLLM):
 
     def generate(self, messages: List[dict]) -> str:
         """
-        Generate a response using the OpenAI LLM model.
+        Generate a response using the LLM model.
 
         Parameters
         ----------
