@@ -1,6 +1,6 @@
 from rag.llm.base import BaseLLM
-from rag.llm import OpenAILLM#, MlxLLM, LlamaCppLLM, HuggingFaceLLM
-from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS, SUPPORTED_AZUREOPENAI_LLM_MODELS, SUPPORTED_GROQ_LLM_MODELS#, SUPPORTED_MLX_LLM_MODELS, SUPPORTED_LLAMACPP_LLM_MODELS, SUPPORTED_HUGGINGFACE_LLM_MODELS
+from rag.llm import OpenAILLM, AnthropicLLM#, MlxLLM, LlamaCppLLM, HuggingFaceLLM
+from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS, SUPPORTED_AZUREOPENAI_LLM_MODELS, SUPPORTED_ANTHROPIC_LLM_MODELS, SUPPORTED_GROQ_LLM_MODELS#, SUPPORTED_MLX_LLM_MODELS
 
 
 import logging
@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 class LLMFactory:
     @staticmethod
-    def get_llm_client(llm_model: str, stream: bool) -> BaseLLM:
+    def get_llm_client(llm_model: str, stream: bool, temperature: float, top_p: float, max_tokens: int) -> BaseLLM:
         """
         Factory method to instantiate llm clients based on a string identifier.
 
@@ -32,12 +32,18 @@ class LLMFactory:
             If the `llm_model` is not supported.
         """
         if llm_model in SUPPORTED_OPENAI_LLM_MODELS or llm_model in SUPPORTED_AZUREOPENAI_LLM_MODELS or llm_model in SUPPORTED_GROQ_LLM_MODELS:
-            return OpenAILLM(model_name=llm_model, stream=stream)
+            return OpenAILLM(model_name=llm_model,
+                             stream=stream,
+                             temperature=temperature,
+                             top_p=top_p,
+                             max_tokens=max_tokens)
+        elif llm_model in SUPPORTED_ANTHROPIC_LLM_MODELS:
+            return AnthropicLLM(model_name=llm_model,
+                                stream=stream,
+                                temperature=temperature,
+                                top_p=top_p,
+                                max_tokens=max_tokens)
         # elif llm_model in SUPPORTED_MLX_LLM_MODELS:
         #     return MlxLLM(model_name=llm_model)
-        # elif llm_model in SUPPORTED_LLAMACPP_LLM_MODELS:
-        #     return LlamaCppLLM(model_name=llm_model)
-        # elif llm_model in SUPPORTED_HUGGINGFACE_LLM_MODELS:
-        #     return HuggingFaceLLM(model_name=llm_model)
         else:
             raise ValueError(f"Unsupported llm model type: {llm_model}")

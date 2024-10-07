@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 from config.base_config import rag_config
-from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS, SUPPORTED_AZUREOPENAI_LLM_MODELS, SUPPORTED_GROQ_LLM_MODELS, SUPPORTED_OPENAI_EMBEDDING_MODELS, SUPPORTED_AZUREOPENAI_EMBEDDING_MODELS
+from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS, SUPPORTED_AZUREOPENAI_LLM_MODELS, SUPPORTED_ANTHROPIC_LLM_MODELS, SUPPORTED_GROQ_LLM_MODELS, SUPPORTED_OPENAI_EMBEDDING_MODELS, SUPPORTED_AZUREOPENAI_EMBEDDING_MODELS
 
 load_dotenv()
 
@@ -19,6 +19,7 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", None)
 AZUREOPENAI_API_KEY = os.environ.get("AZUREOPENAI_API_KEY", None)
 AZUREOPENAI_API_VERSION = os.environ.get("AZUREOPENAI_API_VERSION", None)
 AZUREOPENAI_ENDPOINT = os.environ.get("AZUREOPENAI_ENDPOINT", None)
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", None)
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", None)
 COHERE_API_KEY = os.environ.get("COHERE_API_KEY", None)
 
@@ -64,6 +65,9 @@ elif llm_model in SUPPORTED_AZUREOPENAI_LLM_MODELS and AZUREOPENAI_API_KEY:
         azure_endpoint=AZUREOPENAI_ENDPOINT,
         http_client=httpx_client
     )
+elif llm_model in SUPPORTED_ANTHROPIC_LLM_MODELS and ANTHROPIC_API_KEY:
+    from anthropic import Anthropic
+    clientLLM = Anthropic(api_key=ANTHROPIC_API_KEY, http_client=httpx_client)
 elif llm_model in SUPPORTED_GROQ_LLM_MODELS and GROQ_API_KEY:
     from groq import Groq
     clientLLM = Groq(api_key=GROQ_API_KEY, http_client=httpx_client)

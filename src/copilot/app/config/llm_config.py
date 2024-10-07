@@ -11,6 +11,10 @@ DEFAULT_OPENAI_LLM_MODEL = "gpt-4o-2024-05-13"
 SUPPORTED_AZUREOPENAI_LLM_MODELS = ["azure-gpt-4-32k"]
 DEFAULT_AZUREOPENAI_LLM_MODEL = "azure-gpt-4-32k"
 
+# Anthropic
+SUPPORTED_ANTHROPIC_LLM_MODELS = ["claude-3-5-sonnet-20240620", "claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haiku-20240307"]
+DEFAULT_ANTHROPIC_LLM_MODEL = "claude-3-5-sonnet-20240620"
+
 # Groq
 SUPPORTED_GROQ_LLM_MODELS = ["llama-3.1-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768", "gemma-7b-it", "gemma2-9b-it"]
 DEFAULT_GROQ_LLM_MODEL = "llama-3.1-8b-instant"
