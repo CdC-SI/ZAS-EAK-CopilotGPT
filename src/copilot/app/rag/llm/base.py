@@ -8,47 +8,22 @@ class BaseLLM(ABC):
         self.stream = stream
 
     @abstractmethod
-    def generate(self, messages: List[dict]) -> str:
+    def agenerate(self, messages: List[dict]) -> str:
         """
-        Generate an answer based on input messages using an LLM.
-
-        Parameters
-        ----------
-        messages : List[dict]
-            A list of messages. Each message is a dictionary containing the necessary information for the LLM to generate an answer.
-
-        Returns
-        -------
-        str
-            The generated answer.
+        Asynchronously generate an answer based on input messages using an LLM.
         """
 
     @abstractmethod
-    def _stream(self, messages: List[dict]):
+    def _astream(self, messages: List[dict]):
         """
-        Stream an answer based on input messages using an LLM.
-
-        This method should be implemented to handle streaming of answers.
+        Asynchronously stream an answer based on input messages using an LLM.
         """
 
     def call(self, messages: List[dict]):
         """
         Call the appropriate method based on the 'stream' parameter.
-
-        If 'self.stream' is True, the '_stream' method is called. If 'self.stream' is False, the '_generate' method is called.
-
-        Parameters
-        ----------
-        messages : List[dict]
-            A list of messages. Each message is a dictionary containing the necessary information for the LLM to generate an answer.
-
-        Returns
-        -------
-        str
-            The generated or streamed answer.
         """
-        match self.stream:
-            case True:
-                return self._stream(messages)
-            case False:
-                return self.generate(messages)
+        if self.stream:
+            return self._astream(messages)
+        else:
+            return self.agenerate(messages)

@@ -17,7 +17,6 @@ from config.clients_config import clientLLM
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-
 class OpenAILLM(BaseLLM):
     """
     Class used to generate responses using an OpenAI API Large Language Model (LLM).
@@ -43,7 +42,7 @@ class OpenAILLM(BaseLLM):
         self.llm_client = clientLLM
         super().__init__(stream)
 
-    async def generate(self, messages: List[dict]) -> str:
+    async def agenerate(self, messages: List[dict]) -> str:
         """
         Generate a response using the LLM model.
 
@@ -74,7 +73,7 @@ class OpenAILLM(BaseLLM):
         except Exception as e:
             raise e
 
-    async def _stream(self, messages: List[Any]):
+    async def _astream(self, messages: List[Any]):
         try:
             return await self.llm_client.chat.completions.create(
                 model=self.model_name,

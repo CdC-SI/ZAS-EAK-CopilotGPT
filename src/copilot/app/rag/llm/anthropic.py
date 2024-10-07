@@ -1,8 +1,5 @@
 """
 This module provides an implementation of the Anthropic LLM model.
-
-Classes:
-    OpenAILLM: A class that encapsulates methods to interact with Anthropic's language model APIs.
 """
 
 import logging
@@ -16,7 +13,6 @@ from config.clients_config import clientLLM
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
 
 class AnthropicLLM(BaseLLM):
     """
@@ -43,7 +39,7 @@ class AnthropicLLM(BaseLLM):
         self.llm_client = clientLLM
         super().__init__(stream)
 
-    async def generate(self, messages: List[dict]) -> str:
+    async def agenerate(self, messages: List[dict]) -> str:
         """
         Generate a response using the LLM model.
 
@@ -74,7 +70,7 @@ class AnthropicLLM(BaseLLM):
         except Exception as e:
             raise e
 
-    async def _stream(self, messages: List[Any]):
+    async def _astream(self, messages: List[Any]):
         try:
             return await self.llm_client.messages.create(
                 model=self.model_name,
