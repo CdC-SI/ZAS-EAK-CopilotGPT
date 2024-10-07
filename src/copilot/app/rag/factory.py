@@ -1,21 +1,13 @@
 from config.base_config import rag_config
-from rag.base import BaseRetriever
-from rag.retrievers import RetrieverClient, TopKRetriever, QueryRewritingRetriever, ContextualCompressionRetriever, RAGFusionRetriever, BM25Retriever, Reranker
+from rag.retrievers import BaseRetriever, RetrieverClient, TopKRetriever, QueryRewritingRetriever, ContextualCompressionRetriever, RAGFusionRetriever, BM25Retriever, Reranker
 from rag.llm.base import BaseLLM
-
 
 class RetrieverFactory:
     """
     A factory class for creating a RetrieverClient based on the specified retrieval methods.
 
     This factory method allows for the creation of a composite retriever client that can use multiple
-    retrieval strategies in sequence or in parallel, depending on the specified methods.
-
-    Methods
-    -------
-    get_retriever_client(retrieval_method: str) -> BaseRetriever
-        Creates a RetrieverClient instance configured with the specified retrieval methods.
-
+    retrieval strategies in sequence or asynchronously, depending on the specified methods.
     """
     @staticmethod
     def get_retriever_client(retrieval_method: str, llm_client: BaseLLM = None) -> BaseRetriever:

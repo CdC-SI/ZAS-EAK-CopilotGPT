@@ -1,11 +1,11 @@
+from abc import ABC, abstractmethod
 import logging
 from typing import List, Dict, Any
 
-from rag.base import BaseRetriever
 from rag.prompts import QUERY_REWRITING_PROMPT, CONTEXTUAL_COMPRESSION_PROMPT
 from rag.reranker import Reranker
 
-from schemas.document import Document, DocumentBase
+from schemas.document import Document
 from database.service import document_service
 
 import asyncio
@@ -14,6 +14,11 @@ import numpy as np
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+class BaseRetriever(ABC):
+    @abstractmethod
+    def get_documents(self, db, query, k, language=None, tag=None) -> List[Document]:
+        pass
 
 class RetrieverClient(BaseRetriever):
     """
