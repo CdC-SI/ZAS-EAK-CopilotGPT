@@ -17,9 +17,9 @@ class Reranker:
         self.model = model
         self.top_k = top_k
 
-    def _rerank(self, query: str, documents: List[str]):
+    async def _rerank(self, query: str, documents: List[str]):
         try:
-            response = self.reranking_client.rerank(
+            response = await self.reranking_client.rerank(
                 model=self.model,
                 query=query,
                 documents=documents,
@@ -30,14 +30,14 @@ class Reranker:
         except Exception as e:
             logger.error(f"Reranker raised an exception: {e}")
 
-    def rerank(self, query, documents: List[Document]) -> Tuple[List[Document], List[int]]:
+    async def rerank(self, query, documents: List[Document]) -> Tuple[List[Document], List[int]]:
         relevance_score = [0] * self.top_k  # Initialize relevance scores to 0
         text_documents = [doc["text"] for doc in documents]
 
         logger.info(f"Reranking {len(documents)} documents...")
 
         try:
-            reranked_res = self._rerank(query, text_documents)
+            reranked_res = await self._rerank(query, text_documents)
             documents = [documents[item.index] for item in reranked_res]
             relevance_score = [item.relevance_score for item in reranked_res]
 

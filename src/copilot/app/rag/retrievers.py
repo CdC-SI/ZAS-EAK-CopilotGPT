@@ -68,7 +68,7 @@ class RetrieverClient(BaseRetriever):
         unique_docs = [doc for doc in docs if doc["id"] not in seen and not seen.add(doc["id"])]
 
         # Rerank the documents and get the top-k
-        unique_docs, _ = self.reranker.rerank(query, unique_docs)
+        unique_docs, _ = await self.reranker.rerank(query, unique_docs)
 
         return unique_docs[:k]
 
@@ -157,7 +157,7 @@ class QueryRewritingRetriever(BaseRetriever):
 
         """
         messages = self.create_query_rewriting_message(query, n_alt_queries)
-        rewritten_queries = await self.llm_client.generate(messages)
+        rewritten_queries = await self.llm_client.agenerate(messages)
         rewritten_queries = rewritten_queries.choices[0].message.content.split("\n")
 
         return rewritten_queries
@@ -216,7 +216,7 @@ class ContextualCompressionRetriever(BaseRetriever):
 
     async def compress_doc(self, query, doc):
         messages = self.create_contextual_compression_message(query, doc)
-        response = await self.llm_client.generate(messages)
+        response = await self.llm_client.agenerate(messages)
         compressed_doc = response.choices[0].message.content
 
         if "<IRRELEVANT_CONTEXT>" not in compressed_doc:
