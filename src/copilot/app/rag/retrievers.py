@@ -32,6 +32,7 @@ class RetrieverClient(BaseRetriever):
         self.retrievers = retrievers
         self.reranker = reranker
 
+    @observe()
     async def get_documents(self, db, query, k, language=None, tag=None) -> List[Document]:
         """
         Retrieve documents using multiple retrievers in parallel, optionally rerank retrieved documents if a reranker is defined.
@@ -108,11 +109,15 @@ class QueryRewritingRetriever(BaseRetriever):
         """
         rewritten_queries = await self.rewrite_queries(query=query, n_alt_queries=self.n_alt_queries)
 
-        docs = []
-        # can this be executed in parallel?
-        for query in rewritten_queries:
-            query_docs = await document_service.get_semantic_match(db, query, language=language, tag=tag, k=k)
-            docs.extend(query_docs)
+        # Execute all semantic matching operations concurrently
+        tasks = [
+            document_service.get_semantic_match(db, query, language=language, tag=tag, k=k)
+            for query in rewritten_queries
+        ]
+        results = await asyncio.gather(*tasks)
+
+        # Flatten the list of results
+        docs = [doc for result in results for doc in result]
 
         return docs[:self.top_k]
 
