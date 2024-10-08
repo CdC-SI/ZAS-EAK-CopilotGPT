@@ -55,6 +55,13 @@ class RAGProcessor:
 
         return config
 
+    async def embed(self, text_input: EmbeddingRequest):
+        """
+        Get the embedding of an embedding request.
+        """
+        embedding = await get_embedding(text_input.text)
+        return {"data": embedding}
+
     @observe()
     async def retrieve(self, db: Session, request: RAGRequest, language: str = None, tag: str = None, k: int = 0, retriever_client: RetrieverClient = None):
         """
@@ -85,26 +92,19 @@ class RAGProcessor:
 
     async def process_request(self, db: Session, request: RAGRequest, language: str = None, tag: str = None):
 
-        session_data = self.get_session_data()
+        session_config = self.get_session_data()
         session_language = "de" #if language is None else language
-        llm_model = session_data["rag"]["llm"]["model"]
-        stream = session_data["rag"]["llm"]["stream"]
-        retrieval_method = session_data["rag"]["retrieval"]["retrieval_method"]
+        llm_model = session_config["rag"]["llm"]["model"]
+        stream = session_config["rag"]["llm"]["stream"]
+        retrieval_method = session_config["rag"]["retrieval"]["retrieval_method"]
 
         # pass session_data.get("llm_model") to get_llm_client
         llm_client = LLMFactory.get_llm_client(llm_model=llm_model, stream=stream, temperature=self.temperature, top_p=self.top_p, max_tokens=self.max_tokens)
         message_builder = MessageBuilder(session_language=session_language, llm_model=llm_model)
-        retriever_client = RetrieverFactory.get_retriever_client(retrieval_method=retrieval_method, llm_client=llm_client)
+        retriever_client = RetrieverFactory.get_retriever_client(retrieval_method=retrieval_method, llm_client=llm_client, message_builder=message_builder)
         streaming_handler = StreamingHandlerFactory.get_streaming_strategy(llm_model=llm_model)
 
         return self.process(db=db, request=request, language=language, tag=tag, streaming_handler=streaming_handler, llm_client=llm_client, retriever_client=retriever_client, message_builder=message_builder)
-
-    async def embed(self, text_input: EmbeddingRequest):
-        """
-        Get the embedding of an embedding request.
-        """
-        embedding = await get_embedding(text_input.text)
-        return {"data": embedding}
 
 processor = RAGProcessor(max_tokens=rag_config["llm"]["max_output_tokens"],
                          temperature=rag_config["llm"]["temperature"],

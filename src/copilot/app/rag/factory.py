@@ -1,6 +1,7 @@
 from config.base_config import rag_config
 from rag.retrievers import BaseRetriever, RetrieverClient, TopKRetriever, QueryRewritingRetriever, ContextualCompressionRetriever, RAGFusionRetriever, BM25Retriever, Reranker
 from rag.llm.base import BaseLLM
+from rag.messages import MessageBuilder
 
 class RetrieverFactory:
     """
@@ -10,7 +11,7 @@ class RetrieverFactory:
     retrieval strategies in sequence or asynchronously, depending on the specified methods.
     """
     @staticmethod
-    def get_retriever_client(retrieval_method: str, llm_client: BaseLLM = None) -> BaseRetriever:
+    def get_retriever_client(retrieval_method: str, llm_client: BaseLLM = None, message_builder: MessageBuilder = None) -> BaseRetriever:
         """
         Create a RetrieverClient based on the given retrieval method(s).
 
@@ -42,26 +43,50 @@ class RetrieverFactory:
         for method in retrieval_method:
             match method:
                 case "top_k_retriever":
-                    retrievers.append(TopKRetriever(top_k=rag_config["retrieval"]["top_k_retriever_params"]["top_k"],))
+                    retrievers.append(
+                        TopKRetriever(
+                            top_k=rag_config["retrieval"]["top_k_retriever_params"]["top_k"],
+                            )
+                        )
                 case "query_rewriting_retriever":
-                    retrievers.append(QueryRewritingRetriever(n_alt_queries=rag_config["retrieval"]["query_rewriting_retriever_params"]["n_alt_queries"],
-                                                              top_k=rag_config["retrieval"]["query_rewriting_retriever_params"]["top_k"],
-                                                              llm_client=llm_client))
+                    retrievers.append(
+                        QueryRewritingRetriever(
+                            n_alt_queries=rag_config["retrieval"]["query_rewriting_retriever_params"]["n_alt_queries"],
+                            top_k=rag_config["retrieval"]["query_rewriting_retriever_params"]["top_k"],
+                            llm_client=llm_client,
+                            message_builder=message_builder,
+                            )
+                        )
                 case "contextual_compression_retriever":
-                    retrievers.append(ContextualCompressionRetriever(top_k=rag_config["retrieval"]["contextual_compression_retriever_params"]["top_k"],
-                                      llm_client=llm_client))
+                    retrievers.append(
+                        ContextualCompressionRetriever(
+                            top_k=rag_config["retrieval"]["contextual_compression_retriever_params"]["top_k"],
+                            llm_client=llm_client,
+                            message_builder=message_builder,
+                            )
+                        )
                 case "bm25_retriever":
-                    retrievers.append(BM25Retriever(k=rag_config["retrieval"]["bm25_retriever_params"]["k"],
-                                                    b=rag_config["retrieval"]["bm25_retriever_params"]["k"],
-                                                    top_k=rag_config["retrieval"]["bm25_retriever_params"]["top_k"],))
+                    retrievers.append(
+                        BM25Retriever(
+                            k=rag_config["retrieval"]["bm25_retriever_params"]["k"],
+                            b=rag_config["retrieval"]["bm25_retriever_params"]["b"],
+                            top_k=rag_config["retrieval"]["bm25_retriever_params"]["top_k"],
+                            )
+                        )
                 case "rag_fusion_retriever":
-                    retrievers.append(RAGFusionRetriever(n_alt_queries=rag_config["retrieval"]["rag_fusion_retriever_params"]["n_alt_queries"],
-                                                         rrf_k=rag_config["retrieval"]["rag_fusion_retriever_params"]["rrf_k"],
-                                                         top_k=rag_config["retrieval"]["rag_fusion_retriever_params"]["top_k"],
-                                                         llm_client=llm_client))
+                    retrievers.append(
+                        RAGFusionRetriever(
+                            n_alt_queries=rag_config["retrieval"]["rag_fusion_retriever_params"]["n_alt_queries"],
+                            rrf_k=rag_config["retrieval"]["rag_fusion_retriever_params"]["rrf_k"],
+                            top_k=rag_config["retrieval"]["rag_fusion_retriever_params"]["top_k"],
+                            llm_client=llm_client
+                            )
+                        )
                 case "reranking":
-                    reranker = Reranker(model=rag_config["retrieval"]["reranking_params"]["model"],
-                                        top_k=rag_config["retrieval"]["reranking_params"]["top_k"],)
+                    reranker = Reranker(
+                        model=rag_config["retrieval"]["reranking_params"]["model"],
+                        top_k=rag_config["retrieval"]["reranking_params"]["top_k"],
+                        )
                 case _:
                     raise ValueError(f"Unsupported retrieval method: {method}. Please refer to the documentation for supported methods (https://cdc-si.github.io/ZAS-EAK-CopilotGPT/).")
 
