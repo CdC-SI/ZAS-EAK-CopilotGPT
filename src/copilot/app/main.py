@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from indexing_api import init_indexing, app as indexing_app
 from autocomplete_api import app as autocomplete_app
 from rag_api import app as rag_app
+from session_api import app as session_app
 
 import logging
 logger = logging.getLogger(__name__)
@@ -13,12 +14,10 @@ logger = logging.getLogger(__name__)
 
 PREFIX = "/apy"
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_indexing()
     yield
-
 
 app = FastAPI(lifespan=lifespan)
 # Setup CORS
@@ -36,7 +35,7 @@ app.mount(PREFIX, api)
 api.mount("/indexing", indexing_app)
 api.mount("/autocomplete", autocomplete_app)
 api.mount("/rag", rag_app)
-
+api.mount("/session", session_app)
 
 @api.post("/",
           summary="Hello",
