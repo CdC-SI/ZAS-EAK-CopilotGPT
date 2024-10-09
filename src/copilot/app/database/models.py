@@ -1,12 +1,12 @@
-from typing import Optional
-from sqlalchemy import Integer, ForeignKey, String, Text, DateTime, func, Index
+from typing import Optional, List
+from sqlalchemy import Integer, ForeignKey, String, Text, DateTime, func, Index, desc, ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
 from sqlalchemy.inspection import inspect
+from datetime import datetime
 # SQLAlchemy-2.0.30
 
 from sqlalchemy.orm import declarative_base
-
 
 class EmbeddedMixin (object):
     text: Mapped[str] = mapped_column(Text, nullable=False)
@@ -23,9 +23,7 @@ class EmbeddedMixin (object):
         Index('text_tsv', 'text', postgresql_using='gin'),
     )
 
-
 Base = declarative_base()
-
 
 class Source(Base):
     """
@@ -38,7 +36,6 @@ class Source(Base):
 
     def __repr__(self) -> str:
         return f"Source(id={self.id!r}, url={self.url!r})"
-
 
 class Document(Base, EmbeddedMixin):
     """
@@ -67,7 +64,6 @@ class Document(Base, EmbeddedMixin):
 
         return serialized_data
 
-
 class Question(Base, EmbeddedMixin):
     """
     Question used for Autocomplete, answers are stored in the Document table.
@@ -89,6 +85,23 @@ class Question(Base, EmbeddedMixin):
     def __repr__(self) -> str:
         return f"Question(id={self.id!r}, url={self.url!r}, question={self.text!r}, answer_id={self.answer_id!r}, language={self.language!r})"
 
+class ChatHistory(Base):
+    __tablename__ = "chat_history"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_uuid: Mapped[str] = mapped_column(String)
+    conversation_uuid: Mapped[str] = mapped_column(String)
+    #user: Mapped["User"] = relationship("User", back_populates="chat_history")
+    role: Mapped[str] = mapped_column(String)
+    message: Mapped[str] = mapped_column(String)
+    timestamp: Mapped[DateTime] = mapped_column(DateTime, default=datetime.utcnow)
+    retrieved_docs: Mapped[Optional[List[int]]] = mapped_column(ARRAY(Integer), nullable=True)
+
+class ChatTitle(Base):
+    __tablename__ = "chat_title"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    conversation_uuid: Mapped[str] = mapped_column(String)
+    chat_title: Mapped[str] = mapped_column(String)
+    timestamp: Mapped[DateTime] = mapped_column(DateTime, default=datetime.utcnow)
 
 # Init relationship mappers
 Document.questions = relationship("Question", order_by=Question.id, back_populates="answer")
