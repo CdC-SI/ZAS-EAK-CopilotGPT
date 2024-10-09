@@ -5,6 +5,7 @@ asyncpg==0.29.0
 pydantic==2.7.1
 numpy==1.26.4
 pyaml-env==1.2.1
+redis==5.1.1
 
 # rag
 openai==1.30.5
