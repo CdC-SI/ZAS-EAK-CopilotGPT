@@ -22,6 +22,7 @@ check_env_vars(config)
 autocomplete_config = config.get('autocomplete')
 rag_config = config.get('rag')
 indexing_config = config.get('indexing')
+chat_config = config.get('chat')
 
 # Access fastapi app configuration values
 # Path to the YAML configuration file
