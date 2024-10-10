@@ -158,51 +158,51 @@ class MessageBuilder:
                 prompt = CONTEXTUAL_COMPRESSION_PROMPT_DE.format(context_doc=context_doc, query=query)
                 return [{"role": "system", "content": prompt},]
 
-    def build_chat_title_prompt(self, query: str) -> List[Dict]:
+    def build_chat_title_prompt(self, query: str, assistant_response: str) -> List[Dict]:
         """
         Format the CreateChatTitle message to send to the appropriate LLM API.
         """
         # For OpenAI LLM models
         if self.llm_model in SUPPORTED_OPENAI_LLM_MODELS + SUPPORTED_AZUREOPENAI_LLM_MODELS:
             if self.language == "de":
-                prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(query=query)
+                prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(query=query, assistant_response=assistant_response)
                 return [{"role": "system", "content": prompt},]
             elif self.language == "fr":
-                prompt = CREATE_CHAT_TITLE_PROMPT_FR.format(query=query)
+                prompt = CREATE_CHAT_TITLE_PROMPT_FR.format(query=query, assistant_response=assistant_response)
                 return [{"role": "system", "content": prompt},]
             elif self.language == "it":
-                prompt = CREATE_CHAT_TITLE_PROMPT_IT.format(query=query)
+                prompt = CREATE_CHAT_TITLE_PROMPT_IT.format(query=query, assistant_response=assistant_response)
                 return [{"role": "system", "content": prompt},]
             else:
-                prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(query=query)
+                prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(query=query, assistant_response=assistant_response)
                 return [{"role": "system", "content": prompt},]
 
         # NEED TO IMPLEMENT OPTIMIZED CONTEXTUAL COMPRESSION
         elif self.llm_model in SUPPORTED_ANTHROPIC_LLM_MODELS:
             if self.language == "de":
-                prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(query=query)
+                prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(query=query, assistant_response=assistant_response)
                 return [{"role": "user", "content": prompt},]
             elif self.language == "fr":
-                prompt = CREATE_CHAT_TITLE_PROMPT_FR.format(query=query)
+                prompt = CREATE_CHAT_TITLE_PROMPT_FR.format(query=query, assistant_response=assistant_response)
                 return [{"role": "user", "content": prompt},]
             elif self.language == "it":
-                prompt = CREATE_CHAT_TITLE_PROMPT_IT.format(query=query)
+                prompt = CREATE_CHAT_TITLE_PROMPT_IT.format(query=query, assistant_response=assistant_response)
                 return [{"role": "user", "content": prompt},]
             else:
-                prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(query=query)
+                prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(query=query, assistant_response=assistant_response)
                 return [{"role": "user", "content": prompt},]
 
         # NEED TO IMPLEMENT OPTIMIZED GROQ PROMPT
         elif self.llm_model in SUPPORTED_GROQ_LLM_MODELS:
             if self.language == "de":
-                prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(query=query)
+                prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(query=query, assistant_response=assistant_response)
                 return [{"role": "system", "content": prompt},]
             elif self.language == "fr":
-                prompt = CREATE_CHAT_TITLE_PROMPT_FR.format(query=query)
+                prompt = CREATE_CHAT_TITLE_PROMPT_FR.format(query=query, assistant_response=assistant_response)
                 return [{"role": "system", "content": prompt},]
             elif self.language == "it":
-                prompt = CREATE_CHAT_TITLE_PROMPT_IT.format(query=query)
+                prompt = CREATE_CHAT_TITLE_PROMPT_IT.format(query=query, assistant_response=assistant_response)
                 return [{"role": "system", "content": prompt},]
             else:
-                prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(query=query)
+                prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(query=query, assistant_response=assistant_response)
                 return [{"role": "system", "content": prompt},]

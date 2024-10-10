@@ -124,20 +124,26 @@ CONTESTO:
 
 Parti rilevanti estratte:"""
 
-CREATE_CHAT_TITLE_PROMPT_DE = """Ihre Aufgabe ist es, einen Titel für den Chatverlauf auf der Grundlage der eingegebenen Benutzerfrage (FRAGE) zu erstellen. Erzeugen Sie aus der Benutzerfrage (FRAGE) einen aussagekräftigen Titel, der das Wesentliche der anschliessenden Unterhaltung erfasst. Der Titel sollte äusserst prägnant und informativ sein und einen kurzen Überblick über das Thema geben, wobei er sich NUR auf den Inhalt der FRAGE stützt. Der Titel MUSS in der gleichen Sprache wie die FRAGE sein!
+CREATE_CHAT_TITLE_PROMPT_DE = """Ihre Aufgabe ist es, einen Titel für den Chatverlauf aus der Frage des Nutzers (FRAGE) und der Antwort des Assistenten (ANTWORT) zu generieren. Generieren Sie aus FRAGE und ANTWORT einen hochrangigen Titel, der die Essenz des anschliessenden Gesprächs einfängt. Die Überschrift sollte äusserst prägnant und informativ sein und einen kurzen Überblick über das Thema geben, der NUR auf dem Inhalt von FRAGE und ANTWORT beruht. Der Titel MUSS in der gleichen Sprache wie die FRAGE sein!
 
 FRAGE: {query}
 
+ANTWORT: {assistant_response}
+
 CHAT-TITEL:"""
 
-CREATE_CHAT_TITLE_PROMPT_FR = """Votre tâche consiste à générer un titre pour l'historique du chat à partir de la question de l'utilisateur (QUESTION). Générez un titre de haut niveau à partir de la question de l'utilisateur (QUESTION) qui capturera l'essence de la conversation qui s'ensuit. Le titre doit être extrêmement concis et informatif, et donner un bref aperçu du sujet en se basant UNIQUEMENT sur le contenu de la QUESTION. Le titre DOIT être dans la même langue que la QUESTION !
+CREATE_CHAT_TITLE_PROMPT_FR = """Votre tâche consiste à générer un titre pour l'historique du chat à partir de la question de l'utilisateur (QUESTION) et de la réponse de l'assistant (REPONSE). Générez un titre de haut niveau à partir de la QUESTION ET REPONSE qui capturera l'essence de la conversation qui s'ensuit. Le titre doit être extrêmement concis et informatif, et donner un bref aperçu du sujet en se basant UNIQUEMENT sur le contenu de la QUESTION et REPONSE. Le titre DOIT être dans la même langue que la QUESTION !
 
 QUESTION : {query}
 
+REPONSE : {assistant_response}
+
 TITRE DU CHAT :"""
 
-CREATE_CHAT_TITLE_PROMPT_IT = """Il vostro compito è generare un titolo per la cronologia della chat in base alla domanda dell'utente (DOMANDA). Generare un titolo di alto livello dalla domanda dell'utente (DOMANDA) che catturi l'essenza della conversazione successiva. Il titolo deve essere estremamente conciso e informativo, fornendo una breve panoramica dell'argomento basata SOLO sul contenuto della DOMANDA. Il titolo DEVE essere nella stessa lingua della DOMANDA!
+CREATE_CHAT_TITLE_PROMPT_IT = """Il vostro compito è generare un titolo per la cronologia della chat a partire dalla domanda dell'utente (DOMANDA) e dalla risposta dell'assistente (RISPOSTA). Generare un titolo di alto livello dalla DOMANDA e dalla RISPOSTA che catturi l'essenza della conversazione che ne è seguita. Il titolo deve essere estremamente conciso e informativo, fornendo una breve panoramica dell'argomento basata SOLO sul contenuto della DOMANDA e della RISPOSTA. Il titolo DEVE essere nella stessa lingua della DOMANDA!
 
 DOMANDA: {query}
+
+RISPOSTA: {assistant_response}
 
 TITOLO DELLA CHAT:"""
