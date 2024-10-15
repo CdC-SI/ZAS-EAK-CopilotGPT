@@ -20,8 +20,8 @@ rag:
     model: text-embedding-ada-002
   retrieval:
     retrieval_method:
-      - "top_k_retriever"
-      - "reranking"
+      - top_k_retriever
+      - reranking
     top_k_retriever_params:
       top_k: 100
     bm25_retriever_params:
@@ -32,15 +32,15 @@ rag:
       n_alt_queries: 3
       top_k: 10
     contextual_compression_retriever_params:
-      top_k: 4
+      top_k: 10
     rag_fusion_retriever_params:
       n_alt_queries: 3
       rrf_k: 60
-      top_k: 3
+      top_k: 10
     reranking_params:
       model: rerank-multilingual-v3.0
-      top_k: 3
-    top_k: 100
+      top_k: 5
+    top_k: 10
     metric: cosine_similarity
   llm:
     model: gpt-4o-2024-05-13
@@ -48,6 +48,10 @@ rag:
     max_output_tokens: 4096
     top_p: 0.95
     stream: true
+chat:
+  memory:
+    memory_type: "buffer"
+    k_memory: 5
 indexing:
   enabled: true
   dev_mode: true
