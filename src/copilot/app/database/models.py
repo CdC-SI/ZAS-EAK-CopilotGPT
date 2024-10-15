@@ -90,7 +90,6 @@ class ChatHistory(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     user_uuid: Mapped[str] = mapped_column(String)
     conversation_uuid: Mapped[str] = mapped_column(String)
-    #user: Mapped["User"] = relationship("User", back_populates="chat_history")
     role: Mapped[str] = mapped_column(String)
     message: Mapped[str] = mapped_column(String)
     timestamp: Mapped[DateTime] = mapped_column(DateTime, default=datetime.utcnow)
@@ -99,6 +98,7 @@ class ChatHistory(Base):
 class ChatTitle(Base):
     __tablename__ = "chat_title"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_uuid: Mapped[str] = mapped_column(String)
     conversation_uuid: Mapped[str] = mapped_column(String)
     chat_title: Mapped[str] = mapped_column(String)
     timestamp: Mapped[DateTime] = mapped_column(DateTime, default=datetime.utcnow)
