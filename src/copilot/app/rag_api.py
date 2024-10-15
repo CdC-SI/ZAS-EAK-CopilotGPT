@@ -1,6 +1,6 @@
 import logging
 
-from typing import List
+from typing import List, Optional
 from schemas.document import Document
 
 from fastapi import FastAPI, status, Depends
@@ -12,7 +12,8 @@ from config.network_config import CORS_ALLOWED_ORIGINS
 from config.base_config import rag_app_config
 
 # Load models
-from rag.rag_processor import processor
+from rag.rag_service import rag_service
+from chat.chatbot import bot
 from rag.models import RAGRequest
 
 from sqlalchemy.orm import Session
@@ -33,12 +34,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 @app.post("/query",
           summary="Process RAG query endpoint",
           response_description="Return result from processing RAG query",
           status_code=200)
-async def process_query(request: RAGRequest, language: str = None, db: Session = Depends(get_db)):
+async def process_query(request: RAGRequest,
+                        language: Optional[str] = None,
+                        db: Session = Depends(get_db),
+                        tag: Optional[str] = None,
+                        source: Optional[str] = None,
+                        llm_model: Optional[str] = None,
+                        retrieval_method: Optional[List[str]] = None,
+                        k_memory: Optional[int] = 1,
+                        user_uuid: Optional[str] = None,
+                        conversation_uuid: Optional[str] = None,):
     """
     Main endpoint for the RAG service, processes a RAG query.
 
@@ -46,19 +55,34 @@ async def process_query(request: RAGRequest, language: str = None, db: Session =
     ----------
     request: RAGRequest
         The request object containing the query and context.
-    language: str
+    language: Optional[str]
         The language of the query.
     db: Session
         The database session.
+    tag: Optional[str]
+        The tag for document retrieval.
+    source: Optional[str]
+        The source for document retrieval.
+    llm_model: Optional[str]
+        The LLM model to use from user selection.
+    retrieval_method: Optional[List[str]]
+        The retrieval method to use for document retrieval.
+    k_memory: Optional[int]
+        The number of messages to store in conversational memory.
+    user_uuid: Optional[str]
+        The user UUID for conversational memory/chat history.
+    conversation_uuid: Optional[str]
+        The conversation UUID to for conversational memory/chat history.
+
 
     Returns
     -------
     StreamingResponse
-        The response from the RAG processor
+        The response from the RAG service
     """
-    content = await processor.process_request(db, request, language=language)
-    return StreamingResponse(content, media_type="text/event-stream")
+    content = await bot.rag_service.process_request(db, request, language=language, tag=tag, source=source, user_uuid=user_uuid, conversation_uuid=conversation_uuid, llm_model=llm_model, retrieval_method=retrieval_method, k_memory=k_memory)
 
+    return StreamingResponse(content, media_type="text/event-stream")
 
 @app.post("/context_docs",
           summary="Retrieve context docs endpoint",
@@ -86,8 +110,7 @@ async def docs(request: RAGRequest, language: str = None, tag: str = None, k: in
         The retrieved documents.
     """
 
-    return processor.retrieve(db, request, language, tag=tag, k=k)
-
+    return rag_service.retrieve(db, request, language, tag=tag, k=k)
 
 @app.get("/rerank",
          summary="Reranking endpoint",
