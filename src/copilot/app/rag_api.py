@@ -47,7 +47,8 @@ async def process_query(request: RAGRequest,
                         retrieval_method: Optional[List[str]] = None,
                         k_memory: Optional[int] = 1,
                         user_uuid: Optional[str] = None,
-                        conversation_uuid: Optional[str] = None,):
+                        conversation_uuid: Optional[str] = None,
+                        rag: Optional[bool] = None):
     """
     Main endpoint for the RAG service, processes a RAG query.
 
