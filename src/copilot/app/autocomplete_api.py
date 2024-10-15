@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from autocomplete.autocompleter import autocompleter
+from autocomplete.autocomplete_service import autocomplete_service
 from config.base_config import autocomplete_config
 
 from fastapi import FastAPI, Depends
@@ -64,7 +64,7 @@ async def autocomplete(question: str,
     ------
     list of dict
     """
-    return await autocompleter.get_autocomplete(db, question, language, k=k, tag=tag)
+    return await autocomplete_service.get_autocomplete(db, question, language, k=k, tag=tag)
 
 
 @app.get("/exact_match",

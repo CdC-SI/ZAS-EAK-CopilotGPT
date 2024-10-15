@@ -108,7 +108,7 @@ class Autocompleter:
         return unique_matches
 
 
-autocompleter = Autocompleter(
+autocomplete_service = Autocompleter(
     limit=autocomplete_config["results"]["limit"],
     fuzzy_match_threshold=autocomplete_config["fuzzy_match"]["limit"],
     trigram_match_threshold=autocomplete_config["trigram_match"]["threshold"])
