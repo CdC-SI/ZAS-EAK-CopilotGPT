@@ -16,18 +16,28 @@ Check [the website](https://cdc-si.github.io/ZAS-EAK-CopilotGPT/) for more infor
 
 ## Updates
 
-### Version 0.3.0 - TBD
+### Version 0.1.0 - TBD
 - Confluence Adapter
-- Indexing Pipeline
+- Optimized Indexing Pipeline
 - Anonymization/De-Anonymization Module
+
+### 16.10.2024
+- User feedback
+- Conversational Memory
+
+### 19.09.2024
 - Optimized RAG
-- OnPrem LLM
+
+### 18.07.2024
 - Survey Pipeline
 
-### Version 0.2.0 (MVP1) - 31.05.2024
+### 03.07.2024
+- OnPrem LLM
+
+### MVP1 - 31.05.2024
 - GUI Styleguide Bundle
 
-### Version 0.1.0 - 01.05.2024
+### 01.05.2024
 - GUI
 - Autocomplete
 - Basic RAG
