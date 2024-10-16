@@ -90,6 +90,7 @@ class ChatHistory(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     user_uuid: Mapped[str] = mapped_column(String)
     conversation_uuid: Mapped[str] = mapped_column(String)
+    message_uuid: Mapped[str] = mapped_column(String, unique=True)
     role: Mapped[str] = mapped_column(String)
     message: Mapped[str] = mapped_column(String)
     timestamp: Mapped[DateTime] = mapped_column(DateTime, default=datetime.utcnow)
@@ -101,6 +102,16 @@ class ChatTitle(Base):
     user_uuid: Mapped[str] = mapped_column(String)
     conversation_uuid: Mapped[str] = mapped_column(String)
     chat_title: Mapped[str] = mapped_column(String)
+    timestamp: Mapped[DateTime] = mapped_column(DateTime, default=datetime.utcnow)
+
+class ChatFeedback(Base):
+    __tablename__ = "chat_feedback"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_uuid: Mapped[str] = mapped_column(String)
+    conversation_uuid: Mapped[str] = mapped_column(String)
+    message_uuid: Mapped[str] = mapped_column(String, ForeignKey("chat_history.message_uuid"))
+    score: Mapped[int] = mapped_column(Integer)
+    comment: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     timestamp: Mapped[DateTime] = mapped_column(DateTime, default=datetime.utcnow)
 
 # Init relationship mappers

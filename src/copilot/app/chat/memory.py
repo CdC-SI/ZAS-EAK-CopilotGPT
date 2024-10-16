@@ -38,7 +38,7 @@ class RedisMemoryHandler:
         self.redis_client.flushdb()
 
     # TO DO: run this method in a separate thread
-    def store_message(self, db: Session, user_uuid: str, conversation_uuid: str, role: str, message: str):
+    def store_message(self, user_uuid: str, conversation_uuid: str, role: str, message: str):
         """
         Method to store a message in Redis
         """
@@ -49,6 +49,7 @@ class RedisMemoryHandler:
         message_data = {
             'user_uuid': user_uuid,
             'conversation_uuid': conversation_uuid,
+            'message_uuid': message_uuid,
             'role': role,
             'message': message,
             'timestamp': datetime.now().isoformat(),
@@ -108,13 +109,18 @@ class PostgresMemoryHandler:
         chat_history = ChatHistory(
             user_uuid=user_uuid,
             conversation_uuid=conversation_uuid,
+            message_uuid=str(uuid.uuid4()),
             role=role,
             message=message,
             retrieved_docs=retrieved_doc_ids,
             timestamp=datetime.now()
         )
-        db.add(chat_history)
-        db.commit()
+        try:
+            db.add(chat_history)
+            db.commit()
+        except Exception as e:
+            logger.error("Error indexing chat history: %s", e)
+            db.rollback()
 
     # TO DO: Make this method async
     # OPTIMIZE: Check once instead of checking at each conversation turn?
@@ -135,8 +141,12 @@ class PostgresMemoryHandler:
             conversation_uuid=conversation_uuid,
             chat_title=title
         )
-        db.add(chat_title)
-        db.commit()
+        try:
+            db.add(chat_title)
+            db.commit()
+        except Exception as e:
+            logger.error("Error indexing chat history: %s", e)
+            db.rollback()
 
 class BaseMemory(RedisMemoryHandler, PostgresMemoryHandler):
     """
@@ -149,7 +159,7 @@ class BaseMemory(RedisMemoryHandler, PostgresMemoryHandler):
         """
         Method to store a message in Redis and index it in Postgres.
         """
-        self.store_message(db, user_uuid, conversation_uuid, role, message)
+        self.store_message(user_uuid, conversation_uuid, role, message)
         self.index_chat_history(db, user_uuid, conversation_uuid, role, message, retrieved_doc_ids)
 
     def fetch(self, user_uuid: str, conversation_uuid: str):
