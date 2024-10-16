@@ -37,11 +37,11 @@ async def get_conversations(user_uuid: str = None, db: Session = Depends(get_db)
     if not user_uuid:
         raise HTTPException(status_code=400, detail="user_uuid query parameter is required.")
 
-    results = db.query(ChatHistory).filter(ChatHistory.user_uuid == user_uuid).all()
-    if not results:
+    conversations = db.query(ChatHistory).filter(ChatHistory.user_uuid == user_uuid).all()
+    if not conversations:
         raise HTTPException(status_code=404, detail="No conversations found for user_uuid.")
 
-    return results
+    return conversations
 
 @app.get("/titles",
          summary="Get chat titles by user_uuid",
@@ -54,11 +54,11 @@ async def get_chat_titles(user_uuid: str = None, db: Session = Depends(get_db)):
     if not user_uuid:
         raise HTTPException(status_code=400, detail="user_uuid query parameter is required.")
 
-    results = db.query(ChatTitle).filter(ChatTitle.user_uuid == user_uuid).all()
-    if not results:
+    titles = db.query(ChatTitle).filter(ChatTitle.user_uuid == user_uuid).all()
+    if not titles:
         raise HTTPException(status_code=404, detail="No chat titles found for user_uuid.")
 
-    return [result.chat_title for result in results]
+    return titles
 
 @app.get("/{conversation_uuid}",
          summary="Get a specific conversation by conversation_uuid",
