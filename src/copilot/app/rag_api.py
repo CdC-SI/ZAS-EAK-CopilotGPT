@@ -41,14 +41,16 @@ app.add_middleware(
 async def process_query(request: RAGRequest,
                         language: Optional[str] = None,
                         db: Session = Depends(get_db),
+                        user_uuid: Optional[str] = None,
+                        conversation_uuid: Optional[str] = None,
                         tag: Optional[str] = None,
                         source: Optional[str] = None,
                         llm_model: Optional[str] = None,
                         retrieval_method: Optional[List[str]] = None,
                         k_memory: Optional[int] = 1,
-                        user_uuid: Optional[str] = None,
-                        conversation_uuid: Optional[str] = None,
-                        rag: Optional[bool] = None):
+                        autocomplete: Optional[bool] = True,
+                        rag: Optional[bool] = True,
+                        response_style: Optional[str] = None):
     """
     Main endpoint for the RAG service, processes a RAG query.
 
@@ -60,6 +62,10 @@ async def process_query(request: RAGRequest,
         The language of the query.
     db: Session
         The database session.
+    user_uuid: Optional[str]
+        The user UUID for conversational memory/chat history.
+    conversation_uuid: Optional[str]
+        The conversation UUID to for conversational memory/chat history.
     tag: Optional[str]
         The tag for document retrieval.
     source: Optional[str]
@@ -70,10 +76,12 @@ async def process_query(request: RAGRequest,
         The retrieval method to use for document retrieval.
     k_memory: Optional[int]
         The number of messages to store in conversational memory.
-    user_uuid: Optional[str]
-        The user UUID for conversational memory/chat history.
-    conversation_uuid: Optional[str]
-        The conversation UUID to for conversational memory/chat history.
+    autocomplete: Optional[bool]
+        Whether to use the autocomplete service or not.
+    rag: Optional[bool]
+        Whether to use the RAG service or not.
+    response_style: Optional[str]
+        The response style to use for the response.
 
 
     Returns
