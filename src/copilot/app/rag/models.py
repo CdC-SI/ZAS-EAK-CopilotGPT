@@ -8,17 +8,17 @@ class ResponseBody(BaseModel):
 
 class RAGRequest(BaseModel):
     query: str
-    language: Optional[str]
-    tag: Optional[str]
-    source: Optional[List[str]]
+    language: Optional[str] = None
+    tag: Optional[List[str]] = None
+    source: Optional[List[str]] = None
     llm_model: Optional[str]
     retrieval_method: Optional[List[str]]
     k_memory: Optional[int]
-    response_style: Optional[str]
-    autocomplete: bool
-    rag: bool
-    user_uuid: Optional[str]
-    conversation_uuid: Optional[str]
+    response_style: Optional[str] = None
+    autocomplete: Optional[bool] = None
+    rag: Optional[bool] = None
+    user_uuid: Optional[str] = None
+    conversation_uuid: Optional[str] = None
 
 
 class EmbeddingRequest(BaseModel):
