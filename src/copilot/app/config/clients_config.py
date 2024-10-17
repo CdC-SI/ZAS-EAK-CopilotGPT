@@ -38,7 +38,7 @@ if HTTP_PROXY and REQUESTS_CA_BUNDLE:
     logger.info(f"Setting up REQUESTS_CA_BUNDLE: {REQUESTS_CA_BUNDLE}")
 
     import httpx
-    httpx_client = httpx.Client(proxy=HTTP_PROXY, verify=REQUESTS_CA_BUNDLE)
+    httpx_client = httpx.AsyncClient(proxy=HTTP_PROXY, verify=REQUESTS_CA_BUNDLE)
 
 clientLLM = None
 clientEmbed = None
