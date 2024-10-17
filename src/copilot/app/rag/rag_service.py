@@ -81,13 +81,13 @@ class RAGService:
         return rows if len(rows) > 0 else [{"text": "", "url": ""}]
 
     @observe()
-    async def process(self, db: Session, llm_client: BaseLLM, streaming_handler: StreamingHandler, retriever_client: RetrieverClient, message_builder: MessageBuilder, request: RAGRequest, language: Optional[str] = None, tag: Optional[str] = None, user_uuid: str = None, conversation_uuid: str = None, conversational_memory: List[Dict] = None):
+    async def process(self, db: Session, request: RAGRequest, streaming_handler: StreamingHandler, llm_client: BaseLLM, retriever_client: RetrieverClient, message_builder: MessageBuilder, conversational_memory: List[Dict] = None):
         """
         Process a RAGRequest to retrieve relevant documents and generate a response.
 
         This method retrieves relevant documents from the database, constructs a context from the documents, and then uses an LLM client to generate a response based on the request query and the context.
         """
-        documents = await self.retrieve(db, request, language=language, tag=tag, k=self.k_retrieve, retriever_client=retriever_client)
+        documents = await self.retrieve(db, request, language=request.language, tag=request.tag, k=self.k_retrieve, retriever_client=retriever_client)
         context_docs = "\n\nDOC: ".join([doc["text"] for doc in documents])
         source_url = documents[0]["url"]  # TO DO: display multiple sources in frontend
 
@@ -102,7 +102,7 @@ class RAGService:
 
         # Index query in chat history
         user_message_uuid = str(uuid.uuid4())
-        self.chat_memory.memory_instance.add_message_to_memory(db, user_uuid, conversation_uuid, user_message_uuid, role="user", message=request.query)
+        self.chat_memory.memory_instance.add_message_to_memory(db, request.user_uuid, request.conversation_uuid, user_message_uuid, role="user", message=request.query)
 
         # Index chat response in chat history
         assistant_message_uuid = str(uuid.uuid4())
@@ -110,25 +110,31 @@ class RAGService:
 
         retrieved_doc_ids = [doc["id"] for doc in documents]
 
-        self.chat_memory.memory_instance.add_message_to_memory(db, user_uuid, conversation_uuid, assistant_message_uuid, role="assistant", message="".join(assistant_response), retrieved_doc_ids=retrieved_doc_ids)
+        self.chat_memory.memory_instance.add_message_to_memory(db, request.user_uuid, request.conversation_uuid, assistant_message_uuid, role="assistant", message="".join(assistant_response), retrieved_doc_ids=retrieved_doc_ids)
 
         # Save chat title
-        if not self.chat_memory.memory_instance.conversation_uuid_exists(db, conversation_uuid):
+        if not self.chat_memory.memory_instance.conversation_uuid_exists(db, request.conversation_uuid):
             create_title_message = message_builder.build_chat_title_prompt(query=request.query, assistant_response=assistant_response)
             chat_title = await llm_client.agenerate(create_title_message)
-            self.chat_memory.memory_instance.index_chat_title(db, user_uuid, conversation_uuid, chat_title.choices[0].message.content)
+            self.chat_memory.memory_instance.index_chat_title(db, request.user_uuid, request.conversation_uuid, chat_title.choices[0].message.content)
 
-    async def process_request(self, db: Session, request: RAGRequest, language: Optional[str] = None, tag: Optional[str] = None, source: Optional[str] = None, llm_model: Optional[str] = rag_config["llm"]["model"], retrieval_method: Optional[List[str]] = rag_config["retrieval"]["retrieval_method"], k_memory: Optional[int] = chat_config["memory"]["k_memory"], user_uuid: Optional[str] = None, conversation_uuid: Optional[str] = None):
+    async def process_request(self, db: Session, request: RAGRequest):
 
-        conversational_memory = self.chat_memory.memory_instance.fetch_from_memory(user_uuid, conversation_uuid)
+        conversational_memory = self.chat_memory.memory_instance.fetch_from_memory(request.user_uuid, request.conversation_uuid)
         conversational_memory = "\n".join([f"{role}: {message}" for msg in conversational_memory for role, message in msg.items()])
 
-        llm_client = LLMFactory.get_llm_client(llm_model=llm_model, stream=self.stream, temperature=self.temperature, top_p=self.top_p, max_tokens=self.max_tokens)
-        message_builder = MessageBuilder(language=language, llm_model=llm_model)
-        retriever_client = RetrieverFactory.get_retriever_client(retrieval_method=retrieval_method, llm_client=llm_client, message_builder=message_builder)
-        streaming_handler = StreamingHandlerFactory.get_streaming_strategy(llm_model=llm_model)
+        llm_client = LLMFactory.get_llm_client(llm_model=request.llm_model, stream=self.stream, temperature=self.temperature, top_p=self.top_p, max_tokens=self.max_tokens)
+        message_builder = MessageBuilder(language=request.language, llm_model=request.llm_model)
+        retriever_client = RetrieverFactory.get_retriever_client(retrieval_method=request.retrieval_method, llm_client=llm_client, message_builder=message_builder)
+        streaming_handler = StreamingHandlerFactory.get_streaming_strategy(llm_model=request.llm_model)
 
-        return self.process(db=db, llm_client=llm_client, streaming_handler=streaming_handler, retriever_client=retriever_client, message_builder=message_builder, request=request, language=language, tag=tag, user_uuid=user_uuid, conversation_uuid=conversation_uuid, conversational_memory=conversational_memory)
+        return self.process(db=db,
+                            request=request,
+                            streaming_handler=streaming_handler,
+                            llm_client=llm_client,
+                            retriever_client=retriever_client,
+                            message_builder=message_builder,
+                            conversational_memory=conversational_memory)
 
 rag_service = RAGService(
     stream=rag_config["llm"]["stream"],

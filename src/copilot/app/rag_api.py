@@ -38,58 +38,21 @@ app.add_middleware(
           summary="Process RAG query endpoint",
           response_description="Return result from processing RAG query",
           status_code=200)
-async def process_query(request: RAGRequest,
-                        language: Optional[str] = None,
-                        db: Session = Depends(get_db),
-                        user_uuid: Optional[str] = None,
-                        conversation_uuid: Optional[str] = None,
-                        tag: Optional[str] = None,
-                        source: Optional[str] = None,
-                        llm_model: Optional[str] = None,
-                        retrieval_method: Optional[List[str]] = None,
-                        k_memory: Optional[int] = 1,
-                        autocomplete: Optional[bool] = True,
-                        rag: Optional[bool] = True,
-                        response_style: Optional[str] = None):
+async def process_query(request: RAGRequest, db: Session = Depends(get_db)):
     """
     Main endpoint for the RAG service, processes a RAG query.
 
     Parameters
     ----------
     request: RAGRequest
-        The request object containing the query and context.
-    language: Optional[str]
-        The language of the query.
-    db: Session
-        The database session.
-    user_uuid: Optional[str]
-        The user UUID for conversational memory/chat history.
-    conversation_uuid: Optional[str]
-        The conversation UUID to for conversational memory/chat history.
-    tag: Optional[str]
-        The tag for document retrieval.
-    source: Optional[str]
-        The source for document retrieval.
-    llm_model: Optional[str]
-        The LLM model to use from user selection.
-    retrieval_method: Optional[List[str]]
-        The retrieval method to use for document retrieval.
-    k_memory: Optional[int]
-        The number of messages to store in conversational memory.
-    autocomplete: Optional[bool]
-        Whether to use the autocomplete service or not.
-    rag: Optional[bool]
-        Whether to use the RAG service or not.
-    response_style: Optional[str]
-        The response style to use for the response.
-
+        The request object containing: query, language, tag, source, llm_model, retrieval_method, k_memory, response_style, autocomplete, rag, user_uuid, conversation_uuid parameters.
 
     Returns
     -------
     StreamingResponse
         The response from the RAG service
     """
-    content = await bot.rag_service.process_request(db, request, language=language, tag=tag, source=source, user_uuid=user_uuid, conversation_uuid=conversation_uuid, llm_model=llm_model, retrieval_method=retrieval_method, k_memory=k_memory)
+    content = await bot.rag_service.process_request(db, request)
 
     return StreamingResponse(content, media_type="text/event-stream")
 
