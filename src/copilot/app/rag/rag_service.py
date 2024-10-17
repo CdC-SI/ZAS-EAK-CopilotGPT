@@ -1,5 +1,6 @@
 import os
 import logging
+import uuid
 from typing import Dict, List, Optional
 from dotenv import load_dotenv
 from pyaml_env import parse_config
@@ -100,11 +101,16 @@ class RAGService:
             yield token
 
         # Index query in chat history
-        self.chat_memory.memory_instance.add_message_to_memory(db, user_uuid, conversation_uuid, "user", request.query)
+        user_message_uuid = str(uuid.uuid4())
+        self.chat_memory.memory_instance.add_message_to_memory(db, user_uuid, conversation_uuid, user_message_uuid, role="user", message=request.query)
 
         # Index chat response in chat history
+        assistant_message_uuid = str(uuid.uuid4())
+        yield f"\n\n<message_uuid>{assistant_message_uuid}</message_uuid>".encode("utf-8")
+
         retrieved_doc_ids = [doc["id"] for doc in documents]
-        self.chat_memory.memory_instance.add_message_to_memory(db, user_uuid, conversation_uuid, "assistant", "".join(assistant_response), retrieved_doc_ids=retrieved_doc_ids)
+
+        self.chat_memory.memory_instance.add_message_to_memory(db, user_uuid, conversation_uuid, assistant_message_uuid, role="assistant", message="".join(assistant_response), retrieved_doc_ids=retrieved_doc_ids)
 
         # Save chat title
         if not self.chat_memory.memory_instance.conversation_uuid_exists(db, conversation_uuid):

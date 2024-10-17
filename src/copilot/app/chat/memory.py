@@ -2,7 +2,6 @@ import os
 from dotenv import load_dotenv
 from typing import List, Optional
 import logging
-import uuid
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 from sqlalchemy.orm import Session
@@ -38,13 +37,10 @@ class RedisMemoryHandler:
         self.redis_client.flushdb()
 
     # TO DO: run this method in a separate thread
-    def store_message(self, user_uuid: str, conversation_uuid: str, role: str, message: str):
+    def store_message(self, user_uuid: str, conversation_uuid: str, message_uuid: str, role: str, message: str):
         """
         Method to store a message in Redis
         """
-        # Generate a unique ID for the message
-        message_uuid = str(uuid.uuid4())
-
         # Create a hash for the message
         message_data = {
             'user_uuid': user_uuid,
@@ -102,14 +98,14 @@ class RedisMemoryHandler:
 class PostgresMemoryHandler:
 
     # TO DO: Make this method async
-    def index_chat_history(self, db: Session, user_uuid: str = None, conversation_uuid: str = None, role: str = None, message: str = None, retrieved_doc_ids: Optional[List[int]] = None):
+    def index_chat_history(self, db: Session, user_uuid: str = None, conversation_uuid: str = None, message_uuid: str = None, role: str = None, message: str = None, retrieved_doc_ids: Optional[List[int]] = None):
         """
         Method to index the chat history in the Postgres "chat_history" table.
         """
         chat_history = ChatHistory(
             user_uuid=user_uuid,
             conversation_uuid=conversation_uuid,
-            message_uuid=str(uuid.uuid4()),
+            message_uuid=message_uuid,
             role=role,
             message=message,
             retrieved_docs=retrieved_doc_ids,
@@ -155,12 +151,12 @@ class BaseMemory(RedisMemoryHandler, PostgresMemoryHandler):
     def __init__(self, k_memory: int):
         RedisMemoryHandler.__init__(self, k_memory)
 
-    def store(self, db: Session, user_uuid: str, conversation_uuid: str, role: str, message: str, retrieved_doc_ids: Optional[List[int]] = None):
+    def store(self, db: Session, user_uuid: str, conversation_uuid: str, message_uuid: str, role: str, message: str, retrieved_doc_ids: Optional[List[int]] = None):
         """
         Method to store a message in Redis and index it in Postgres.
         """
-        self.store_message(user_uuid, conversation_uuid, role, message)
-        self.index_chat_history(db, user_uuid, conversation_uuid, role, message, retrieved_doc_ids)
+        self.store_message(user_uuid, conversation_uuid, message_uuid, role, message)
+        self.index_chat_history(db, user_uuid, conversation_uuid, message_uuid, role, message, retrieved_doc_ids)
 
     def fetch(self, user_uuid: str, conversation_uuid: str):
         """
@@ -175,11 +171,11 @@ class ConversationalMemoryBuffer(BaseMemory):
     def __init__(self, k_memory: int):
         super().__init__(k_memory)
 
-    def add_message_to_memory(self, db: Session, user_uuid: str, conversation_uuid: str, role: str, message: str, retrieved_doc_ids: Optional[List[int]] = None):
+    def add_message_to_memory(self, db: Session, user_uuid: str, conversation_uuid: str, message_uuid: str, role: str, message: str, retrieved_doc_ids: Optional[List[int]] = None):
         """
         Method to add a message to the memory buffer and index it in the Postgres DB.
         """
-        self.store(db, user_uuid, conversation_uuid, role, message, retrieved_doc_ids)
+        self.store(db, user_uuid, conversation_uuid, message_uuid, role, message, retrieved_doc_ids)
 
     def fetch_from_memory(self, user_uuid: str, conversation_uuid: str):
         """
