@@ -1,12 +1,8 @@
 from pydantic import BaseModel
 from typing import Optional, List
+from sqlalchemy.inspection import inspect
 
-
-class ResponseBody(BaseModel):
-    content: str
-
-
-class RAGRequest(BaseModel):
+class ChatRequest(BaseModel):
     query: str
     language: Optional[str] = None
     tag: Optional[List[str]] = None
@@ -21,7 +17,3 @@ class RAGRequest(BaseModel):
     rag: Optional[bool] = None
     user_uuid: Optional[str] = None
     conversation_uuid: Optional[str] = None
-
-
-class EmbeddingRequest(BaseModel):
-    text: str
