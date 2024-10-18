@@ -147,3 +147,21 @@ DOMANDA: {query}
 RISPOSTA: {assistant_response}
 
 TITOLO DELLA CHAT:"""
+
+SUMMARIZE_COMMAND_PROMPT_DE = """Ihre Aufgabe besteht darin, eine Zusammenfassung des TEXT zu erstellen, der ein Gespräch (Frage--Antwort zwischen user-assistant) enthält. Lesen Sie den TEST aufmerksam durch und fassen Sie die wichtigsten Punkte der gegebenen Antworten (des assistant) zusammen. Die Zusammenfassung sollte knapp und informativ sein und nur die wichtigsten Informationen berücksichtigen. Vermeiden Sie es, irrelevante Details zu erwähnen. Die Zusammenfassung muss in derselben Sprache wie der vorgegebene TEXT verfasst sein!
+
+TEXT: {input_text}
+
+ZUSAMMENFASSUNG:"""
+
+SUMMARIZE_COMMAND_PROMPT_FR = """Votre tâche consiste à générer un résumé du TEXTE contenant une conversation (question-réponse entre user-assistant). Lisez attentivement le TEXTE et résumez les points les plus importants des réponses fournies (de l'assistant). Le résumé doit être concis et informatif, en ne prenant en compte que les informations les plus importantes. Évitez de mentionner des détails non pertinents. Le résumé doit être rédigé dans la même langue que le TEXTE donné !
+
+TEXTE : {input_text}
+
+RÉSUMÉ : """
+
+SUMMARIZE_COMMAND_PROMPT_IT = """Il vostro compito è generare un riassunto del TESTO contenente una conversazione (domanda-risposta tra user-assistant). Leggete attentamente il TESTO e riassumete i punti più importanti delle risposte fornite (dall'assistant). Il riassunto deve essere conciso e informativo, tenendo conto solo delle informazioni più importanti. Evitare di menzionare dettagli irrilevanti. Il riassunto deve essere scritto nella stessa lingua del TESTO fornito!
+
+TESTO: {input_text}
+
+RIASSUNTO:"""
