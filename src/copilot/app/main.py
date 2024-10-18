@@ -8,6 +8,7 @@ from autocomplete_api import app as autocomplete_app
 from rag_api import app as rag_app
 from conversations_api import app as conversations_app
 from command_api import app as command_app
+from search_api import app as search_app
 
 import logging
 logger = logging.getLogger(__name__)
@@ -38,6 +39,7 @@ api.mount("/autocomplete", autocomplete_app)
 api.mount("/rag", rag_app)
 api.mount("/conversations", conversations_app)
 api.mount("/command", command_app)
+api.mount("/search", search_app)
 
 @api.post("/",
           summary="Hello",
