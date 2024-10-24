@@ -103,8 +103,9 @@ class RAGService:
 
         assistant_response = []
         async for token in streaming_handler.generate_stream(event_stream, source_url):
-            assistant_response.append(token.decode("utf-8"))
             yield token
+            if "<a href=" not in token.decode("utf-8"):
+                assistant_response.append(token.decode("utf-8"))
 
         # If user is logged in, index chat history (user query and assistant response)
         if request.user_uuid:
