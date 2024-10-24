@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 from typing import List, Optional
 import logging
 from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor
 from sqlalchemy.orm import Session
 from sqlalchemy.future import select
 from redis import Redis
@@ -20,7 +19,6 @@ REDIS_PORT = os.getenv("REDIS_PORT", None)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-executor = ThreadPoolExecutor(max_workers=5)
 
 class RedisMemoryHandler:
 
@@ -89,16 +87,18 @@ class RedisMemoryHandler:
                 current_turn = []
 
         # Retrieve the last `k_memory` turns
-        recent_turns = turns[-self.k_memory:]
+        # When k is passed as a param, check if k==None
+        if self.k_memory:
+            turns = turns[-self.k_memory:]
 
-        flattened_turns = [msg for turn in recent_turns for msg in turn]
+        flattened_turns = [msg for turn in turns for msg in turn]
 
         return flattened_turns
 
 class PostgresMemoryHandler:
 
     # TO DO: Make this method async
-    def index_chat_history(self, db: Session, user_uuid: str = None, conversation_uuid: str = None, message_uuid: str = None, role: str = None, message: str = None, retrieved_doc_ids: Optional[List[int]] = None):
+    def index_chat_history(self, db: Session, user_uuid: str = None, conversation_uuid: str = None, message_uuid: str = None, role: str = None, message: str = None, language: str = None, url: Optional[str] = None, faq_id: Optional[int] = None, retrieved_doc_ids: Optional[List[int]] = None):
         """
         Method to index the chat history in the Postgres "chat_history" table.
         """
@@ -108,6 +108,9 @@ class PostgresMemoryHandler:
             message_uuid=message_uuid,
             role=role,
             message=message,
+            url=url,
+            language=language,
+            faq_id=faq_id,
             retrieved_docs=retrieved_doc_ids,
             timestamp=datetime.now()
         )
@@ -151,12 +154,14 @@ class BaseMemory(RedisMemoryHandler, PostgresMemoryHandler):
     def __init__(self, k_memory: int):
         RedisMemoryHandler.__init__(self, k_memory)
 
-    def store(self, db: Session, user_uuid: str, conversation_uuid: str, message_uuid: str, role: str, message: str, retrieved_doc_ids: Optional[List[int]] = None):
+    def store(self, db: Session, user_uuid: str, conversation_uuid: str, message_uuid: str, role: str, message: str, language: str, url: Optional[str] = None, faq_id: Optional[int] = None, retrieved_doc_ids: Optional[List[int]] = None):
         """
         Method to store a message in Redis and index it in Postgres.
         """
         self.store_message(user_uuid, conversation_uuid, message_uuid, role, message)
-        self.index_chat_history(db, user_uuid, conversation_uuid, message_uuid, role, message, retrieved_doc_ids)
+
+        # Note: make this async with AsyncSession db
+        self.index_chat_history(db, user_uuid, conversation_uuid, message_uuid, role, message, language, url, faq_id, retrieved_doc_ids)
 
     def fetch(self, user_uuid: str, conversation_uuid: str):
         """
@@ -171,11 +176,11 @@ class ConversationalMemoryBuffer(BaseMemory):
     def __init__(self, k_memory: int):
         super().__init__(k_memory)
 
-    def add_message_to_memory(self, db: Session, user_uuid: str, conversation_uuid: str, message_uuid: str, role: str, message: str, retrieved_doc_ids: Optional[List[int]] = None):
+    def add_message_to_memory(self, db: Session, user_uuid: str, conversation_uuid: str, message_uuid: str, role: str, message: str, language: str, url: Optional[str] = None, faq_id: Optional[int] = None, retrieved_doc_ids: Optional[List[int]] = None):
         """
         Method to add a message to the memory buffer and index it in the Postgres DB.
         """
-        self.store(db, user_uuid, conversation_uuid, message_uuid, role, message, retrieved_doc_ids)
+        self.store(db, user_uuid, conversation_uuid, message_uuid, role, message, language, url, faq_id, retrieved_doc_ids)
 
     def fetch_from_memory(self, user_uuid: str, conversation_uuid: str):
         """
@@ -190,8 +195,8 @@ class ConversationalMemorySummary(BaseMemory):
     def __init__(self):
         pass
 
-    def add_message_to_memory(self, db: Session, user_uuid: str, conversation_uuid: str, role: str, message: str, retrieved_doc_ids: Optional[List[int]] = None):
-        self.store(db, user_uuid, conversation_uuid, role, message, retrieved_doc_ids)
+    def add_message_to_memory(self, db: Session, user_uuid: str, conversation_uuid: str, role: str, message: str, language: str, url: Optional[str] = None, faq_id: Optional[int] = None, retrieved_doc_ids: Optional[List[int]] = None):
+        self.store(db, user_uuid, conversation_uuid, role, message, language, url, faq_id, retrieved_doc_ids)
 
     def fetch_from_memory(self, user_uuid: str, conversation_uuid: str):
         conversation_history = self.fetch(user_uuid, conversation_uuid)
@@ -229,8 +234,8 @@ class ConversationalMemory:
         else:
             raise ValueError("Invalid memory type selected.")
 
-    def add_message_to_memory(self, message: str):
-        """
-        Method to add a message to the selected memory instance.
-        """
-        self.memory_instance.add_message_to_memory(message)
+    # def add_message_to_memory(self, message: str):
+    #     """
+    #     Method to add a message to the selected memory instance.
+    #     """
+    #     self.memory_instance.add_message_to_memory(message)

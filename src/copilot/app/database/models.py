@@ -93,6 +93,9 @@ class ChatHistory(Base):
     message_uuid: Mapped[str] = mapped_column(String, unique=True)
     role: Mapped[str] = mapped_column(String)
     message: Mapped[str] = mapped_column(String)
+    url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    language: Mapped[str] = mapped_column(String)
+    faq_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     timestamp: Mapped[DateTime] = mapped_column(DateTime, default=datetime.utcnow)
     retrieved_docs: Mapped[Optional[List[int]]] = mapped_column(ARRAY(Integer), nullable=True)
 
