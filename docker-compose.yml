@@ -27,7 +27,7 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     ports:
-      - "8080:80"
+      - "8081:80"
     environment:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
@@ -72,6 +72,26 @@ services:
     networks:
       - copilot-network
     depends_on:
+      - zas-security
+    restart: "no"
+
+  # security service
+  zas-security:
+    build:
+      context: https://github.com/CdC-SI/copilot-backend.git#main
+    image: zas-security:latest
+    environment:
+      - DS_URL=jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      - DS_USERNAME=${POSTGRES_USER}
+      - DS_PASSWORD=${POSTGRES_PASSWORD}
+      - PY_BACKEND_URL=${PY_BACKEND_URL}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+    ports:
+      - "8080:8080"
+    networks:
+      - copilot-network
+    depends_on:
+      - db
       - copilot
     restart: "no"
 
