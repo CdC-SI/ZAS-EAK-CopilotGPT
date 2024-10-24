@@ -85,6 +85,16 @@ class Question(Base, EmbeddedMixin):
     def __repr__(self) -> str:
         return f"Question(id={self.id!r}, url={self.url!r}, question={self.text!r}, answer_id={self.answer_id!r}, language={self.language!r})"
 
+    def to_dict(self):
+        """
+        Convert the SQLAlchemy model instance to a dictionary
+        that only includes serializable fields.
+        """
+        serialized_data = {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
+        serialized_data['answer'] = self.answer.to_dict() if self.answer else None
+
+        return serialized_data
+
 class ChatHistory(Base):
     __tablename__ = "chat_history"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
