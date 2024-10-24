@@ -1,6 +1,6 @@
 import logging
 
-from typing import List, Optional
+from typing import List
 from schemas.document import Document
 
 from fastapi import FastAPI, status, Depends
@@ -13,8 +13,9 @@ from config.base_config import rag_app_config
 
 # Load models
 from rag.rag_service import rag_service
-from chat.chatbot import bot
-from rag.models import RAGRequest
+#from chat.chatbot import bot
+#from rag.models import RAGRequest
+from chat.models import ChatRequest
 
 from sqlalchemy.orm import Session
 from database.database import get_db
@@ -38,13 +39,13 @@ app.add_middleware(
           summary="Process RAG query endpoint",
           response_description="Return result from processing RAG query",
           status_code=200)
-async def process_query(request: RAGRequest, db: Session = Depends(get_db)):
+async def process_query(request: ChatRequest, db: Session = Depends(get_db)):
     """
     Main endpoint for the RAG service, processes a RAG query.
 
     Parameters
     ----------
-    request: RAGRequest
+    request: ChatRequest
         The request object containing: query, language, tag, source, llm_model, retrieval_method, k_memory, response_style, autocomplete, rag, user_uuid, conversation_uuid parameters.
 
     Returns
@@ -52,7 +53,8 @@ async def process_query(request: RAGRequest, db: Session = Depends(get_db)):
     StreamingResponse
         The response from the RAG service
     """
-    content = await bot.rag_service.process_request(db, request)
+    #content = await bot.rag_service.process_request(db, request)
+    content = await rag_service.process_request(db, request)
 
     return StreamingResponse(content, media_type="text/event-stream")
 
@@ -61,13 +63,13 @@ async def process_query(request: RAGRequest, db: Session = Depends(get_db)):
           response_description="Return context docs from semantic search",
           response_model=List[Document],
           status_code=200)
-async def docs(request: RAGRequest, language: str = None, tag: str = None, k: int = 0, db: Session = Depends(get_db)):
+async def docs(request: ChatRequest, language: str = None, tag: str = None, k: int = 0, db: Session = Depends(get_db)):
     """
     Retrieve context documents for a given query.
 
     Parameters
     ----------
-    request: RAGRequest
+    request: ChatRequest
         The request object containing the query and context.
     language: str
         The language of the query.

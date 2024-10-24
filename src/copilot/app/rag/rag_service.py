@@ -1,16 +1,17 @@
 import os
 import logging
 import uuid
-from typing import Dict, List, Optional
+from typing import Dict, List
 from dotenv import load_dotenv
 from pyaml_env import parse_config
 
-from rag.models import RAGRequest, EmbeddingRequest
+from rag.models import EmbeddingRequest#, RAGRequest
 from rag.factory import RetrieverFactory
 from rag.llm.factory import LLMFactory
 from rag.llm.base import BaseLLM
 from rag.retrievers import RetrieverClient
 from chat.memory import ConversationalMemory
+from chat.models import ChatRequest
 
 from sqlalchemy.orm import Session
 from utils.embedding import get_embedding
@@ -55,15 +56,6 @@ class RAGService:
             k_memory=k_memory
         )
 
-    def get_session_data(self):
-        # Path to the YAML configuration file
-        CONFIG_PATH = os.path.join('config', 'config.yaml')
-
-        # Load the YAML configuration file
-        config = parse_config(CONFIG_PATH)
-
-        return config
-
     async def embed(self, text_input: EmbeddingRequest):
         """
         Get the embedding of an embedding request.
@@ -72,26 +64,40 @@ class RAGService:
         return {"data": embedding}
 
     @observe()
-    async def retrieve(self, db: Session, request: RAGRequest, language: str = None, tag: str = None, k: int = 0, retriever_client: RetrieverClient = None):
+    async def retrieve(self, db: Session, request: ChatRequest, retriever_client: RetrieverClient):
         """
         Retrieve context documents related to the user input question.
         """
-        rows = await retriever_client.get_documents(db, request.query, language=language, tag=tag, k=k)
+        #rows = await retriever_client.get_documents(db, request.query, language=request.language, tag=request.tag, k=request.k_retrieve)
+        rows = await retriever_client.get_documents(db, request.query, language=None, tag=request.tag, k=request.k_retrieve)
 
         return rows if len(rows) > 0 else [{"text": "", "url": ""}]
 
     @observe()
-    async def process(self, db: Session, request: RAGRequest, streaming_handler: StreamingHandler, llm_client: BaseLLM, retriever_client: RetrieverClient, message_builder: MessageBuilder, conversational_memory: List[Dict] = None):
+    async def process(self, db: Session, request: ChatRequest, streaming_handler: StreamingHandler, llm_client: BaseLLM, retriever_client: RetrieverClient, message_builder: MessageBuilder, conversational_memory: List[Dict] = None):
         """
-        Process a RAGRequest to retrieve relevant documents and generate a response.
+        Process a ChatRequest to retrieve relevant documents and generate a response.
 
         This method retrieves relevant documents from the database, constructs a context from the documents, and then uses an LLM client to generate a response based on the request query and the context.
         """
-        documents = await self.retrieve(db, request, language=request.language, tag=request.tag, k=self.k_retrieve, retriever_client=retriever_client)
-        context_docs = "\n\nDOC: ".join([doc["text"] for doc in documents])
-        source_url = documents[0]["url"]  # TO DO: display multiple sources in frontend
+        # If command received, go into command mode
+        # Refactor memory to retrieve last k_messages depending on command args (eg. last, all) -> pass in process_request and process
+        if request.command:
+            # k = -1 if request.command_args == "last" else None
+            # Implement fetch_last_k_messages in memory.py
+            # input_text = self.chat_memory.memory_instance.fetch_last_k_messages(db, request.user_uuid, request.conversation_uuid, k=5)
+            input_text = self.chat_memory.memory_instance.fetch_from_memory(request.user_uuid, request.conversation_uuid)
+            messages = message_builder.build_command_prompt(command=request.command, input_text=input_text)
+            source_url = None
+            documents = [{"id": "", "text": "", "url": ""}]
 
-        messages = message_builder.build_chat_prompt(context_docs=context_docs, query=request.query, conversational_memory=conversational_memory)
+        else:
+            documents = await self.retrieve(db, request=request, retriever_client=retriever_client)
+            context_docs = "\n\nDOC: ".join([doc["text"] for doc in documents])
+            source_url = documents[0]["url"]  # TO DO: display multiple sources in frontend
+
+            conversational_memory = "\n".join([f"{role}: {message}" for msg in conversational_memory for role, message in msg.items()])
+            messages = message_builder.build_chat_prompt(context_docs=context_docs, query=request.query, conversational_memory=conversational_memory)
 
         event_stream = llm_client.call(messages)
 
@@ -100,28 +106,33 @@ class RAGService:
             assistant_response.append(token.decode("utf-8"))
             yield token
 
-        # Index query in chat history
-        user_message_uuid = str(uuid.uuid4())
-        self.chat_memory.memory_instance.add_message_to_memory(db, request.user_uuid, request.conversation_uuid, user_message_uuid, role="user", message=request.query)
+        # If user is logged in, index chat history (user query and assistant response)
+        if request.user_uuid:
 
-        # Index chat response in chat history
-        assistant_message_uuid = str(uuid.uuid4())
-        yield f"\n\n<message_uuid>{assistant_message_uuid}</message_uuid>".encode("utf-8")
+            # Send assistant message UUID to frontend for thumbs up/down feedback
+            assistant_message_uuid = str(uuid.uuid4())
+            yield f"\n\n<message_uuid>{assistant_message_uuid}</message_uuid>".encode("utf-8")
 
-        retrieved_doc_ids = [doc["id"] for doc in documents]
+            # Index user query in chat history_table
+            user_message_uuid = str(uuid.uuid4())
+            self.chat_memory.memory_instance.add_message_to_memory(db, request.user_uuid, request.conversation_uuid, user_message_uuid, role="user", message=request.query, language=request.language)
 
-        self.chat_memory.memory_instance.add_message_to_memory(db, request.user_uuid, request.conversation_uuid, assistant_message_uuid, role="assistant", message="".join(assistant_response), retrieved_doc_ids=retrieved_doc_ids)
+            # Index assistant response in chat_history table
+            retrieved_doc_ids = [doc["id"] for doc in documents]
+            self.chat_memory.memory_instance.add_message_to_memory(db, request.user_uuid, request.conversation_uuid, assistant_message_uuid, role="assistant", message="".join(assistant_response), url=source_url, language=request.language, faq_id=None, retrieved_doc_ids=retrieved_doc_ids)
 
-        # Save chat title
-        if not self.chat_memory.memory_instance.conversation_uuid_exists(db, request.conversation_uuid):
-            create_title_message = message_builder.build_chat_title_prompt(query=request.query, assistant_response=assistant_response)
-            chat_title = await llm_client.agenerate(create_title_message)
-            self.chat_memory.memory_instance.index_chat_title(db, request.user_uuid, request.conversation_uuid, chat_title.choices[0].message.content)
+            # Index chat title
+            if not self.chat_memory.memory_instance.conversation_uuid_exists(db, request.conversation_uuid):
+                create_title_message = message_builder.build_chat_title_prompt(query=request.query, assistant_response=assistant_response)
+                chat_title = await llm_client.agenerate(create_title_message)
+                self.chat_memory.memory_instance.index_chat_title(db, request.user_uuid, request.conversation_uuid, chat_title.choices[0].message.content)
 
-    async def process_request(self, db: Session, request: RAGRequest):
+    async def process_request(self, db: Session, request: ChatRequest):
 
-        conversational_memory = self.chat_memory.memory_instance.fetch_from_memory(request.user_uuid, request.conversation_uuid)
-        conversational_memory = "\n".join([f"{role}: {message}" for msg in conversational_memory for role, message in msg.items()])
+        if request.user_uuid:
+            conversational_memory = self.chat_memory.memory_instance.fetch_from_memory(request.user_uuid, request.conversation_uuid)
+        else:
+            conversational_memory = [{"user": "", "assistant": ""}]
 
         llm_client = LLMFactory.get_llm_client(llm_model=request.llm_model, stream=self.stream, temperature=self.temperature, top_p=self.top_p, max_tokens=self.max_tokens)
         message_builder = MessageBuilder(language=request.language, llm_model=request.llm_model)
