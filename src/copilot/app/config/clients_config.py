@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 
 import openai
 import cohere
+from langfuse import Langfuse
 
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -21,6 +22,10 @@ AZUREOPENAI_ENDPOINT = os.environ.get("AZUREOPENAI_ENDPOINT", None)
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", None)
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", None)
 COHERE_API_KEY = os.environ.get("COHERE_API_KEY", None)
+
+LANGFUSE_SECRET_KEY = os.getenv("LANGFUSE_SECRET_KEY", None)
+LANGFUSE_PUBLIC_KEY = os.getenv("LANGFUSE_PUBLIC_KEY", None)
+LANGFUSE_HOST = os.getenv("LANGFUSE_HOST", None)
 
 # LLM model
 llm_model = rag_config["llm"]["model"]
@@ -72,3 +77,11 @@ elif llm_model in SUPPORTED_GROQ_LLM_MODELS and GROQ_API_KEY:
     clientLLM = AsyncGroq(api_key=GROQ_API_KEY, http_client=httpx_client)
 
 clientRerank = cohere.AsyncClient(api_key=COHERE_API_KEY, httpx_client=httpx_client)
+
+# Initialize Langfuse client
+langfuse = Langfuse(
+  secret_key=LANGFUSE_SECRET_KEY,
+  public_key=LANGFUSE_PUBLIC_KEY,
+  host=LANGFUSE_HOST,
+  httpx_client=httpx_client
+)

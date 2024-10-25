@@ -22,22 +22,10 @@ from config.base_config import chat_config
 from config.base_config import rag_config
 
 from langfuse.decorators import observe
-from langfuse import Langfuse
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-load_dotenv()
-LANGFUSE_SECRET_KEY = os.getenv("LANGFUSE_SECRET_KEY", None)
-LANGFUSE_PUBLIC_KEY = os.getenv("LANGFUSE_PUBLIC_KEY", None)
-LANGFUSE_HOST = os.getenv("LANGFUSE_HOST", None)
-
-langfuse = Langfuse(
-  secret_key=LANGFUSE_SECRET_KEY,
-  public_key=LANGFUSE_PUBLIC_KEY,
-  host=LANGFUSE_HOST
-)
 
 class RAGService:
     """
