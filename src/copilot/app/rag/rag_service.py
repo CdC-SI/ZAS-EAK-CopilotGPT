@@ -97,8 +97,8 @@ class RAGService:
         """
         Retrieve context documents related to the user input question.
         """
-        #rows = await retriever_client.get_documents(db, request.query, language=request.language, tag=request.tag, k=request.k_retrieve)
-        rows = await retriever_client.get_documents(db, request.query, language=None, tag=request.tag, k=request.k_retrieve)
+        rows = await retriever_client.get_documents(db, request.query, language=request.language, tag=request.tag, k=request.k_retrieve)
+        #rows = await retriever_client.get_documents(db, request.query, language=None, tag=request.tag, k=request.k_retrieve)
 
         return rows if len(rows) > 0 else [{"text": "", "url": ""}]
 
