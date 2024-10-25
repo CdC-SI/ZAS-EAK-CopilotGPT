@@ -135,7 +135,7 @@ async def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: 
 
 
 @app.post("/upload_csv_faq", summary="Upload a CSV file for FAQ data", status_code=200, response_model=ResponseBody)
-def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
+async def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
     """
     Upload a CSV file containing RAG data to the database with optional embeddings.
     The function acknowledges the following columns:
@@ -176,7 +176,7 @@ def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Sessio
         tag = row["tag"] if tag_column else None
 
         question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file.filename, language=language, tag=tag)
-        question_service.upsert(db, question, embed=embed)
+        await question_service.upsert(db, question, embed=embed)
         i += 1
 
     file.file.close()

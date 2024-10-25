@@ -21,24 +21,24 @@ class QuestionService(MatchingService):
     def __init__(self):
         super().__init__(Question)
 
-    def _create(self, db: Session, obj_in: QuestionCreate, embed: Union[Tuple[bool, bool], bool] = False):
+    async def _create(self, db: Session, obj_in: QuestionCreate, embed: Union[Tuple[bool, bool], bool] = False):
         # if embed is not a tuple, convert it to a tuple to use it for both question and answer
         if not isinstance(embed, tuple):
             embed = (embed, embed)
 
         # create the answer in documents first
-        db_document = document_service.upsert(db, DocumentCreate(**obj_in.model_dump(exclude={"text", "answer","embedding"}), text=obj_in.answer), embed=embed[1])
+        db_document = await document_service.upsert(db, DocumentCreate(**obj_in.model_dump(exclude={"text", "answer","embedding"}), text=obj_in.answer), embed=embed[1])
 
         # create the question
         db_question = Question(text=obj_in.text, embedding=obj_in.embedding, answer=db_document, answer_id=db_document.id, language=obj_in.language, url=obj_in.url, source=db_document.source, tag=obj_in.tag, source_id=db_document.source_id)
         if embed[0]:
-            db_question = self._embed(db_question)
+            db_question = await self._embed(db_question)
 
         db.add(db_question)
 
         return db_question
 
-    def create(self, db: Session, obj_in: QuestionCreate, embed: Union[Tuple[bool, bool], bool] = False):
+    async def create(self, db: Session, obj_in: QuestionCreate, embed: Union[Tuple[bool, bool], bool] = False):
         """
         Create a new question object in the database
 
@@ -55,7 +55,7 @@ class QuestionService(MatchingService):
         -------
 
         """
-        db_question = self._create(db, obj_in, embed=embed)
+        db_question = await self._create(db, obj_in, embed=embed)
         db.commit()
         return db_question
 
