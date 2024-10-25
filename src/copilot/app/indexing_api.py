@@ -86,7 +86,7 @@ app.add_middleware(
 
 
 @app.post("/upload_csv_rag", summary="Upload a CSV file for RAG data", status_code=200, response_model=ResponseBody)
-def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
+async def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
     """
     Upload a CSV file containing RAG data to the database with optional embeddings.
     The function acknowledges the following columns:
@@ -113,7 +113,7 @@ def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Sessio
     """
     logger.info(f'Downloading {file.filename}...')
     data = csv.DictReader(codecs.iterdecode(file.file, 'utf-8'))
-    
+
     embedding_column = "embedding" in data.fieldnames
     language_column = "language" in data.fieldnames
     tag_column = "tag" in data.fieldnames
@@ -124,9 +124,9 @@ def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Sessio
         embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
         language = row["language"] if language_column else None
         tag = row["tag"] if tag_column else None
-        
+
         document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file.filename, language=language, tag=tag)
-        document_service.upsert(db, document, embed=embed)
+        await document_service.upsert(db, document, embed=embed)
         i += 1
 
     file.file.close()
@@ -163,7 +163,7 @@ def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Sessio
     """
     logger.info(f'Downloading {file.filename}...')
     data = csv.DictReader(codecs.iterdecode(file.file, 'utf-8'))
-    
+
     embedding_column = "embedding" in data.fieldnames
     language_column = "language" in data.fieldnames
     tag_column = "tag" in data.fieldnames
@@ -174,7 +174,7 @@ def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Sessio
         embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
         language = row["language"] if language_column else None
         tag = row["tag"] if tag_column else None
-        
+
         question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file.filename, language=language, tag=tag)
         question_service.upsert(db, question, embed=embed)
         i += 1
@@ -257,7 +257,7 @@ def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", em
             document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file_path, language=language, tag=tag)
             document_service.upsert(db, document, embed=embed)
             i += 1
-            
+
     logger.info(f'Finished adding {i} entries to RAG database.')
     return {"content": f"Successfully added {i} entries to RAG database."}
 

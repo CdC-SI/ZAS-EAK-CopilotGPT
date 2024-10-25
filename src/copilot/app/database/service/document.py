@@ -12,12 +12,30 @@ class DocumentService(MatchingService):
     def __init__(self):
         super().__init__(Document)
 
-    def _create(self, db: Session, obj_in: DocumentCreate, embed=False):
+    # def _create(self, db: Session, obj_in: DocumentCreate, embed=False):
+    #     source = source_service.get_or_create(db, SourceCreate(url=obj_in.source))
+
+    #     db_document = Document(url=obj_in.url, language=obj_in.language, text=obj_in.text, tag=obj_in.tag, embedding=obj_in.embedding, source=source, source_id=source.id)
+    #     if embed:
+    #         db_document = self._embed(db_document)
+
+    #     db.add(db_document)
+    #     return db_document
+
+    async def _create(self, db: Session, obj_in: DocumentCreate, embed=False):
         source = source_service.get_or_create(db, SourceCreate(url=obj_in.source))
 
-        db_document = Document(url=obj_in.url, language=obj_in.language, text=obj_in.text, tag=obj_in.tag, embedding=obj_in.embedding, source=source, source_id=source.id)
+        db_document = Document(
+            url=obj_in.url,
+            language=obj_in.language,
+            text=obj_in.text,
+            tag=obj_in.tag,
+            embedding=obj_in.embedding,
+            source=source,
+            source_id=source.id
+        )
         if embed:
-            db_document = self._embed(db_document)
+            db_document = await self._embed(db_document)
 
         db.add(db_document)
         return db_document
@@ -39,10 +57,10 @@ class DocumentService(MatchingService):
         """
         return db.query(self.model).filter(self.model.url == url).one_or_none()
 
-    def _update(self, db: Session, db_obj, obj_in, embed=False):
+    async def _update(self, db: Session, db_obj, obj_in, embed=False):
         db_source = source_service.get_or_create(db, SourceCreate(url=obj_in.source))
 
-        exclude = self._update_embed_exclude(db_obj, obj_in, embed)
+        exclude = await self._update_embed_exclude(db_obj, obj_in, embed)
         super()._update(db, db_obj, DocumentUpdate(**obj_in.model_dump(exclude=exclude), source_id=db_source.id))
 
         return db_obj

@@ -232,28 +232,33 @@ class EmbeddingService(BaseService):
         return db_objs
 
     @abstractmethod
-    def _create(self, db: Session, obj_in: BaseModel, embed=False):
+    async def _create(self, db: Session, obj_in: BaseModel, embed=False):
         pass
 
-    def create(self, db: Session, obj_in: BaseModel, embed=False):
-        """
-        Create a new object in the database
+    # def create(self, db: Session, obj_in: BaseModel, embed=False):
+    #     """
+    #     Create a new object in the database
 
-        Parameters
-        ----------
-        db: Session
-            Database session
-        obj_in: BaseModel
-            Pydantic schema
-        embed: bool, optional
-            Whether to embed the object, default to False
+    #     Parameters
+    #     ----------
+    #     db: Session
+    #         Database session
+    #     obj_in: BaseModel
+    #         Pydantic schema
+    #     embed: bool, optional
+    #         Whether to embed the object, default to False
 
-        Returns
-        -------
-        Base
-            Database object
-        """
-        db_obj = self._create(db, obj_in, embed=embed)
+    #     Returns
+    #     -------
+    #     Base
+    #         Database object
+    #     """
+    #     db_obj = self._create(db, obj_in, embed=embed)
+    #     db.commit()
+    #     return db_obj
+
+    async def create(self, db: Session, obj_in: BaseModel, embed=False):
+        db_obj = await self._create(db, obj_in, embed=embed)
         db.commit()
         return db_obj
 
@@ -299,8 +304,15 @@ class EmbeddingService(BaseService):
         """
         return db.query(self.model).filter(self.model.text == text).first()
 
-    def _update(self, db: Session, db_obj, obj_in, embed=False):
-        super()._update(db, db_obj, obj_in)
+    # def _update(self, db: Session, db_obj, obj_in, embed=False):
+    #     super()._update(db, db_obj, obj_in)
+
+    async def _update(self, db: Session, db_obj, obj_in, embed=False):
+        exclude = await self._update_embed_exclude(db_obj, obj_in, embed=embed)
+        obj_data = obj_in.model_dump(exclude_unset=True, exclude=exclude)
+        for field, value in obj_data.items():
+            setattr(db_obj, field, value)
+        return db_obj
 
     async def _update_embed_exclude(self, db_obj, obj_in, embed=False):
         """
@@ -358,29 +370,40 @@ class EmbeddingService(BaseService):
         """
         return self._update(db, db_obj, obj_in, embed=embed)
 
-    def upsert(self, db: Session, obj_in: BaseModel, embed=False):
-        """
-        Upsert object in the database
+    # def upsert(self, db: Session, obj_in: BaseModel, embed=False):
+    #     """
+    #     Upsert object in the database
 
-        Parameters
-        ----------
-        db : Session
-            Database session
-        obj_in : BaseModel
-            Pydantic schema
-        embed : bool, optional
-            Whether to embed the object to upsert, default to False
+    #     Parameters
+    #     ----------
+    #     db : Session
+    #         Database session
+    #     obj_in : BaseModel
+    #         Pydantic schema
+    #     embed : bool, optional
+    #         Whether to embed the object to upsert, default to False
 
-        Returns
-        -------
-        Base
-            Upserted database object
-        """
-        db_obj = self.get_by_text(db, obj_in.text)  # test if object already exists
+    #     Returns
+    #     -------
+    #     Base
+    #         Upserted database object
+    #     """
+    #     db_obj = self.get_by_text(db, obj_in.text)  # test if object already exists
+    #     if db_obj:
+    #         db_obj = self._update(db, db_obj, obj_in, embed=embed)
+    #     else:
+    #         db_obj = self._create(db, obj_in, embed=embed)
+
+    #     db.commit()
+    #     return db_obj
+
+
+    async def upsert(self, db: Session, obj_in: BaseModel, embed=False):
+        db_obj = self.get_by_text(db, obj_in.text)
         if db_obj:
-            db_obj = self._update(db, db_obj, obj_in, embed=embed)
+            db_obj = await self._update(db, db_obj, obj_in, embed=embed)
         else:
-            db_obj = self._create(db, obj_in, embed=embed)
+            db_obj = await self._create(db, obj_in, embed=embed)
 
         db.commit()
         return db_obj

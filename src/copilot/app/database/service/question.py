@@ -59,7 +59,7 @@ class QuestionService(MatchingService):
         db.commit()
         return db_question
 
-    def _update(self, db: Session, db_question: Question, question: QuestionCreate, embed: Union[Tuple[bool, bool], bool] = False):
+    async def _update(self, db: Session, db_question: Question, question: QuestionCreate, embed: Union[Tuple[bool, bool], bool] = False):
         # if embed is not a tuple, convert it to a tuple to use it for both question and answer
         if not isinstance(embed, tuple):
             embed = (embed, embed)
@@ -68,7 +68,7 @@ class QuestionService(MatchingService):
         document_service.update(db, db_question.answer, DocumentCreate(url=question.url, text=question.answer, language=question.language, source=question.source, tag=question.tag), embed=embed[1])
 
         # update the question
-        exclude = self._update_embed_exclude(db_question, question, embed[0])
+        exclude = await self._update_embed_exclude(db_question, question, embed[0])
         super()._update(db, db_question, QuestionUpdate(**question.model_dump(exclude=exclude), source_id=db_question.answer.source_id))
 
         return db_question
