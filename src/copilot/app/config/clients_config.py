@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 
 import openai
 import cohere
-from langfuse import Langfuse
 
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -23,10 +22,6 @@ ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", None)
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", None)
 COHERE_API_KEY = os.environ.get("COHERE_API_KEY", None)
 
-LANGFUSE_SECRET_KEY = os.getenv("LANGFUSE_SECRET_KEY", None)
-LANGFUSE_PUBLIC_KEY = os.getenv("LANGFUSE_PUBLIC_KEY", None)
-LANGFUSE_HOST = os.getenv("LANGFUSE_HOST", None)
-
 # LLM model
 llm_model = rag_config["llm"]["model"]
 embedding_model = rag_config["embedding"]["model"]
@@ -36,7 +31,7 @@ HTTP_PROXY = os.environ.get("HTTP_PROXY", None)
 REQUESTS_CA_BUNDLE = os.environ.get("REQUESTS_CA_BUNDLE", None)
 logger.info(f"HTTP_PROXY: {HTTP_PROXY}, REQUESTS_CA_BUNDLE: {REQUESTS_CA_BUNDLE}")
 
-# if HTTP_PROXY then set the proxy in openai client
+# if HTTP_PROXY then set the proxy
 httpx_client = None
 if HTTP_PROXY and REQUESTS_CA_BUNDLE:
     logger.info(f"Setting up HTTP_PROXY: {HTTP_PROXY}")
@@ -78,10 +73,4 @@ elif llm_model in SUPPORTED_GROQ_LLM_MODELS and GROQ_API_KEY:
 
 clientRerank = cohere.AsyncClient(api_key=COHERE_API_KEY, httpx_client=httpx_client)
 
-# Initialize Langfuse client
-langfuse_client = Langfuse(
-  secret_key=LANGFUSE_SECRET_KEY,
-  public_key=LANGFUSE_PUBLIC_KEY,
-  host=LANGFUSE_HOST,
-  httpx_client=httpx_client
-)
+

@@ -21,16 +21,46 @@ from rag.messages import MessageBuilder
 from config.base_config import chat_config
 from config.base_config import rag_config
 
-from config.clients_config import langfuse_client
+from langfuse import Langfuse
 from langfuse.decorators import observe
 from langfuse.decorators import langfuse_context
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+load_dotenv()
+LANGFUSE_SECRET_KEY = os.getenv("LANGFUSE_SECRET_KEY", None)
+LANGFUSE_PUBLIC_KEY = os.getenv("LANGFUSE_PUBLIC_KEY", None)
+LANGFUSE_HOST = os.getenv("LANGFUSE_HOST", None)
+
+# Load Proxy settings
+HTTP_PROXY = os.environ.get("HTTP_PROXY", None)
+REQUESTS_CA_BUNDLE = os.environ.get("REQUESTS_CA_BUNDLE", None)
+logger.info(f"HTTP_PROXY: {HTTP_PROXY}, REQUESTS_CA_BUNDLE: {REQUESTS_CA_BUNDLE}")
+
+# if HTTP_PROXY then set the proxy
+httpx_client = None
+if HTTP_PROXY and REQUESTS_CA_BUNDLE:
+    logger.info(f"Setting up HTTP_PROXY: {HTTP_PROXY}")
+    logger.info(f"Setting up REQUESTS_CA_BUNDLE: {REQUESTS_CA_BUNDLE}")
+
+    import httpx
+    httpx_client = httpx.AsyncClient(proxy=HTTP_PROXY, verify=REQUESTS_CA_BUNDLE)
+
+# Initialize Langfuse client
+langfuse_client = Langfuse(
+  secret_key=LANGFUSE_SECRET_KEY,
+  public_key=LANGFUSE_PUBLIC_KEY,
+  host=LANGFUSE_HOST,
+  httpx_client=httpx_client
+)
+
 # Configure the Langfuse client with a custom httpx client
 langfuse_context.configure(
-    secret_key=langfuse_client.secret_key,
-    public_key=langfuse_client.public_key,
-    httpx_client=langfuse_client.httpx_client,
-    host=langfuse_client.host,
+    secret_key=LANGFUSE_SECRET_KEY,
+    public_key=LANGFUSE_PUBLIC_KEY,
+    httpx_client=httpx_client,
+    host=LANGFUSE_HOST,
     enabled=True,
 )
 
