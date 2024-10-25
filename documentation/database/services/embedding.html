@@ -375,14 +375,13 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="database.service.base.EmbeddingService.create">
-<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj_in</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BaseModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#database.service.base.EmbeddingService.create" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj_in</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BaseModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#database.service.base.EmbeddingService.create" title="Link to this definition">¶</a></dt>
 <dd><p>Create a new object in the database</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
-<li><p><strong>obj_in</strong> (<em>BaseModel</em>) – Pydantic schema</p></li>
-<li><p><strong>embed</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to embed the object, default to False</p></li>
+<li><p><strong>obj_in</strong> – Pydantic schema</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -457,27 +456,6 @@
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="database.service.base.EmbeddingService.upsert">
-<span class="sig-name descname"><span class="pre">upsert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj_in</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BaseModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#database.service.base.EmbeddingService.upsert" title="Link to this definition">¶</a></dt>
-<dd><p>Upsert object in the database</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
-<li><p><strong>obj_in</strong> (<em>BaseModel</em>) – Pydantic schema</p></li>
-<li><p><strong>embed</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to embed the object to upsert, default to False</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Upserted database object</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Base</p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -545,7 +523,6 @@
 <li><a class="reference internal" href="#database.service.base.EmbeddingService.create_all"><code class="docutils literal notranslate"><span class="pre">EmbeddingService.create_all()</span></code></a></li>
 <li><a class="reference internal" href="#database.service.base.EmbeddingService.get_by_text"><code class="docutils literal notranslate"><span class="pre">EmbeddingService.get_by_text()</span></code></a></li>
 <li><a class="reference internal" href="#database.service.base.EmbeddingService.update"><code class="docutils literal notranslate"><span class="pre">EmbeddingService.update()</span></code></a></li>
-<li><a class="reference internal" href="#database.service.base.EmbeddingService.upsert"><code class="docutils literal notranslate"><span class="pre">EmbeddingService.upsert()</span></code></a></li>
 </ul>
 </li>
 </ul>
