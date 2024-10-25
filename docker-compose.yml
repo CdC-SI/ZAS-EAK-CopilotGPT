@@ -67,6 +67,8 @@ services:
     build:
       context: https://github.com/CdC-SI/copilot-frontend.git#main
     image: zas-copilot:latest
+    environment:
+      - ENVIRONMENT=development
     ports:
       - "4200:4200"
     networks:
@@ -80,6 +82,8 @@ services:
     build:
       context: https://github.com/CdC-SI/copilot-backend.git#main
     image: zas-security:latest
+    env_file:
+      - .env
     environment:
       - DS_URL=jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
       - DS_USERNAME=${POSTGRES_USER}
