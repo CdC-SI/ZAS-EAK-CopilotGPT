@@ -79,7 +79,7 @@ elif llm_model in SUPPORTED_GROQ_LLM_MODELS and GROQ_API_KEY:
 clientRerank = cohere.AsyncClient(api_key=COHERE_API_KEY, httpx_client=httpx_client)
 
 # Initialize Langfuse client
-langfuse = Langfuse(
+langfuse_client = Langfuse(
   secret_key=LANGFUSE_SECRET_KEY,
   public_key=LANGFUSE_PUBLIC_KEY,
   host=LANGFUSE_HOST,

@@ -21,7 +21,18 @@ from rag.messages import MessageBuilder
 from config.base_config import chat_config
 from config.base_config import rag_config
 
+from config.clients_config import langfuse_client
 from langfuse.decorators import observe
+from langfuse.decorators import langfuse_context
+
+# Configure the Langfuse client with a custom httpx client
+langfuse_context.configure(
+    secret_key=langfuse_client.secret_key,
+    public_key=langfuse_client.public_key,
+    httpx_client=langfuse_client.httpx_client,
+    host=langfuse_client.host,
+    enabled=True,
+)
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
