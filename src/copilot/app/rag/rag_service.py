@@ -97,10 +97,12 @@ class RAGService:
         """
         Retrieve context documents related to the user input question.
         """
-        rows = await retriever_client.get_documents(db, request.query, language=request.language, tag=request.tag, k=request.k_retrieve)
+        # TO DO: parse list of tags/sources
+        # TO DO: filter sources in matching service
+        rows = await retriever_client.get_documents(db, request.query, language=request.language, tag=request.tag[0], k=request.k_retrieve)
         #rows = await retriever_client.get_documents(db, request.query, language=None, tag=request.tag, k=request.k_retrieve)
 
-        return rows if len(rows) > 0 else [{"text": "", "url": ""}]
+        return rows if len(rows) > 0 else [{"id": "", "text": "", "url": ""}]
 
     @observe()
     async def process(self, db: Session, request: ChatRequest, streaming_handler: StreamingHandler, llm_client: BaseLLM, retriever_client: RetrieverClient, message_builder: MessageBuilder, conversational_memory: List[Dict] = None):
@@ -148,7 +150,7 @@ class RAGService:
             self.chat_memory.memory_instance.add_message_to_memory(db, request.user_uuid, request.conversation_uuid, user_message_uuid, role="user", message=request.query, language=request.language)
 
             # Index assistant response in chat_history table
-            retrieved_doc_ids = [doc["id"] for doc in documents]
+            retrieved_doc_ids = [doc["id"] for doc in documents if doc["id"]]
             self.chat_memory.memory_instance.add_message_to_memory(db, request.user_uuid, request.conversation_uuid, assistant_message_uuid, role="assistant", message="".join(assistant_response), url=source_url, language=request.language, faq_id=None, retrieved_doc_ids=retrieved_doc_ids)
 
             # Index chat title
