@@ -5,9 +5,6 @@ from fastapi import FastAPI, Depends, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from config.network_config import CORS_ALLOWED_ORIGINS
 
-from haystack.dataclasses import ByteStream
-from haystack.components.converters import PyPDFToDocument
-from haystack.components.preprocessors import DocumentCleaner, DocumentSplitter
 from pathlib import Path
 
 # Load env variables
@@ -476,6 +473,6 @@ async def index_data(item: QuestionItem, db: Session = Depends(get_db)):
     item.source = "username"
 
     if item.id:
-        return question_service.update(db, item)
+        return await question_service.update(db, item)
     else:
-        return question_service.create(db, item)
+        return await question_service.create(db, item)
