@@ -63,7 +63,10 @@ class RetrieverClient(BaseRetriever):
         unique_docs = [doc for doc in docs if doc["id"] not in seen and not seen.add(doc["id"])]
 
         # Rerank the documents and get the top-k
-        unique_docs, _ = await self.reranker.rerank(query, unique_docs)
+        if unique_docs:
+            unique_docs, _ = await self.reranker.rerank(query, unique_docs)
+
+        logger.info("Retrieved %d documents", len(unique_docs[:k]))
 
         return unique_docs[:k]
 
