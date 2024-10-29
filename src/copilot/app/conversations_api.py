@@ -149,7 +149,7 @@ def thumbs_down(user_uuid: str = None, conversation_uuid: str = None, message_uu
                 user_uuid=user_uuid,
                 conversation_uuid=conversation_uuid,
                 message_uuid=message_uuid,
-                score=1,
+                score=-1,
                 comment=comment,
                 timestamp=datetime.utcnow()
             )
