@@ -148,11 +148,12 @@ class RAGService:
 
             # Index user query in chat history_table
             user_message_uuid = str(uuid.uuid4())
-            self.chat_memory.memory_instance.add_message_to_memory(db, request.user_uuid, request.conversation_uuid, user_message_uuid, role="user", message=request.query, language=request.language)
+            logger.info(f"----REQUEST.LANGUAGE----: {request.language}")
+            self.chat_memory.memory_instance.add_message_to_memory(db, request.user_uuid, request.conversation_uuid, user_message_uuid, role="user", message=request.query, language="de")
 
             # Index assistant response in chat_history table
             retrieved_doc_ids = [doc["id"] for doc in documents if doc["id"]]
-            self.chat_memory.memory_instance.add_message_to_memory(db, request.user_uuid, request.conversation_uuid, assistant_message_uuid, role="assistant", message="".join(assistant_response), url=source_url, language=request.language, faq_id=None, retrieved_doc_ids=retrieved_doc_ids)
+            self.chat_memory.memory_instance.add_message_to_memory(db, request.user_uuid, request.conversation_uuid, assistant_message_uuid, role="assistant", message="".join(assistant_response), url=source_url, language="de", faq_id=None, retrieved_doc_ids=retrieved_doc_ids)
 
             # Index chat title
             if not self.chat_memory.memory_instance.conversation_uuid_exists(db, request.conversation_uuid):
