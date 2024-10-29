@@ -65,7 +65,7 @@ class QuestionService(MatchingService):
             embed = (embed, embed)
 
         # update the answer in documents first
-        document_service.update(db, db_question.answer, DocumentCreate(url=question.url, text=question.answer, language=question.language, source=question.source, tag=question.tag), embed=embed[1])
+        await document_service.update(db, db_question.answer, DocumentCreate(url=question.url, text=question.answer, language=question.language, source=question.source, tag=question.tag), embed=embed[1])
 
         # update the question
         exclude = await self._update_embed_exclude(db_question, question, embed[0])

@@ -348,7 +348,7 @@ class EmbeddingService(BaseService):
         logger.info(f'Excluded fields: {exclude}')
         return exclude
 
-    def update(self, db: Session, db_obj, obj_in: BaseModel, embed=False):
+    async def update(self, db: Session, db_obj, obj_in: BaseModel, embed=False):
         """
         Update db object
 
@@ -368,7 +368,7 @@ class EmbeddingService(BaseService):
         Base
             Updated database object
         """
-        return self._update(db, db_obj, obj_in, embed=embed)
+        return await self._update(db, db_obj, obj_in, embed=embed)
 
     # def upsert(self, db: Session, obj_in: BaseModel, embed=False):
     #     """
