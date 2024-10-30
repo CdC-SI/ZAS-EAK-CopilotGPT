@@ -1,3 +1,4 @@
+from typing import List
 import hashlib
 from sqlalchemy.orm import Session
 
@@ -44,7 +45,7 @@ class Autocompleter:
         """
         return hashlib.md5(f"{question}_{language}".encode()).hexdigest()
 
-    async def get_autocomplete(self, db: Session, question: str, language: str = None, k: int = 0, tag: str = None):
+    async def get_autocomplete(self, db: Session, question: str, language: str = None, k: int = 0, tag: List[str] = None):
         """
         Returns matching results according to a defined behaviour.
 

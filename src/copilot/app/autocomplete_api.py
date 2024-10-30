@@ -39,7 +39,7 @@ app.add_middleware(
          response_description="List of matching questions")
 async def autocomplete(question: str,
                        language: str = None,
-                       tag: str = None,
+                       tag: List[str] = None,
                        k: int = autocomplete_config['results']['limit'],
                        db: Session = Depends(get_db)):
     """

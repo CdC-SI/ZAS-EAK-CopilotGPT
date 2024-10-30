@@ -1,3 +1,5 @@
+from typing import List
+
 from sqlalchemy.orm import Session
 from sqlalchemy import func, select
 
@@ -10,7 +12,7 @@ class MatchingService(EmbeddingService):
     Class that provide services for matching text with database entries
     """
 
-    def get_exact_match(self, db: Session, user_input: str, language: str = None, k: int = 0, tag: str = None):
+    def get_exact_match(self, db: Session, user_input: str, language: str = None, k: int = 0, tag: List[str] = None):
         """
         Get exact match from database
 
@@ -34,7 +36,7 @@ class MatchingService(EmbeddingService):
         if language:
             stmt = stmt.filter(self.model.language == language)
         if tag:
-            stmt = stmt.filter(self.model.tag.ilike(f'%{tag}%'))
+            stmt = stmt.filter(self.model.tag.in_(tag))
 
         stmt = stmt.filter(self.model.text.like(search))
         if k > 0:
@@ -43,7 +45,7 @@ class MatchingService(EmbeddingService):
         rows = db.scalars(stmt).all()
         return [row.to_dict() for row in rows]
 
-    def get_fuzzy_match(self, db: Session, user_input: str, threshold: int = 150, language: str = None, k: int = 0, tag: str = None):
+    def get_fuzzy_match(self, db: Session, user_input: str, threshold: int = 150, language: str = None, k: int = 0, tag: List[str] = None):
         """
         Get fuzzy match from database using levenshtein distance
 
@@ -66,7 +68,7 @@ class MatchingService(EmbeddingService):
         if language:
             stmt = stmt.filter(self.model.language == language)
         if tag:
-            stmt = stmt.filter(self.model.tag.ilike(f'%{tag}%'))
+            stmt = stmt.filter(self.model.tag.in_(tag))
 
         stmt = (stmt
                 .filter(func.levenshtein_less_equal(self.model.text, user_input, threshold) < threshold)
@@ -78,7 +80,7 @@ class MatchingService(EmbeddingService):
         rows = db.scalars(stmt).all()
         return [row.to_dict() for row in rows]
 
-    def get_trigram_match(self, db: Session, user_input: str, threshold: int = 0.4, language: str = None, k: int = 0, tag: str = None):
+    def get_trigram_match(self, db: Session, user_input: str, threshold: int = 0.4, language: str = None, k: int = 0, tag: List[str] = None):
         """
         Get trigram match from database
 
@@ -98,7 +100,7 @@ class MatchingService(EmbeddingService):
         if language:
             stmt = stmt.filter(self.model.language == language)
         if tag:
-            stmt = stmt.filter(self.model.tag.ilike(f'%{tag}%'))
+            stmt = stmt.filter(self.model.tag.in_(tag))
 
         stmt = (stmt
                 .filter(func.word_similarity(user_input, self.model.text) > threshold)
@@ -109,7 +111,7 @@ class MatchingService(EmbeddingService):
         rows = db.scalars(stmt).all()
         return [row.to_dict() for row in rows]
 
-    async def get_semantic_match(self, db: Session, user_input: str, language: str = None, k: int = 0, symbol: str = "<=>", tag: str = None):
+    async def get_semantic_match(self, db: Session, user_input: str, language: str = None, k: int = 0, symbol: str = "<=>", tag: List[str] = None):
         """
         Get semantic similarity match from database
 
@@ -136,7 +138,7 @@ class MatchingService(EmbeddingService):
         if language:
             stmt = stmt.filter(self.model.language == language)
         if tag:
-            stmt = stmt.filter(self.model.tag.ilike(f'%{tag}%'))
+            stmt = stmt.filter(self.model.tag.in_(tag))
 
         stmt = stmt.order_by(self.model.embedding.op(symbol)(q_embedding).asc())
         if k > 0:
