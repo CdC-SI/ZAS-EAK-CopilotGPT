@@ -20,7 +20,7 @@ KONVERSATIONSGEDÄCHTNIS:
 
 KONTEXT:
 
-DOC [1]: {context_docs}
+{context_docs}
 
 FRAGE: {query}
 
@@ -48,7 +48,7 @@ HISTORIQUE DE CONVERSATION:
 
 CONTEXTE:
 
-DOC [1] : {context_docs}
+{context_docs}
 
 QUESTION : {query}
 
@@ -76,7 +76,7 @@ MEMORIA CONVERSAZIONALE:
 
 CONTEXT:
 
-DOC [1]: {context_docs}
+{context_docs}
 
 QUESITI: {query}
 

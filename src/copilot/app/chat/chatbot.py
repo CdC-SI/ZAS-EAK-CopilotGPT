@@ -66,7 +66,7 @@ class ChatBot:
         Retrieve relevant documents from the database.
         """
         documents = await self.rag_service.retrieve(db, request=request, retriever_client=retriever_client)
-        formatted_context_docs = "\n\n".join([f"DOC [{i}]: {doc['text']}" for i, doc in enumerate(documents, start=2)])
+        formatted_context_docs = "\n\n".join([f"DOC [{i}]: {doc['text']}" for i, doc in enumerate(documents, start=1)])
         source_url = documents[0]["url"]  # TO DO: display multiple sources in frontend
         return documents, formatted_context_docs, source_url
 
