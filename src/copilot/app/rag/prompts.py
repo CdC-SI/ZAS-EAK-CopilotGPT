@@ -20,7 +20,7 @@ KONVERSATIONSGEDÄCHTNIS:
 
 KONTEXT:
 
-DOC: {context_docs}
+DOC [1]: {context_docs}
 
 FRAGE: {query}
 
@@ -48,11 +48,11 @@ HISTORIQUE DE CONVERSATION:
 
 CONTEXTE:
 
-DOC: {context_docs}
+DOC [1] : {context_docs}
 
-QUESTION: {query}
+QUESTION : {query}
 
-REPONSE: """
+REPONSE : """
 
 OPENAI_RAG_SYSTEM_PROMPT_IT = """Lei è il EAK-Copilote, un assistente coscienzioso e dedicato che fornisce risposte dettagliate e precise alle domande (QUESITI) del pubblico sulle assicurazioni sociali in Svizzera. Le tue risposte si basano esclusivamente sui documenti contestuali DOC forniti (in CONTEXT) e la memoria della conversazione (MEMORIA CONVERSAZIONALE).
 
@@ -76,7 +76,7 @@ MEMORIA CONVERSAZIONALE:
 
 CONTEXT:
 
-DOC: {context_docs}
+DOC [1]: {context_docs}
 
 QUESITI: {query}
 
@@ -148,7 +148,7 @@ RISPOSTA: {assistant_response}
 
 TITOLO DELLA CHAT:"""
 
-SUMMARIZE_COMMAND_PROMPT_DE = """Ihre Aufgabe besteht darin, eine Zusammenfassung des TEXT zu erstellen, der ein Gespräch (Frage--Antwort zwischen user-assistant) enthält. Lesen Sie den TEST aufmerksam durch und fassen Sie die wichtigsten Punkte der gegebenen Antworten (des assistant) zusammen. Die Zusammenfassung sollte knapp und informativ sein und nur die wichtigsten Informationen berücksichtigen. Vermeiden Sie es, irrelevante Details zu erwähnen. Die Zusammenfassung muss in derselben Sprache wie der vorgegebene TEXT verfasst sein!
+SUMMARIZE_COMMAND_PROMPT_DE = """Ihre Aufgabe besteht darin, eine Zusammenfassung des TEXT zu erstellen, der ein Gespräch (Frage--Antwort zwischen user-assistant) enthält. Lesen Sie den TEXT aufmerksam durch und fassen Sie die wichtigsten Punkte der gegebenen Antworten (des assistant) zusammen. Die Zusammenfassung sollte knapp und informativ sein und nur die wichtigsten Informationen berücksichtigen. Vermeiden Sie es, irrelevante Details zu erwähnen. Die Zusammenfassung muss in derselben Sprache wie der vorgegebene TEXT verfasst sein!
 
 TEXT: {input_text}
 
@@ -165,3 +165,17 @@ SUMMARIZE_COMMAND_PROMPT_IT = """Il vostro compito è generare un riassunto del 
 TESTO: {input_text}
 
 RIASSUNTO:"""
+
+CONTEXTUAL_RETRIEVAL_PROMPT_EN = """
+<document>
+{{WHOLE_DOCUMENT}}
+</document>
+
+Here is the chunk we want to situate within the whole document
+
+<chunk>
+{{CHUNK_CONTENT}}
+</chunk>
+
+Please give a short succinct context to situate this chunk within the overall document for the purposes of improving search retrieval of the chunk. Answer only with the succinct context and nothing else
+"""
