@@ -13,7 +13,7 @@ from config.base_config import rag_app_config
 
 # Load models
 from rag.rag_service import rag_service
-#from chat.chatbot import bot
+from chat.chatbot import bot
 from schemas.chat import ChatRequest
 
 from sqlalchemy.orm import Session
@@ -52,8 +52,8 @@ async def process_query(request: ChatRequest, db: Session = Depends(get_db)):
     StreamingResponse
         The response from the RAG service
     """
-    #content = await bot.rag_service.process_request(db, request)
-    content = await rag_service.process_request(db, request)
+    content = await bot.process_request(db, request)
+    #content = await rag_service.process_request(db, request)
 
     return StreamingResponse(content, media_type="text/event-stream")
 

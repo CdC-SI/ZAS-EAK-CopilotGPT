@@ -119,7 +119,7 @@ class RAGService:
             # k = -1 if request.command_args == "last" else None
             # Implement fetch_last_k_messages in memory.py
             # input_text = self.chat_memory.memory_instance.fetch_last_k_messages(db, request.user_uuid, request.conversation_uuid, k=5)
-            input_text = self.chat_memory.memory_instance.fetch_from_memory(request.user_uuid, request.conversation_uuid)
+            input_text = self.chat_memory.memory_instance.fetch_from_memory(request.user_uuid, request.conversation_uuid, request.k_memory)
             messages = message_builder.build_command_prompt(command=request.command, input_text=input_text)
             source_url = None
             documents = [{"id": "", "text": "", "url": ""}]
@@ -165,7 +165,7 @@ class RAGService:
     async def process_request(self, db: Session, request: ChatRequest):
 
         if request.user_uuid:
-            conversational_memory = self.chat_memory.memory_instance.fetch_from_memory(request.user_uuid, request.conversation_uuid)
+            conversational_memory = self.chat_memory.memory_instance.fetch_from_memory(request.user_uuid, request.conversation_uuid, request.k_memory)
         else:
             conversational_memory = [{"user": "", "assistant": ""}]
 
