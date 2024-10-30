@@ -5,13 +5,14 @@ from typing import Dict, List
 from dotenv import load_dotenv
 from pyaml_env import parse_config
 
-from rag.models import EmbeddingRequest#, RAGRequest
 from rag.factory import RetrieverFactory
 from rag.llm.factory import LLMFactory
 from rag.llm.base import BaseLLM
 from rag.retrievers import RetrieverClient
 from chat.memory import ConversationalMemory
-from chat.models import ChatRequest
+
+from schemas.chat import ChatRequest
+from schemas.embedding import EmbeddingRequest
 
 from sqlalchemy.orm import Session
 from utils.embedding import get_embedding

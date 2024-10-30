@@ -14,8 +14,7 @@ from config.base_config import rag_app_config
 # Load models
 from rag.rag_service import rag_service
 #from chat.chatbot import bot
-#from rag.models import RAGRequest
-from chat.models import ChatRequest
+from schemas.chat import ChatRequest
 
 from sqlalchemy.orm import Session
 from database.database import get_db

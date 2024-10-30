@@ -24,7 +24,7 @@ from schemas.document import DocumentCreate
 from database.database import get_db
 
 # Load models
-from rag.models import ResponseBody
+from schemas.indexing import ResponseBody
 
 import tempfile
 import shutil
