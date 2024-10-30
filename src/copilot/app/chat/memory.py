@@ -61,7 +61,7 @@ class RedisMemoryHandler:
         #     logging.error(f"Exception in thread: {e}")
 
     # TO DO: Retrieve conversation from Postgres if cache cleared
-    def retrieve_conversation(self, user_uuid: str, conversation_uuid: str) -> List[dict]:
+    def retrieve_conversation(self, user_uuid: str, conversation_uuid: str, k_memory: int) -> List[dict]:
         """
         Method to retrieve a conversation from Redis based on user_uuid and conversation_uuid
         """
@@ -88,7 +88,9 @@ class RedisMemoryHandler:
 
         # Retrieve the last `k_memory` turns
         # When k is passed as a param, check if k==None
-        if self.k_memory:
+        if k_memory:
+            turns = turns[-k_memory:]
+        else:
             turns = turns[-self.k_memory:]
 
         flattened_turns = [msg for turn in turns for msg in turn]
@@ -163,11 +165,11 @@ class BaseMemory(RedisMemoryHandler, PostgresMemoryHandler):
         # Note: make this async with AsyncSession db
         self.index_chat_history(db, user_uuid, conversation_uuid, message_uuid, role, message, language, url, faq_id, retrieved_doc_ids)
 
-    def fetch(self, user_uuid: str, conversation_uuid: str):
+    def fetch(self, user_uuid: str, conversation_uuid: str, k_memory: int):
         """
         Method to fetch the conversation from Redis.
         """
-        return self.retrieve_conversation(user_uuid, conversation_uuid)
+        return self.retrieve_conversation(user_uuid, conversation_uuid, k_memory)
 
 class ConversationalMemoryBuffer(BaseMemory):
     """
@@ -182,11 +184,11 @@ class ConversationalMemoryBuffer(BaseMemory):
         """
         self.store(db, user_uuid, conversation_uuid, message_uuid, role, message, language, url, faq_id, retrieved_doc_ids)
 
-    def fetch_from_memory(self, user_uuid: str, conversation_uuid: str):
+    def fetch_from_memory(self, user_uuid: str, conversation_uuid: str, k_memory: int):
         """
         Method to fetch the conversation from the memory buffer.
         """
-        return self.fetch(user_uuid, conversation_uuid)
+        return self.fetch(user_uuid, conversation_uuid, k_memory)
 
 class ConversationalMemorySummary(BaseMemory):
     """
@@ -198,8 +200,8 @@ class ConversationalMemorySummary(BaseMemory):
     def add_message_to_memory(self, db: Session, user_uuid: str, conversation_uuid: str, role: str, message: str, language: str, url: Optional[str] = None, faq_id: Optional[int] = None, retrieved_doc_ids: Optional[List[int]] = None):
         self.store(db, user_uuid, conversation_uuid, role, message, language, url, faq_id, retrieved_doc_ids)
 
-    def fetch_from_memory(self, user_uuid: str, conversation_uuid: str):
-        conversation_history = self.fetch(user_uuid, conversation_uuid)
+    def fetch_from_memory(self, user_uuid: str, conversation_uuid: str, k_memory: int):
+        conversation_history = self.fetch(user_uuid, conversation_uuid, k_memory)
         # Logic to create summary here OR ADD STATE TO TRACK SUMMARY
 
 class ConversationalMemoryBufferSummary(BaseMemory):
@@ -233,9 +235,3 @@ class ConversationalMemory:
             return memory_types[memory_type](k_memory) if memory_type == "buffer" else memory_types[memory_type]()
         else:
             raise ValueError("Invalid memory type selected.")
-
-    # def add_message_to_memory(self, message: str):
-    #     """
-    #     Method to add a message to the selected memory instance.
-    #     """
-    #     self.memory_instance.add_message_to_memory(message)
