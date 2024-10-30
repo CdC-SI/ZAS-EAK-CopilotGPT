@@ -324,7 +324,7 @@ class BaseIndexer(ABC):
             text = doc.content
             logger.info(doc.meta)
             url = doc.meta["url"] if "url" in doc.meta else source
-            document_service.upsert(db, DocumentCreate(url=url, text=text, source=source), embed=embed)
+            await document_service.upsert(db, DocumentCreate(url=url, text=text, source=source), embed=embed)
 
     async def index(self, sitemap_url: str, db: Session, embed: bool = True) -> dict:
         urls = await self.get_pages_from_sitemap(sitemap_url)

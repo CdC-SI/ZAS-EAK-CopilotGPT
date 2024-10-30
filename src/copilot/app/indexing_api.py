@@ -1,5 +1,6 @@
 import logging
 import os
+from typing import List
 
 from fastapi import FastAPI, Depends, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -181,14 +182,14 @@ async def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: 
     return {"content": f"Successfully added {i} entries to FAQ database."}
 
 
-@app.post("/upload_pdf_rag", summary="Upload a PDF file for RAG data", status_code=200, response_model=ResponseBody)
-async def upload_pdf_rag(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
+@app.post("/upload_pdf_rag", summary="Upload a PDF files for RAG data", status_code=200, response_model=ResponseBody)
+async def upload_pdf_rag(files: List[UploadFile] = File(..., description="PDF files only"), embed: bool = False, db: Session = Depends(get_db)):
     """
     Upload a CSV file containing RAG data to the database.
 
     Parameters
     ----------
-    file : UploadFile
+    files : List[UploadFile]
         The PDF file sent by the user
     embed : bool, optional
         Whether to embed the data or not. Defaults to False.
@@ -200,16 +201,23 @@ async def upload_pdf_rag(file: UploadFile = File(...), embed: bool = False, db: 
     ResponseBody
         A response body containing a confirmation message upon successful completion of the process.
     """
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
-        temp_filename = temp_file.name
-        shutil.copyfileobj(file.file, temp_file)
+    uploaded_files = []
+    for file in files:
+        if file.content_type != "application/pdf":
+            return {"content": f"{file.filename} is not a valid PDF file."}
 
-    await ahv_indexer.add_content_to_db(db, content=[Path(temp_filename)], source=file.filename, embed=embed)
+        # Handle temporary file creation and processing
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+            temp_filename = temp_file.name
+            shutil.copyfileobj(file.file, temp_file)
 
-    os.remove(temp_filename)
+        # Index data in vectorDB
+        await ahv_indexer.add_content_to_db(db, content=[Path(temp_filename)], source=file.filename, embed=embed)
+        uploaded_files.append(file.filename)
 
-    return {"content": f"{file.filename}: PDF file indexed successfully"}
+        os.remove(temp_filename)  # Clean up temp file after use
 
+    return {"content": f"{len(uploaded_files)} files indexed successfully", "files": uploaded_files}
 
 
 @app.post("/add_rag_data_from_csv", summary="Insert data for RAG without embedding from a local csv file", status_code=200, response_model=ResponseBody)
