@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import datetime
 
@@ -133,7 +134,14 @@ def thumbs_down(user_uuid: str = None, conversation_uuid: str = None, message_uu
             # Update existing entry
             feedback_entry.score -= 1
             feedback_entry.timestamp = datetime.utcnow()
-            feedback_entry.comment = comment
+
+            # Append new comment to existing comments
+            existing_comments = json.loads(feedback_entry.comment) if feedback_entry.comment else []
+            if isinstance(existing_comments, list):
+                existing_comments.append(comment)
+            else:
+                existing_comments = [existing_comments, comment]
+            feedback_entry.comment = json.dumps(existing_comments)
 
             db.commit()
             db.refresh(feedback_entry)
@@ -150,7 +158,7 @@ def thumbs_down(user_uuid: str = None, conversation_uuid: str = None, message_uu
                 conversation_uuid=conversation_uuid,
                 message_uuid=message_uuid,
                 score=-1,
-                comment=comment,
+                comment=json.dumps([comment]),
                 timestamp=datetime.utcnow()
             )
             db.add(new_feedback)

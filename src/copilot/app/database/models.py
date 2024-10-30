@@ -1,5 +1,5 @@
 from typing import Optional, List
-from sqlalchemy import Integer, ForeignKey, String, Text, DateTime, func, Index, desc, ARRAY
+from sqlalchemy import Integer, ForeignKey, String, Text, DateTime, func, Index, ARRAY, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
 from sqlalchemy.inspection import inspect
@@ -124,7 +124,7 @@ class ChatFeedback(Base):
     conversation_uuid: Mapped[str] = mapped_column(String)
     message_uuid: Mapped[str] = mapped_column(String, ForeignKey("chat_history.message_uuid"))
     score: Mapped[int] = mapped_column(Integer)
-    comment: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    comment: Mapped[Optional[List[str]]] = mapped_column(JSON, nullable=True)
     timestamp: Mapped[DateTime] = mapped_column(DateTime, default=datetime.utcnow)
 
 # Init relationship mappers
