@@ -18,7 +18,7 @@ class ChatRequest(BaseModel):
     k_memory: Optional[int] = chat_config["memory"]["k_memory"]
     response_style: Optional[str] = None
     command: Optional[str] = None
-    command_args: Optional[List[str]] = None
+    command_args: Optional[str] = None
     autocomplete: Optional[bool] = True
     rag: Optional[bool] = True
     user_uuid: Optional[str] = None

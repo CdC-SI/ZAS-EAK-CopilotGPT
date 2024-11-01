@@ -12,7 +12,7 @@ Wichtige Hinweise:
 
     5. Chain of Thought (CoT) Ansatz: Gehen Sie in Ihrer Antwort Schritt für Schritt vor. Erklären Sie Ihren Gedankengang und wie Sie zu Ihrer Schlussfolgerung gelangen, indem Sie relevante Informationen aus dem Kontext in einer logischen Reihenfolge miteinander verknüpfen.
 
-    6. Antworten Sie immer in der Sprache, in der die Frage gestellt wird!!!
+    6. Antworten Sie immer auf DEUTSCH!!!
 
 KONVERSATIONSGEDÄCHTNIS:
 
@@ -40,7 +40,7 @@ Remarques importantes :
 
     5. Chain of Thought (CoT) : procédez étape par étape dans votre réponse. Expliquez le cheminement de votre pensée et comment vous êtes parvenu à votre conclusion en reliant les informations pertinentes du contexte dans un ordre logique.
 
-    6. Répondez toujours dans la langue dans laquelle la question est posée !!!
+    6. Répondez toujours en FRANCAIS !!!
 
 HISTORIQUE DE CONVERSATION:
 
@@ -68,7 +68,7 @@ Note importanti:
 
     5. Chain of Thought (CoT): adottare un approccio graduale nella risposta. Spiegate il vostro processo di pensiero e come siete arrivati alla vostra conclusione collegando le informazioni rilevanti del contesto in una sequenza logica.
 
-    6. Rispondere sempre nella lingua in cui viene posta la domanda!!!
+    6. Rispondete sempre in ITALIANO !!!
 
 MEMORIA CONVERSAZIONALE:
 
@@ -124,47 +124,74 @@ CONTESTO:
 
 Parti rilevanti estratte:"""
 
-CREATE_CHAT_TITLE_PROMPT_DE = """Ihre Aufgabe ist es, einen Titel für den Chatverlauf aus der Frage des Nutzers (FRAGE) und der Antwort des Assistenten (ANTWORT) zu generieren. Generieren Sie aus FRAGE und ANTWORT einen hochrangigen Titel, der die Essenz des anschliessenden Gesprächs einfängt. Die Überschrift sollte äusserst prägnant und informativ sein und einen kurzen Überblick über das Thema geben, der NUR auf dem Inhalt von FRAGE und ANTWORT beruht. Der Titel MUSS in der gleichen Sprache wie die FRAGE sein!
+CREATE_CHAT_TITLE_PROMPT_DE = """Ihre Aufgabe ist es, einen Titel für den Chatverlauf aus der Frage des Nutzers (FRAGE) und der Antwort des Assistenten (ANTWORT) zu generieren. Generieren Sie aus FRAGE und ANTWORT einen hochrangigen Titel, der die Essenz des anschliessenden Gesprächs einfängt. Die Überschrift sollte äusserst prägnant und informativ sein und einen kurzen Überblick über das Thema geben, der NUR auf dem Inhalt von FRAGE und ANTWORT beruht.
 
 FRAGE: {query}
 
 ANTWORT: {assistant_response}
 
+Der Titel MUSS auf DEUTSCH sein!
+
 CHAT-TITEL:"""
 
-CREATE_CHAT_TITLE_PROMPT_FR = """Votre tâche consiste à générer un titre pour l'historique du chat à partir de la question de l'utilisateur (QUESTION) et de la réponse de l'assistant (REPONSE). Générez un titre de haut niveau à partir de la QUESTION ET REPONSE qui capturera l'essence de la conversation qui s'ensuit. Le titre doit être extrêmement concis et informatif, et donner un bref aperçu du sujet en se basant UNIQUEMENT sur le contenu de la QUESTION et REPONSE. Le titre DOIT être dans la même langue que la QUESTION !
+CREATE_CHAT_TITLE_PROMPT_FR = """Votre tâche consiste à générer un titre pour l'historique du chat à partir de la question de l'utilisateur (QUESTION) et de la réponse de l'assistant (REPONSE). Générez un titre de haut niveau à partir de la QUESTION ET REPONSE qui capturera l'essence de la conversation qui s'ensuit. Le titre doit être extrêmement concis et informatif, et donner un bref aperçu du sujet en se basant UNIQUEMENT sur le contenu de la QUESTION et REPONSE.
 
 QUESTION : {query}
 
 REPONSE : {assistant_response}
 
+Le titre DOIT être en FRANCAIS !
+
 TITRE DU CHAT :"""
 
-CREATE_CHAT_TITLE_PROMPT_IT = """Il vostro compito è generare un titolo per la cronologia della chat a partire dalla domanda dell'utente (DOMANDA) e dalla risposta dell'assistente (RISPOSTA). Generare un titolo di alto livello dalla DOMANDA e dalla RISPOSTA che catturi l'essenza della conversazione che ne è seguita. Il titolo deve essere estremamente conciso e informativo, fornendo una breve panoramica dell'argomento basata SOLO sul contenuto della DOMANDA e della RISPOSTA. Il titolo DEVE essere nella stessa lingua della DOMANDA!
+CREATE_CHAT_TITLE_PROMPT_IT = """Il vostro compito è generare un titolo per la cronologia della chat a partire dalla domanda dell'utente (DOMANDA) e dalla risposta dell'assistente (RISPOSTA). Generare un titolo di alto livello dalla DOMANDA e dalla RISPOSTA che catturi l'essenza della conversazione che ne è seguita. Il titolo deve essere estremamente conciso e informativo, fornendo una breve panoramica dell'argomento basata SOLO sul contenuto della DOMANDA e della RISPOSTA.
 
 DOMANDA: {query}
 
 RISPOSTA: {assistant_response}
 
+Il titolo DEVE essere in ITALIANO!
+
 TITOLO DELLA CHAT:"""
 
-SUMMARIZE_COMMAND_PROMPT_DE = """Ihre Aufgabe besteht darin, eine Zusammenfassung des TEXT zu erstellen, der ein Gespräch (Frage--Antwort zwischen user-assistant) enthält. Lesen Sie den TEXT aufmerksam durch und fassen Sie die wichtigsten Punkte der gegebenen Antworten (des assistant) zusammen. Die Zusammenfassung sollte knapp und informativ sein und nur die wichtigsten Informationen berücksichtigen. Vermeiden Sie es, irrelevante Details zu erwähnen. Die Zusammenfassung muss in derselben Sprache wie der vorgegebene TEXT verfasst sein!
+SUMMARIZE_COMMAND_PROMPT_DE = """Ihre Aufgabe besteht darin, eine Zusammenfassung des TEXTES zu erstellen, der eine Konversation (Frage und Antwort zwischen Benutzer und Assistent) enthält. Lesen Sie den TEXT aufmerksam durch und fassen Sie die wichtigsten Punkte der gegebenen Antworten (des Assistenten) im angegebenen STIL zusammen. Die Zusammenfassung sollte {style} und informativ sein, wobei Sie nur die wichtigsten Informationen berücksichtigen. Vermeiden Sie es, irrelevante Details zu erwähnen.
 
+Sie müssen sich auf {mode} des TEXT konzentrieren.
+
+STIL: {style}
 TEXT: {input_text}
+
+Die Zusammenfassung muss auf DEUTSCH verfasst sein!
 
 ZUSAMMENFASSUNG:"""
 
-SUMMARIZE_COMMAND_PROMPT_FR = """Votre tâche consiste à générer un résumé du TEXTE contenant une conversation (question-réponse entre user-assistant). Lisez attentivement le TEXTE et résumez les points les plus importants des réponses fournies (de l'assistant). Le résumé doit être concis et informatif, en ne prenant en compte que les informations les plus importantes. Évitez de mentionner des détails non pertinents. Le résumé doit être rédigé dans la même langue que le TEXTE donné !
+SUMMARIZE_COMMAND_PROMPT_FR = """Votre tâche consiste à générer un résumé du TEXTE contenant une conversation (question-réponse entre user-assistant). Lisez attentivement le TEXTE et résumez les points les plus importants des réponses fournies (de l'assistant) dans le STYLE spécifé. Le résumé doit être {style} et informatif, en ne prenant en compte que les informations les plus importantes. Évitez de mentionner des détails non pertinents.
 
+Vous devez vous concentrer sur {mode} du TEXTE.
+
+STYLE: {style}
 TEXTE : {input_text}
+
+Le résumé doit être rédigé en FRANCAIS !
 
 RÉSUMÉ : """
 
-SUMMARIZE_COMMAND_PROMPT_IT = """Il vostro compito è generare un riassunto del TESTO contenente una conversazione (domanda-risposta tra user-assistant). Leggete attentamente il TESTO e riassumete i punti più importanti delle risposte fornite (dall'assistant). Il riassunto deve essere conciso e informativo, tenendo conto solo delle informazioni più importanti. Evitare di menzionare dettagli irrilevanti. Il riassunto deve essere scritto nella stessa lingua del TESTO fornito!
+SUMMARIZE_COMMAND_PROMPT_IT = """Il vostro compito è generare un riassunto del TESTO contenente una conversazione (domanda-risposta tra utente-assistente). Leggere attentamente il TESTO e riassumere i punti più importanti delle risposte fornite (dall'assistente) nello STILE specificato. Il riassunto deve essere {style} e informativo, tenendo conto solo delle informazioni più importanti. Evitare di menzionare dettagli irrilevanti.
 
+È necessario concentrarsi {mode} del TESTO.
+
+STILE: {style}
 TESTO: {input_text}
 
+Il riassunto deve essere scritto in ITALIANO!
+
 RIASSUNTO:"""
+
+EXPLAIN_COMMAND_PROMPT_DE = """"""
+
+EXPLAIN_COMMAND_PROMPT_FR = """"""
+
+EXPLAIN_COMMAND_PROMPT_IT = """"""
 
 CONTEXTUAL_RETRIEVAL_PROMPT_EN = """
 <document>

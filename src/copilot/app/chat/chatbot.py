@@ -48,8 +48,12 @@ class ChatBot:
         """
         Fetch and format conversational memory.
         """
-        conversational_memory = self.chat_memory.memory_instance.fetch_from_memory(user_uuid, conversation_uuid, k_memory)
-        return "\n".join([f"{role}: {message}" for msg in conversational_memory for role, message in msg.items()])
+        if user_uuid:
+            conversational_memory = self.chat_memory.memory_instance.fetch_from_memory(user_uuid, conversation_uuid, k_memory)
+            return "\n".join([f"{role}: {message}" for msg in conversational_memory for role, message in msg.items()])
+        else:
+            conversational_memory = [{"user": "", "assistant": ""}]
+            return "\n".join([f"{role}: {message}" for msg in conversational_memory for role, message in msg.items()])
 
     def _initialize_components(self, request: ChatRequest):
         """
@@ -88,7 +92,7 @@ class ChatBot:
             self.chat_memory.memory_instance.add_message_to_memory(db, request.user_uuid, request.conversation_uuid, user_message_uuid, "user", request.query, request.language)
 
         retrieved_doc_ids = [doc["id"] for doc in documents if doc["id"]]
-        self.chat_memory.memory_instance.add_message_to_memory(db, request.user_uuid, request.conversation_uuid, assistant_message_uuid, "assistant", "".join(assistant_response), request.language, source_url, retrieved_doc_ids=retrieved_doc_ids)
+        self.chat_memory.memory_instance.add_message_to_memory(db, request.user_uuid, request.conversation_uuid, assistant_message_uuid, "assistant", assistant_response, request.language, source_url, retrieved_doc_ids=retrieved_doc_ids)
 
     async def _index_chat_title(self, db: Session, request: ChatRequest, assistant_response: List[str], message_builder: MessageBuilder, llm_client: BaseLLM):
         """
@@ -100,36 +104,33 @@ class ChatBot:
             self.chat_memory.memory_instance.index_chat_title(db, request.user_uuid, request.conversation_uuid, chat_title.choices[0].message.content)
 
     @observe()
-    async def process(self, db: Session, request: ChatRequest, llm_client: BaseLLM, streaming_handler: StreamingHandler, retriever_client: RetrieverClient, message_builder: MessageBuilder, conversational_memory: List[Dict] = None):
+    async def process(self, db: Session, request: ChatRequest, llm_client: BaseLLM, streaming_handler: StreamingHandler, retriever_client: RetrieverClient, message_builder: MessageBuilder):
         """
         Process a ChatRequest to retrieve relevant documents and generate a response.
 
         This method retrieves relevant documents from the database, constructs a context from the documents, and then uses an LLM client to generate a response based on the request query and the context.
         """
         if request.command: # execute command
-            logger.info("---------EXECUTE COMMAND: %s", request.command)
-            # k = -1 if request.command_args == "last" else None
-            # Implement fetch_last_k_messages in memory.py from request.command_args !!! Not request.k_memory
-            input_text = self.chat_memory.memory_instance.fetch_from_memory(request.user_uuid, request.conversation_uuid, request.k_memory)
-            messages = message_builder.build_command_prompt(command=request.command, input_text=input_text)
+            args = command_service.parse_args(request.command_args)
+            summary_mode, n_msg, summary_style = command_service.get_summarize_args(args)
+            input_text = self._get_conversational_memory(request.user_uuid, request.conversation_uuid, n_msg)
+            summary_style = command_service.map_style_to_language(request.language, summary_style)
+            summary_mode = command_service.map_mode_to_language(request.language, summary_mode)
+            messages = message_builder.build_summarize_prompt(request.command, input_text, mode=summary_mode, style=summary_style)
             source_url = None
             documents = [{"id": "", "text": "", "url": ""}]
 
-            # self.command_service.execute_command(request.command, request.command_args, input_text)
-
         elif request.rag: # execute RAG
-            logger.info("---------EXECUTE RAG")
             documents, formatted_context_docs, source_url = await self._retrieve_documents(db, request, retriever_client)
+            conversational_memory = self._get_conversational_memory(request.user_uuid, request.conversation_uuid, request.k_memory)
             messages = message_builder.build_chat_prompt(context_docs=formatted_context_docs, query=request.query, conversational_memory=conversational_memory)
 
         else: # call vanilla LLM
-            logger.info("---------VANILLA LLM")
             # TO DO: add conversational memory to messages with MessageBuilder
             messages = [{"role": "user", "content": request.query}]
             source_url = None
             documents = [{"id": "", "text": "", "url": ""}]
 
-        logger.info("---------RAG: %s", request.rag)
         event_stream = llm_client.call(messages)
 
         assistant_response = []
@@ -143,6 +144,7 @@ class ChatBot:
             yield f"\n\n<message_uuid>{assistant_message_uuid}</message_uuid>".encode("utf-8")
 
             user_message_uuid = str(uuid.uuid4())
+            assistant_response = "".join(assistant_response)
             await self._index_conversation_turn(db, request, assistant_response, documents, source_url, user_message_uuid, assistant_message_uuid)
             await self._index_chat_title(db, request, assistant_response, message_builder, llm_client)
 
@@ -150,13 +152,8 @@ class ChatBot:
         """
         Process a request by setting up necessary components and fetching conversational memory.
         """
-        if request.user_uuid:
-            conversational_memory = self._get_conversational_memory(request.user_uuid, request.conversation_uuid, request.k_memory)
-        else:
-            conversational_memory = [{"user": "", "assistant": ""}]
-
         llm_client, message_builder, retriever_client, streaming_handler = self._initialize_components(request)
 
-        return self.process(db=db, request=request, llm_client=llm_client, streaming_handler=streaming_handler, retriever_client=retriever_client, message_builder=message_builder, conversational_memory=conversational_memory)
+        return self.process(db=db, request=request, llm_client=llm_client, streaming_handler=streaming_handler, retriever_client=retriever_client, message_builder=message_builder)
 
 bot = ChatBot()

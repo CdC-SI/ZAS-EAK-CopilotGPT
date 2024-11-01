@@ -86,16 +86,15 @@ class RedisMemoryHandler:
                 turns.append(current_turn)
                 current_turn = []
 
-        # Retrieve the last `k_memory` turns
-        # When k is passed as a param, check if k==None
-        if k_memory:
+        # Determine k_memory value if not provided
+        k_memory = self.k_memory if k_memory is None else k_memory
+
+        # Slice the last `k_memory` turns if necessary
+        if k_memory != -1:
             turns = turns[-k_memory:]
-        else:
-            turns = turns[-self.k_memory:]
 
-        flattened_turns = [msg for turn in turns for msg in turn]
-
-        return flattened_turns
+        # Flatten the turns into a single list
+        return [msg for turn in turns for msg in turn]
 
 class PostgresMemoryHandler:
 

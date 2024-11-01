@@ -1,5 +1,5 @@
 from typing import List, Dict
-from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE, OPENAI_RAG_SYSTEM_PROMPT_FR, OPENAI_RAG_SYSTEM_PROMPT_IT, QUERY_REWRITING_PROMPT_DE, QUERY_REWRITING_PROMPT_FR, QUERY_REWRITING_PROMPT_IT, CONTEXTUAL_COMPRESSION_PROMPT_DE, CONTEXTUAL_COMPRESSION_PROMPT_FR, CONTEXTUAL_COMPRESSION_PROMPT_IT, CREATE_CHAT_TITLE_PROMPT_DE, CREATE_CHAT_TITLE_PROMPT_FR, CREATE_CHAT_TITLE_PROMPT_IT, SUMMARIZE_COMMAND_PROMPT_DE, SUMMARIZE_COMMAND_PROMPT_FR, SUMMARIZE_COMMAND_PROMPT_IT
+from rag.prompts import OPENAI_RAG_SYSTEM_PROMPT_DE, OPENAI_RAG_SYSTEM_PROMPT_FR, OPENAI_RAG_SYSTEM_PROMPT_IT, QUERY_REWRITING_PROMPT_DE, QUERY_REWRITING_PROMPT_FR, QUERY_REWRITING_PROMPT_IT, CONTEXTUAL_COMPRESSION_PROMPT_DE, CONTEXTUAL_COMPRESSION_PROMPT_FR, CONTEXTUAL_COMPRESSION_PROMPT_IT, CREATE_CHAT_TITLE_PROMPT_DE, CREATE_CHAT_TITLE_PROMPT_FR, CREATE_CHAT_TITLE_PROMPT_IT, SUMMARIZE_COMMAND_PROMPT_DE, SUMMARIZE_COMMAND_PROMPT_FR, SUMMARIZE_COMMAND_PROMPT_IT, EXPLAIN_COMMAND_PROMPT_DE, EXPLAIN_COMMAND_PROMPT_FR, EXPLAIN_COMMAND_PROMPT_IT
 from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS, SUPPORTED_AZUREOPENAI_LLM_MODELS, SUPPORTED_ANTHROPIC_LLM_MODELS, SUPPORTED_GROQ_LLM_MODELS
 
 from langfuse.decorators import observe
@@ -211,7 +211,7 @@ class MessageBuilder:
                 return [{"role": "system", "content": prompt},]
 
     @observe()
-    def build_command_prompt(self, command: str, input_text: str) -> List[Dict]:
+    def build_summarize_prompt(self, command: str, input_text: str, mode: str, style: str) -> List[Dict]:
         """
         Format the SummarizeCommand message to send to the appropriate LLM API.
         """
@@ -219,16 +219,16 @@ class MessageBuilder:
         if self.llm_model in SUPPORTED_OPENAI_LLM_MODELS + SUPPORTED_AZUREOPENAI_LLM_MODELS:
             if command == "/summarize":
                 if self.language == "de":
-                    prompt = SUMMARIZE_COMMAND_PROMPT_DE.format(input_text=input_text)
+                    prompt = SUMMARIZE_COMMAND_PROMPT_DE.format(input_text=input_text, mode=mode, style=style)
                     return [{"role": "system", "content": prompt},]
                 elif self.language == "fr":
-                    prompt = SUMMARIZE_COMMAND_PROMPT_FR.format(input_text=input_text)
+                    prompt = SUMMARIZE_COMMAND_PROMPT_FR.format(input_text=input_text, mode=mode, style=style)
                     return [{"role": "system", "content": prompt},]
                 elif self.language == "it":
-                    prompt = SUMMARIZE_COMMAND_PROMPT_IT.format(input_text=input_text)
+                    prompt = SUMMARIZE_COMMAND_PROMPT_IT.format(input_text=input_text, mode=mode, style=style)
                     return [{"role": "system", "content": prompt},]
                 else:
-                    prompt = SUMMARIZE_COMMAND_PROMPT_DE.format(input_text=input_text)
+                    prompt = SUMMARIZE_COMMAND_PROMPT_DE.format(input_text=input_text, mode=mode, style=style)
                     return [{"role": "system", "content": prompt},]
 
         # TO DO: IMPLEMENT FOR GROQ + ANTHROPIC + GEMINI
