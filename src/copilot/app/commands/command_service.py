@@ -1,18 +1,19 @@
 from typing import List, Tuple
+from commands.translate import translation_service
 
 class CommandService:
 
     def __init__(self):
-        pass
+        self.translation_service = translation_service
 
-    def execute_command(self, command: str, command_args: str, input_text: str):
-        args = self.parse_args(command_args)
-        if command == "/summarize":
-            return self.summarize(*args, input_text)
-        elif command == "/translate":
-            return self.translate()
-        elif command == "/explain":
-            return self.explain(command_args, input_text)
+    # def execute_command(self, command: str, command_args: str, input_text: str):
+    #     args = self.parse_args(command_args)
+    #     if command == "/summarize":
+    #         return self.summarize(*args, input_text)
+    #     elif command == "/translate":
+    #         return self.translate()
+    #     elif command == "/explain":
+    #         return self.explain(command_args, input_text)
 
     def parse_args(self, command_args: str) -> List[str]:
         args = command_args.split()
@@ -29,6 +30,17 @@ class CommandService:
         summary_style = args[-1] if len(args) > 1 and args[-1] in ["formal", "concise", "detailed", "bulletpoint"] else "concise"
 
         return summary_mode, n_msg, summary_style
+
+    def get_translate_args(self, args: List[str]) -> Tuple[int, str]:
+        translate_mode = args[0] if len(args) > 0 and args[0] in ["last", "all"] else "all"
+
+        n_msg = -1
+        if translate_mode == "last" and len(args) > 1 and args[1].isdigit():
+            n_msg = int(args[1])
+
+        target_lang = args[-1] if len(args) > 1 and args[-1] in ["en-us", "en-gb", "de", "fr", "it", "es"] else "de"
+
+        return n_msg, target_lang
 
     def map_style_to_language(self, language: str, style: str) -> str:
         mapping = {
@@ -75,11 +87,11 @@ class CommandService:
 
         return mapping[language][mode].upper()
 
-    def summarize(self, *args, input_text):
+    def build_summarize_message(self, *args, input_text):
         pass
 
-    def translate(self):
-        pass
+    async def translate(self, input_text: str, target_lang: str) -> str:
+        return await self.translation_service.translate(input_text, target_lang)
 
     def explain(self, command_args: str, input_text: str):
         pass

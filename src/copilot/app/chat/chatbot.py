@@ -111,12 +111,31 @@ class ChatBot:
         This method retrieves relevant documents from the database, constructs a context from the documents, and then uses an LLM client to generate a response based on the request query and the context.
         """
         if request.command: # execute command
+            # args = command_service.parse_args(request.command_args)
+            # summary_mode, n_msg, summary_style = command_service.get_summarize_args(args)
+            # input_text = self._get_conversational_memory(request.user_uuid, request.conversation_uuid, n_msg)
+            # summary_style = command_service.map_style_to_language(request.language, summary_style)
+            # summary_mode = command_service.map_mode_to_language(request.language, summary_mode)
+            # messages = message_builder.build_summarize_prompt(request.command, input_text, mode=summary_mode, style=summary_style)
+
+            #command_service.execute_command(request.command, request.command_args, conversational_memory)
+
             args = command_service.parse_args(request.command_args)
-            summary_mode, n_msg, summary_style = command_service.get_summarize_args(args)
-            input_text = self._get_conversational_memory(request.user_uuid, request.conversation_uuid, n_msg)
-            summary_style = command_service.map_style_to_language(request.language, summary_style)
-            summary_mode = command_service.map_mode_to_language(request.language, summary_mode)
-            messages = message_builder.build_summarize_prompt(request.command, input_text, mode=summary_mode, style=summary_style)
+
+            if request.command == "/summarize":
+                summary_mode, n_msg, summary_style = command_service.get_summarize_args(args)
+                input_text = self._get_conversational_memory(request.user_uuid, request.conversation_uuid, n_msg)
+                summary_style = command_service.map_style_to_language(request.language, summary_style)
+                summary_mode = command_service.map_mode_to_language(request.language, summary_mode)
+                messages = message_builder.build_summarize_prompt(request.command, input_text, mode=summary_mode, style=summary_style)
+                #messages = command_service.build_summarize_message(request.command_args, input_text)
+                translated_text = None
+            elif request.command == "/translate":
+                n_msg, target_lang = command_service.get_translate_args(args)
+                input_text = self._get_conversational_memory(request.user_uuid, request.conversation_uuid, n_msg)
+                translated_text = await command_service.translate(input_text, target_lang)
+                messages = None
+
             source_url = None
             documents = [{"id": "", "text": "", "url": ""}]
 
@@ -124,20 +143,26 @@ class ChatBot:
             documents, formatted_context_docs, source_url = await self._retrieve_documents(db, request, retriever_client)
             conversational_memory = self._get_conversational_memory(request.user_uuid, request.conversation_uuid, request.k_memory)
             messages = message_builder.build_chat_prompt(context_docs=formatted_context_docs, query=request.query, conversational_memory=conversational_memory)
+            translated_text = None
 
         else: # call vanilla LLM
             # TO DO: add conversational memory to messages with MessageBuilder
             messages = [{"role": "user", "content": request.query}]
             source_url = None
             documents = [{"id": "", "text": "", "url": ""}]
-
-        event_stream = llm_client.call(messages)
+            translated_text = None
 
         assistant_response = []
-        async for token in streaming_handler.generate_stream(event_stream, source_url):
-            yield token
-            if "<a href=" not in token.decode("utf-8"):
-                assistant_response.append(token.decode("utf-8").replace("ß", "ss"))
+        if messages: # stream LLM response
+            event_stream = llm_client.call(messages)
+            async for token in streaming_handler.generate_stream(event_stream, source_url):
+                yield token
+                if "<a href=" not in token.decode("utf-8"):
+                    assistant_response.append(token.decode("utf-8").replace("ß", "ss"))
+        if translated_text: # stream translation
+            for token in translated_text:
+                yield token.replace("ß", "ss").encode("utf-8")
+                assistant_response.append(token.replace("ß", "ss"))
 
         if request.user_uuid:
             assistant_message_uuid = str(uuid.uuid4())
