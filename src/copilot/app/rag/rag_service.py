@@ -101,7 +101,7 @@ class RAGService:
         # TO DO: parse list of tags/sources
         # TO DO: filter sources in matching service
         tag = None if not request.tag or request.tag == [""] else request.tag
-        rows = await retriever_client.get_documents(db, request.query, language=request.language, tag=tag, k=request.k_retrieve)
+        rows = await retriever_client.get_documents(db, request.query, language=request.language, tag=tag, source=request.source, k=request.k_retrieve)
         #rows = await retriever_client.get_documents(db, request.query, language=None, tag=request.tag, k=request.k_retrieve)
 
         return rows if len(rows) > 0 else [{"id": "", "text": "", "url": ""}]

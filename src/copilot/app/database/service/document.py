@@ -1,3 +1,5 @@
+from typing import List
+
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
@@ -6,21 +8,11 @@ from .source import source_service
 from ..models import Document
 from schemas.document import DocumentCreate, DocumentUpdate
 from schemas.source import SourceCreate
-
+from database.models import Source
 
 class DocumentService(MatchingService):
     def __init__(self):
         super().__init__(Document)
-
-    # def _create(self, db: Session, obj_in: DocumentCreate, embed=False):
-    #     source = source_service.get_or_create(db, SourceCreate(url=obj_in.source))
-
-    #     db_document = Document(url=obj_in.url, language=obj_in.language, text=obj_in.text, tag=obj_in.tag, embedding=obj_in.embedding, source=source, source_id=source.id)
-    #     if embed:
-    #         db_document = self._embed(db_document)
-
-    #     db.add(db_document)
-    #     return db_document
 
     async def _create(self, db: Session, obj_in: DocumentCreate, embed=False):
         source = source_service.get_or_create(db, SourceCreate(url=obj_in.source))
@@ -80,7 +72,7 @@ class DocumentService(MatchingService):
         """
         return db.query(self.model).count()
 
-    def get_all_documents(self, db: Session, tag: str = None):
+    def get_all_documents(self, db: Session, tag: List[str] = None, source: List[str] = None):
         """
         Get all documents from the database
 
@@ -95,8 +87,9 @@ class DocumentService(MatchingService):
         """
         stmt = select(self.model)
         if tag:
-            stmt = stmt.filter(self.model.tag.ilike(f'%{tag}%'))
+            stmt = stmt.filter(self.model.tag.in_(tag))
+        if source:
+            stmt = stmt.join(self.model.source).filter(Source.url.in_(source))
         return db.scalars(stmt).all()
-
 
 document_service = DocumentService()

@@ -1,11 +1,11 @@
 from typing import List
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, select
 
 from .base import EmbeddingService
+from database.models import Source
 from utils.embedding import get_embedding
-
 
 class MatchingService(EmbeddingService):
     """
@@ -111,7 +111,7 @@ class MatchingService(EmbeddingService):
         rows = db.scalars(stmt).all()
         return [row.to_dict() for row in rows]
 
-    async def get_semantic_match(self, db: Session, user_input: str, language: str = None, k: int = 0, symbol: str = "<=>", tag: List[str] = None):
+    async def get_semantic_match(self, db: Session, user_input: str, language: str = None, k: int = 0, symbol: str = "<=>", tag: List[str] = None, source: List[str] = None):
         """
         Get semantic similarity match from database
 
@@ -126,6 +126,10 @@ class MatchingService(EmbeddingService):
             Question and results language
         k : int, optional
             Number of results to return, default to 0 (return all results)
+        tag : List[str], optional
+            Filter by tag
+        source : List[str], optional
+            Filter by source
 
         Returns
         -------
@@ -133,18 +137,27 @@ class MatchingService(EmbeddingService):
         """
         q_embedding = await get_embedding(user_input)
 
-        stmt = select(self.model)
-        stmt = stmt.filter(self.model.embedding.isnot(None))  # filter out entries without embedding
+        # Start building the query
+        stmt = select(self.model).filter(self.model.embedding.isnot(None))
+
         if language:
             stmt = stmt.filter(self.model.language == language)
         if tag:
             stmt = stmt.filter(self.model.tag.in_(tag))
 
+        if source:
+            stmt = stmt.join(self.model.source).filter(Source.url.in_(source))
+            stmt = stmt.options(joinedload(self.model.source))
+
+        # Order by similarity
         stmt = stmt.order_by(self.model.embedding.op(symbol)(q_embedding).asc())
+
         if k > 0:
             stmt = stmt.limit(k)
 
+        # Execute the query
         rows = db.scalars(stmt).all()
+
         return [row.to_dict() for row in rows]
 
     async def semantic_similarity_match_l1(self, db: Session, user_input: str, language: str = None, k: int = 0, tag: str = None):
