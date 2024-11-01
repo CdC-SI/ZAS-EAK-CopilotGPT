@@ -341,7 +341,7 @@
 <td><p>INTEGER</p></td>
 </tr>
 <tr class="row-even"><td><p>→ source_id</p></td>
-<td><p>INTEGER?</p></td>
+<td><p>INTEGER</p></td>
 </tr>
 <tr class="row-odd"><td><p>text</p></td>
 <td><p>TEXT</p></td>
@@ -374,7 +374,11 @@
 </ul>
 <p class="rubric">Indexes:</p>
 <ul class="simple">
-<li><p>text_tsv (text)</p></li>
+<li><p>idx_document_embedding (embedding)</p></li>
+<li><p>idx_document_language (language)</p></li>
+<li><p>idx_document_language_source_id (language, source_id)</p></li>
+<li><p>idx_document_language_tag (language, tag)</p></li>
+<li><p>idx_document_text_tsv (text)</p></li>
 </ul>
 </dd>
 </dl>
@@ -428,6 +432,8 @@
 </ul>
 <p class="rubric">Indexes:</p>
 <ul class="simple">
+<li><p>idx_question_language (language)</p></li>
+<li><p>idx_question_tag (language, tag)</p></li>
 <li><p>idx_text_gin (text)</p></li>
 </ul>
 </dd>
@@ -454,6 +460,10 @@
 <ul class="simple">
 <li><p>PRIMARY KEY (id)</p></li>
 <li><p>UNIQUE (url)</p></li>
+</ul>
+<p class="rubric">Indexes:</p>
+<ul class="simple">
+<li><p>idx_source_url (url)</p></li>
 </ul>
 </dd>
 </dl>
