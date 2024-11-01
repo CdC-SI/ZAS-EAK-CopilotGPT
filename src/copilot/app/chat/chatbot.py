@@ -56,14 +56,15 @@ class ChatBot:
 
     def _initialize_components(self, request: ChatRequest):
         """
-        Initialize LLM client, MessageBuilder, Retriever client, and StreamingHandler.
+        Initialize LLM client, MessageBuilder, Retriever client, StreamingHandler and TranslationService.
         """
         llm_client = LLMFactory.get_llm_client(llm_model=request.llm_model, stream=self.stream, temperature=request.temperature, top_p=request.top_p, max_tokens=request.max_output_tokens)
         message_builder = MessageBuilder(language=request.language, llm_model=request.llm_model)
         retriever_client = RetrieverFactory.get_retriever_client(retrieval_method=request.retrieval_method, llm_client=llm_client, message_builder=message_builder)
         streaming_handler = StreamingHandlerFactory.get_streaming_strategy(llm_model=request.llm_model)
         translation_service = TranslationService()
-        return llm_client, message_builder, retriever_client, streaming_handler, translation_service
+        command_service = CommandService(translation_service, message_builder)
+        return llm_client, message_builder, retriever_client, streaming_handler, command_service
 
     async def _retrieve_documents(self, db: Session, request: ChatRequest, retriever_client: RetrieverClient):
         """
@@ -139,6 +140,7 @@ class ChatBot:
         messages = result.get("messages")
         translated_text = result.get("translated_text")
 
+        # stream response
         if messages:
             event_stream = llm_client.call(messages)
             async for token in streaming_handler.generate_stream(event_stream, source_url):
@@ -153,7 +155,7 @@ class ChatBot:
                 assistant_response.append(token_str)
                 yield token_str.encode("utf-8")
 
-        # save chat_history
+        # save chat_history and chat_title
         if request.user_uuid:
             assistant_message_uuid = str(uuid.uuid4())
             yield f"\n\n<message_uuid>{assistant_message_uuid}</message_uuid>".encode("utf-8")
@@ -175,10 +177,9 @@ class ChatBot:
 
     async def process_request(self, db: Session, request: ChatRequest):
         """
-        Process a request by setting up necessary components and fetching conversational memory.
+        Process a request by setting up necessary components.
         """
-        llm_client, message_builder, retriever_client, streaming_handler, translation_service = self._initialize_components(request)
-        command_service = CommandService(translation_service, message_builder)
+        llm_client, message_builder, retriever_client, streaming_handler, command_service = self._initialize_components(request)
 
         return self.process(db=db, request=request, llm_client=llm_client, streaming_handler=streaming_handler, retriever_client=retriever_client, message_builder=message_builder, command_service=command_service)
 
