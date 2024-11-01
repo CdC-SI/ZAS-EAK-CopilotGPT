@@ -10,13 +10,13 @@ from rag.retrievers import RetrieverClient
 
 from utils.streaming import StreamingHandlerFactory, StreamingHandler
 from rag.messages import MessageBuilder
+from commands.command_service import CommandService, TranslationService
 
 from config.base_config import chat_config
 from config.base_config import rag_config
 
 from autocomplete.autocomplete_service import autocomplete_service
 from rag.rag_service import rag_service
-from commands.command_service import command_service
 
 from schemas.chat import ChatRequest
 
@@ -34,7 +34,6 @@ class ChatBot:
         self.stream = rag_config["llm"]["stream"]
         self.rag_service = rag_service
         self.autocomplete_service = autocomplete_service
-        self.command_service = command_service
         self.max_tokens = rag_config["llm"]["max_output_tokens"]
         self.temperature = rag_config["llm"]["temperature"]
         self.top_p = rag_config["llm"]["top_p"]
@@ -44,7 +43,7 @@ class ChatBot:
             k_memory=chat_config["memory"]["k_memory"]
         )
 
-    def _get_conversational_memory(self, user_uuid: str, conversation_uuid: str, k_memory: int) -> str:
+    def get_conversational_memory(self, user_uuid: str, conversation_uuid: str, k_memory: int) -> str:
         """
         Fetch and format conversational memory.
         """
@@ -63,7 +62,8 @@ class ChatBot:
         message_builder = MessageBuilder(language=request.language, llm_model=request.llm_model)
         retriever_client = RetrieverFactory.get_retriever_client(retrieval_method=request.retrieval_method, llm_client=llm_client, message_builder=message_builder)
         streaming_handler = StreamingHandlerFactory.get_streaming_strategy(llm_model=request.llm_model)
-        return llm_client, message_builder, retriever_client, streaming_handler
+        translation_service = TranslationService()
+        return llm_client, message_builder, retriever_client, streaming_handler, translation_service
 
     async def _retrieve_documents(self, db: Session, request: ChatRequest, retriever_client: RetrieverClient):
         """
@@ -104,81 +104,82 @@ class ChatBot:
             self.chat_memory.memory_instance.index_chat_title(db, request.user_uuid, request.conversation_uuid, chat_title.choices[0].message.content)
 
     @observe()
-    async def process(self, db: Session, request: ChatRequest, llm_client: BaseLLM, streaming_handler: StreamingHandler, retriever_client: RetrieverClient, message_builder: MessageBuilder):
+    async def process(self, db: Session, request: ChatRequest, llm_client: BaseLLM, streaming_handler: StreamingHandler, retriever_client: RetrieverClient, message_builder: MessageBuilder, command_service: CommandService):
         """
         Process a ChatRequest to retrieve relevant documents and generate a response.
 
-        This method retrieves relevant documents from the database, constructs a context from the documents, and then uses an LLM client to generate a response based on the request query and the context.
+        This method retrieves relevant documents from the database, constructs a context from the documents,
+        and then uses an LLM client to generate a response based on the request query and the context.
         """
-        if request.command: # execute command
-            # args = command_service.parse_args(request.command_args)
-            # summary_mode, n_msg, summary_style = command_service.get_summarize_args(args)
-            # input_text = self._get_conversational_memory(request.user_uuid, request.conversation_uuid, n_msg)
-            # summary_style = command_service.map_style_to_language(request.language, summary_style)
-            # summary_mode = command_service.map_mode_to_language(request.language, summary_mode)
-            # messages = message_builder.build_summarize_prompt(request.command, input_text, mode=summary_mode, style=summary_style)
-
-            #command_service.execute_command(request.command, request.command_args, conversational_memory)
-
-            args = command_service.parse_args(request.command_args)
-
-            if request.command == "/summarize":
-                summary_mode, n_msg, summary_style = command_service.get_summarize_args(args)
-                input_text = self._get_conversational_memory(request.user_uuid, request.conversation_uuid, n_msg)
-                summary_style = command_service.map_style_to_language(request.language, summary_style)
-                summary_mode = command_service.map_mode_to_language(request.language, summary_mode)
-                messages = message_builder.build_summarize_prompt(request.command, input_text, mode=summary_mode, style=summary_style)
-                #messages = command_service.build_summarize_message(request.command_args, input_text)
-                translated_text = None
-            elif request.command == "/translate":
-                n_msg, target_lang = command_service.get_translate_args(args)
-                input_text = self._get_conversational_memory(request.user_uuid, request.conversation_uuid, n_msg)
-                translated_text = await command_service.translate(input_text, target_lang)
-                messages = None
-
-            source_url = None
-            documents = [{"id": "", "text": "", "url": ""}]
-
-        elif request.rag: # execute RAG
-            documents, formatted_context_docs, source_url = await self._retrieve_documents(db, request, retriever_client)
-            conversational_memory = self._get_conversational_memory(request.user_uuid, request.conversation_uuid, request.k_memory)
-            messages = message_builder.build_chat_prompt(context_docs=formatted_context_docs, query=request.query, conversational_memory=conversational_memory)
-            translated_text = None
-
-        else: # call vanilla LLM
-            # TO DO: add conversational memory to messages with MessageBuilder
-            messages = [{"role": "user", "content": request.query}]
-            source_url = None
-            documents = [{"id": "", "text": "", "url": ""}]
-            translated_text = None
-
         assistant_response = []
-        if messages: # stream LLM response
+        source_url = None
+        documents = [{"id": "", "text": "", "url": ""}]
+        result = {}
+
+        if request.command and request.user_uuid: # execute command
+            result = await command_service.execute_command(request, self.get_conversational_memory)
+
+        elif request.rag: # execute rag
+            documents, formatted_context_docs, source_url = await self._retrieve_documents(db, request, retriever_client)
+
+            conversational_memory = ""
+            if request.user_uuid:
+                conversational_memory = self.get_conversational_memory(request.user_uuid, request.conversation_uuid, request.k_memory)
+
+            messages = message_builder.build_chat_prompt(
+                context_docs=formatted_context_docs,
+                query=request.query,
+                conversational_memory=conversational_memory,
+            )
+            result = {"messages": messages}
+
+        else: # execute vanilla LLM call
+            result = {"messages": [{"role": "user", "content": request.query}]}
+
+        messages = result.get("messages")
+        translated_text = result.get("translated_text")
+
+        if messages:
             event_stream = llm_client.call(messages)
             async for token in streaming_handler.generate_stream(event_stream, source_url):
+                token_str = token.decode("utf-8").replace("ß", "ss")
+                if "<a href=" not in token_str:
+                    assistant_response.append(token_str)
                 yield token
-                if "<a href=" not in token.decode("utf-8"):
-                    assistant_response.append(token.decode("utf-8").replace("ß", "ss"))
-        if translated_text: # stream translation
-            for token in translated_text:
-                yield token.replace("ß", "ss").encode("utf-8")
-                assistant_response.append(token.replace("ß", "ss"))
 
+        elif translated_text:
+            for token in translated_text:
+                token_str = token.replace("ß", "ss")
+                assistant_response.append(token_str)
+                yield token_str.encode("utf-8")
+
+        # save chat_history
         if request.user_uuid:
             assistant_message_uuid = str(uuid.uuid4())
             yield f"\n\n<message_uuid>{assistant_message_uuid}</message_uuid>".encode("utf-8")
 
             user_message_uuid = str(uuid.uuid4())
-            assistant_response = "".join(assistant_response)
-            await self._index_conversation_turn(db, request, assistant_response, documents, source_url, user_message_uuid, assistant_message_uuid)
-            await self._index_chat_title(db, request, assistant_response, message_builder, llm_client)
+            assistant_response_text = "".join(assistant_response)
+            await self._index_conversation_turn(
+                db,
+                request,
+                assistant_response_text,
+                documents,
+                source_url,
+                user_message_uuid,
+                assistant_message_uuid,
+            )
+            await self._index_chat_title(
+                db, request, assistant_response_text, message_builder, llm_client
+            )
 
     async def process_request(self, db: Session, request: ChatRequest):
         """
         Process a request by setting up necessary components and fetching conversational memory.
         """
-        llm_client, message_builder, retriever_client, streaming_handler = self._initialize_components(request)
+        llm_client, message_builder, retriever_client, streaming_handler, translation_service = self._initialize_components(request)
+        command_service = CommandService(translation_service, message_builder)
 
-        return self.process(db=db, request=request, llm_client=llm_client, streaming_handler=streaming_handler, retriever_client=retriever_client, message_builder=message_builder)
+        return self.process(db=db, request=request, llm_client=llm_client, streaming_handler=streaming_handler, retriever_client=retriever_client, message_builder=message_builder, command_service=command_service)
 
 bot = ChatBot()
