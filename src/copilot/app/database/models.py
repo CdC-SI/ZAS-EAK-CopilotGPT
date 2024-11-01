@@ -8,20 +8,15 @@ from datetime import datetime
 
 from sqlalchemy.orm import declarative_base
 
-class EmbeddedMixin (object):
+class EmbeddedMixin:
     text: Mapped[str] = mapped_column(Text, nullable=False)
     embedding: Mapped[Optional[Vector]] = mapped_column(Vector(1536), nullable=True)
     language: Mapped[Optional[str]] = mapped_column(String(3), nullable=True)
     tag: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-
     url: Mapped[str] = mapped_column(Text, nullable=False)
-
     created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
     modified_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 
-    __table_args__ = (
-        Index('text_tsv', 'text', postgresql_using='gin'),
-    )
 
 Base = declarative_base()
 
@@ -29,57 +24,66 @@ class Source(Base):
     """
     Source of the data stored in Document and Question tables. It can be URL, file path, user ID, etc.
     """
-
     __tablename__ = "source"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     url: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
+    documents: Mapped[List["Document"]] = relationship("Document", back_populates="source")
+
+    __table_args__ = (
+        Index('idx_source_url', 'url'),
+    )
 
     def __repr__(self) -> str:
         return f"Source(id={self.id!r}, url={self.url!r})"
+
+    def to_dict(self):
+        serialized_data = {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
+        return serialized_data
+
 
 class Document(Base, EmbeddedMixin):
     """
     Documents used for the RAG
     """
-
     __tablename__ = "document"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-
-    source_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("source.id"), nullable=True)
-    source: Mapped[Optional["Source"]] = relationship("Source", back_populates="documents")
+    source_id: Mapped[int] = mapped_column(Integer, ForeignKey("source.id"), nullable=False)
+    source: Mapped["Source"] = relationship("Source", back_populates="documents")
 
     __table_args__ = (
-        Index('text_tsv', 'text', postgresql_using='gin', postgresql_ops={'text': 'gin_trgm_ops'}),
+        Index('idx_document_text_tsv', 'text', postgresql_using='gin', postgresql_ops={'text': 'gin_trgm_ops'}),
+        Index('idx_document_embedding', 'embedding', postgresql_using='ivfflat'),
+        Index('idx_document_language', 'language'),
+        Index('idx_document_language_tag', 'language', 'tag'),
+        Index('idx_document_language_source_id', 'language', 'source_id'),
     )
 
     def __repr__(self) -> str:
         return f"Document(id={self.id!r}, url={self.url!r}, text={self.text!r}, language={self.language!r})"
 
     def to_dict(self):
-        """
-        Convert the SQLAlchemy model instance to a dictionary
-        that only includes serializable fields.
-        """
         serialized_data = {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
-
+        if self.source:
+            serialized_data['source'] = self.source.to_dict()
+        else:
+            serialized_data['source'] = None
         return serialized_data
+
 
 class Question(Base, EmbeddedMixin):
     """
     Question used for Autocomplete, answers are stored in the Document table.
     """
-
     __tablename__ = "question"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-
     answer_id: Mapped[int] = mapped_column(Integer, ForeignKey("document.id"), nullable=False)
     answer: Mapped["Document"] = relationship("Document", back_populates="questions")
-
     source_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("source.id"), nullable=True)
     source: Mapped[Optional["Source"]] = relationship("Source", back_populates="questions")
-
     __table_args__ = (
         Index('idx_text_gin', 'text', postgresql_using='gin', postgresql_ops={'text': 'gin_trgm_ops'}),
+        Index('idx_question_language', 'language'),
+        Index('idx_question_tag', 'language', 'tag'),
     )
 
     def __repr__(self) -> str:
