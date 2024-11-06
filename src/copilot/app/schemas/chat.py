@@ -21,5 +21,6 @@ class ChatRequest(BaseModel):
     command_args: Optional[str] = None
     autocomplete: Optional[bool] = True
     rag: Optional[bool] = True
+    agentic_rag: Optional[bool] = False
     user_uuid: Optional[str] = None
     conversation_uuid: Optional[str] = None
