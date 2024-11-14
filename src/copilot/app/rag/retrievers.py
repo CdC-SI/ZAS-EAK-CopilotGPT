@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import logging
-from typing import List, Dict, Any
+from typing import List, Any
 
 from rag.reranker import Reranker
 
@@ -63,7 +63,7 @@ class RetrieverClient(BaseRetriever):
         unique_docs = [doc for doc in docs if doc["id"] not in seen and not seen.add(doc["id"])]
 
         # Rerank the documents and get the top-k
-        if unique_docs:
+        if unique_docs and self.reranker:
             unique_docs, _ = await self.reranker.rerank(query, unique_docs)
 
         logger.info("Retrieved %d documents", len(unique_docs[:k]))

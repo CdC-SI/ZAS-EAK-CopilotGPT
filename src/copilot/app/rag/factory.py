@@ -1,5 +1,6 @@
 from config.base_config import rag_config
 from rag.retrievers import BaseRetriever, RetrieverClient, TopKRetriever, QueryRewritingRetriever, ContextualCompressionRetriever, RAGFusionRetriever, BM25Retriever, Reranker
+from config.clients_config import clientRerank
 from rag.llm.base import BaseLLM
 from rag.messages import MessageBuilder
 
@@ -86,7 +87,7 @@ class RetrieverFactory:
                     reranker = Reranker(
                         model=rag_config["retrieval"]["reranking_params"]["model"],
                         top_k=rag_config["retrieval"]["reranking_params"]["top_k"],
-                        )
+                        ) if clientRerank is not None else None
                 case _:
                     raise ValueError(f"Unsupported retrieval method: {method}. Please refer to the documentation for supported methods (https://cdc-si.github.io/ZAS-EAK-CopilotGPT/).")
 

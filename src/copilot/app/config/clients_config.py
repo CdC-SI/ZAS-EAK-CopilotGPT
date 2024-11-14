@@ -71,6 +71,7 @@ elif llm_model in SUPPORTED_GROQ_LLM_MODELS and GROQ_API_KEY:
     from groq import AsyncGroq
     clientLLM = AsyncGroq(api_key=GROQ_API_KEY, http_client=httpx_client)
 
-clientRerank = cohere.AsyncClient(api_key=COHERE_API_KEY, httpx_client=httpx_client)
-
-
+if COHERE_API_KEY:
+    clientRerank = cohere.AsyncClient(api_key=COHERE_API_KEY, httpx_client=httpx_client)
+else:
+    clientRerank = None
