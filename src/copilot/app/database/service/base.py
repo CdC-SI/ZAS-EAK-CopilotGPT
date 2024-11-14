@@ -235,28 +235,6 @@ class EmbeddingService(BaseService):
     async def _create(self, db: Session, obj_in: BaseModel, embed=False):
         pass
 
-    # def create(self, db: Session, obj_in: BaseModel, embed=False):
-    #     """
-    #     Create a new object in the database
-
-    #     Parameters
-    #     ----------
-    #     db: Session
-    #         Database session
-    #     obj_in: BaseModel
-    #         Pydantic schema
-    #     embed: bool, optional
-    #         Whether to embed the object, default to False
-
-    #     Returns
-    #     -------
-    #     Base
-    #         Database object
-    #     """
-    #     db_obj = self._create(db, obj_in, embed=embed)
-    #     db.commit()
-    #     return db_obj
-
     async def create(self, db: Session, obj_in: BaseModel, embed=False):
         db_obj = await self._create(db, obj_in, embed=embed)
         db.commit()
@@ -303,9 +281,6 @@ class EmbeddingService(BaseService):
             Database object
         """
         return db.query(self.model).filter(self.model.text == text).first()
-
-    # def _update(self, db: Session, db_obj, obj_in, embed=False):
-    #     super()._update(db, db_obj, obj_in)
 
     async def _update(self, db: Session, db_obj, obj_in, embed=False):
         exclude = await self._update_embed_exclude(db_obj, obj_in, embed=embed)
@@ -368,35 +343,15 @@ class EmbeddingService(BaseService):
         Base
             Updated database object
         """
-        return await self._update(db, db_obj, obj_in, embed=embed)
-
-    # def upsert(self, db: Session, obj_in: BaseModel, embed=False):
-    #     """
-    #     Upsert object in the database
-
-    #     Parameters
-    #     ----------
-    #     db : Session
-    #         Database session
-    #     obj_in : BaseModel
-    #         Pydantic schema
-    #     embed : bool, optional
-    #         Whether to embed the object to upsert, default to False
-
-    #     Returns
-    #     -------
-    #     Base
-    #         Upserted database object
-    #     """
-    #     db_obj = self.get_by_text(db, obj_in.text)  # test if object already exists
-    #     if db_obj:
-    #         db_obj = self._update(db, db_obj, obj_in, embed=embed)
-    #     else:
-    #         db_obj = self._create(db, obj_in, embed=embed)
-
-    #     db.commit()
-    #     return db_obj
-
+        #return await self._update(db, db_obj, obj_in, embed=embed)
+        try:
+            db_obj = await self._update(db, db_obj, obj_in, embed=embed)
+            db.commit()
+            return db_obj
+        except Exception as e:
+            db.rollback()
+            logger.error(f"Update failed due to {e}")
+            raise
 
     async def upsert(self, db: Session, obj_in: BaseModel, embed=False):
         db_obj = self.get_by_text(db, obj_in.text)

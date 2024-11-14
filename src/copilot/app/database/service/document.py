@@ -53,7 +53,7 @@ class DocumentService(MatchingService):
         db_source = source_service.get_or_create(db, SourceCreate(url=obj_in.source))
 
         exclude = await self._update_embed_exclude(db_obj, obj_in, embed)
-        super()._update(db, db_obj, DocumentUpdate(**obj_in.model_dump(exclude=exclude), source_id=db_source.id))
+        await super()._update(db, db_obj, DocumentUpdate(**obj_in.model_dump(exclude=exclude), source_id=db_source.id))
 
         return db_obj
 

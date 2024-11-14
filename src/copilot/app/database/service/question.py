@@ -69,7 +69,7 @@ class QuestionService(MatchingService):
 
         # update the question
         exclude = await self._update_embed_exclude(db_question, question, embed[0])
-        super()._update(db, db_question, QuestionUpdate(**question.model_dump(exclude=exclude), source_id=db_question.answer.source_id))
+        await super()._update(db, db_question, QuestionUpdate(**question.model_dump(exclude=exclude), source_id=db_question.answer.source_id))
 
         return db_question
 

@@ -481,6 +481,7 @@ async def index_data(item: QuestionItem, db: Session = Depends(get_db)):
     item.source = "username"
 
     if item.id:
-        return await question_service.update(db, item)
+        db_question = question_service.get(db, item.id)
+        return await question_service.update(db, db_question, item)
     else:
         return await question_service.create(db, item)
