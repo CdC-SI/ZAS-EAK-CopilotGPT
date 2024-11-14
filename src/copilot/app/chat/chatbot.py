@@ -90,10 +90,10 @@ class ChatBot:
         if request.command:
             self.chat_memory.memory_instance.add_message_to_memory(db, request.user_uuid, request.conversation_uuid, user_message_uuid, "user", request.command, request.language)
         else:
-            self.chat_memory.memory_instance.add_message_to_memory(db, request.user_uuid, request.conversation_uuid, user_message_uuid, "user", request.query, request.language)
+            self.chat_memory.memory_instance.add_message_to_memory(db, user_uuid=request.user_uuid, conversation_uuid=request.conversation_uuid, message_uuid=user_message_uuid, role="user", message=request.query, language="de")
 
         retrieved_doc_ids = [doc["id"] for doc in documents if doc["id"]]
-        self.chat_memory.memory_instance.add_message_to_memory(db, request.user_uuid, request.conversation_uuid, assistant_message_uuid, "assistant", assistant_response, request.language, source_url, retrieved_doc_ids=retrieved_doc_ids)
+        self.chat_memory.memory_instance.add_message_to_memory(db, user_uuid=request.user_uuid, conversation_uuid=request.conversation_uuid, message_uuid=assistant_message_uuid, role="assistant", message=assistant_response, language="fr", url=source_url, retrieved_doc_ids=retrieved_doc_ids)
 
     async def _index_chat_title(self, db: Session, request: ChatRequest, assistant_response: List[str], message_builder: MessageBuilder, llm_client: BaseLLM):
         """

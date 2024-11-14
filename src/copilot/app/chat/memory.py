@@ -162,7 +162,7 @@ class BaseMemory(RedisMemoryHandler, PostgresMemoryHandler):
         self.store_message(user_uuid, conversation_uuid, message_uuid, role, message)
 
         # Note: make this async with AsyncSession db
-        self.index_chat_history(db, user_uuid, conversation_uuid, message_uuid, role, message, language, url, faq_id, retrieved_doc_ids)
+        self.index_chat_history(db, user_uuid=user_uuid, conversation_uuid=conversation_uuid, message_uuid=message_uuid, role=role, message=message, language=language, url=url, faq_id=faq_id, retrieved_doc_ids=retrieved_doc_ids)
 
     def fetch(self, user_uuid: str, conversation_uuid: str, k_memory: int):
         """
@@ -181,7 +181,7 @@ class ConversationalMemoryBuffer(BaseMemory):
         """
         Method to add a message to the memory buffer and index it in the Postgres DB.
         """
-        self.store(db, user_uuid, conversation_uuid, message_uuid, role, message, language, url, faq_id, retrieved_doc_ids)
+        self.store(db, user_uuid=user_uuid, conversation_uuid=conversation_uuid, message_uuid=message_uuid, role=role, message=message, language=language, url=url, faq_id=faq_id, retrieved_doc_ids=retrieved_doc_ids)
 
     def fetch_from_memory(self, user_uuid: str, conversation_uuid: str, k_memory: int):
         """
