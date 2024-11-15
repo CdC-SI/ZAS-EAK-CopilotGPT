@@ -53,7 +53,6 @@ async def process_query(request: ChatRequest, db: Session = Depends(get_db)):
         The response from the RAG service
     """
     content = await bot.process_request(db, request)
-    #content = await rag_service.process_request(db, request)
 
     return StreamingResponse(content, media_type="text/event-stream")
 
