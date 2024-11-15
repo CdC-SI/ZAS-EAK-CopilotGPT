@@ -1,5 +1,5 @@
 import os
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 from typing import List, Optional
 import logging
 from datetime import datetime
@@ -10,7 +10,7 @@ from redis import Redis
 from database.models import ChatHistory, ChatTitle
 
 # Load environment variables
-load_dotenv()
+#load_dotenv()
 REDIS_PW = os.getenv("REDIS_PASSWORD", None)
 REDIS_HOST = os.getenv("REDIS_HOST", None)
 REDIS_PORT = os.getenv("REDIS_PORT", None)
