@@ -179,6 +179,7 @@ class ChatBot:
         """
         Process a request by setting up necessary components.
         """
+        logger.info("Request params: %s", request.dict())
         llm_client, message_builder, retriever_client, streaming_handler, command_service = self._initialize_components(request)
 
         return self.process(db=db, request=request, llm_client=llm_client, streaming_handler=streaming_handler, retriever_client=retriever_client, message_builder=message_builder, command_service=command_service)
