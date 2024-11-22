@@ -52,11 +52,11 @@ async def process_query(request: ChatRequest, db: Session = Depends(get_db)):
     StreamingResponse
         The response from the RAG service
     """
-    content = await bot.process_request(db, request)
+    content = bot.process_request(db, request)
 
     return StreamingResponse(content, media_type="text/event-stream")
 
-@app.post("/context_docs",
+@app.get("/context_docs",
           summary="Retrieve context docs endpoint",
           response_description="Return context docs from semantic search",
           response_model=List[Document],

@@ -189,6 +189,17 @@ class ConversationalMemoryBuffer(BaseMemory):
         """
         return self.fetch(user_uuid, conversation_uuid, k_memory)
 
+    def format_conversational_memory(self, user_uuid: str, conversation_uuid: str, k_memory: int) -> str:
+        """
+        Fetch and format conversational memory.
+        """
+        if user_uuid:
+            conversational_memory = self.fetch_from_memory(user_uuid, conversation_uuid, k_memory)
+            return "\n".join([f"{role}: {message}" for msg in conversational_memory for role, message in msg.items()])
+        else:
+            conversational_memory = [{"user": "", "assistant": ""}]
+            return "\n".join([f"{role}: {message}" for msg in conversational_memory for role, message in msg.items()])
+
 class ConversationalMemorySummary(BaseMemory):
     """
     Class implementing the Conversational Memory Summary. Will provide a summary of the conversation history.

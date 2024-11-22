@@ -4,8 +4,13 @@ from typing import List, Tuple, Dict, Any
 from collections.abc import Callable
 
 from schemas.chat import ChatRequest
+from rag.llm.base import BaseLLM
+from utils.streaming import StreamingHandler
+from chat.memory import ConversationalMemory
 
 import deepl
+
+from langfuse.decorators import observe
 
 load_dotenv()
 
@@ -112,13 +117,13 @@ class CommandService:
     async def translate(self, input_text: str, target_lang: str) -> str:
         return await self.translation_service.translate(input_text, target_lang)
 
-    async def execute_command(self, request: ChatRequest, get_conversational_memory: Callable[[str, str, int], str]) -> Dict[str, Any]:
+    async def execute_command(self, request: ChatRequest, memory_client: ConversationalMemory) -> Dict[str, Any]:
         args = self.parse_args(request.command_args)
         if request.command == "/summarize":
             summary_mode, n_msg, summary_style = self.get_summarize_args(args)
             input_text = ""
             if request.user_uuid:
-                input_text = get_conversational_memory(
+                input_text = memory_client.memory_instance.format_conversational_memory(
                     request.user_uuid, request.conversation_uuid, n_msg
                 )
             summary_style = self.map_summary_style_to_language(request.language, summary_style)
@@ -131,10 +136,27 @@ class CommandService:
             n_msg, target_lang = self.get_translate_args(args)
             input_text = ""
             if request.user_uuid:
-                input_text = get_conversational_memory(
+                input_text = memory_client.memory_instance.format_conversational_memory(
                     request.user_uuid, request.conversation_uuid, n_msg
                 )
             translated_text = await self.translate(input_text, target_lang)
             return {"translated_text": translated_text}
         else:
             raise ValueError(f"Unknown command: {request.command}")
+
+    @observe()
+    async def process_command(self, request: ChatRequest, llm_client: BaseLLM, streaming_handler: StreamingHandler, memory_client: ConversationalMemory, sources: Dict):
+
+        result = await self.execute_command(request, memory_client)
+        messages = result.get("messages")
+        translated_text = result.get("translated_text")
+
+        # stream response
+        if messages:
+            event_stream = llm_client.call(messages)
+            async for token in streaming_handler.generate_stream(event_stream, sources["source_url"]):
+                yield token
+
+        elif translated_text:
+            for token in translated_text:
+                yield token.encode("utf-8")
