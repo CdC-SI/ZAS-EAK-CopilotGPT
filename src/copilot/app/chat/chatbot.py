@@ -54,15 +54,6 @@ class ChatBot:
         command_service = CommandService(translation_service, message_builder)
         return llm_client, message_builder, retriever_client, streaming_handler, command_service
 
-
-    async def _stream_response(self, llm_client: BaseLLM, streaming_handler: StreamingHandler, messages: List[Dict], source_url: str):
-        """
-        Stream the response from the LLM client.
-        """
-        event_stream = llm_client.call(messages)
-        async for token in streaming_handler.generate_stream(event_stream, source_url):
-            yield token.decode("utf-8").replace("ß", "ss")
-
     async def _index_conversation_turn(self, db: Session, request: ChatRequest, assistant_response: List[str], documents: List[Dict], source_url: str, user_message_uuid: str = None, assistant_message_uuid: str = None):
         """
         Index the query and response in chat history.
