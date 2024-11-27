@@ -26,6 +26,15 @@ SUPPORTED_ANTHROPIC_LLM_MODELS = [
 ]
 DEFAULT_ANTHROPIC_LLM_MODEL = "claude-3-5-sonnet-20240620"
 
+# Gemini
+SUPPORTED_GEMINI_LLM_MODELS = [
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-8b",
+    "gemini-1.5-pro",
+    "gemini-1.0-pro",
+]
+DEFAULT_GEMINI_LLM_MODEL = "gemini-1.5-flash"
+
 # Groq
 SUPPORTED_GROQ_LLM_MODELS = [
     "llama-3.1-70b-versatile",
@@ -53,8 +62,8 @@ SUPPORTED_MLX_LLM_MODELS = [
 DEFAULT_MLX_LLM_MODEL = "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX"
 
 # Llama-cpp
-SUPPORTED_LLAMACPP_LLM_MODELS = ["Qwen/Qwen1.5-0.5B-Chat-GGUF"]
-DEFAULT_LLAMACPP_LLM_MODEL = "Qwen/Qwen1.5-0.5B-Chat-GGUF"
+SUPPORTED_LLAMACPP_LLM_MODELS = ["llama-cpp/Qwen/Qwen1.5-0.5B-Chat-GGUF"]
+DEFAULT_LLAMACPP_LLM_MODEL = "llama-cpp/Qwen/Qwen1.5-0.5B-Chat-GGUF"
 
 # Embedding models
 # OpenAI
