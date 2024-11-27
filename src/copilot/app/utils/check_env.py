@@ -1,14 +1,5 @@
 import sys
 
-from config.llm_config import (
-    SUPPORTED_OPENAI_LLM_MODELS,
-    SUPPORTED_AZUREOPENAI_LLM_MODELS,
-    SUPPORTED_ANTHROPIC_LLM_MODELS,
-    SUPPORTED_GROQ_LLM_MODELS,
-    SUPPORTED_OPENAI_EMBEDDING_MODELS,
-    SUPPORTED_AZUREOPENAI_EMBEDDING_MODELS,
-)
-
 
 def check_env_vars(config):
 
@@ -17,20 +8,6 @@ def check_env_vars(config):
         "eak_copilot": "https://cdc-si.github.io/ZAS-EAK-CopilotGPT/",
         "openai_api": "https://platform.openai.com/docs/models",
     }
-
-    supported_llm_models = (
-        SUPPORTED_OPENAI_LLM_MODELS
-        + SUPPORTED_AZUREOPENAI_LLM_MODELS
-        + SUPPORTED_ANTHROPIC_LLM_MODELS
-        + SUPPORTED_GROQ_LLM_MODELS
-    )
-    supported_embedding_models = (
-        SUPPORTED_OPENAI_EMBEDDING_MODELS
-        + SUPPORTED_AZUREOPENAI_EMBEDDING_MODELS
-    )
-
-    # Define supported configs
-    supported_similarity_metrics = ["cosine_similarity"]
 
     # Check environment variables for autocomplete
     if config["autocomplete"]["enabled"]:
@@ -59,41 +36,12 @@ def check_env_vars(config):
                 f'Invalid value for "autocomplete.semantic_similarity_match.limit" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.'
             )
             sys.exit(1)
-        if (
-            config["autocomplete"]["semantic_similarity_match"]["metric"]
-            not in supported_similarity_metrics
-        ):
-            print(
-                f'Invalid value for "autocomplete.semantic_similarity_match.metric" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.'
-            )
-            sys.exit(1)
 
     # Check environment variables for rag
     if config["rag"]["enabled"]:
-        if (
-            config["rag"]["embedding"]["model"]
-            not in supported_embedding_models
-        ):
-            print(
-                f'Invalid value for "rag.embedding.model" in config/config.yaml. Please read the documentation at {documentation["openai_api"]}/embeddings for more information.'
-            )
-            sys.exit(1)
         if config["rag"]["retrieval"]["top_k"] <= 0:
             print(
                 f'Invalid value for "rag.retrieval.top_k" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information. NOTE: Will be extended soon to more than 1 retrieved document.'
-            )
-            sys.exit(1)
-        if (
-            config["rag"]["retrieval"]["metric"]
-            not in supported_similarity_metrics
-        ):
-            print(
-                f'Invalid value for "rag.retrieval.metric" in config/config.yaml. Please read the documentation at {documentation["eak_copilot"]} for more information.'
-            )
-            sys.exit(1)
-        if config["rag"]["llm"]["model"] not in supported_llm_models:
-            print(
-                f'Invalid value for "rag.llm.model" in config/config.yaml. Please read the documentation at {documentation["openai_api"]} for more information.'
             )
             sys.exit(1)
         if not config["rag"]["llm"]["temperature"] >= 0:
