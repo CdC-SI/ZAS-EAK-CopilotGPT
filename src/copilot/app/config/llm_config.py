@@ -19,6 +19,10 @@ DEFAULT_ANTHROPIC_LLM_MODEL = "claude-3-5-sonnet-20240620"
 SUPPORTED_GROQ_LLM_MODELS = ["llama-3.1-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768", "gemma-7b-it", "gemma2-9b-it"]
 DEFAULT_GROQ_LLM_MODEL = "llama-3.1-8b-instant"
 
+# Open Source
+SUPPORTED_MLX_LLM_MODELS = ["mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX"]
+DEFAULT_MLX_LLM_MODEL = "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX"
+
 # Huggingface
 SUPPORTED_HUGGINGFACE_LLM_MODELS = []
 DEFAULT_HUGGINGFACE_LLM_MODEL = ""

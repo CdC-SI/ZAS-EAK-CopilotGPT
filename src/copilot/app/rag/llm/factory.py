@@ -1,6 +1,6 @@
 from rag.llm.base import BaseLLM
-from rag.llm import OpenAILLM, AnthropicLLM#, MlxLLM, LlamaCppLLM, HuggingFaceLLM
-from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS, SUPPORTED_AZUREOPENAI_LLM_MODELS, SUPPORTED_ANTHROPIC_LLM_MODELS, SUPPORTED_GROQ_LLM_MODELS#, SUPPORTED_MLX_LLM_MODELS
+from rag.llm import OpenAILLM, AnthropicLLM, MLXLLM#, LlamaCppLLM, HuggingFaceLLM
+from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS, SUPPORTED_AZUREOPENAI_LLM_MODELS, SUPPORTED_ANTHROPIC_LLM_MODELS, SUPPORTED_GROQ_LLM_MODELS
 
 
 import logging
@@ -43,7 +43,11 @@ class LLMFactory:
                                 temperature=temperature,
                                 top_p=top_p,
                                 max_tokens=max_tokens)
-        # elif llm_model in SUPPORTED_MLX_LLM_MODELS:
-        #     return MlxLLM(model_name=llm_model)
+        elif llm_model.startswith("mlx-community/"):
+            return MLXLLM(model_name=llm_model,
+                                stream=stream,
+                                temperature=temperature,
+                                top_p=top_p,
+                                max_tokens=max_tokens)
         else:
-            raise ValueError(f"Unsupported llm model type: {llm_model}")
+            raise ValueError(f"Unsupported llm model: {llm_model}. Please check documentation at https://cdc-si.github.io/ZAS-EAK-CopilotGPT/ for supported models.")
