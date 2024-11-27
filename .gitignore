@@ -164,3 +164,6 @@ data/
 venv_copilot/
 node_modules/
 out/
+
+*.ipynb
+delete_tables.sql

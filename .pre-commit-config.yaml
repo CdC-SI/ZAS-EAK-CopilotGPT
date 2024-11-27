@@ -1,0 +1,25 @@
+repos:
+  # General hooks for formatting, linting, and cleanup
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0  # Use the latest stable version
+    hooks:
+      - id: trailing-whitespace       # Remove trailing whitespace
+      - id: end-of-file-fixer         # Ensure files end with a newline
+      - id: check-yaml                # Validate YAML files
+        args: ['--unsafe']
+      - id: check-added-large-files   # Warn about large files being added
+      - id: check-case-conflict       # Avoid case-conflicting files on case-insensitive filesystems
+      - id: check-toml                # Validate TOML files
+
+  # Black for Python code formatting
+  - repo: https://github.com/psf/black
+    rev: 24.10.0
+    hooks:
+      - id: black
+        args: ["--line-length", "79"]
+
+  # Flake8 for Python linting
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.1.1
+    hooks:
+      - id: flake8
