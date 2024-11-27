@@ -5,19 +5,14 @@ import logging
 from lxml import etree
 import re
 
-if __name__ != '__main__':
+if __name__ != "__main__":
     from database.service.question import question_service
     from schemas.question import QuestionCreate
     from sqlalchemy.orm import Session
 
-SITEMAP_URL = 'http://www.sitemaps.org/schemas/sitemap/0.9'
+SITEMAP_URL = "http://www.sitemaps.org/schemas/sitemap/0.9"
 
-ANSWER = {
-    'en': 'Answer',
-    'de': 'Antwort',
-    'it': 'Rispondi',
-    'fr': 'Réponse'
-}
+ANSWER = {"en": "Answer", "de": "Antwort", "it": "Rispondi", "fr": "Réponse"}
 
 
 class BSVIndexer:
@@ -41,7 +36,13 @@ class BSVIndexer:
             self.session.proxies.update({"http": proxy})
             self.session.proxies.update({"https": proxy})
 
-    async def run(self, k: int = 0, test: bool = False, embed: Union[Tuple[bool, bool], bool] = False, db: Session = None):
+    async def run(
+        self,
+        k: int = 0,
+        test: bool = False,
+        embed: Union[Tuple[bool, bool], bool] = False,
+        db: Session = None,
+    ):
         """
         Retrieves and processes FAQ data from `base_url` to insert into the database.
 
@@ -95,13 +96,21 @@ class BSVIndexer:
 
                 elif db:
                     self.logger.info(f"extract: {url}")
-                    article_in = QuestionCreate(text=h1, answer=article, language=lang, url=url, source=self.base_url)
+                    article_in = QuestionCreate(
+                        text=h1,
+                        answer=article,
+                        language=lang,
+                        url=url,
+                        source=self.base_url,
+                    )
                     question_service.upsert(db, article_in, embed=embed)
 
         self.logger.info(f"Done! {count} articles have been processed.")
         return urls
 
-    def _get_response(self, url: str, timeout: int = 10) -> Optional[requests.Response]:
+    def _get_response(
+        self, url: str, timeout: int = 10
+    ) -> Optional[requests.Response]:
         """
         Send a GET request and return the response object.
         """
@@ -122,7 +131,7 @@ class BSVIndexer:
         path = []
         if response is not None:
             root = etree.fromstring(response.content)
-            namespace = {'sitemap': SITEMAP_URL}
+            namespace = {"sitemap": SITEMAP_URL}
             path = root.xpath("//sitemap:loc", namespaces=namespace)
         urls = [url.text for url in path]
 
@@ -147,12 +156,12 @@ class BSVIndexer:
         """
         response = self._get_response(url)
         if not response:
-            return '', '', ''
+            return "", "", ""
 
-        soup = BeautifulSoup(response.text, 'lxml')
+        soup = BeautifulSoup(response.text, "lxml")
 
         extracted = []
-        for tag in ['html', 'h1', 'article']:
+        for tag in ["html", "h1", "article"]:
             element = soup.find(tag)
 
             # tag not found
@@ -160,32 +169,42 @@ class BSVIndexer:
                 extracted.append(None)
 
             # extract lang
-            elif tag == 'html':
-                extracted.append(element.get('lang'))
+            elif tag == "html":
+                extracted.append(element.get("lang"))
 
             # extract text
             else:
                 text = element.get_text()
-                if tag == 'article':
-                    text = text.replace(ANSWER.get(extracted[0]), '')  # remove ANSWER title
-                    text = re.sub(r"((\r\n|\r|\n)\s*){2,}", "\n\n", text)  # remove double linebreak
+                if tag == "article":
+                    text = text.replace(
+                        ANSWER.get(extracted[0]), ""
+                    )  # remove ANSWER title
+                    text = re.sub(
+                        r"((\r\n|\r|\n)\s*){2,}", "\n\n", text
+                    )  # remove double linebreak
                 extracted.append(text.strip())
 
         return extracted[0], extracted[1], extracted[2]  # lang, h1, article
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
     import asyncio
 
-    parser = argparse.ArgumentParser(description='Run WebScraper demo')
-    parser.add_argument('--sitemap', type=str,
-                        default='https://faq.bsv.admin.ch/sitemap.xml',
-                        help='The sitemap URL of the website to scrape (default: https://faq.bsv.admin.ch/sitemap.xml)')
+    parser = argparse.ArgumentParser(description="Run WebScraper demo")
+    parser.add_argument(
+        "--sitemap",
+        type=str,
+        default="https://faq.bsv.admin.ch/sitemap.xml",
+        help="The sitemap URL of the website to scrape (default: https://faq.bsv.admin.ch/sitemap.xml)",
+    )
     # noinspection HttpUrlsUsage
-    parser.add_argument('--proxy', type=str,
-                        default='',
-                        help='The proxy address if you are using one (example: http://your-proxy-url.com:0000')
+    parser.add_argument(
+        "--proxy",
+        type=str,
+        default="",
+        help="The proxy address if you are using one (example: http://your-proxy-url.com:0000",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO)

@@ -25,7 +25,7 @@ def engine(request):
     os.environ["POSTGRES_PASSWORD"] = postgres.password
     os.environ["POSTGRES_DB"] = postgres.dbname
 
-    os.environ["RUN_WITHOUT_DB"] = 'true'
+    os.environ["RUN_WITHOUT_DB"] = "true"
 
     from database.database import get_engine
 
@@ -35,12 +35,17 @@ def engine(request):
 @pytest.fixture(scope="session")
 def tables(engine):
     from database.models import Base
+
     with engine.connect() as con:
-        con.execute(text("""
+        con.execute(
+            text(
+                """
             CREATE EXTENSION IF NOT EXISTS vector;
             CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
             CREATE EXTENSION IF NOT EXISTS pg_trgm;
-        """))
+        """
+            )
+        )
         con.commit()
 
     Base.metadata.create_all(bind=engine)
@@ -75,8 +80,13 @@ def test_source_0(dbsession):
     from database.service.source import source_service
     from schemas.source import SourceCreate
 
-    new_source = source_service.get_or_create(dbsession, SourceCreate(url="https://www.test.ch"))
+    new_source = source_service.get_or_create(
+        dbsession, SourceCreate(url="https://www.test.ch")
+    )
 
     assert new_source.url == "https://www.test.ch"
     assert new_source.id == 1
-    assert source_service.get_by_url(dbsession, "https://www.test.ch") == new_source
+    assert (
+        source_service.get_by_url(dbsession, "https://www.test.ch")
+        == new_source
+    )

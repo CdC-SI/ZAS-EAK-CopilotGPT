@@ -1,6 +1,5 @@
 import os
 import logging
-from typing import List, Dict
 from rag.llm.base import BaseLLM
 from config.llm_config import DEFAULT_LLAMACPP_LLM_MODEL
 from schemas.llm import ResponseModel, Choice, Delta, Message
@@ -8,11 +7,15 @@ import aiohttp
 import json
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 LLM_GENERATION_ENDPOINT = os.environ.get("LLM_GENERATION_ENDPOINT", None)
-ASYNC_GENERATE_ENDPOINT = os.path.join(LLM_GENERATION_ENDPOINT, 'completion')
+ASYNC_GENERATE_ENDPOINT = os.path.join(LLM_GENERATION_ENDPOINT, "completion")
+
 
 class LlamaCppLLM(BaseLLM):
     """
@@ -38,7 +41,15 @@ class LlamaCppLLM(BaseLLM):
     _astream()
         Generates an async stream of events as response for a list of messages using the LlamaCppLLM model.
     """
-    def __init__(self, model_name: str = DEFAULT_LLAMACPP_LLM_MODEL, stream: bool = True, temperature: float = 0.0, top_p: float = 0.95, max_tokens: int = 512):
+
+    def __init__(
+        self,
+        model_name: str = DEFAULT_LLAMACPP_LLM_MODEL,
+        stream: bool = True,
+        temperature: float = 0.0,
+        top_p: float = 0.95,
+        max_tokens: int = 512,
+    ):
         self.model_name = model_name
         self.temperature = temperature
         self.top_p = top_p
@@ -67,44 +78,68 @@ class LlamaCppLLM(BaseLLM):
         """
         async with aiohttp.ClientSession() as session:
             logger.info(messages)
-            async with session.post(ASYNC_GENERATE_ENDPOINT,
+            async with session.post(
+                ASYNC_GENERATE_ENDPOINT,
                 json={
-                    'prompt': messages,
-                    'stream': 'false',
-                    'temperature': self.temperature,
-                    'top_p': self.top_p,
-                    'n_predict': self.max_tokens
-                }) as response:
+                    "prompt": messages,
+                    "stream": "false",
+                    "temperature": self.temperature,
+                    "top_p": self.top_p,
+                    "n_predict": self.max_tokens,
+                },
+            ) as response:
                 data = await response.json()
-                return ResponseModel(choices=[Choice(message=Message(content=data.get('content', '')))])
+                return ResponseModel(
+                    choices=[
+                        Choice(
+                            message=Message(content=data.get("content", ""))
+                        )
+                    ]
+                )
 
     async def _astream(self, messages: str):
         async with aiohttp.ClientSession() as session:
             headers = {
-                'Accept': 'text/event-stream',
-                'Cache-Control': 'no-cache',
-                'Content-Type': 'application/json'
+                "Accept": "text/event-stream",
+                "Cache-Control": "no-cache",
+                "Content-Type": "application/json",
             }
             async with session.post(
                 ASYNC_GENERATE_ENDPOINT,
                 json={
-                    'prompt': messages,
-                    'stream': True,
-                    'temperature': self.temperature,
-                    'top_p': self.top_p,
-                    'n_predict': self.max_tokens
+                    "prompt": messages,
+                    "stream": True,
+                    "temperature": self.temperature,
+                    "top_p": self.top_p,
+                    "n_predict": self.max_tokens,
                 },
-                headers=headers
+                headers=headers,
             ) as response:
                 async for line in response.content:
                     if line:
-                        content = line.decode('utf-8').replace('data: ', '').strip()
+                        content = (
+                            line.decode("utf-8").replace("data: ", "").strip()
+                        )
                         if content:
                             try:
                                 data = json.loads(content)
-                                if data.get('stop') is True:
-                                    yield ResponseModel(choices=[Choice(delta=Delta(content=None))])
-                                yield ResponseModel(choices=[Choice(delta=Delta(content=data.get('content', '')))])
+                                if data.get("stop") is True:
+                                    yield ResponseModel(
+                                        choices=[
+                                            Choice(delta=Delta(content=None))
+                                        ]
+                                    )
+                                yield ResponseModel(
+                                    choices=[
+                                        Choice(
+                                            delta=Delta(
+                                                content=data.get("content", "")
+                                            )
+                                        )
+                                    ]
+                                )
                             except json.JSONDecodeError as e:
-                                logger.warning(f"Failed to parse streaming response: {e}")
+                                logger.warning(
+                                    f"Failed to parse streaming response: {e}"
+                                )
                                 continue

@@ -23,3 +23,13 @@ repos:
     rev: 7.1.1
     hooks:
       - id: flake8
+
+  # Run unit tests with pytest
+  - repo: local
+    hooks:
+      - id: pytest-test-service-source
+        name: Run pytest on test_service_source.py
+        entry: pytest src/copilot/tests/test_service_source.py
+        language: system
+        pass_filenames: false
+        always_run: true

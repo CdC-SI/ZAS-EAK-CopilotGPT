@@ -8,7 +8,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from config.network_config import CORS_ALLOWED_ORIGINS
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
@@ -32,42 +35,45 @@ COMMANDS = {
     "/set_tone": {"action": "set_tone"},
     "/bookmark": {"action": "bookmark"},
     "/context": {"action": "context"},
-    "/help": {"action": "display_help_info"}
+    "/help": {"action": "display_help_info"},
 }
+
 
 class CommandRequest(BaseModel):
     input_text: str
 
+
 @app.post("/")
 async def command(request: CommandRequest):
     input_text = request.input_text.strip()
-    response = {'command_recognized': False}
+    response = {"command_recognized": False}
 
     for cmd, action in COMMANDS.items():
         if input_text.startswith(cmd):
-            response['command_recognized'] = True
-            response['command'] = cmd
-            #response['action'] = action['action']
+            response["command_recognized"] = True
+            response["command"] = cmd
+            # response['action'] = action['action']
             break
 
     return JSONResponse(content=response)
 
+
 @app.post("/advanced")
 async def advanced_command(request: CommandRequest):
     input_text = request.input_text.strip()
-    response = {'command_recognized': False}
+    response = {"command_recognized": False}
 
     # Regular expression pattern for commands
-    pattern = r'^/(\w+)(?:\s+(.*))?$'
+    pattern = r"^/(\w+)(?:\s+(.*))?$"
     match = re.match(pattern, input_text)
 
     if match:
-        cmd_name = f'/{match.group(1)}'
+        cmd_name = f"/{match.group(1)}"
         parameters = match.group(2)  # Optional parameters
         if cmd_name in COMMANDS:
-            response['command_recognized'] = True
-            response['command'] = cmd_name
-            #response['action'] = COMMANDS[cmd_name]['action']
+            response["command_recognized"] = True
+            response["command"] = cmd_name
+            # response['action'] = COMMANDS[cmd_name]['action']
             if parameters:
-                response['parameters'] = parameters
+                response["parameters"] = parameters
     return JSONResponse(content=response)

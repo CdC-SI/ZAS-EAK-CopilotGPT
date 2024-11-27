@@ -9,12 +9,13 @@ from bs4 import BeautifulSoup
 
 from indexing.base import BaseParser, BaseIndexer
 
-from sqlalchemy.orm import Session
-
 from indexing.scraper import scraper
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 
@@ -47,6 +48,7 @@ class AHVParser(BaseParser):
     split_documents(documents: List[Document]) -> List[Document]
         Splits the given documents into chunks.
     """
+
     def __init__(self):
         super().__init__()
 
@@ -86,7 +88,11 @@ class AHVParser(BaseParser):
         """
         # TO DO: re-scrap links which are not PDFs such as:
         # pdf_paths = [a["href"] for a in soup.find_all("a", {"class": "co-document-content"})]
-        pdf_paths = [a["href"] for a in soup.find_all("a", {"class": "co-document-content"}) if "/p/" in a["href"]]
+        pdf_paths = [
+            a["href"]
+            for a in soup.find_all("a", {"class": "co-document-content"})
+            if "/p/" in a["href"]
+        ]
         return pdf_paths
 
     def parse_urls(self, content: str) -> List[str]:
@@ -120,7 +126,10 @@ class AHVIndexer(BaseIndexer):
     index(sitemap_url: str) -> dict
         Scraps, parses and indexes PDF content from the given sitemap URL into the VectorDB.
     """
-    async def from_pages_to_content(self, pages: List[ByteStream]) -> List[Any]:
+
+    async def from_pages_to_content(
+        self, pages: List[ByteStream]
+    ) -> List[Any]:
         soups = []
         for page in pages:
             soups.append(BeautifulSoup(page.data, features="html.parser"))
@@ -142,7 +151,4 @@ class AHVIndexer(BaseIndexer):
         return self.scraper.scrap_urls(pdf_urls)
 
 
-ahv_indexer = AHVIndexer(
-    scraper=scraper,
-    parser=AHVParser()
-)
+ahv_indexer = AHVIndexer(scraper=scraper, parser=AHVParser())

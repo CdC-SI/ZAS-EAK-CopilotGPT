@@ -10,6 +10,7 @@ class SourceService(BaseService):
     """
     Class that provide services for source database operations
     """
+
     def __init__(self):
         super().__init__(Source)
 

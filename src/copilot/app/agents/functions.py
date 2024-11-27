@@ -3,13 +3,16 @@ import logging
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
-#from fak_eak import FAK_EAK_agent
-#from orchestrator import orchestrator_agent
+# from fak_eak import FAK_EAK_agent
+# from orchestrator import orchestrator_agent
 
-# ORCHESTRATOR
+# ORCHESTRATOR
 # def transfer_back_to_orchestrator():
 #     """Call this function if a user is asking about a topic that is not handled by the current agent."""
 #     return orchestrator_agent
@@ -17,8 +20,11 @@ logger = logging.getLogger(__name__)
 # def transfer_to_fak_eak():
 #     return FAK_EAK_agent
 
-# FAK-EAK
-def calculate_reduction_rate_and_supplement(date_of_birth, retirement_date, average_annual_income):
+
+# FAK-EAK
+def calculate_reduction_rate_and_supplement(
+    date_of_birth, retirement_date, average_annual_income
+):
     """
     Calculate the reduction rate or pension supplement for women of the transitional generation.
 
@@ -51,15 +57,15 @@ def calculate_reduction_rate_and_supplement(date_of_birth, retirement_date, aver
 
     # Reference ages for each year of birth (in months)
     reference_ages_months = {
-        1961: (64 * 12) + 3,   # 64 years + 3 months
-        1962: (64 * 12) + 6,   # 64 years + 6 months
-        1963: (64 * 12) + 9,   # 64 years + 9 months
-        1964: 65 * 12,         # 65 years
-        1965: 65 * 12,         # 65 years
-        1966: 65 * 12,         # 65 years
-        1967: 65 * 12,         # 65 years
-        1968: 65 * 12,         # 65 years
-        1969: 65 * 12,         # 65 years
+        1961: (64 * 12) + 3,  # 64 years + 3 months
+        1962: (64 * 12) + 6,  # 64 years + 6 months
+        1963: (64 * 12) + 9,  # 64 years + 9 months
+        1964: 65 * 12,  # 65 years
+        1965: 65 * 12,  # 65 years
+        1966: 65 * 12,  # 65 years
+        1967: 65 * 12,  # 65 years
+        1968: 65 * 12,  # 65 years
+        1969: 65 * 12,  # 65 years
     }
 
     reference_age_months = reference_ages_months[year_of_birth]
@@ -76,8 +82,10 @@ def calculate_reduction_rate_and_supplement(date_of_birth, retirement_date, aver
         base_supplement = 50
     else:
         logger.info("------INVALID INCOME")
-        return ("The provided income is invalid. "
-                "Please ensure the income is in the correct range.")
+        return (
+            "The provided income is invalid. "
+            "Please ensure the income is in the correct range."
+        )
 
     # Check if retiring at or after the reference age
     if age_total_months >= reference_age_months:
@@ -109,24 +117,30 @@ def calculate_reduction_rate_and_supplement(date_of_birth, retirement_date, aver
 
         if anticipation_years_int not in [1, 2, 3]:
             logger.info("------INVALID ANTICIPATION YEARS")
-            return ("The person does not meet the eligibility criteria for an early retirement reduction. "
-                    "For more information, please visit: "
-                    "https://www.eak.admin.ch/eak/fr/home/dokumentation/pensionierung/reform-ahv21/kuerzungssaetze-bei-vorbezug.html")
+            return (
+                "The person does not meet the eligibility criteria for an early retirement reduction. "
+                "For more information, please visit: "
+                "https://www.eak.admin.ch/eak/fr/home/dokumentation/pensionierung/reform-ahv21/kuerzungssaetze-bei-vorbezug.html"
+            )
 
         # Reduction rates table
         reduction_rates = {
-            1: {1: 0.0, 2: 2.5, 3: 3.5},    # 1 year anticipation
-            2: {1: 2.0, 2: 4.5, 3: 6.5},    # 2 years anticipation
-            3: {1: 3.0, 2: 6.5, 3: 10.5},   # 3 years anticipation
+            1: {1: 0.0, 2: 2.5, 3: 3.5},  # 1 year anticipation
+            2: {1: 2.0, 2: 4.5, 3: 6.5},  # 2 years anticipation
+            3: {1: 3.0, 2: 6.5, 3: 10.5},  # 3 years anticipation
         }
 
         # Retrieve the reduction rate
-        reduction_rate = reduction_rates[anticipation_years_int][income_bracket]
+        reduction_rate = reduction_rates[anticipation_years_int][
+            income_bracket
+        ]
         logger.info("------REDUCTION RATE")
         return f"Your reduction rate is {reduction_rate}%."
 
+
 def calculate_reference_age():
     pass
+
 
 def determine_parent_receiving_child_benefits():
     pass

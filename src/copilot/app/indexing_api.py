@@ -33,7 +33,10 @@ import csv
 import codecs
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 
@@ -48,7 +51,9 @@ async def init_indexing():
                 logger.info("Auto-indexing sample FAQ data")
                 add_faq_data_from_csv()
             except Exception as e:
-                logger.error("Dev-mode: Failed to index sample FAQ data: %s", e)
+                logger.error(
+                    "Dev-mode: Failed to index sample FAQ data: %s", e
+                )
         # If dev-mode is deactivated, scrap and index all bsv.admin.ch FAQ data
         else:
             try:
@@ -83,8 +88,17 @@ app.add_middleware(
 )
 
 
-@app.post("/upload_csv_rag", summary="Upload a CSV file for RAG data", status_code=200, response_model=ResponseBody)
-async def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
+@app.post(
+    "/upload_csv_rag",
+    summary="Upload a CSV file for RAG data",
+    status_code=200,
+    response_model=ResponseBody,
+)
+async def upload_csv_rag(
+    file: UploadFile = File(...),
+    embed: bool = False,
+    db: Session = Depends(get_db),
+):
     """
     Upload a CSV file containing RAG data to the database with optional embeddings.
     The function acknowledges the following columns:
@@ -109,31 +123,49 @@ async def upload_csv_rag(file: UploadFile = File(...), embed: bool = False, db: 
     ResponseBody
         A response body containing a confirmation message upon successful completion of the process.
     """
-    logger.info(f'Downloading {file.filename}...')
-    data = csv.DictReader(codecs.iterdecode(file.file, 'utf-8'))
+    logger.info(f"Downloading {file.filename}...")
+    data = csv.DictReader(codecs.iterdecode(file.file, "utf-8"))
 
     embedding_column = "embedding" in data.fieldnames
     language_column = "language" in data.fieldnames
     tag_column = "tag" in data.fieldnames
 
-    logger.info(f'Start adding data to database...')
+    logger.info("Start adding data to database...")
     i = 0
     for row in data:
-        embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
+        embedding = (
+            ast.literal_eval(row["embedding"]) if embedding_column else None
+        )
         language = row["language"] if language_column else None
         tag = row["tag"] if tag_column else None
 
-        document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file.filename, language=language, tag=tag)
+        document = DocumentCreate(
+            url=row["url"],
+            text=row["text"],
+            embedding=embedding,
+            source=file.filename,
+            language=language,
+            tag=tag,
+        )
         await document_service.upsert(db, document, embed=embed)
         i += 1
 
     file.file.close()
-    logger.info(f'Finished adding {i} entries to RAG database.')
+    logger.info(f"Finished adding {i} entries to RAG database.")
     return {"content": f"Successfully added {i} entries to RAG database."}
 
 
-@app.post("/upload_csv_faq", summary="Upload a CSV file for FAQ data", status_code=200, response_model=ResponseBody)
-async def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: Session = Depends(get_db)):
+@app.post(
+    "/upload_csv_faq",
+    summary="Upload a CSV file for FAQ data",
+    status_code=200,
+    response_model=ResponseBody,
+)
+async def upload_csv_faq(
+    file: UploadFile = File(...),
+    embed: bool = False,
+    db: Session = Depends(get_db),
+):
     """
     Upload a CSV file containing RAG data to the database with optional embeddings.
     The function acknowledges the following columns:
@@ -159,31 +191,50 @@ async def upload_csv_faq(file: UploadFile = File(...), embed: bool = False, db: 
     ResponseBody
         A response body containing a confirmation message upon successful completion of the process.
     """
-    logger.info(f'Downloading {file.filename}...')
-    data = csv.DictReader(codecs.iterdecode(file.file, 'utf-8'))
+    logger.info(f"Downloading {file.filename}...")
+    data = csv.DictReader(codecs.iterdecode(file.file, "utf-8"))
 
     embedding_column = "embedding" in data.fieldnames
     language_column = "language" in data.fieldnames
     tag_column = "tag" in data.fieldnames
 
-    logger.info(f'Start adding data to database...')
+    logger.info("Start adding data to database...")
     i = 0
     for row in data:
-        embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
+        embedding = (
+            ast.literal_eval(row["embedding"]) if embedding_column else None
+        )
         language = row["language"] if language_column else None
         tag = row["tag"] if tag_column else None
 
-        question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file.filename, language=language, tag=tag)
+        question = QuestionCreate(
+            url=row["url"],
+            text=row["text"],
+            answer=row["answer"],
+            embedding=embedding,
+            source=file.filename,
+            language=language,
+            tag=tag,
+        )
         await question_service.upsert(db, question, embed=embed)
         i += 1
 
     file.file.close()
-    logger.info(f'Finished adding {len(list(data))} entries to FAQ database.')
+    logger.info(f"Finished adding {len(list(data))} entries to FAQ database.")
     return {"content": f"Successfully added {i} entries to FAQ database."}
 
 
-@app.post("/upload_pdf_rag", summary="Upload a PDF files for RAG data", status_code=200, response_model=ResponseBody)
-async def upload_pdf_rag(files: List[UploadFile] = File(..., description="PDF files only"), embed: bool = False, db: Session = Depends(get_db)):
+@app.post(
+    "/upload_pdf_rag",
+    summary="Upload a PDF files for RAG data",
+    status_code=200,
+    response_model=ResponseBody,
+)
+async def upload_pdf_rag(
+    files: List[UploadFile] = File(..., description="PDF files only"),
+    embed: bool = False,
+    db: Session = Depends(get_db),
+):
     """
     Upload a CSV file containing RAG data to the database.
 
@@ -207,21 +258,40 @@ async def upload_pdf_rag(files: List[UploadFile] = File(..., description="PDF fi
             return {"content": f"{file.filename} is not a valid PDF file."}
 
         # Handle temporary file creation and processing
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=".pdf"
+        ) as temp_file:
             temp_filename = temp_file.name
             shutil.copyfileobj(file.file, temp_file)
 
-        # Index data in vectorDB
-        await ahv_indexer.add_content_to_db(db, content=[Path(temp_filename)], source=file.filename, embed=embed)
+        # Index data in vectorDB
+        await ahv_indexer.add_content_to_db(
+            db,
+            content=[Path(temp_filename)],
+            source=file.filename,
+            embed=embed,
+        )
         uploaded_files.append(file.filename)
 
         os.remove(temp_filename)  # Clean up temp file after use
 
-    return {"content": f"{len(uploaded_files)} files indexed successfully", "files": uploaded_files}
+    return {
+        "content": f"{len(uploaded_files)} files indexed successfully",
+        "files": uploaded_files,
+    }
 
 
-@app.post("/add_rag_data_from_csv", summary="Insert data for RAG without embedding from a local csv file", status_code=200, response_model=ResponseBody)
-def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", embed: bool = False, db: Session = Depends(get_db)):
+@app.post(
+    "/add_rag_data_from_csv",
+    summary="Insert data for RAG without embedding from a local csv file",
+    status_code=200,
+    response_model=ResponseBody,
+)
+def add_rag_data_from_csv(
+    file_path: str = "indexing/data/rag_test_data.csv",
+    embed: bool = False,
+    db: Session = Depends(get_db),
+):
     """
     Add and index test data for RAG from csv files with optional embeddings.
     The function acknowledges the following columns:
@@ -246,7 +316,7 @@ def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", em
     str
         Confirmation message upon successful completion of the process
     """
-    with open(file_path, mode='r') as file:
+    with open(file_path, mode="r") as file:
         data = csv.DictReader(file)
 
         embedding_column = "embedding" in data.fieldnames
@@ -255,20 +325,40 @@ def add_rag_data_from_csv(file_path: str = "indexing/data/rag_test_data.csv", em
 
         i = 0
         for row in data:
-            embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
+            embedding = (
+                ast.literal_eval(row["embedding"])
+                if embedding_column
+                else None
+            )
             language = row["language"] if language_column else None
             tag = row["tag"] if tag_column else None
 
-            document = DocumentCreate(url=row["url"], text=row["text"], embedding=embedding, source=file_path, language=language, tag=tag)
+            document = DocumentCreate(
+                url=row["url"],
+                text=row["text"],
+                embedding=embedding,
+                source=file_path,
+                language=language,
+                tag=tag,
+            )
             document_service.upsert(db, document, embed=embed)
             i += 1
 
-    logger.info(f'Finished adding {i} entries to RAG database.')
+    logger.info(f"Finished adding {i} entries to RAG database.")
     return {"content": f"Successfully added {i} entries to RAG database."}
 
 
-@app.post("/add_faq_data_from_csv", summary="Insert data for FAQ without embedding from a local csv file", status_code=200, response_model=ResponseBody)
-def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", embed: bool = False, db: Session = Depends(get_db)):
+@app.post(
+    "/add_faq_data_from_csv",
+    summary="Insert data for FAQ without embedding from a local csv file",
+    status_code=200,
+    response_model=ResponseBody,
+)
+def add_faq_data_from_csv(
+    file_path: str = "indexing/data/faq_test_data.csv",
+    embed: bool = False,
+    db: Session = Depends(get_db),
+):
     """
     Add and index test data for RAG from csv files with optional embeddings.
     The function acknowledges the following columns:
@@ -294,7 +384,7 @@ def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", em
     str
         Confirmation message upon successful completion of the process
     """
-    with open(file_path, mode='r') as file:
+    with open(file_path, mode="r") as file:
         data = csv.DictReader(file)
 
         embedding_column = "embedding" in data.fieldnames
@@ -302,19 +392,38 @@ def add_faq_data_from_csv(file_path: str = "indexing/data/faq_test_data.csv", em
         tag_column = "tag" in data.fieldnames
 
         for row in data:
-            embedding = ast.literal_eval(row["embedding"]) if embedding_column else None
+            embedding = (
+                ast.literal_eval(row["embedding"])
+                if embedding_column
+                else None
+            )
             language = row["language"] if language_column else None
             tag = row["tag"] if tag_column else None
 
-            question = QuestionCreate(url=row["url"], text=row["text"], answer=row["answer"], embedding=embedding, source=file_path, language=language, tag=tag)
+            question = QuestionCreate(
+                url=row["url"],
+                text=row["text"],
+                answer=row["answer"],
+                embedding=embedding,
+                source=file_path,
+                language=language,
+                tag=tag,
+            )
             question_service.upsert(db, question, embed=embed)
 
-    logger.info(f'Finished adding {i} entries to FAQ database.')
-    return {"content": f"Successfully added {i} entries to FAQ database."}
+    logger.info("Finished adding entries to FAQ database.")
+    return {"content": "Successfully added entries to FAQ database."}
 
 
-@app.post("/embed_rag_data", summary="Embed all data for RAG that have not been embedded yet", status_code=200, response_model=ResponseBody)
-def embed_rag_data(db: Session = Depends(get_db), embed_empty_only: bool = True, k: int = 0):
+@app.post(
+    "/embed_rag_data",
+    summary="Embed all data for RAG that have not been embedded yet",
+    status_code=200,
+    response_model=ResponseBody,
+)
+def embed_rag_data(
+    db: Session = Depends(get_db), embed_empty_only: bool = True, k: int = 0
+):
     """
     Embed all RAG data (documents) that have not been embedded yet.
 
@@ -336,8 +445,15 @@ def embed_rag_data(db: Session = Depends(get_db), embed_empty_only: bool = True,
     return {"content": "yay"}
 
 
-@app.post("/embed_faq_data", summary="Embed all data for FAQ that have not been embedded yet", status_code=200, response_model=ResponseBody)
-def embed_faq_data(db: Session = Depends(get_db), embed_empty_only: bool = True, k: int = 0):
+@app.post(
+    "/embed_faq_data",
+    summary="Embed all data for FAQ that have not been embedded yet",
+    status_code=200,
+    response_model=ResponseBody,
+)
+def embed_faq_data(
+    db: Session = Depends(get_db), embed_empty_only: bool = True, k: int = 0
+):
     """
     Embed all FAQ questions that have not been embedded yet.
 
@@ -359,12 +475,18 @@ def embed_faq_data(db: Session = Depends(get_db), embed_empty_only: bool = True,
     return {"content": "yay"}
 
 
-@app.post("/index_pdfs_from_sitemap",
-          summary="Index memento PDFs from the https://www.ahv-iv.ch/de/Sitemap-DE sitemap",
-          response_description="Confirmation message upon successful indexing",
-          status_code=200,
-          response_model=ResponseBody)
-async def index_pdfs_from_sitemap(sitemap_url: str = "https://www.ahv-iv.ch/de/Sitemap-DE", embed: bool = False, db: Session = Depends(get_db)):
+@app.post(
+    "/index_pdfs_from_sitemap",
+    summary="Index memento PDFs from the https://www.ahv-iv.ch/de/Sitemap-DE sitemap",
+    response_description="Confirmation message upon successful indexing",
+    status_code=200,
+    response_model=ResponseBody,
+)
+async def index_pdfs_from_sitemap(
+    sitemap_url: str = "https://www.ahv-iv.ch/de/Sitemap-DE",
+    embed: bool = False,
+    db: Session = Depends(get_db),
+):
     """
     Indexes PDFs from a given sitemap URL. The PDFs are scraped and their data is added to the
     embedding database. This function is specifically designed for the site "https://www.ahv-iv.ch".
@@ -386,12 +508,18 @@ async def index_pdfs_from_sitemap(sitemap_url: str = "https://www.ahv-iv.ch/de/S
     return await ahv_indexer.index(sitemap_url, db, embed=embed)
 
 
-@app.post("/index_html_from_sitemap",
-          summary="Index HTML from a sitemap",
-          response_description="Confirmation message upon successful indexing",
-          status_code=200,
-          response_model=ResponseBody)
-async def index_html_from_sitemap(sitemap_url: str = "https://eak.admin.ch/eak/de/home.sitemap.xml", embed: bool = False, db: Session = Depends(get_db)):
+@app.post(
+    "/index_html_from_sitemap",
+    summary="Index HTML from a sitemap",
+    response_description="Confirmation message upon successful indexing",
+    status_code=200,
+    response_model=ResponseBody,
+)
+async def index_html_from_sitemap(
+    sitemap_url: str = "https://eak.admin.ch/eak/de/home.sitemap.xml",
+    embed: bool = False,
+    db: Session = Depends(get_db),
+):
     """
     Indexes HTML from a given sitemap URL. The HTML pages are scraped and their data is added to the
     embedding database. This function is specifically designed for the site "https://eak.admin.ch".
@@ -413,8 +541,18 @@ async def index_html_from_sitemap(sitemap_url: str = "https://eak.admin.ch/eak/d
     return await admin_indexer.index(sitemap_url, db, embed=embed)
 
 
-@app.put("/index_faq_data", summary="Insert Data from faq.bsv.admin.ch", response_description="Insert Data from faq.bsv.admin.ch")
-async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xml', embed_question: bool = False, embed_answer: bool = False, k: int = 0, db: Session = Depends(get_db)):
+@app.put(
+    "/index_faq_data",
+    summary="Insert Data from faq.bsv.admin.ch",
+    response_description="Insert Data from faq.bsv.admin.ch",
+)
+async def index_faq_data(
+    sitemap_url: str = "https://faq.bsv.admin.ch/sitemap.xml",
+    embed_question: bool = False,
+    embed_answer: bool = False,
+    k: int = 0,
+    db: Session = Depends(get_db),
+):
     """
     Add and index data for Autocomplete to the FAQ database. The data is obtained by scraping the website `sitemap_url`.
 
@@ -444,10 +582,12 @@ async def index_faq_data(sitemap_url: str = 'https://faq.bsv.admin.ch/sitemap.xm
     return {"message": f"Done! {len(urls)} wurden verarbeitet."}
 
 
-@app.put("/data",
-         summary="Update or Insert FAQ Data",
-         response_model=Question,
-         response_description="Updated or Inserted Data")
+@app.put(
+    "/data",
+    summary="Update or Insert FAQ Data",
+    response_model=Question,
+    response_description="Updated or Inserted Data",
+)
 async def index_data(item: QuestionItem, db: Session = Depends(get_db)):
     """
     Upsert a single entry to the FAQ dataset.

@@ -1,10 +1,10 @@
 """**Indexing** interface."""
+
 import logging
 
 from abc import ABC, abstractmethod
 from typing import List, Any
 import aiohttp
-from bs4 import BeautifulSoup
 
 from haystack.dataclasses import Document, ByteStream
 from haystack.components.preprocessors import DocumentCleaner, DocumentSplitter
@@ -14,7 +14,10 @@ from database.service.document import document_service
 from schemas.document import DocumentCreate
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 
@@ -98,17 +101,18 @@ class BaseParser(ABC):
     split_documents(documents: List[Document]) -> List[Document]:
         Abstract method to split documents into chunks.
     """
+
     def __init__(self):
         self.cleaner = DocumentCleaner(
             remove_empty_lines=True,
             remove_extra_whitespaces=True,
-            remove_repeated_substrings=False
+            remove_repeated_substrings=False,
         )
         self.splitter = DocumentSplitter(
             split_by="sentence",
             split_length=5,
             split_overlap=1,
-            split_threshold=4
+            split_threshold=4,
         )
 
     def remove_empty_documents(self, documents: List[Any]) -> List[Any]:
@@ -144,7 +148,7 @@ class BaseParser(ABC):
         seen_hrefs = set()
         unique_tags = []
         for tag in links:
-            href = tag['href']
+            href = tag["href"]
             if href not in seen_hrefs:
                 seen_hrefs.add(href)
                 unique_tags.append(tag)
@@ -256,11 +260,14 @@ class BaseIndexer(ABC):
     index(sitemap_url: str) -> dict:
         Abstract method to index content from a URL into a vectorDB.
     """
+
     def __init__(self, scraper, parser):
         self.scraper = scraper
         self.parser = parser
 
-    async def get_pages_from_sitemap(self, sitemap_url: str) -> List[ByteStream]:
+    async def get_pages_from_sitemap(
+        self, sitemap_url: str
+    ) -> List[ByteStream]:
         # Get sitemap
         sitemap = await self.scraper.fetch(sitemap_url)
 
@@ -271,7 +278,9 @@ class BaseIndexer(ABC):
         return self.scraper.scrap_urls(url_list)
 
     @abstractmethod
-    async def from_pages_to_content(self, pages: List[ByteStream]) -> List[Any]:
+    async def from_pages_to_content(
+        self, pages: List[ByteStream]
+    ) -> List[Any]:
         """
         Abstract method to convert URLs to content.
 
@@ -286,7 +295,9 @@ class BaseIndexer(ABC):
             The content extracted from the URLs.
         """
 
-    async def add_content_to_db(self, db: Session, content: List[Any], source: str, embed: bool):
+    async def add_content_to_db(
+        self, db: Session, content: List[Any], source: str, embed: bool
+    ):
         """
         Add content to the database.
 
@@ -324,12 +335,20 @@ class BaseIndexer(ABC):
             text = doc.content
             logger.info(doc.meta)
             url = doc.meta["url"] if "url" in doc.meta else source
-            await document_service.upsert(db, DocumentCreate(url=url, text=text, source=source), embed=embed)
+            await document_service.upsert(
+                db,
+                DocumentCreate(url=url, text=text, source=source),
+                embed=embed,
+            )
 
-    async def index(self, sitemap_url: str, db: Session, embed: bool = True) -> dict:
+    async def index(
+        self, sitemap_url: str, db: Session, embed: bool = True
+    ) -> dict:
         urls = await self.get_pages_from_sitemap(sitemap_url)
         content = await self.from_pages_to_content(urls)
 
-        await self.add_content_to_db(db, content, source=sitemap_url, embed=embed)
+        await self.add_content_to_db(
+            db, content, source=sitemap_url, embed=embed
+        )
 
         return {"content": f"{sitemap_url}: data indexed successfully"}

@@ -9,7 +9,11 @@ from abc import ABCMeta, abstractmethod
 from typing import Type
 
 import logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 
@@ -22,6 +26,7 @@ class BaseService(metaclass=ABCMeta):
     model
         Database model
     """
+
     def __init__(self, model=Type[Base]):
         self.model = model
 
@@ -198,7 +203,9 @@ class EmbeddingService(BaseService):
         db.commit()
         return db_obj
 
-    async def embed_many(self, db: Session, embed_empty_only: bool = True, k: int = 0):
+    async def embed_many(
+        self, db: Session, embed_empty_only: bool = True, k: int = 0
+    ):
         """
         Embed multiple objects in the database
 
@@ -220,12 +227,12 @@ class EmbeddingService(BaseService):
         if embed_empty_only:
             stmt = stmt.filter(self.model.embedding.is_(None))
         db_objs = db.scalars(stmt).all()
-        logger.info(f'Embedding {len(db_objs)} objects')
+        logger.info(f"Embedding {len(db_objs)} objects")
         i = 0
         for db_obj in db_objs:
             i += 1
             await self._embed(db_obj)
-            logger.info(f'Embedded: {db_obj}')
+            logger.info(f"Embedded: {db_obj}")
             if i == k:
                 break
         db.commit()
@@ -307,23 +314,27 @@ class EmbeddingService(BaseService):
         set[str]
             fields to exclude
         """
-        exclude = {'source'}
+        exclude = {"source"}
         # prevent from replacing existing embedding by None, check if obj_in has an embedding
         if obj_in.embedding is None:
-            exclude.add('embedding')
+            exclude.add("embedding")
 
             # specified embedding from obj_in has priority on requesting a new one
             # embed only if the text has changed
-            if embed and ((db_obj.text != obj_in.text) or (db_obj.embedding is None)):
-                logger.info(f'Embedding updated')
+            if embed and (
+                (db_obj.text != obj_in.text) or (db_obj.embedding is None)
+            ):
+                logger.info("Embedding updated")
                 await self._embedding(db_obj, obj_in.text)
             else:
-                logger.info(f'Embedding not updated')
+                logger.info("Embedding not updated")
 
-        logger.info(f'Excluded fields: {exclude}')
+        logger.info(f"Excluded fields: {exclude}")
         return exclude
 
-    async def update(self, db: Session, db_obj, obj_in: BaseModel, embed=False):
+    async def update(
+        self, db: Session, db_obj, obj_in: BaseModel, embed=False
+    ):
         """
         Update db object
 
@@ -343,7 +354,7 @@ class EmbeddingService(BaseService):
         Base
             Updated database object
         """
-        #return await self._update(db, db_obj, obj_in, embed=embed)
+        # return await self._update(db, db_obj, obj_in, embed=embed)
         try:
             db_obj = await self._update(db, db_obj, obj_in, embed=embed)
             db.commit()

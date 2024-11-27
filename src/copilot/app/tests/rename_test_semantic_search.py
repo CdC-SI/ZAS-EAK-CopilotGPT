@@ -22,7 +22,7 @@ def get_embedding(text):
     return str(response.data[0].embedding)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     text = "Qu'est-ce qui change avec AVS 21?"
     embedding = get_embedding(text)
@@ -34,12 +34,14 @@ if __name__ == '__main__':
     cursor = connection.cursor()
 
     try:
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             SELECT text,  1 - (embedding <=> '{embedding}') AS cosine_similarity
             FROM embeddings
             ORDER BY cosine_similarity desc
             LIMIT 1
-        """)
+        """
+        )
         for r in cursor.fetchall():
             print(f"Text: {r[0]}; Similarity: {r[1]}")
     except Exception as error:

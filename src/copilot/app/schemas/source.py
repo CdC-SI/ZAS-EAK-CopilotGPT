@@ -8,6 +8,7 @@ class SourceBase(BaseModel):
     """
     Base class for Source
     """
+
     url: str
     """Not necessarily a URL, but a string that identifies the source. Can be a pathfile or a user ID for example."""
 
@@ -16,6 +17,7 @@ class SourceCreate(SourceBase):
     """
     Create class for Source
     """
+
     pass
 
 
@@ -23,6 +25,7 @@ class Source(SourceBase):
     """
     Class for Source
     """
+
     id: int
 
     questions: list[QuestionBase] = []

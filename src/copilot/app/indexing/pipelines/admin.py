@@ -10,7 +10,10 @@ from indexing.base import BaseParser, BaseIndexer
 from indexing.scraper import scraper
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 
@@ -43,6 +46,7 @@ class AdminParser(BaseParser):
     split_documents(documents: List[Document]) -> List[Document]
         Splits the given documents into chunks.
     """
+
     def __init__(self):
         super().__init__()
 
@@ -52,8 +56,8 @@ class AdminParser(BaseParser):
         url_list = []
 
         # Iterate over all 'url' elements and extract 'loc' URLs
-        for url_element in soup.find_all('url'):
-            loc_element = url_element.find('loc')
+        for url_element in soup.find_all("url"):
+            loc_element = url_element.find("loc")
             if loc_element and loc_element.text:
                 url_list.append(loc_element.text)
 
@@ -80,11 +84,10 @@ class AdminIndexer(BaseIndexer):
         Scraps, parses and indexes HTML webpage content from the given sitemap URL into the VectorDB.
     """
 
-    async def from_pages_to_content(self, pages: List[ByteStream]) -> List[Any]:
+    async def from_pages_to_content(
+        self, pages: List[ByteStream]
+    ) -> List[Any]:
         return pages
 
 
-admin_indexer = AdminIndexer(
-    scraper=scraper,
-    parser=AdminParser()
-)
+admin_indexer = AdminIndexer(scraper=scraper, parser=AdminParser())

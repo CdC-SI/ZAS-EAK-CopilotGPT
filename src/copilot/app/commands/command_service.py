@@ -1,7 +1,6 @@
 import os
 from dotenv import load_dotenv
 from typing import List, Tuple, Dict, Any
-from collections.abc import Callable
 
 from schemas.chat import ChatRequest
 from rag.llm.base import BaseLLM
@@ -16,15 +15,19 @@ load_dotenv()
 
 DEEPL_API_KEY = os.environ.get("DEEPL_API_KEY", None)
 
+
 class TranslationService:
     def __init__(self):
         self.translator = deepl.Translator(DEEPL_API_KEY)
 
     async def translate(self, input_text: str, target_lang: str) -> str:
 
-        translation = self.translator.translate_text(input_text, target_lang=target_lang.upper())
+        translation = self.translator.translate_text(
+            input_text, target_lang=target_lang.upper()
+        )
 
         return translation.text
+
 
 class CommandService:
     def __init__(self, translation_service, message_builder):
@@ -56,7 +59,9 @@ class CommandService:
         return summary_mode, n_msg, summary_style
 
     def get_translate_args(self, args: List[str]) -> Tuple[int, str]:
-        translate_mode = args[0] if len(args) > 0 and args[0] in ["last", "all"] else "all"
+        translate_mode = (
+            args[0] if len(args) > 0 and args[0] in ["last", "all"] else "all"
+        )
 
         n_msg = -1
         if translate_mode == "last" and len(args) > 1 and args[1].isdigit():
@@ -64,7 +69,43 @@ class CommandService:
 
         target_lang = (
             args[-1]
-            if len(args) > 1 and args[-1] in ["ar", "bg", "cs", "da", "de", "el", "en-gb", "en-us", "es", "et", "fi", "fr", "hu", "id", "it", "ja", "ko", "lv", "nb", "nl", "pl", "pt-br", "pt-pt", "ro", "ru", "sk", "sl", "sv", "tr", "uk", "zh-hans", "zh-hant"] else "de"
+            if len(args) > 1
+            and args[-1]
+            in [
+                "ar",
+                "bg",
+                "cs",
+                "da",
+                "de",
+                "el",
+                "en-gb",
+                "en-us",
+                "es",
+                "et",
+                "fi",
+                "fr",
+                "hu",
+                "id",
+                "it",
+                "ja",
+                "ko",
+                "lv",
+                "nb",
+                "nl",
+                "pl",
+                "pt-br",
+                "pt-pt",
+                "ro",
+                "ru",
+                "sk",
+                "sl",
+                "sv",
+                "tr",
+                "uk",
+                "zh-hans",
+                "zh-hant",
+            ]
+            else "de"
         )
 
         return n_msg, target_lang
@@ -115,29 +156,44 @@ class CommandService:
         return mapping[language][mode].upper()
 
     async def translate(self, input_text: str, target_lang: str) -> str:
-        return await self.translation_service.translate(input_text, target_lang)
+        return await self.translation_service.translate(
+            input_text, target_lang
+        )
 
-    async def execute_command(self, request: ChatRequest, memory_client: ConversationalMemory) -> Dict[str, Any]:
+    async def execute_command(
+        self, request: ChatRequest, memory_client: ConversationalMemory
+    ) -> Dict[str, Any]:
         args = self.parse_args(request.command_args)
         if request.command == "/summarize":
             summary_mode, n_msg, summary_style = self.get_summarize_args(args)
             input_text = ""
             if request.user_uuid:
-                input_text = memory_client.memory_instance.format_conversational_memory(
-                    request.user_uuid, request.conversation_uuid, n_msg
+                input_text = (
+                    memory_client.memory_instance.format_conversational_memory(
+                        request.user_uuid, request.conversation_uuid, n_msg
+                    )
                 )
-            summary_style = self.map_summary_style_to_language(request.language, summary_style)
-            summary_mode = self.map_summary_mode_to_language(request.language, summary_mode)
+            summary_style = self.map_summary_style_to_language(
+                request.language, summary_style
+            )
+            summary_mode = self.map_summary_mode_to_language(
+                request.language, summary_mode
+            )
             messages = self.message_builder.build_summarize_prompt(
-                request.command, input_text, mode=summary_mode, style=summary_style
+                request.command,
+                input_text,
+                mode=summary_mode,
+                style=summary_style,
             )
             return {"messages": messages}
         elif request.command == "/translate":
             n_msg, target_lang = self.get_translate_args(args)
             input_text = ""
             if request.user_uuid:
-                input_text = memory_client.memory_instance.format_conversational_memory(
-                    request.user_uuid, request.conversation_uuid, n_msg
+                input_text = (
+                    memory_client.memory_instance.format_conversational_memory(
+                        request.user_uuid, request.conversation_uuid, n_msg
+                    )
                 )
             translated_text = await self.translate(input_text, target_lang)
             return {"translated_text": translated_text}
@@ -145,16 +201,25 @@ class CommandService:
             raise ValueError(f"Unknown command: {request.command}")
 
     @observe()
-    async def process_command(self, request: ChatRequest, llm_client: BaseLLM, streaming_handler: StreamingHandler, memory_client: ConversationalMemory, sources: Dict):
+    async def process_command(
+        self,
+        request: ChatRequest,
+        llm_client: BaseLLM,
+        streaming_handler: StreamingHandler,
+        memory_client: ConversationalMemory,
+        sources: Dict,
+    ):
 
         result = await self.execute_command(request, memory_client)
         messages = result.get("messages")
         translated_text = result.get("translated_text")
 
-        # stream response
+        # stream response
         if messages:
             event_stream = llm_client.call(messages)
-            async for token in streaming_handler.generate_stream(event_stream, sources["source_url"]):
+            async for token in streaming_handler.generate_stream(
+                event_stream, sources["source_url"]
+            ):
                 yield token
 
         elif translated_text:

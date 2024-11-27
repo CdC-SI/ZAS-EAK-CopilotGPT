@@ -11,15 +11,18 @@ from command_api import app as command_app
 from search_api import app as search_app
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 
 PREFIX = "/apy"
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_indexing()
     yield
+
 
 app = FastAPI(lifespan=lifespan)
 # Setup CORS
@@ -41,9 +44,8 @@ api.mount("/conversations", conversations_app)
 api.mount("/command", command_app)
 api.mount("/search", search_app)
 
-@api.post("/",
-          summary="Hello",
-          status_code=200)
+
+@api.post("/", summary="Hello", status_code=200)
 async def welcome():
     """
     Dummy endpoint for testing the API.

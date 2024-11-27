@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
 
 import sys
+
 sys.path.append("../../app")
 from config.clients_config import clientLLM
 
@@ -20,6 +21,7 @@ POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD", None)
 POSTGRES_HOST = "localhost"
 POSTGRES_PORT = os.environ.get("POSTGRES_PORT", None)
 POSTGRES_DB = os.environ.get("POSTGRES_DB", None)
+
 
 def connect_to_db() -> Session:
     """
@@ -47,21 +49,21 @@ def connect_to_db() -> Session:
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     return SessionLocal()
 
+
 db = connect_to_db()
 
 from rag.retrievers import RetrieverClient, TopKRetriever
 from rag.reranker import Reranker
 
 retrievers = [TopKRetriever(top_k=10)]
-reranker = Reranker(model="rerank-multilingual-v3.0",
-                    top_k=5)
+reranker = Reranker(model="rerank-multilingual-v3.0", top_k=5)
 
 
-retriever_client = RetrieverClient(retrievers=retrievers,
-                            reranker=reranker)
+retriever_client = RetrieverClient(retrievers=retrievers, reranker=reranker)
 
 # Define the maximum number of retrieval cycles
 MAX_RETRIEVAL_CYCLES = 3
+
 
 # Define the QueryHandler class
 class QueryHandler:
@@ -84,9 +86,11 @@ class QueryHandler:
         print(f"User: {refined_query}")
         return refined_query
 
+
 # Define the DocumentEvaluation class
 class DocumentEvaluation(BaseModel):
     relevant: bool
+
 
 # Define the AgentEvaluator class
 class AgentEvaluator:
@@ -102,15 +106,20 @@ class AgentEvaluator:
         DOCUMENT: {document}
 
         QUERY: {query}"""
-        messages = [{"role": "system", "content": prompt.format(document=document, query=query)},]
+        messages = [
+            {
+                "role": "system",
+                "content": prompt.format(document=document, query=query),
+            },
+        ]
         res = await self.llm_client.beta.chat.completions.parse(
-                model="gpt-4o-mini",
-                temperature=0,
-                top_p=0.95,
-                max_tokens=2048,
-                messages=messages,
-                response_format=DocumentEvaluation
-            )
+            model="gpt-4o-mini",
+            temperature=0,
+            top_p=0.95,
+            max_tokens=2048,
+            messages=messages,
+            response_format=DocumentEvaluation,
+        )
         is_relevant = res.choices[0].message.parsed.relevant
         if is_relevant:
             return document
@@ -128,15 +137,25 @@ class AgentEvaluator:
         {relevant_documents}
 
         QUERY: {query}"""
-        messages = [{"role": "system", "content": prompt.format(relevant_documents="\n\n".join([doc['text'] for doc in relevant_documents]), query=query)},]
+        messages = [
+            {
+                "role": "system",
+                "content": prompt.format(
+                    relevant_documents="\n\n".join(
+                        [doc["text"] for doc in relevant_documents]
+                    ),
+                    query=query,
+                ),
+            },
+        ]
         res = await self.llm_client.beta.chat.completions.parse(
-                model="gpt-4o-mini",
-                temperature=0,
-                top_p=0.95,
-                max_tokens=2048,
-                messages=messages,
-                response_format=DocumentEvaluation
-            )
+            model="gpt-4o-mini",
+            temperature=0,
+            top_p=0.95,
+            max_tokens=2048,
+            messages=messages,
+            response_format=DocumentEvaluation,
+        )
         is_sufficient = res.choices[0].message.parsed.relevant
         print("Assessing sufficiency of documents.")
         return is_sufficient
@@ -150,15 +169,20 @@ class AgentEvaluator:
         RETRIEVED DOCUMENTS: {document}
 
         QUERY: {query}"""
-        messages = [{"role": "system", "content": prompt.format(document=full_documents, query=query)},]
+        messages = [
+            {
+                "role": "system",
+                "content": prompt.format(document=full_documents, query=query),
+            },
+        ]
         res = await self.llm_client.beta.chat.completions.parse(
-                model="gpt-4o-mini",
-                temperature=0,
-                top_p=0.95,
-                max_tokens=2048,
-                messages=messages,
-                response_format=DocumentEvaluation
-            )
+            model="gpt-4o-mini",
+            temperature=0,
+            top_p=0.95,
+            max_tokens=2048,
+            messages=messages,
+            response_format=DocumentEvaluation,
+        )
         agent_can_refine = res.choices[0].message.parsed.relevant
         print("Deciding whether to refine query autonomously.")
         if agent_can_refine:
@@ -182,18 +206,29 @@ class QueryRefiner:
         QUERY: {query}
 
         REFINED QUERY:"""
-        messages = [{"role": "system", "content": prompt.format(relevant_documents="\n\n".join([doc['text'] for doc in full_documents]), query=query)},]
+        messages = [
+            {
+                "role": "system",
+                "content": prompt.format(
+                    relevant_documents="\n\n".join(
+                        [doc["text"] for doc in full_documents]
+                    ),
+                    query=query,
+                ),
+            },
+        ]
         res = await self.llm_client.chat.completions.create(
-                model="gpt-4o-mini",
-                stream=False,
-                temperature=0,
-                top_p=0.95,
-                max_tokens=2048,
-                messages=messages,
-            )
+            model="gpt-4o-mini",
+            stream=False,
+            temperature=0,
+            top_p=0.95,
+            max_tokens=2048,
+            messages=messages,
+        )
         refined_query = res.choices[0].message.content
         print(f"Refining query: {refined_query}")
         return refined_query
+
 
 # Define the AnswerGenerator class
 class AnswerGenerator:
@@ -209,17 +244,28 @@ class AnswerGenerator:
         {relevant_documents}
 
         QUERY: {query}"""
-        messages = [{"role": "system", "content": prompt.format(relevant_documents="\n\n".join([doc['text'] for doc in relevant_documents]), query=query)},]
+        messages = [
+            {
+                "role": "system",
+                "content": prompt.format(
+                    relevant_documents="\n\n".join(
+                        [doc["text"] for doc in relevant_documents]
+                    ),
+                    query=query,
+                ),
+            },
+        ]
         res = await self.llm_client.chat.completions.create(
-                model="gpt-4o-mini",
-                stream=False,
-                temperature=0,
-                top_p=0.95,
-                max_tokens=2048,
-                messages=messages,
-            )
+            model="gpt-4o-mini",
+            stream=False,
+            temperature=0,
+            top_p=0.95,
+            max_tokens=2048,
+            messages=messages,
+        )
         answer = res.choices[0].message.content
         return answer
+
 
 # Define the WorkflowManager class
 class WorkflowManager:
@@ -237,63 +283,87 @@ class WorkflowManager:
 
         if not is_on_topic:
             # Return answer to frontend/uas-security
-            print("Assistant: How can I can I help you with matters related to AVS/AI?")
+            print(
+                "Assistant: How can I can I help you with matters related to AVS/AI?"
+            )
             return
 
         # Initialize variables
         sufficient_documents = False
 
         # Main retrieval and evaluation loop
-        while not sufficient_documents and self.retrieval_round < MAX_RETRIEVAL_CYCLES:
+        while (
+            not sufficient_documents
+            and self.retrieval_round < MAX_RETRIEVAL_CYCLES
+        ):
             self.retrieval_round += 1
             print(f"\n--- Retrieval Round {self.retrieval_round} ---")
 
             # Step 1: Initial Document Retrieval
-            # NEED TO CACHE/REMOVE ALREADY RETRIEVED DOCUMENTS !!!
+            # NEED TO CACHE/REMOVE ALREADY RETRIEVED DOCUMENTS !!!
             documents = await self.retriever.get_documents(db, query, k=10)
 
             # Step 2: Agent Evaluation of Retrieved Documents
-            evaluation_tasks = [self.evaluator.evaluate_document(doc, query) for doc in documents]
+            evaluation_tasks = [
+                self.evaluator.evaluate_document(doc, query)
+                for doc in documents
+            ]
             evaluation_results = await asyncio.gather(*evaluation_tasks)
-            relevant_chunks = [result for result in evaluation_results if result is not None]
+            relevant_chunks = [
+                result for result in evaluation_results if result is not None
+            ]
 
             # Retrieve remaining chunks to reconstruct full documents (placeholder)
-            #full_documents = ["full_document_from_chunk_1"]  # Simulate assembling full documents
+            # full_documents = ["full_document_from_chunk_1"]  # Simulate assembling full documents
             # Will have to do URL injection here + KG + PageRank consolidation
             full_documents = relevant_chunks
 
             # Step 3: Assess Sufficiency of Documents
-            sufficient_documents = await self.evaluator.assess_sufficiency(query, full_documents)
+            sufficient_documents = await self.evaluator.assess_sufficiency(
+                query, full_documents
+            )
 
             if sufficient_documents:
                 # Step 6: Answer Generation
-                answer = await self.answer_generator.generate_answer(query, full_documents)
+                answer = await self.answer_generator.generate_answer(
+                    query, full_documents
+                )
                 print(f"Assistant: {answer}")
                 return
             else:
                 # Step 4: Query Refinement
-                agent_can_refine = await self.evaluator.decide_query_refinement(query, full_documents)
+                agent_can_refine = (
+                    await self.evaluator.decide_query_refinement(
+                        query, full_documents
+                    )
+                )
                 if agent_can_refine:
                     # Agent refines the query autonomously
-                    query = await self.refiner.refine_query(query, full_documents)
+                    query = await self.refiner.refine_query(
+                        query, full_documents
+                    )
                 else:
                     # Agent asks the user for clarification
                     # EITHER USE TOOL OR ASK GENERIC QUESTION OR ASK QUESTION BASED ON RETRIEVED CONTENT AND CURRENT QUERY
                     query = await self.query_handler.ask_for_clarification()
 
         # Step 7: Handling Insufficient Information
-        print("Assistant: I'm sorry, I cannot answer your query with the available data.")
+        print(
+            "Assistant: I'm sorry, I cannot answer your query with the available data."
+        )
+
 
 # Main execution
 async def main():
     workflow_manager = WorkflowManager()
 
-    #query = "wer ist donald Trump?"
-    #query = "avs21 expliqué en une phrase"
-    #query = "ich, weiblich, geboren 31.12.1962. Wann erhalte ich meine erste AHV Rente?"
+    # query = "wer ist donald Trump?"
+    # query = "avs21 expliqué en une phrase"
+    # query = "ich, weiblich, geboren 31.12.1962. Wann erhalte ich meine erste AHV Rente?"
     query = "ich arbeite vollzeit (100%), und die kinder leven bei meiner arbeitslosen ex partnerin. Wer erhält in diesem Fall die Familienzulagen?"
 
     await workflow_manager.run_workflow(query)
+
 
 # Run the asynchronous main function
 asyncio.run(main())

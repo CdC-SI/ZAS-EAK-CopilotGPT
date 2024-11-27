@@ -20,7 +20,10 @@ from sqlalchemy.orm import Session
 from database.database import get_db
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(**rag_app_config)
@@ -34,10 +37,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/query",
-          summary="Process RAG query endpoint",
-          response_description="Return result from processing RAG query",
-          status_code=200)
+
+@app.post(
+    "/query",
+    summary="Process RAG query endpoint",
+    response_description="Return result from processing RAG query",
+    status_code=200,
+)
 async def process_query(request: ChatRequest, db: Session = Depends(get_db)):
     """
     Main endpoint for the RAG service, processes a RAG query.
@@ -56,12 +62,21 @@ async def process_query(request: ChatRequest, db: Session = Depends(get_db)):
 
     return StreamingResponse(content, media_type="text/event-stream")
 
-@app.get("/context_docs",
-          summary="Retrieve context docs endpoint",
-          response_description="Return context docs from semantic search",
-          response_model=List[Document],
-          status_code=200)
-async def docs(request: ChatRequest, language: str = None, tag: str = None, k: int = 0, db: Session = Depends(get_db)):
+
+@app.get(
+    "/context_docs",
+    summary="Retrieve context docs endpoint",
+    response_description="Return context docs from semantic search",
+    response_model=List[Document],
+    status_code=200,
+)
+async def docs(
+    request: ChatRequest,
+    language: str = None,
+    tag: str = None,
+    k: int = 0,
+    db: Session = Depends(get_db),
+):
     """
     Retrieve context documents for a given query.
 
@@ -84,11 +99,16 @@ async def docs(request: ChatRequest, language: str = None, tag: str = None, k: i
 
     return rag_service.retrieve(db, request, language, tag=tag, k=k)
 
-@app.get("/rerank",
-         summary="Reranking endpoint",
-         response_description="Welcome Message")
+
+@app.get(
+    "/rerank",
+    summary="Reranking endpoint",
+    response_description="Welcome Message",
+)
 async def rerank():
     """
     Dummy endpoint for retrieved docs reranking.
     """
-    return Response(content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED)
+    return Response(
+        content="Not Implemented", status_code=status.HTTP_501_NOT_IMPLEMENTED
+    )

@@ -20,7 +20,12 @@ class Autocompleter:
             threshold for trigram matching, only results with a similarity score above this threshold will be returned
     """
 
-    def __init__(self, limit: int, fuzzy_match_threshold: int, trigram_match_threshold: int):
+    def __init__(
+        self,
+        limit: int,
+        fuzzy_match_threshold: int,
+        trigram_match_threshold: int,
+    ):
         self.limit = limit
         self.fuzzy_match_threshold = fuzzy_match_threshold
         self.trigram_match_threshold = trigram_match_threshold
@@ -45,7 +50,14 @@ class Autocompleter:
         """
         return hashlib.md5(f"{question}_{language}".encode()).hexdigest()
 
-    async def get_autocomplete(self, db: Session, question: str, language: str = None, k: int = 0, tag: List[str] = None):
+    async def get_autocomplete(
+        self,
+        db: Session,
+        question: str,
+        language: str = None,
+        k: int = 0,
+        tag: List[str] = None,
+    ):
         """
         Returns matching results according to a defined behaviour.
 
@@ -72,12 +84,14 @@ class Autocompleter:
             a list of matching results
         """
         # Get fuzzy match
-        unique_matches = question_service.get_trigram_match(db,
-                                                            question,
-                                                            threshold=self.trigram_match_threshold,
-                                                            language=language,
-                                                            k=self.limit,
-                                                            tag=tag)
+        unique_matches = question_service.get_trigram_match(
+            db,
+            question,
+            threshold=self.trigram_match_threshold,
+            language=language,
+            k=self.limit,
+            tag=tag,
+        )
 
         # If the combined results from exact match and fuzzy match are more than 5, return results
         # note: value should be parametrized
@@ -92,17 +106,23 @@ class Autocompleter:
             if cache_key in self.semantic_matches_cache:
                 semantic_match = self.semantic_matches_cache[cache_key]
             else:
-                semantic_match = await question_service.get_semantic_match(db, question, language, k=self.limit, tag=tag)
+                semantic_match = await question_service.get_semantic_match(
+                    db, question, language, k=self.limit, tag=tag
+                )
                 self.semantic_matches_cache[cache_key] = semantic_match
 
             # Remove duplicates and preserve order
             seen = []
             unique_matches = unique_matches + semantic_match
-            unique_matches = [seen.append(question) for question in unique_matches if question not in seen]
+            unique_matches = [
+                seen.append(question)
+                for question in unique_matches
+                if question not in seen
+            ]
             unique_matches = seen
 
             if self.limit > 0:
-                unique_matches = unique_matches[:self.limit]
+                unique_matches = unique_matches[: self.limit]
 
             return unique_matches
 
@@ -112,4 +132,5 @@ class Autocompleter:
 autocomplete_service = Autocompleter(
     limit=autocomplete_config["results"]["limit"],
     fuzzy_match_threshold=autocomplete_config["fuzzy_match"]["limit"],
-    trigram_match_threshold=autocomplete_config["trigram_match"]["threshold"])
+    trigram_match_threshold=autocomplete_config["trigram_match"]["threshold"],
+)

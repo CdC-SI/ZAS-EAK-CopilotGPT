@@ -11,8 +11,12 @@ from config.llm_config import DEFAULT_ANTHROPIC_LLM_MODEL
 from config.clients_config import clientLLM
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
+
 
 class AnthropicLLM(BaseLLM):
     """
@@ -31,7 +35,15 @@ class AnthropicLLM(BaseLLM):
     max_tokens : int
         The maximum number of tokens to generate.
     """
-    def __init__(self, model_name: str = DEFAULT_ANTHROPIC_LLM_MODEL, stream: bool = True, temperature: float = 0.0, top_p: float = 0.95, max_tokens: int = 2048):
+
+    def __init__(
+        self,
+        model_name: str = DEFAULT_ANTHROPIC_LLM_MODEL,
+        stream: bool = True,
+        temperature: float = 0.0,
+        top_p: float = 0.95,
+        max_tokens: int = 2048,
+    ):
         self.model_name = model_name
         self.temperature = temperature
         self.top_p = top_p
@@ -65,7 +77,7 @@ class AnthropicLLM(BaseLLM):
                 temperature=self.temperature,
                 top_p=self.top_p,
                 max_tokens=self.max_tokens,
-                messages=messages
+                messages=messages,
             )
         except Exception as e:
             raise e
@@ -78,7 +90,7 @@ class AnthropicLLM(BaseLLM):
                 temperature=self.temperature,
                 top_p=self.top_p,
                 max_tokens=self.max_tokens,
-                messages=messages
+                messages=messages,
             )
         except Exception as e:
             raise e

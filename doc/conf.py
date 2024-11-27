@@ -12,46 +12,47 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../src/copilot/app'))
-sys.path.insert(0, os.path.abspath('../src/copilot/app/autocomplete'))
-sys.path.insert(0, os.path.abspath('../src/copilot/app/indexing'))
-sys.path.insert(0, os.path.abspath('../src/copilot/app/rag'))
+
+sys.path.insert(0, os.path.abspath("../src/copilot/app"))
+sys.path.insert(0, os.path.abspath("../src/copilot/app/autocomplete"))
+sys.path.insert(0, os.path.abspath("../src/copilot/app/indexing"))
+sys.path.insert(0, os.path.abspath("../src/copilot/app/rag"))
 # sys.path.insert(0, os.path.abspath('../other/app/path'))
 # missing survey pipeline and gui
 
-os.environ['RUN_WITHOUT_DB'] = 'true'
+os.environ["RUN_WITHOUT_DB"] = "true"
 
 # -- Project information -----------------------------------------------------
 
-project = 'ZAS/EAK CopilotGPT'
-copyright = '2024, CdC-SI'
-author = 'CdC-SI'
+project = "ZAS/EAK CopilotGPT"
+copyright = "2024, CdC-SI"
+author = "CdC-SI"
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.0'
+release = "0.1.0"
 
 
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
-    'sphinx.ext.todo',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.todo",
     "sphinx_copybutton",
-    "myst_parser",          # .md support
+    "myst_parser",  # .md support
     "sphinx_inline_tabs",
-    'sphinx.ext.napoleon',  # NumPy & Google docstrings
-    'sphinxcontrib.autodoc_pydantic',  # pydantic integration
-    'sphinx_sqlalchemy',  # SQLAlchemy integration
+    "sphinx.ext.napoleon",  # NumPy & Google docstrings
+    "sphinxcontrib.autodoc_pydantic",  # pydantic integration
+    "sphinx_sqlalchemy",  # SQLAlchemy integration
 ]
 autodoc_mock_imports = ["fastapi"]
-autodoc_member_order = 'bysource'
+autodoc_member_order = "bysource"
 todo_include_todos = True
 myst_enable_extensions = ["deflist"]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -64,7 +65,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'furo'
+html_theme = "furo"
 html_theme_options = {
     "source_repository": "https://github.com/CdC-SI/ZAS-EAK-CopilotGPT",
     "source_branch": "main/",
@@ -89,12 +90,12 @@ html_theme_options = {
 }
 
 html_css_files = [
-    'css/custom.css',
+    "css/custom.css",
 ]
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 html_favicon = "_static/img/favicon.ico"
 html_title = "ZAS/EAK CopilotGPT documentation"

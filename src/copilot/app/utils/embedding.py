@@ -7,6 +7,7 @@ from config.clients_config import clientEmbed
 import openai
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -20,5 +21,7 @@ async def get_embedding(text: Union[List[str], str]):
         return response.data[0].embedding
     except openai.BadRequestError as e:
         logger.error(e.message)
-        logger.error(f"Failed to get embeddings for text of length: {len(text)}")
+        logger.error(
+            f"Failed to get embeddings for text of length: {len(text)}"
+        )
         return None

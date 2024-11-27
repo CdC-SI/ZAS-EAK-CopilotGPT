@@ -6,7 +6,11 @@ from database.models import Document
 
 # Setup logging
 import logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 
@@ -30,7 +34,9 @@ class Reranker:
         except Exception as e:
             logger.error(f"Reranker raised an exception: {e}")
 
-    async def rerank(self, query, documents: List[Document]) -> Tuple[List[Document], List[int]]:
+    async def rerank(
+        self, query, documents: List[Document]
+    ) -> Tuple[List[Document], List[int]]:
         relevance_score = [0] * self.top_k  # Initialize relevance scores to 0
         text_documents = [doc["text"] for doc in documents]
 
@@ -43,4 +49,4 @@ class Reranker:
 
         finally:
             logger.info(f"Finished reranking {len(documents)} documents.")
-            return documents[:self.top_k], relevance_score
+            return documents[: self.top_k], relevance_score

@@ -6,10 +6,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from config.network_config import CORS_ALLOWED_ORIGINS
 from database.database import get_db
 from database.models import Source, Document
-from config.llm_config import SUPPORTED_OPENAI_LLM_MODELS, SUPPORTED_ANTHROPIC_LLM_MODELS
+from config.llm_config import (
+    SUPPORTED_OPENAI_LLM_MODELS,
+    SUPPORTED_ANTHROPIC_LLM_MODELS,
+)
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
@@ -23,10 +29,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/sources",
-         summary="Get sources from postgres 'source' table",
-         response_description="Return a list of sources",
-         status_code=200)
+
+@app.get(
+    "/sources",
+    summary="Get sources from postgres 'source' table",
+    response_description="Return a list of sources",
+    status_code=200,
+)
 async def get_sources(db: Session = Depends(get_db)):
     """
     Endpoint to get all sources from 'source' table in postgres.
@@ -34,10 +43,13 @@ async def get_sources(db: Session = Depends(get_db)):
     unique_urls = db.query(Source.url).distinct().all()
     return [url[0] for url in unique_urls]
 
-@app.get("/tags",
-         summary="Get tags from postgres 'document' table",
-         response_description="Return a list of tags",
-         status_code=200)
+
+@app.get(
+    "/tags",
+    summary="Get tags from postgres 'document' table",
+    response_description="Return a list of tags",
+    status_code=200,
+)
 async def get_tags(db: Session = Depends(get_db)):
     """
     Endpoint to get all sources from 'source' table in postgres.
@@ -45,10 +57,13 @@ async def get_tags(db: Session = Depends(get_db)):
     unique_tags = db.query(Document.tag).distinct().all()
     return [tag[0] for tag in unique_tags]
 
-@app.get("/llm_models",
-         summary="Get llm models list",
-         response_description="Return a list of llm models",
-         status_code=200)
+
+@app.get(
+    "/llm_models",
+    summary="Get llm models list",
+    response_description="Return a list of llm models",
+    status_code=200,
+)
 async def get_llm_models(db: Session = Depends(get_db)):
     """
     Endpoint to get all supported llm_models from config.
@@ -56,13 +71,23 @@ async def get_llm_models(db: Session = Depends(get_db)):
     llm_models = SUPPORTED_OPENAI_LLM_MODELS + SUPPORTED_ANTHROPIC_LLM_MODELS
     return llm_models
 
-@app.get("/retrieval_methods",
-         summary="Get retrieval_methods list",
-         response_description="Return a list of retrieval methods",
-         status_code=200)
+
+@app.get(
+    "/retrieval_methods",
+    summary="Get retrieval_methods list",
+    response_description="Return a list of retrieval methods",
+    status_code=200,
+)
 async def get_retrieval_methods():
     """
     Endpoint to get all supported retrieval methods from config.
     """
-    retrieval_methods = ["top_k_retriever", "query_rewriting_retriever", "contextual_compression_retriever", "rag_fusion_retriever", "bm25", "reranking"]
+    retrieval_methods = [
+        "top_k_retriever",
+        "query_rewriting_retriever",
+        "contextual_compression_retriever",
+        "rag_fusion_retriever",
+        "bm25",
+        "reranking",
+    ]
     return retrieval_methods

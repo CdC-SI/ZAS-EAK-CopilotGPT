@@ -6,9 +6,7 @@ conversation_uuid = "a90a6103-2092-4e08-8cb9-bea9396ec420"
 # Test the GET /apy/conversations endpoint
 url = "http://localhost:8000/apy/conversations"
 
-params = {
-    "user_uuid": user_uuid
-}
+params = {"user_uuid": user_uuid}
 
 response = requests.get(url, params=params)
 
@@ -37,9 +35,7 @@ print("--------------------------------")
 url = "http://localhost:8000/apy/conversations/titles"
 
 # Define the parameters
-params = {
-    "user_uuid": user_uuid
-}
+params = {"user_uuid": user_uuid}
 
 # Make a GET request to the endpoint
 response = requests.get(url, params=params)
@@ -76,7 +72,7 @@ params = {
     "user_uuid": user_uuid,
     "conversation_uuid": conversation_uuid,
     "message_uuid": message_uuid,
-    "comment": "SUPER BAD!!!"
+    "comment": "SUPER BAD!!!",
 }
 
 # Make the PUT request

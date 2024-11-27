@@ -9,6 +9,7 @@ class QuestionBase(BaseModel):
     """
     Base class for Question
     """
+
     language: Optional[str] = None
     """Language of the question and answer text"""
 
@@ -28,6 +29,7 @@ class QuestionCreate(QuestionBase):
     """
     Create class for Question
     """
+
     answer: str
     """Text of the answer to the question"""
 
@@ -41,6 +43,7 @@ class QuestionsCreate(BaseModel):
     """
     Create class for Question
     """
+
     objects: list[QuestionCreate]
     """A list of questions to add to the database"""
 
@@ -49,6 +52,7 @@ class QuestionItem(QuestionCreate):
     """
     Upsert class for Question in Survey Pipeline
     """
+
     id: Optional[int] = None
     source: Optional[str] = None
 
@@ -57,6 +61,7 @@ class QuestionUpdate(QuestionBase):
     """
     Update class for Question
     """
+
     source_id: Optional[int] = None
     embedding: Optional[list[float]] = None
 

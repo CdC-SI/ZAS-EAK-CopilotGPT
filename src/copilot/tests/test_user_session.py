@@ -26,25 +26,25 @@ query = "explique moi le concept du splitting"
 
 data = ChatRequest(
     query=query,
-    #language=language,
+    # language=language,
     tag=tag,
-    #source=source,
+    # source=source,
     llm_model=llm_model,
     retrieval_method=retrieval_method,
-    #k_memory=k_memory,
-    #command=command,
-    #command_args=command_args,
+    # k_memory=k_memory,
+    # command=command,
+    # command_args=command_args,
     user_uuid=user_uuid,
     conversation_uuid=conversation_uuid,
-    #autocomplete=autocomplete,
-    #rag=rag,
-    ).dict()
+    # autocomplete=autocomplete,
+    # rag=rag,
+).dict()
 
 response = requests.post(url, json=data, stream=True)
 
 if response.status_code == 200:
     for chunk in response.iter_content(chunk_size=1024):
         if chunk:
-            print(chunk.decode("utf-8"), end='', flush=True)
+            print(chunk.decode("utf-8"), end="", flush=True)
 else:
     print(f"Error: {response.status_code} - {response.text}")

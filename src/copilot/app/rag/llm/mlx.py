@@ -1,17 +1,20 @@
 import os
 import logging
-from typing import List, Dict
 from rag.llm.base import BaseLLM
 from config.llm_config import DEFAULT_MLX_LLM_MODEL
 from schemas.llm import ResponseModel, Choice, Delta, Message
 import aiohttp
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 LLM_GENERATION_ENDPOINT = os.environ.get("LLM_GENERATION_ENDPOINT", None)
-ASYNC_GENERATE_ENDPOINT = os.path.join(LLM_GENERATION_ENDPOINT, 'agenerate')
+ASYNC_GENERATE_ENDPOINT = os.path.join(LLM_GENERATION_ENDPOINT, "agenerate")
+
 
 class MLXLLM(BaseLLM):
     """
@@ -37,7 +40,15 @@ class MLXLLM(BaseLLM):
     _astream()
         Generates an async stream of events as response for a list of messages using the MLXLLM model.
     """
-    def __init__(self, model_name: str = DEFAULT_MLX_LLM_MODEL, stream: bool = True, temperature: float = 0.0, top_p: float = 0.95, max_tokens: int = 512):
+
+    def __init__(
+        self,
+        model_name: str = DEFAULT_MLX_LLM_MODEL,
+        stream: bool = True,
+        temperature: float = 0.0,
+        top_p: float = 0.95,
+        max_tokens: int = 512,
+    ):
         self.model_name = model_name
         self.temperature = temperature
         self.top_p = top_p
@@ -66,26 +77,50 @@ class MLXLLM(BaseLLM):
         """
         async with aiohttp.ClientSession() as session:
             logger.info(messages)
-            async with session.get(ASYNC_GENERATE_ENDPOINT,
-                params={'prompt': messages,
-                       'stream': 'false',
-                       'temperature': self.temperature,
-                       'top_p': self.top_p,
-                       'max_tokens': self.max_tokens}) as response:
+            async with session.get(
+                ASYNC_GENERATE_ENDPOINT,
+                params={
+                    "prompt": messages,
+                    "stream": "false",
+                    "temperature": self.temperature,
+                    "top_p": self.top_p,
+                    "max_tokens": self.max_tokens,
+                },
+            ) as response:
                 text = await response.text()
-                return ResponseModel(choices=[Choice(message=Message(content=text))])
+                return ResponseModel(
+                    choices=[Choice(message=Message(content=text))]
+                )
 
     async def _astream(self, messages: str):
         async with aiohttp.ClientSession() as session:
             headers = {
-                'Accept': 'text/event-stream',
-                'Cache-Control': 'no-cache'
+                "Accept": "text/event-stream",
+                "Cache-Control": "no-cache",
             }
-            async with session.get(ASYNC_GENERATE_ENDPOINT, params={'prompt': messages, 'stream': 'true', 'temperature': self.temperature, 'top_p': self.top_p, 'max_tokens': self.max_tokens}, headers=headers) as response:
+            async with session.get(
+                ASYNC_GENERATE_ENDPOINT,
+                params={
+                    "prompt": messages,
+                    "stream": "true",
+                    "temperature": self.temperature,
+                    "top_p": self.top_p,
+                    "max_tokens": self.max_tokens,
+                },
+                headers=headers,
+            ) as response:
                 async for line in response.content:
                     if line:
-                        content = line.decode('utf-8').replace('data: ', '').replace('\n', '')
-                        if content != '[DONE]':
-                            yield ResponseModel(choices=[Choice(delta=Delta(content=content))])
+                        content = (
+                            line.decode("utf-8")
+                            .replace("data: ", "")
+                            .replace("\n", "")
+                        )
+                        if content != "[DONE]":
+                            yield ResponseModel(
+                                choices=[Choice(delta=Delta(content=content))]
+                            )
                         else:
-                            yield ResponseModel(choices=[Choice(delta=Delta(content=None))])
+                            yield ResponseModel(
+                                choices=[Choice(delta=Delta(content=None))]
+                            )
