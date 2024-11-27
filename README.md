@@ -16,31 +16,33 @@ Check [the website](https://cdc-si.github.io/ZAS-EAK-CopilotGPT/) for more infor
 
 ## Updates
 
-### Version 0.1.0 - TBD
+### Coming Soon
+- Livingdocs Adapter
 - Confluence Adapter
+- Local Private Embeddings
+- Agentic RAG
+- GraphRAG
+- RAPTOR
 - Optimized Indexing Pipeline
 - Anonymization/De-Anonymization Module
 
-### 16.10.2024
+### Version 0.1.0
+
+- Authentication
 - User feedback
 - Conversational Memory
-
-### 19.09.2024
-- Optimized RAG
-
-### 18.07.2024
-- Survey Pipeline
-
-### 03.07.2024
-- OnPrem LLM
-
-### MVP1 - 31.05.2024
-- GUI Styleguide Bundle
-
-### 01.05.2024
-- GUI
+- Chat History
 - Autocomplete
-- Basic RAG
+- Optimized RAG
+- Commands
+    - `/summarize`
+    - `/translate`
+- Survey Pipeline
+- Local Private LLM
+    - `llama.cpp` (all compatible models eg. HuggingFace)
+    - `mlx` (Apple Silicon)
+- GUI
+- GUI Styleguide Bundle
 
 ## Challenge Vision
 
@@ -58,8 +60,17 @@ Please check the ```CONTRIBUTORS.md``` file to contribute to the ZAS/EAK Copilot
 ## How it works
 
 The ZAS/EAK CopilotGPT currently features:
-- **Question autosuggest**: High quality curated questions (from FAQ) are suggested in the chatbar based on the user input. Validated answers with sources are then returned in the chat. Autocomplete currently supports exact match, fuzzy match and semantic similarity match.
+- **Question autosuggest**: High quality curated questions (from FAQ) are suggested in the chatbar based on the user input. Validated answers with sources are then returned in the chat. Autocomplete currently supports:
+    - `exact match`
+    - `fuzzy match` (`levenstein match`, `trigram match`)
+    - `semantic similarity match`
 - **RAG**: When no known question/answer pairs are found through autosuggest, RAG is initiated. A semantic similarity search will match the most relevant indexed documents in a vector database and an LLM will generate an answer based on these documents, providing the source of the answer.
+- **Agentic RAG**: A query is analyzed and routed to a suitable agent (eg. `FAK-EAK` agent) which can execute specialized tools (eg. `calculate_reduction_rate_and_supplement`, `calculate_reference_age`, etc.) and execute agentic RAG:
+    - Ask followup questions
+    - Refine user query
+    - Expand search
+    - Perform multiple retrieval rounds
+    - Evaluate retrieval results
 
 ## Getting Started
 
@@ -89,27 +100,57 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
 
 2. **Setting Up Environment Variables**
 
-    To use the ZAS/EAK Copilot, you need to set up some environment variables.
+    To use the ZAS/EAK Copilot, you need to set up some environment variables in `.env`.
 
-    - The `OPENAI_API_KEY` is a required field that must be filled in (get it at: https://platform.openai.com/api-keys).
-    - The `COHERE_API_KEY` is a required field that must be filled in (get it at: https://dashboard.cohere.com/api-keys).
-    - Note: You can also use AzureOpenAI by setting the `AZUREOPENAI_API_KEY`, `AZUREOPENAI_API_VERSION` and `AZUREOPENAI_ENDPOINT` variables. Ensure that your model deployment name (eg. `azure-gpt-4-32k`) is set accordingly in `src/copilot/app/config/config.yaml` under the `rag/llm/model` field.
-
-    All other fields are preconfigured with default settings (but can be configured as well).  Copy the `.env.example` file to a new file named `.env` and fill in the appropriate values from above:
+    Copy the `.env.example` file to a new file named `.env` and fill in the appropriate values:
 
     ```bash
     cp .env.example .env
     ```
 
-3. **OPTIONAL: Copilot Configuration**
+    If using commercial API LLM/embedding/reranking APIs, set:
+
+    - `OPENAI_API_KEY` (get it at [OpenAI console](https://platform.openai.com/api-keys))
+    - Note: You can also use AzureOpenAI by setting:
+        - `AZUREOPENAI_API_KEY`
+        - `AZUREOPENAI_API_VERSION`
+        - `AZUREOPENAI_ENDPOINT`
+    - `ANTHROPIC_API_KEY` (get it at [OpenAI console](https://console.anthropic.com/account/keys))
+    - `GEMINI_API_KEY` (get it at [Gemini console](https://ai.google.dev/gemini-api/docs/api-key))
+    - `GROQ_API_KEY` (get it at [Groq console](https://console.groq.com/keys))
+    - `COHERE_API_KEY` (get it at [Cohere console](https://dashboard.cohere.com/api-keys))
+    - `DEEPL_API_KEY` (get it at [Deepl console](https://support.deepl.com/hc/en-us/articles/360020695820-API-Key-for-DeepL-s-API))
+
+    If using Open Source local LLM/embedding/reranking APIs, set:
+
+    - `LLM_GENERATION_ENDPOINT` (URL and port, eg. `http://host.docker.internal:5000`)
+
+
+    All other fields are preconfigured with default settings (but can be configured as well).
+
+3. **OPTIONAL: Advanced Copilot Configuration**
 
     The Copilot is configured with default settings, but you can customize every aspect (eg. LLM model, embedding model, autocomplete, RAG, etc.).
 
-    Here are some tips to customize some parameters in `src/copilot/app/config/config.yaml`:
+    Here are some tips to customize parameters in `src/copilot/app/config/config.yaml`:
 
-    - `rag/llm/model`: set a specific LLM (eg. `gpt-4o-mini` with an OpenAI API key or `llama-3.1-8b-instant` with a GROQ API key)
-    - `rag/embedding/model`: set a specific embedding model (eg. `text-embedding-3-small` with an OpenAI API key. RAG performance might vary if embedding data with a different embedding model in the vectorDB).
-    - `rag/retrieval/retrieval_method`: add a different retriever (eg. `query_rewriting_retriever`, `bm25_retriever` and/or a `contextual_compression_retriever`)  to the list of retrievers and see how this affects your RAG.
+    - `rag/llm/model`: set a specific LLM model:
+        - `gpt-4o-mini` with an OpenAI API key
+        - `claude-3-5-sonnet-20241022` with an Anthropic API key
+        - `llama-3.1-8b-instant` with a GROQ API key
+        - Note: set a valid LLM API model name for a given provider.
+        - Note: if using an Open Source LLM:
+            - with `llama.cpp`: prefix the model name with `llama-cpp` (eg. `llama-cpp/qwen2.5-7b-instruct-q2_k.gguf`)
+            - with `mlx`: prefix the model name with `mlx-community` (eg. `mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX`)
+    - `rag/embedding/model`: set a specific embedding model
+        - `text-embedding-3-small` with an OpenAI API key
+        - Note: RAG performance might vary if you don't embed all your data with the same embedding model.
+    - `rag/retrieval/retrieval_method`: add different retrievers
+        - `top_k_retriever`
+        - `query_rewriting_retriever`
+        - `bm25_retriever`
+        - `contextual_compression_retriever`
+        - `reranking`
 
 4. **Build Docker Images**
 
@@ -128,8 +169,10 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
 
 6. **Index some data**
 
-    - To add some sample data for FAQ and RAG, you can navigate to http://localhost:8000/apy/indexing/docs/ and make a request to ```/add_faq_data_from_csv``` and ```/add_rag_data_from_csv``` (set ```embed``` parameter to ```true``` to enable semantic search). See API reference for required csv structure.
+    - To index some sample data for FAQ and RAG, you can navigate to the [indexing](http://localhost:8000/apy/indexing/docs/) swagger and make a request to:
+        - ```/add_faq_data_from_csv```
+        - ```/add_rag_data_from_csv```
+        - Note: set ```embed``` parameter to ```true``` to enable semantic search
 
-    - To index more extensive FAQ data from https://faq.bsv.admin.ch (AHV related data), navigate to http://localhost:8000/apy/indexing/docs and make a request to the ```/index_faq_data``` endpoint.
-
-    - To index more extensive AHV RAG data, navigate to http://localhost:8000/apy/indexing/docs and make a request to the ```/index_html_from_sitemap``` (scraps any *.admin.ch website by specifying the sitemap URL) and ```/index_pdfs_from_sitemap``` (scraps Memento PDFs from ahv-iv.ch) endpoints (set ```embed``` parameter to ```true``` to enable semantic search).
+    - To index more extensive RAG data from any official government website, navigate to the [indexing](http://localhost:8000/apy/indexing/docs) swagger and make a request to:
+        - ```/index_html_from_sitemap``` (scraps any *.admin.ch website by specifying the sitemap URL)
