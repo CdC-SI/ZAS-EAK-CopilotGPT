@@ -24,12 +24,20 @@ repos:
     hooks:
       - id: flake8
 
-  # Run unit tests with pytest
-  # - repo: local
-  #   hooks:
-  #     - id: pytest-test-service-source
-  #       name: Run pytest on test_service_source.py
-  #       entry: pytest src/copilot/tests/test_service_source.py
-  #       language: system
-  #       pass_filenames: false
-  #       always_run: true
+  - repo: local
+    hooks:
+      - id: pytest-test-service-source
+        name: Run pytest on test_service_source.py
+        entry: venv_copilot/bin/python -m pytest src/copilot/tests/test_service_source.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+  - repo: local
+    hooks:
+      - id: pytest-test-options-endpoint
+        name: Run pytest on test_options_endpoint.py
+        entry: venv_copilot/bin/python -m pytest src/copilot/tests/test_options_endpoint.py
+        language: system
+        pass_filenames: false
+        always_run: true
