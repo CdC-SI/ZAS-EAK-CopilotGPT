@@ -1,9 +1,3 @@
-"""
-This module provides an implementation of the OpenSourceLLM model.
-
-Classes:
-    OpenSourceLLM: A class that encapsulates methods to interact with MLX server's language model APIs.
-"""
 import os
 import logging
 from typing import List, Dict
@@ -51,7 +45,7 @@ class MLXLLM(BaseLLM):
         self.llm_client = None
         super().__init__(stream)
 
-    async def agenerate(self, messages: List[dict]) -> str:
+    async def agenerate(self, messages: str) -> str:
         """
         Generate a response using the MLXLLM model.
 
@@ -81,7 +75,7 @@ class MLXLLM(BaseLLM):
                 text = await response.text()
                 return ResponseModel(choices=[Choice(message=Message(content=text))])
 
-    async def _astream(self, messages: List[Dict]):
+    async def _astream(self, messages: str):
         async with aiohttp.ClientSession() as session:
             headers = {
                 'Accept': 'text/event-stream',
