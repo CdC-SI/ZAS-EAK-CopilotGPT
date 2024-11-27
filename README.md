@@ -11,6 +11,13 @@ This repository serves as a proof of concept (PoC), which is slated to conclude 
 
 Check [the website](https://cdc-si.github.io/ZAS-EAK-CopilotGPT/) for more information.
 
+For more in-depth procedures and examples, see:
+
+- [Open Source model setup guide](/src/copilot/app/rag/llm/README.md)
+- [Prompt Engineering guide](/src/copilot/app/rag/prompts)
+- [Data Preprocessing guide](/src/copilot/app/indexing/README.md)
+- [Examples](/examples/)
+
 ## Demo Video
 ![45-sec demo video that shows features autocomplete and RAG from the first prototype.](/demo-video.gif)
 
