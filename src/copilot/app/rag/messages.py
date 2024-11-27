@@ -45,7 +45,7 @@ class MessageBuilder:
                 prompt = RAG_SYSTEM_PROMPT_DE.format(context_docs=context_docs, query=query, conversational_memory=conversational_memory)
                 return [{"role": "user", "content": prompt},]
 
-        elif self.llm_model.startswith("mlx-community/"):
+        elif self.llm_model.startswith("mlx-community/") or self.llm_model.startswith("llama-cpp/"):
             if self.language == "de":
                 prompt = RAG_SYSTEM_PROMPT_DE.format(context_docs=context_docs, query=query, conversational_memory=conversational_memory)
                 return prompt
@@ -95,7 +95,7 @@ class MessageBuilder:
                 prompt = QUERY_REWRITING_PROMPT_DE.format(n_alt_queries=n_alt_queries, query=query)
                 return [{"role": "user", "content": prompt},]
 
-        elif self.llm_model.startswith("mlx-community/"):
+        elif self.llm_model.startswith("mlx-community/") or self.llm_model.startswith("llama-cpp/"):
             if self.language == "de":
                 prompt = QUERY_REWRITING_PROMPT_DE.format(n_alt_queries=n_alt_queries, query=query)
                 return prompt
@@ -144,7 +144,7 @@ class MessageBuilder:
                 prompt = CONTEXTUAL_COMPRESSION_PROMPT_DE.format(context_doc=context_doc, query=query)
                 return [{"role": "user", "content": prompt},]
 
-        elif self.llm_model.startswith("mlx-community/"):
+        elif self.llm_model.startswith("mlx-community/") or self.llm_model.startswith("llama-cpp/"):
             if self.language == "de":
                 prompt = CONTEXTUAL_COMPRESSION_PROMPT_DE.format(context_doc=context_doc, query=query)
                 return prompt
@@ -193,7 +193,7 @@ class MessageBuilder:
                 prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(query=query, assistant_response=assistant_response)
                 return [{"role": "user", "content": prompt},]
 
-        elif self.llm_model.startswith("mlx-community/"):
+        elif self.llm_model.startswith("mlx-community/") or self.llm_model.startswith("llama-cpp/"):
             if self.language == "de":
                 prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(query=query, assistant_response=assistant_response)
                 return prompt
@@ -244,7 +244,7 @@ class MessageBuilder:
                     prompt = SUMMARIZE_COMMAND_PROMPT_DE.format(input_text=input_text, mode=mode, style=style)
                     return [{"role": "user", "content": prompt},]
 
-        if self.llm_model.startswith("mlx-community/"):
+        if self.llm_model.startswith("mlx-community/") or self.llm_model.startswith("llama-cpp/"):
             if command == "/summarize":
                 if self.language == "de":
                     prompt = SUMMARIZE_COMMAND_PROMPT_DE.format(input_text=input_text, mode=mode, style=style)

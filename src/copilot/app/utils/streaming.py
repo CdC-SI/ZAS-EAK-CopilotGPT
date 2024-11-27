@@ -61,6 +61,18 @@ class MLXStreaming(StreamingHandler):
             elif not content_received:
                 continue  # Skip initial None token
 
+class LlamaCppStreaming(StreamingHandler):
+    @observe()
+    async def generate_stream(self, events, source_url):
+        content_received = False
+        async for event in events:
+            if event.choices[0].delta.content is not None:
+                content_received = True
+                yield event.choices[0].delta.content.encode("utf-8")
+            elif event.choices[0].delta.content is None and content_received:
+                yield f"\n\n<a href='{source_url}' target='_blank' class='source-link'>{source_url}</a>".encode("utf-8")
+                return
+
 class StreamingHandlerFactory:
     @staticmethod
     def get_streaming_strategy(llm_model):
@@ -72,5 +84,7 @@ class StreamingHandlerFactory:
             return AnthropicStreaming()
         elif llm_model.startswith("mlx-community/"):
             return MLXStreaming()
+        elif llm_model.startswith("llama-cpp/"):
+            return LlamaCppStreaming()
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
