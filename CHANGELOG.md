@@ -2,6 +2,10 @@
 
 ### main branch
 
+### ZAS-EAK-CopilotGPT v0.2.0
+
+- Integrate `llama.cpp` llm models
+
 ### ZAS-EAK-CopilotGPT v0.1.0
 
 - GUI
