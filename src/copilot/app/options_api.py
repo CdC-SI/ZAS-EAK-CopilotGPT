@@ -104,7 +104,7 @@ async def get_llm_models():
 )
 async def get_retrieval_methods():
     """
-    Endpoint to get all supported retrieval methods from config.
+    Endpoint to get all supported retrieval methods.
     """
     retrieval_methods = [
         "top_k_retriever",
@@ -115,3 +115,17 @@ async def get_retrieval_methods():
         "reranking",
     ]
     return retrieval_methods
+
+
+@app.get(
+    "/response_style",
+    summary="Get response style list",
+    response_description="Return a list of response styles",
+    status_code=200,
+)
+async def get_response_style():
+    """
+    Endpoint to get all supported response_styles.
+    """
+    response_styles = ["concise", "detailed", "formal", "legal"]
+    return response_styles
