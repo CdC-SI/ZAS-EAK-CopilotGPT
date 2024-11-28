@@ -13,13 +13,13 @@ class AutocompleteRequest(BaseModel):
 url = "http://localhost:8000/apy/autocomplete"
 
 language = "de"
-tag = ["Familienzulagen"]
+tags = ["Familienzulagen"]
 k = 5
 
 question = "wann"
 
 data = AutocompleteRequest(
-    question=question, language=language, tag=tag, k=k
+    question=question, language=language, tags=tags, k=k
 ).dict()
 
 response = requests.get(url, params=data)

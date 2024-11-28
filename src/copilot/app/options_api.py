@@ -63,7 +63,7 @@ async def get_tags(db: Session = Depends(get_db)):
     """
     Endpoint to get all sources from 'source' table in postgres.
     """
-    unique_tags = db.query(Document.tag).distinct().all()
+    unique_tags = db.query(Document.tags).distinct().all()
     return [tag[0] for tag in unique_tags]
 
 

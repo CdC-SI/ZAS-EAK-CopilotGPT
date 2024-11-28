@@ -56,7 +56,7 @@ class Autocompleter:
         question: str,
         language: str = None,
         k: int = 0,
-        tag: List[str] = None,
+        tags: List[str] = None,
     ):
         """
         Returns matching results according to a defined behaviour.
@@ -90,7 +90,7 @@ class Autocompleter:
             threshold=self.trigram_match_threshold,
             language=language,
             k=self.limit,
-            tag=tag,
+            tags=tags,
         )
 
         # If the combined results from exact match and fuzzy match are more than 5, return results
@@ -107,7 +107,7 @@ class Autocompleter:
                 semantic_match = self.semantic_matches_cache[cache_key]
             else:
                 semantic_match = await question_service.get_semantic_match(
-                    db, question, language, k=self.limit, tag=tag
+                    db, question, language, k=self.limit, tags=tags
                 )
                 self.semantic_matches_cache[cache_key] = semantic_match
 

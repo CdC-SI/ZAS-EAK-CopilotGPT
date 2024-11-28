@@ -26,7 +26,7 @@ class EmbeddedMixin:
         Vector(1536), nullable=True
     )
     language: Mapped[Optional[str]] = mapped_column(String(3), nullable=True)
-    tag: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    tags: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     url: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
     modified_at: Mapped[DateTime] = mapped_column(
@@ -45,9 +45,6 @@ class Source(Base):
     __tablename__ = "source"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     url: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
-    documents: Mapped[List["Document"]] = relationship(
-        "Document", back_populates="source"
-    )
 
     __table_args__ = (Index("idx_source_url", "url"),)
 
@@ -87,7 +84,7 @@ class Document(Base, EmbeddedMixin):
             "idx_document_embedding", "embedding", postgresql_using="ivfflat"
         ),
         Index("idx_document_language", "language"),
-        Index("idx_document_language_tag", "language", "tag"),
+        Index("idx_document_language_tag", "language", "tags"),
         Index("idx_document_language_source_id", "language", "source_id"),
     )
 
@@ -133,7 +130,7 @@ class Question(Base, EmbeddedMixin):
             postgresql_ops={"text": "gin_trgm_ops"},
         ),
         Index("idx_question_language", "language"),
-        Index("idx_question_tag", "language", "tag"),
+        Index("idx_question_tag", "language", "tags"),
     )
 
     def __repr__(self) -> str:

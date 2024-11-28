@@ -107,7 +107,7 @@ async def upload_csv_rag(
     - *text:* Text content of the document
     - *language (optional):* Language of the document
     - *embedding (optional):* Embedding of the document
-    - *tag (optional):* Tag of the document
+    - *tags (optional):* Tags of the document
 
     Parameters
     ----------
@@ -128,7 +128,7 @@ async def upload_csv_rag(
 
     embedding_column = "embedding" in data.fieldnames
     language_column = "language" in data.fieldnames
-    tag_column = "tag" in data.fieldnames
+    tags_column = "tags" in data.fieldnames
 
     logger.info("Start adding data to database...")
     i = 0
@@ -137,7 +137,7 @@ async def upload_csv_rag(
             ast.literal_eval(row["embedding"]) if embedding_column else None
         )
         language = row["language"] if language_column else None
-        tag = row["tag"] if tag_column else None
+        tags = row["tags"] if tags_column else None
 
         document = DocumentCreate(
             url=row["url"],
@@ -145,7 +145,7 @@ async def upload_csv_rag(
             embedding=embedding,
             source=file.filename,
             language=language,
-            tag=tag,
+            tags=tags,
         )
         await document_service.upsert(db, document, embed=embed)
         i += 1
@@ -175,7 +175,7 @@ async def upload_csv_faq(
     - *answer:* Text content of the answer
     - *language (optional):* Language of the question and answer
     - *embedding (optional):* Embedding of the question
-    - *tag (optional):* Tag of the document
+    - *tags (optional):* Tags of the document
 
     Parameters
     ----------
@@ -196,7 +196,7 @@ async def upload_csv_faq(
 
     embedding_column = "embedding" in data.fieldnames
     language_column = "language" in data.fieldnames
-    tag_column = "tag" in data.fieldnames
+    tags_column = "tags" in data.fieldnames
 
     logger.info("Start adding data to database...")
     i = 0
@@ -205,7 +205,7 @@ async def upload_csv_faq(
             ast.literal_eval(row["embedding"]) if embedding_column else None
         )
         language = row["language"] if language_column else None
-        tag = row["tag"] if tag_column else None
+        tags = row["tags"] if tags_column else None
 
         question = QuestionCreate(
             url=row["url"],
@@ -214,7 +214,7 @@ async def upload_csv_faq(
             embedding=embedding,
             source=file.filename,
             language=language,
-            tag=tag,
+            tags=tags,
         )
         await question_service.upsert(db, question, embed=embed)
         i += 1
@@ -300,7 +300,7 @@ def add_rag_data_from_csv(
     - *text:* Text content of the document
     - *language (optional):* Language of the document
     - *embedding (optional):* Embedding of the document
-    - *tag (optional):* Tag of the document
+    - *tags (optional):* Tags of the document
 
     Parameters
     ----------
@@ -321,7 +321,7 @@ def add_rag_data_from_csv(
 
         embedding_column = "embedding" in data.fieldnames
         language_column = "language" in data.fieldnames
-        tag_column = "tag" in data.fieldnames
+        tags_column = "tags" in data.fieldnames
 
         i = 0
         for row in data:
@@ -331,7 +331,7 @@ def add_rag_data_from_csv(
                 else None
             )
             language = row["language"] if language_column else None
-            tag = row["tag"] if tag_column else None
+            tags = row["tags"] if tags_column else None
 
             document = DocumentCreate(
                 url=row["url"],
@@ -339,7 +339,7 @@ def add_rag_data_from_csv(
                 embedding=embedding,
                 source=file_path,
                 language=language,
-                tag=tag,
+                tags=tags,
             )
             document_service.upsert(db, document, embed=embed)
             i += 1
@@ -368,7 +368,7 @@ def add_faq_data_from_csv(
     - *answer:* Text content of the answer
     - *language (optional):* Language of the question and answer
     - *embedding (optional):* Embedding of the question
-    - *tag (optional):* Tag of the document
+    - *tags (optional):* Tags of the document
 
     Parameters
     ----------
@@ -389,7 +389,7 @@ def add_faq_data_from_csv(
 
         embedding_column = "embedding" in data.fieldnames
         language_column = "language" in data.fieldnames
-        tag_column = "tag" in data.fieldnames
+        tags_column = "tags" in data.fieldnames
 
         for row in data:
             embedding = (
@@ -398,7 +398,7 @@ def add_faq_data_from_csv(
                 else None
             )
             language = row["language"] if language_column else None
-            tag = row["tag"] if tag_column else None
+            tags = row["tags"] if tags_column else None
 
             question = QuestionCreate(
                 url=row["url"],
@@ -407,7 +407,7 @@ def add_faq_data_from_csv(
                 embedding=embedding,
                 source=file_path,
                 language=language,
-                tag=tag,
+                tags=tags,
             )
             question_service.upsert(db, question, embed=embed)
 
@@ -618,7 +618,7 @@ async def index_data(item: QuestionItem, db: Session = Depends(get_db)):
     logger.info("Upserting data")
     logger.info(item)
 
-    item.source = "username"
+    item.source = "placeholder_user"
 
     if item.id:
         db_question = question_service.get(db, item.id)

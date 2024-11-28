@@ -8,7 +8,7 @@ from config.base_config import chat_config
 class ChatRequest(BaseModel):
     query: str
     language: Optional[str] = None
-    tag: Optional[List[str]] = None
+    tags: Optional[List[str]] = None
     source: Optional[List[str]] = None
     llm_model: Optional[str] = rag_config["llm"]["model"]
     temperature: Optional[float] = rag_config["llm"]["temperature"]

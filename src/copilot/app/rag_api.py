@@ -51,7 +51,7 @@ async def process_query(request: ChatRequest, db: Session = Depends(get_db)):
     Parameters
     ----------
     request: ChatRequest
-        The request object containing: query, language, tag, source, llm_model, retrieval_method, k_memory, response_style, autocomplete, rag, user_uuid, conversation_uuid parameters.
+        The request object containing: query, language, tags, sources, llm_model, retrieval_method, k_memory, response_style, autocomplete, rag, user_uuid, conversation_uuid parameters.
 
     Returns
     -------
@@ -73,7 +73,7 @@ async def process_query(request: ChatRequest, db: Session = Depends(get_db)):
 async def docs(
     request: ChatRequest,
     language: str = None,
-    tag: str = None,
+    tags: List[str] = None,
     k: int = 0,
     db: Session = Depends(get_db),
 ):
@@ -86,6 +86,8 @@ async def docs(
         The request object containing the query and context.
     language: str
         The language of the query.
+    tags: List[str]
+        The tags to filter the documents.
     k: int
         The number of documents to retrieve.
     db: Session
@@ -97,7 +99,7 @@ async def docs(
         The retrieved documents.
     """
 
-    return rag_service.retrieve(db, request, language, tag=tag, k=k)
+    return rag_service.retrieve(db, request, language, tags=tags, k=k)
 
 
 @app.get(

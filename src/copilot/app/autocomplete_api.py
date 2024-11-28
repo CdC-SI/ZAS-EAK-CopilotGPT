@@ -45,7 +45,7 @@ app.add_middleware(
 async def autocomplete(
     question: str,
     language: str = None,
-    tag: List[str] = None,
+    tags: List[str] = None,
     k: int = autocomplete_config["results"]["limit"],
     db: Session = Depends(get_db),
 ):
@@ -60,8 +60,8 @@ async def autocomplete(
        User input to match database entries
     language : str, optional
         Question and results language
-    tag : str, optional
-        Tag of the documents to search
+    tags : List[str], optional
+        Tags of the documents to search
     k : int, optional
         Number of results to return
     db : Session
@@ -72,7 +72,7 @@ async def autocomplete(
     list of dict
     """
     return await autocomplete_service.get_autocomplete(
-        db, question, language, k=k, tag=tag
+        db, question, language, k=k, tags=tags
     )
 
 
@@ -85,7 +85,7 @@ async def autocomplete(
 def exact_match(
     question: str,
     language: str = None,
-    tag: str = None,
+    tags: str = None,
     k: int = autocomplete_config["exact_match"]["limit"],
     db: Session = Depends(get_db),
 ):
@@ -98,8 +98,8 @@ def exact_match(
        User input to match database entries
     language : str, optional
         Question and results language
-    tag : str, optional
-        Tag of the documents to search
+    tags : str, optional
+        Tags of the documents to search
     k : int, optional
         Number of results to return
     db : Session
@@ -110,7 +110,7 @@ def exact_match(
     list of dict
     """
     return question_service.get_exact_match(
-        db, question, language, k=k, tag=tag
+        db, question, language, k=k, tags=tags
     )
 
 
@@ -123,7 +123,7 @@ def exact_match(
 def fuzzy_match(
     question: str,
     language: str = None,
-    tag: str = None,
+    tags: str = None,
     k: int = autocomplete_config["fuzzy_match"]["limit"],
     threshold=autocomplete_config["fuzzy_match"]["threshold"],
     db: Session = Depends(get_db),
@@ -137,8 +137,8 @@ def fuzzy_match(
         User input to match database entries
     language : str, optional
         Question and results language
-    tag : str, optional
-        Tag of the documents to search
+    tags : str, optional
+        Tags of the documents to search
     k : int, optional
         Number of results to return
     threshold : int, optional
@@ -151,7 +151,7 @@ def fuzzy_match(
     list of dict
     """
     return question_service.get_fuzzy_match(
-        db, question, threshold=threshold, language=language, k=k, tag=tag
+        db, question, threshold=threshold, language=language, k=k, tags=tags
     )
 
 
@@ -164,7 +164,7 @@ def fuzzy_match(
 def trigram_match(
     question: str,
     language: str = None,
-    tag: str = None,
+    tags: str = None,
     k: int = autocomplete_config["trigram_match"]["limit"],
     threshold: float = autocomplete_config["trigram_match"]["threshold"],
     db: Session = Depends(get_db),
@@ -178,8 +178,8 @@ def trigram_match(
         User input to match database entries
     language : str, optional
         Question and results language
-    tag : str, optional
-        Tag of the documents to search
+    tasg : str, optional
+        Tags of the documents to search
     k : int, optional
         Number of results to return
     threshold : float, optional
@@ -192,7 +192,7 @@ def trigram_match(
     list of dict
     """
     return question_service.get_trigram_match(
-        db, question, threshold=threshold, language=language, k=k, tag=tag
+        db, question, threshold=threshold, language=language, k=k, tags=tags
     )
 
 
@@ -205,7 +205,7 @@ def trigram_match(
 def semantic_similarity_match(
     question: str,
     language: str = None,
-    tag: str = None,
+    tags: str = None,
     k: int = autocomplete_config["semantic_similarity_match"]["limit"],
     db: Session = Depends(get_db),
 ):
@@ -218,8 +218,8 @@ def semantic_similarity_match(
        User input to match database entries
     language : str, optional
         Question and results language
-    tag : str, optional
-        Tag of the documents to search
+    tags : str, optional
+        Tags of the documents to search
     k : int, optional
         Number of results to return
     db : Session
@@ -230,5 +230,5 @@ def semantic_similarity_match(
     list of dict
     """
     return question_service.get_semantic_match(
-        db, question, language=language, k=k, tag=tag
+        db, question, language=language, k=k, tags=tags
     )

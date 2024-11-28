@@ -24,7 +24,7 @@ class DocumentService(MatchingService):
             url=obj_in.url,
             language=obj_in.language,
             text=obj_in.text,
-            tag=obj_in.tag,
+            tags=obj_in.tags,
             embedding=obj_in.embedding,
             source=source,
             source_id=source.id,
@@ -84,7 +84,7 @@ class DocumentService(MatchingService):
         return db.query(self.model).count()
 
     def get_all_documents(
-        self, db: Session, tag: List[str] = None, source: List[str] = None
+        self, db: Session, tags: List[str] = None, source: List[str] = None
     ):
         """
         Get all documents from the database
@@ -99,8 +99,8 @@ class DocumentService(MatchingService):
         List[Model]
         """
         stmt = select(self.model)
-        if tag:
-            stmt = stmt.filter(self.model.tag.in_(tag))
+        if tags:
+            stmt = stmt.filter(self.model.tags.in_(tags))
         if source:
             stmt = stmt.join(self.model.source).filter(Source.url.in_(source))
         return db.scalars(stmt).all()

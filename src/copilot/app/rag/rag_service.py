@@ -113,18 +113,18 @@ class RAGService:
         """
         Retrieve context documents related to the user input question.
         """
-        # TO DO: parse list of tags/sources
-        # TO DO: filter sources in matching service
-        tag = None if not request.tag or request.tag == [""] else request.tag
+        tags = (
+            None if not request.tags or request.tags == [""] else request.tags
+        )
         rows = await retriever_client.get_documents(
             db,
             request.query,
             language=request.language,
-            tag=tag,
+            tags=tags,
             source=request.source,
             k=request.k_retrieve,
         )
-        # rows = await retriever_client.get_documents(db, request.query, language=None, tag=request.tag, k=request.k_retrieve)
+        # rows = await retriever_client.get_documents(db, request.query, language=None, tags=request.tags, k=request.k_retrieve)
 
         return rows if len(rows) > 0 else [{"id": "", "text": "", "url": ""}]
 

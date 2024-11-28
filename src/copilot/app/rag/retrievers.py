@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 class BaseRetriever(ABC):
     @abstractmethod
     def get_documents(
-        self, db, query, k, language=None, tag=None, source=None
+        self, db, query, k, language=None, tags=None, source=None
     ) -> List[Document]:
         pass
 
@@ -42,7 +42,7 @@ class RetrieverClient(BaseRetriever):
 
     @observe()
     async def get_documents(
-        self, db, query, k, language=None, tag=None, source=None
+        self, db, query, k, language=None, tags=None, source=None
     ) -> List[Document]:
         """
         Retrieve documents using multiple retrievers in parallel, optionally rerank retrieved documents if a reranker is defined.
@@ -57,7 +57,7 @@ class RetrieverClient(BaseRetriever):
         # Create tasks for each retriever's async get_documents method
         tasks = [
             asyncio.create_task(
-                retriever.get_documents(db, query, k, language, tag, source)
+                retriever.get_documents(db, query, k, language, tags, source)
             )
             for retriever in self.retrievers
         ]
@@ -99,13 +99,13 @@ class TopKRetriever(BaseRetriever):
         self.top_k = top_k
 
     async def get_documents(
-        self, db, query, k, language=None, tag=None, source=None
+        self, db, query, k, language=None, tags=None, source=None
     ) -> List[Document]:
         """
         Retrieves the top k documents that semantically match the given query.
         """
         docs = await document_service.get_semantic_match(
-            db, query, language=language, tag=tag, source=source, k=k
+            db, query, language=language, tags=tags, source=source, k=k
         )
         return docs[: self.top_k]
 
@@ -139,7 +139,7 @@ class QueryRewritingRetriever(BaseRetriever):
         return rewritten_queries
 
     async def get_documents(
-        self, db, query, k, language=None, tag=None, source=None
+        self, db, query, k, language=None, tags=None, source=None
     ) -> List[Document]:
         """
         Retrieves the top k documents that semantically match the given original + rewritten queries.
@@ -151,7 +151,7 @@ class QueryRewritingRetriever(BaseRetriever):
         # Execute all semantic matching operations concurrently
         tasks = [
             document_service.get_semantic_match(
-                db, query, language=language, tag=tag, source=source, k=k
+                db, query, language=language, tags=tags, source=source, k=k
             )
             for query in rewritten_queries
         ]
@@ -196,18 +196,18 @@ class ContextualCompressionRetriever(BaseRetriever):
                 "text": compressed_doc,
                 "url": doc["url"],
                 "language": doc["language"],
-                "tag": doc["tag"],
+                "tags": doc["tags"],
             }
         return None
 
     async def get_documents(
-        self, db, query, k, language=None, tag=None, source=None
+        self, db, query, k, language=None, tags=None, source=None
     ) -> List[Document]:
         """
         Retrieves the top k documents that semantically match the given query, then applies contextual compression.
         """
         docs = await document_service.get_semantic_match(
-            db, query, language=language, tag=tag, source=source, k=k
+            db, query, language=language, tags=tags, source=source, k=k
         )
 
         # Compress the documents asynchronously
@@ -245,7 +245,7 @@ class RAGFusionRetriever(QueryRewritingRetriever):
                         "text": doc["text"],
                         "url": doc["url"],
                         "language": doc["language"],
-                        "tag": doc["tag"],
+                        "tags": doc["tags"],
                     }
                 fused_scores[doc["id"]]["score"] += 1 / (rank + rrf_k)
 
@@ -255,7 +255,7 @@ class RAGFusionRetriever(QueryRewritingRetriever):
                 "text": doc_metadata["text"],
                 "url": doc_metadata["url"],
                 "language": doc_metadata["language"],
-                "tag": doc_metadata["tag"],
+                "tags": doc_metadata["tags"],
             }
             for doc_id, doc_metadata in sorted(
                 fused_scores.items(), key=lambda x: x[1]["score"], reverse=True
@@ -265,7 +265,7 @@ class RAGFusionRetriever(QueryRewritingRetriever):
         return reranked_results
 
     async def get_documents(
-        self, db, query, k, language=None, tag=None, source=None
+        self, db, query, k, language=None, tags=None, source=None
     ) -> List[Document]:
 
         rewritten_queries = await self.rewrite_queries(
@@ -275,7 +275,7 @@ class RAGFusionRetriever(QueryRewritingRetriever):
         docs = []
         for query in rewritten_queries:
             query_docs = await document_service.get_semantic_match(
-                db, query, language=language, tag=tag, source=source, k=k
+                db, query, language=language, tags=tags, source=source, k=k
             )
             docs.append(query_docs)
 
@@ -314,12 +314,12 @@ class BM25Retriever(BaseRetriever):
         return tf * idf
 
     async def get_documents(
-        self, db, query, k, language=None, tag=None, source=None
+        self, db, query, k, language=None, tags=None, source=None
     ) -> List[Document]:
         """
         Retrieves the top k documents for a given query and language.
         """
-        docs = document_service.get_all_documents(db, tag=tag, source=source)
+        docs = document_service.get_all_documents(db, tags=tags, source=source)
 
         # # compute bm25 score
         scores = self.bm25_score(query, docs)
@@ -335,7 +335,7 @@ class BM25Retriever(BaseRetriever):
                 "text": doc[0].text,
                 "url": doc[0].url,
                 "language": doc[0].language,
-                "tag": doc[0].tag,
+                "tags": doc[0].tags,
             }
             for doc in top_docs
         ]

@@ -11,7 +11,7 @@ user_uuid = "04001f7b-224b-47ae-8fdf-9e9135255cdG"
 conversation_uuid = "a90a6103-2092-4e08-8cb9-bea9396ec420"
 # Note: set language param when data is indexed with language
 language = "fr"
-tag = ["Familienzulagen", "Allgemeines"]
+tags = ["Familienzulagen", "Allgemeines"]
 source = ["AHV_Lernbaustein_2024.csv"]
 llm_model = "gpt-4o-2024-05-13"
 retrieval_method = ["top_k_retriever", "reranking"]
@@ -27,7 +27,7 @@ query = "explique moi le concept du splitting"
 data = ChatRequest(
     query=query,
     # language=language,
-    tag=tag,
+    tags=tags,
     # source=source,
     llm_model=llm_model,
     retrieval_method=retrieval_method,

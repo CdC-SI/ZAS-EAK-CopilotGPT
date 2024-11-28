@@ -11,8 +11,8 @@ class DocumentBase(BaseModel):
     language: Optional[str] = None
     """Language of the document text"""
 
-    tag: Optional[str] = None
-    """Tag of the document text"""
+    tags: Optional[str] = None
+    """Tags of the document text"""
 
     text: str
     """Content of the document"""

@@ -54,7 +54,7 @@ class QuestionService(MatchingService):
             language=obj_in.language,
             url=obj_in.url,
             source=db_document.source,
-            tag=obj_in.tag,
+            tags=obj_in.tags,
             source_id=db_document.source_id,
         )
         if embed[0]:
@@ -110,7 +110,7 @@ class QuestionService(MatchingService):
                 text=question.answer,
                 language=question.language,
                 source=question.source,
-                tag=question.tag,
+                tags=question.tags,
             ),
             embed=embed[1],
         )
