@@ -23,7 +23,7 @@ from langfuse.decorators import langfuse_context
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    format="%(asctime)s - %(name)s - %(levellevelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -67,13 +67,6 @@ langfuse_context.configure(
     host=LANGFUSE_HOST,
     enabled=True,
 )
-
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger(__name__)
 
 
 class RAGService:
@@ -145,6 +138,9 @@ class RAGService:
         This method retrieves relevant documents from the database, constructs context from the documents and conversational history,
         and then uses an LLM client to generate a response based on the request query and the context.
         """
+        # Add retrieving message
+        yield "<retrieving>Retrieving documents</retrieving>".encode("utf-8")
+
         documents = await self.retrieve(db, request, retriever_client)
         formatted_context_docs = "\n\n".join(
             [
