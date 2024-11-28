@@ -42,7 +42,7 @@ api.mount("/autocomplete", autocomplete_app)
 api.mount("/rag", rag_app)
 api.mount("/conversations", conversations_app)
 api.mount("/command", command_app)
-api.mount("/search", options_app)
+api.mount("/options", options_app)
 
 
 @api.post("/", summary="Hello", status_code=200)
