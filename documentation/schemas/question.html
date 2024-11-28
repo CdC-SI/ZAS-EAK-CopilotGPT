@@ -350,7 +350,7 @@
 <span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Language&quot;</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;tag&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">            </span><span class="p">{</span>
 <span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
@@ -360,7 +360,7 @@
 <span class="w">            </span><span class="p">}</span>
 <span class="w">         </span><span class="p">],</span>
 <span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tag&quot;</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tags&quot;</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Text&quot;</span><span class="p">,</span>
@@ -387,7 +387,7 @@
 <dt class="field-even">Fields<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="#schemas.question.QuestionBase.language" title="schemas.question.QuestionBase.language"><code class="xref py py-obj docutils literal notranslate"><span class="pre">language</span> <span class="pre">(str</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
-<li><p><a class="reference internal" href="#schemas.question.QuestionBase.tag" title="schemas.question.QuestionBase.tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tag</span> <span class="pre">(str</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#schemas.question.QuestionBase.tags" title="schemas.question.QuestionBase.tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tags</span> <span class="pre">(str</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.question.QuestionBase.text" title="schemas.question.QuestionBase.text"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span> <span class="pre">(str)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.question.QuestionBase.url" title="schemas.question.QuestionBase.url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">url</span> <span class="pre">(str)</span></code></a></p></li>
 </ul>
@@ -400,9 +400,9 @@
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
-<dt class="sig sig-object py" id="schemas.question.QuestionBase.tag">
-<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tag</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#schemas.question.QuestionBase.tag" title="Link to this definition">¶</a></dt>
-<dd><p>Tag of the document text</p>
+<dt class="sig sig-object py" id="schemas.question.QuestionBase.tags">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#schemas.question.QuestionBase.tags" title="Link to this definition">¶</a></dt>
+<dd><p>Tags of the document text</p>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -441,7 +441,7 @@
 <span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Language&quot;</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;tag&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">            </span><span class="p">{</span>
 <span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
@@ -451,7 +451,7 @@
 <span class="w">            </span><span class="p">}</span>
 <span class="w">         </span><span class="p">],</span>
 <span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tag&quot;</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tags&quot;</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Text&quot;</span><span class="p">,</span>
@@ -506,7 +506,7 @@
 <li><p><a class="reference internal" href="#schemas.question.QuestionCreate.embedding" title="schemas.question.QuestionCreate.embedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">embedding</span> <span class="pre">(list[float]</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.question.QuestionCreate.language" title="schemas.question.QuestionCreate.language"><code class="xref py py-obj docutils literal notranslate"><span class="pre">language</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.question.QuestionCreate.source" title="schemas.question.QuestionCreate.source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source</span> <span class="pre">(str)</span></code></a></p></li>
-<li><p><a class="reference internal" href="#schemas.question.QuestionCreate.tag" title="schemas.question.QuestionCreate.tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tag</span> <span class="pre">()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#schemas.question.QuestionCreate.tags" title="schemas.question.QuestionCreate.tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tags</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.question.QuestionCreate.text" title="schemas.question.QuestionCreate.text"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.question.QuestionCreate.url" title="schemas.question.QuestionCreate.url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">url</span> <span class="pre">()</span></code></a></p></li>
 </ul>
@@ -536,9 +536,9 @@
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
-<dt class="sig sig-object py" id="schemas.question.QuestionCreate.tag">
-<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tag</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#schemas.question.QuestionCreate.tag" title="Link to this definition">¶</a></dt>
-<dd><p>Tag of the document text</p>
+<dt class="sig sig-object py" id="schemas.question.QuestionCreate.tags">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#schemas.question.QuestionCreate.tags" title="Link to this definition">¶</a></dt>
+<dd><p>Tags of the document text</p>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -589,7 +589,7 @@
 <span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Language&quot;</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;tag&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">               </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                  </span><span class="p">{</span>
 <span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
@@ -599,7 +599,7 @@
 <span class="w">                  </span><span class="p">}</span>
 <span class="w">               </span><span class="p">],</span>
 <span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tag&quot;</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tags&quot;</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Text&quot;</span><span class="p">,</span>
@@ -686,7 +686,7 @@
 <span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Language&quot;</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;tag&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">            </span><span class="p">{</span>
 <span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
@@ -696,7 +696,7 @@
 <span class="w">            </span><span class="p">}</span>
 <span class="w">         </span><span class="p">],</span>
 <span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tag&quot;</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tags&quot;</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Text&quot;</span><span class="p">,</span>
@@ -771,7 +771,7 @@
 <li><p><a class="reference internal" href="#schemas.question.QuestionItem.id" title="schemas.question.QuestionItem.id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">id</span> <span class="pre">(int</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.question.QuestionItem.language" title="schemas.question.QuestionItem.language"><code class="xref py py-obj docutils literal notranslate"><span class="pre">language</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.question.QuestionItem.source" title="schemas.question.QuestionItem.source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source</span> <span class="pre">(str</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
-<li><p><a class="reference internal" href="#schemas.question.QuestionItem.tag" title="schemas.question.QuestionItem.tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tag</span> <span class="pre">()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#schemas.question.QuestionItem.tags" title="schemas.question.QuestionItem.tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tags</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.question.QuestionItem.text" title="schemas.question.QuestionItem.text"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.question.QuestionItem.url" title="schemas.question.QuestionItem.url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">url</span> <span class="pre">()</span></code></a></p></li>
 </ul>
@@ -806,9 +806,9 @@
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
-<dt class="sig sig-object py" id="schemas.question.QuestionItem.tag">
-<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tag</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#schemas.question.QuestionItem.tag" title="Link to this definition">¶</a></dt>
-<dd><p>Tag of the document text</p>
+<dt class="sig sig-object py" id="schemas.question.QuestionItem.tags">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#schemas.question.QuestionItem.tags" title="Link to this definition">¶</a></dt>
+<dd><p>Tags of the document text</p>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -847,7 +847,7 @@
 <span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Language&quot;</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;tag&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">            </span><span class="p">{</span>
 <span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
@@ -857,7 +857,7 @@
 <span class="w">            </span><span class="p">}</span>
 <span class="w">         </span><span class="p">],</span>
 <span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tag&quot;</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tags&quot;</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Text&quot;</span><span class="p">,</span>
@@ -913,7 +913,7 @@
 <li><p><a class="reference internal" href="#schemas.question.QuestionUpdate.embedding" title="schemas.question.QuestionUpdate.embedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">embedding</span> <span class="pre">(list[float]</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.question.QuestionUpdate.language" title="schemas.question.QuestionUpdate.language"><code class="xref py py-obj docutils literal notranslate"><span class="pre">language</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.question.QuestionUpdate.source_id" title="schemas.question.QuestionUpdate.source_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_id</span> <span class="pre">(int</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
-<li><p><a class="reference internal" href="#schemas.question.QuestionUpdate.tag" title="schemas.question.QuestionUpdate.tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tag</span> <span class="pre">()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#schemas.question.QuestionUpdate.tags" title="schemas.question.QuestionUpdate.tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tags</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.question.QuestionUpdate.text" title="schemas.question.QuestionUpdate.text"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.question.QuestionUpdate.url" title="schemas.question.QuestionUpdate.url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">url</span> <span class="pre">()</span></code></a></p></li>
 </ul>
@@ -936,9 +936,9 @@
 <dd></dd></dl>
 
 <dl class="py attribute pydantic_field">
-<dt class="sig sig-object py" id="schemas.question.QuestionUpdate.tag">
-<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tag</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#schemas.question.QuestionUpdate.tag" title="Link to this definition">¶</a></dt>
-<dd><p>Tag of the document text</p>
+<dt class="sig sig-object py" id="schemas.question.QuestionUpdate.tags">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#schemas.question.QuestionUpdate.tags" title="Link to this definition">¶</a></dt>
+<dd><p>Tags of the document text</p>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -975,7 +975,7 @@
 <span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Language&quot;</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;tag&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">            </span><span class="p">{</span>
 <span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
@@ -985,7 +985,7 @@
 <span class="w">            </span><span class="p">}</span>
 <span class="w">         </span><span class="p">],</span>
 <span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tag&quot;</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tags&quot;</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Text&quot;</span><span class="p">,</span>
@@ -1019,7 +1019,7 @@
 <span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Language&quot;</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;tag&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">               </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                  </span><span class="p">{</span>
 <span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
@@ -1029,7 +1029,7 @@
 <span class="w">                  </span><span class="p">}</span>
 <span class="w">               </span><span class="p">],</span>
 <span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tag&quot;</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tags&quot;</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Text&quot;</span><span class="p">,</span>
@@ -1069,7 +1069,7 @@
 <li><p><a class="reference internal" href="#schemas.question.Question.answer" title="schemas.question.Question.answer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">answer</span> <span class="pre">(schemas.document.DocumentBase)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.question.Question.id" title="schemas.question.Question.id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">id</span> <span class="pre">(int)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.question.Question.language" title="schemas.question.Question.language"><code class="xref py py-obj docutils literal notranslate"><span class="pre">language</span> <span class="pre">()</span></code></a></p></li>
-<li><p><a class="reference internal" href="#schemas.question.Question.tag" title="schemas.question.Question.tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tag</span> <span class="pre">()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#schemas.question.Question.tags" title="schemas.question.Question.tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tags</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.question.Question.text" title="schemas.question.Question.text"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.question.Question.url" title="schemas.question.Question.url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">url</span> <span class="pre">()</span></code></a></p></li>
 </ul>
@@ -1093,9 +1093,9 @@
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
-<dt class="sig sig-object py" id="schemas.question.Question.tag">
-<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tag</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#schemas.question.Question.tag" title="Link to this definition">¶</a></dt>
-<dd><p>Tag of the document text</p>
+<dt class="sig sig-object py" id="schemas.question.Question.tags">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#schemas.question.Question.tags" title="Link to this definition">¶</a></dt>
+<dd><p>Tags of the document text</p>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -1172,7 +1172,7 @@
 <li><a class="reference internal" href="#">Question</a><ul>
 <li><a class="reference internal" href="#schemas.question.QuestionBase"><code class="docutils literal notranslate"><span class="pre">QuestionBase</span></code></a><ul>
 <li><a class="reference internal" href="#schemas.question.QuestionBase.language"><code class="docutils literal notranslate"><span class="pre">QuestionBase.language</span></code></a></li>
-<li><a class="reference internal" href="#schemas.question.QuestionBase.tag"><code class="docutils literal notranslate"><span class="pre">QuestionBase.tag</span></code></a></li>
+<li><a class="reference internal" href="#schemas.question.QuestionBase.tags"><code class="docutils literal notranslate"><span class="pre">QuestionBase.tags</span></code></a></li>
 <li><a class="reference internal" href="#schemas.question.QuestionBase.text"><code class="docutils literal notranslate"><span class="pre">QuestionBase.text</span></code></a></li>
 <li><a class="reference internal" href="#schemas.question.QuestionBase.url"><code class="docutils literal notranslate"><span class="pre">QuestionBase.url</span></code></a></li>
 </ul>
@@ -1182,7 +1182,7 @@
 <li><a class="reference internal" href="#schemas.question.QuestionCreate.embedding"><code class="docutils literal notranslate"><span class="pre">QuestionCreate.embedding</span></code></a></li>
 <li><a class="reference internal" href="#schemas.question.QuestionCreate.language"><code class="docutils literal notranslate"><span class="pre">QuestionCreate.language</span></code></a></li>
 <li><a class="reference internal" href="#schemas.question.QuestionCreate.source"><code class="docutils literal notranslate"><span class="pre">QuestionCreate.source</span></code></a></li>
-<li><a class="reference internal" href="#schemas.question.QuestionCreate.tag"><code class="docutils literal notranslate"><span class="pre">QuestionCreate.tag</span></code></a></li>
+<li><a class="reference internal" href="#schemas.question.QuestionCreate.tags"><code class="docutils literal notranslate"><span class="pre">QuestionCreate.tags</span></code></a></li>
 <li><a class="reference internal" href="#schemas.question.QuestionCreate.text"><code class="docutils literal notranslate"><span class="pre">QuestionCreate.text</span></code></a></li>
 <li><a class="reference internal" href="#schemas.question.QuestionCreate.url"><code class="docutils literal notranslate"><span class="pre">QuestionCreate.url</span></code></a></li>
 </ul>
@@ -1197,7 +1197,7 @@
 <li><a class="reference internal" href="#schemas.question.QuestionItem.id"><code class="docutils literal notranslate"><span class="pre">QuestionItem.id</span></code></a></li>
 <li><a class="reference internal" href="#schemas.question.QuestionItem.language"><code class="docutils literal notranslate"><span class="pre">QuestionItem.language</span></code></a></li>
 <li><a class="reference internal" href="#schemas.question.QuestionItem.source"><code class="docutils literal notranslate"><span class="pre">QuestionItem.source</span></code></a></li>
-<li><a class="reference internal" href="#schemas.question.QuestionItem.tag"><code class="docutils literal notranslate"><span class="pre">QuestionItem.tag</span></code></a></li>
+<li><a class="reference internal" href="#schemas.question.QuestionItem.tags"><code class="docutils literal notranslate"><span class="pre">QuestionItem.tags</span></code></a></li>
 <li><a class="reference internal" href="#schemas.question.QuestionItem.text"><code class="docutils literal notranslate"><span class="pre">QuestionItem.text</span></code></a></li>
 <li><a class="reference internal" href="#schemas.question.QuestionItem.url"><code class="docutils literal notranslate"><span class="pre">QuestionItem.url</span></code></a></li>
 </ul>
@@ -1206,7 +1206,7 @@
 <li><a class="reference internal" href="#schemas.question.QuestionUpdate.embedding"><code class="docutils literal notranslate"><span class="pre">QuestionUpdate.embedding</span></code></a></li>
 <li><a class="reference internal" href="#schemas.question.QuestionUpdate.language"><code class="docutils literal notranslate"><span class="pre">QuestionUpdate.language</span></code></a></li>
 <li><a class="reference internal" href="#schemas.question.QuestionUpdate.source_id"><code class="docutils literal notranslate"><span class="pre">QuestionUpdate.source_id</span></code></a></li>
-<li><a class="reference internal" href="#schemas.question.QuestionUpdate.tag"><code class="docutils literal notranslate"><span class="pre">QuestionUpdate.tag</span></code></a></li>
+<li><a class="reference internal" href="#schemas.question.QuestionUpdate.tags"><code class="docutils literal notranslate"><span class="pre">QuestionUpdate.tags</span></code></a></li>
 <li><a class="reference internal" href="#schemas.question.QuestionUpdate.text"><code class="docutils literal notranslate"><span class="pre">QuestionUpdate.text</span></code></a></li>
 <li><a class="reference internal" href="#schemas.question.QuestionUpdate.url"><code class="docutils literal notranslate"><span class="pre">QuestionUpdate.url</span></code></a></li>
 </ul>
@@ -1215,7 +1215,7 @@
 <li><a class="reference internal" href="#schemas.question.Question.answer"><code class="docutils literal notranslate"><span class="pre">Question.answer</span></code></a></li>
 <li><a class="reference internal" href="#schemas.question.Question.id"><code class="docutils literal notranslate"><span class="pre">Question.id</span></code></a></li>
 <li><a class="reference internal" href="#schemas.question.Question.language"><code class="docutils literal notranslate"><span class="pre">Question.language</span></code></a></li>
-<li><a class="reference internal" href="#schemas.question.Question.tag"><code class="docutils literal notranslate"><span class="pre">Question.tag</span></code></a></li>
+<li><a class="reference internal" href="#schemas.question.Question.tags"><code class="docutils literal notranslate"><span class="pre">Question.tags</span></code></a></li>
 <li><a class="reference internal" href="#schemas.question.Question.text"><code class="docutils literal notranslate"><span class="pre">Question.text</span></code></a></li>
 <li><a class="reference internal" href="#schemas.question.Question.url"><code class="docutils literal notranslate"><span class="pre">Question.url</span></code></a></li>
 </ul>
