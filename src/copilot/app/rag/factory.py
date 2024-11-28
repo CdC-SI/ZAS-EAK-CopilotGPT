@@ -116,6 +116,7 @@ class RetrieverFactory:
                                 "rag_fusion_retriever_params"
                             ]["top_k"],
                             llm_client=llm_client,
+                            message_builder=message_builder,
                         )
                     )
                 case "reranking":

@@ -40,7 +40,7 @@ class RetrieverClient(BaseRetriever):
         self.retrievers = retrievers
         self.reranker = reranker
 
-    @observe()
+    @observe(name="RetrieverClient")
     async def get_documents(
         self, db, query, k, language=None, tags=None, source=None
     ) -> List[Document]:
@@ -98,6 +98,7 @@ class TopKRetriever(BaseRetriever):
     def __init__(self, top_k):
         self.top_k = top_k
 
+    @observe(name="TopKRetriever_get_documents")
     async def get_documents(
         self, db, query, k, language=None, tags=None, source=None
     ) -> List[Document]:
@@ -118,7 +119,7 @@ class QueryRewritingRetriever(BaseRetriever):
         self.llm_client = llm_client
         self.message_builder = message_builder
 
-    @observe()
+    @observe(name="QueryRewritingRetriever_rewrite_queries")
     async def rewrite_queries(
         self, query: str, n_alt_queries: int = 3
     ) -> List[str]:
@@ -138,6 +139,7 @@ class QueryRewritingRetriever(BaseRetriever):
 
         return rewritten_queries
 
+    @observe(name="QueryRewritingRetriever_get_documents")
     async def get_documents(
         self, db, query, k, language=None, tags=None, source=None
     ) -> List[Document]:
@@ -182,7 +184,7 @@ class ContextualCompressionRetriever(BaseRetriever):
         # Filter out None results (for irrelevant contexts)
         return [doc for doc in docs if doc is not None]
 
-    @observe()
+    @observe(name="ContextualCompressionRetriever_compress_doc")
     async def compress_doc(self, query, doc):
         messages = self.message_builder.build_contextual_compression_prompt(
             doc["text"], query
@@ -200,6 +202,7 @@ class ContextualCompressionRetriever(BaseRetriever):
             }
         return None
 
+    @observe(name="ContextualCompressionRetriever_get_documents")
     async def get_documents(
         self, db, query, k, language=None, tags=None, source=None
     ) -> List[Document]:
@@ -223,15 +226,15 @@ class RAGFusionRetriever(QueryRewritingRetriever):
     def __init__(
         self,
         llm_client,
+        message_builder,
         n_alt_queries: int = 3,
         rrf_k: int = 60,
         top_k: int = 10,
     ):
-        self.llm_client = llm_client
-        self.n_alt_queries = n_alt_queries
+        super().__init__(n_alt_queries, top_k, llm_client, message_builder)
         self.rrf_k = rrf_k
-        self.top_k = top_k
 
+    @observe(name="RAGFusionRetriever_reciprocal_rank_fusion")
     def reciprocal_rank_fusion(
         self, retrieved_docs: List[List[Document]], rrf_k: int = 60
     ):
@@ -264,6 +267,7 @@ class RAGFusionRetriever(QueryRewritingRetriever):
 
         return reranked_results
 
+    @observe(name="RAGFusionRetriever_get_documents")
     async def get_documents(
         self, db, query, k, language=None, tags=None, source=None
     ) -> List[Document]:
@@ -313,6 +317,7 @@ class BM25Retriever(BaseRetriever):
 
         return tf * idf
 
+    @observe(name="BM25Retriever_get_documents")
     async def get_documents(
         self, db, query, k, language=None, tags=None, source=None
     ) -> List[Document]:

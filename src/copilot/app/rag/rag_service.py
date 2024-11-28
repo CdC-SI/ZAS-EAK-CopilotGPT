@@ -124,7 +124,6 @@ class RAGService:
             source=request.source,
             k=request.k_retrieve,
         )
-        # rows = await retriever_client.get_documents(db, request.query, language=None, tags=request.tags, k=request.k_retrieve)
 
         return rows if len(rows) > 0 else [{"id": "", "text": "", "url": ""}]
 
