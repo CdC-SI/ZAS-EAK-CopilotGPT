@@ -25,7 +25,7 @@ class OpenAIStreaming(StreamingHandler):
                 content_received = True
                 yield event.choices[0].delta.content.encode("utf-8")
             elif event.choices[0].delta.content is None and content_received:
-                yield f"\n\n<a href='{source_url}' target='_blank' class='source-link'>{source_url}</a>".encode(
+                yield f"\n\n<source><a href='{source_url}' target='_blank' class='source-link'>{source_url}</a></source>".encode(
                     "utf-8"
                 )
                 return
@@ -41,7 +41,7 @@ class AzureOpenAIStreaming(StreamingHandler):
                 content_received = True
                 yield event.choices[0].delta.content.encode("utf-8")
             elif event.choices[0].delta.content is None and content_received:
-                yield f"\n\n<a href='{source_url}' target='_blank' class='source-link'>{source_url}</a>".encode(
+                yield f"\n\n<source><a href='{source_url}' target='_blank' class='source-link'>{source_url}</a></source>".encode(
                     "utf-8"
                 )
                 return
@@ -57,7 +57,7 @@ class AnthropicStreaming(StreamingHandler):
             if event.type == "content_block_delta":
                 yield event.delta.text
             elif event.type == "content_block_stop":
-                yield f"\n\n<a href='{source_url}' target='_blank' class='source-link'>{source_url}</a>".encode(
+                yield f"\n\n<source><a href='{source_url}' target='_blank' class='source-link'>{source_url}</a></source>".encode(
                     "utf-8"
                 )
                 return
@@ -72,7 +72,7 @@ class MLXStreaming(StreamingHandler):
                 content_received = True
                 yield event.choices[0].delta.content.encode("utf-8")
             elif event.choices[0].delta.content is None and content_received:
-                yield f"\n\n<a href='{source_url}' target='_blank' class='source-link'>{source_url}</a>".encode(
+                yield f"\n\n<source><a href='{source_url}' target='_blank' class='source-link'>{source_url}</a></source>".encode(
                     "utf-8"
                 )
                 return
@@ -89,7 +89,7 @@ class LlamaCppStreaming(StreamingHandler):
                 content_received = True
                 yield event.choices[0].delta.content.encode("utf-8")
             elif event.choices[0].delta.content is None and content_received:
-                yield f"\n\n<a href='{source_url}' target='_blank' class='source-link'>{source_url}</a>".encode(
+                yield f"\n\n<source><a href='{source_url}' target='_blank' class='source-link'>{source_url}</a></source>".encode(
                     "utf-8"
                 )
                 return
