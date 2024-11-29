@@ -17,3 +17,7 @@ class Choice(BaseModel):
 
 class ResponseModel(BaseModel):
     choices: List[Choice]
+
+
+class TopicCheck(BaseModel):
+    on_topic: bool

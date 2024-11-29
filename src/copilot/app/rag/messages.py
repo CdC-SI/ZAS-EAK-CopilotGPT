@@ -15,6 +15,9 @@ from rag.prompts import (
     SUMMARIZE_COMMAND_PROMPT_DE,
     SUMMARIZE_COMMAND_PROMPT_FR,
     SUMMARIZE_COMMAND_PROMPT_IT,
+    TOPIC_CHECK_PROMPT_DE,
+    TOPIC_CHECK_PROMPT_FR,
+    TOPIC_CHECK_PROMPT_IT,
 )
 from config.llm_config import (
     SUPPORTED_OPENAI_LLM_MODELS,
@@ -32,7 +35,101 @@ class MessageBuilder:
         self.language = language
         self.llm_model = llm_model
 
-    @observe()
+    @observe(name="MessageBuilder_build_topic_check_prompt")
+    def build_topic_check_prompt(self, query: str) -> Union[List[Dict], str]:
+        """
+        Format the Topic Check message to send to the appropriate LLM API.
+        """
+        if (
+            self.llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+        ):
+            if self.language == "de":
+                prompt = TOPIC_CHECK_PROMPT_DE.format(
+                    query=query,
+                )
+                return [
+                    {"role": "system", "content": prompt},
+                ]
+            elif self.language == "fr":
+                prompt = TOPIC_CHECK_PROMPT_FR.format(
+                    query=query,
+                )
+                return [
+                    {"role": "system", "content": prompt},
+                ]
+            elif self.language == "it":
+                prompt = TOPIC_CHECK_PROMPT_IT.format(
+                    query=query,
+                )
+                return [
+                    {"role": "system", "content": prompt},
+                ]
+            else:
+                prompt = TOPIC_CHECK_PROMPT_DE.format(
+                    query=query,
+                )
+                return [
+                    {"role": "system", "content": prompt},
+                ]
+
+        elif self.llm_model in SUPPORTED_ANTHROPIC_LLM_MODELS:
+            if self.language == "de":
+                prompt = TOPIC_CHECK_PROMPT_DE.format(
+                    query=query,
+                )
+                return [
+                    {"role": "user", "content": prompt},
+                ]
+            elif self.language == "fr":
+                prompt = TOPIC_CHECK_PROMPT_FR.format(
+                    query=query,
+                )
+                return [
+                    {"role": "user", "content": prompt},
+                ]
+            elif self.language == "it":
+                prompt = TOPIC_CHECK_PROMPT_IT.format(
+                    query=query,
+                )
+                return [
+                    {"role": "user", "content": prompt},
+                ]
+            else:
+                prompt = TOPIC_CHECK_PROMPT_DE.format(
+                    query=query,
+                )
+                return [
+                    {"role": "user", "content": prompt},
+                ]
+
+        elif self.llm_model.startswith(
+            "mlx-community/"
+        ) or self.llm_model.startswith("llama-cpp/"):
+            if self.language == "de":
+                prompt = TOPIC_CHECK_PROMPT_DE.format(
+                    query=query,
+                )
+                return prompt
+            elif self.language == "fr":
+                prompt = TOPIC_CHECK_PROMPT_FR.format(
+                    query=query,
+                )
+                return prompt
+            elif self.language == "it":
+                prompt = TOPIC_CHECK_PROMPT_IT.format(
+                    query=query,
+                )
+                return prompt
+            else:
+                prompt = TOPIC_CHECK_PROMPT_DE.format(
+                    query=query,
+                )
+                return prompt
+
+    @observe(name="MessageBuilder_build_chat_prompt")
     def build_chat_prompt(
         self, context_docs: List[Dict], query: str, conversational_memory: str
     ) -> Union[List[Dict], str]:
@@ -154,7 +251,7 @@ class MessageBuilder:
                 )
                 return prompt
 
-    @observe()
+    @observe(name="MessageBuilder_build_query_rewriting_prompt")
     def build_query_rewriting_prompt(
         self, n_alt_queries: int, query: str
     ) -> List[Dict]:
@@ -253,7 +350,7 @@ class MessageBuilder:
                 )
                 return prompt
 
-    @observe()
+    @observe(name="MessageBuilder_build_contextual_compression_prompt")
     def build_contextual_compression_prompt(
         self, context_doc: str, query: str
     ) -> List[Dict]:
@@ -351,7 +448,7 @@ class MessageBuilder:
                 )
                 return prompt
 
-    @observe()
+    @observe(name="MessageBuilder_build_chat_title_prompt")
     def build_chat_title_prompt(
         self, query: str, assistant_response: str
     ) -> List[Dict]:
@@ -449,7 +546,7 @@ class MessageBuilder:
                 )
                 return prompt
 
-    @observe()
+    @observe(name="MessageBuilder_build_summarize_prompt")
     def build_summarize_prompt(
         self, command: str, input_text: str, mode: str, style: str
     ) -> List[Dict]:

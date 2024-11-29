@@ -206,3 +206,75 @@ Here is the chunk we want to situate within the whole document
 
 Please give a short succinct context to situate this chunk within the overall document for the purposes of improving search retrieval of the chunk. Answer only with the succinct context and nothing else
 """
+
+TOPIC_CHECK_PROMPT_DE = """# Aufgabe
+Ihre Aufgabe ist es, zu beurteilen, ob die Frage zu den unten aufgeführten Themen gehört.
+
+## Themen
+- Sozialversicherungen
+- Versicherung im Alter
+- Versicherung gegen Invalidität
+- Versicherung gegen Arbeitslosigkeit
+- Familienzulagen
+- AHV/IV/EO/ALV-Beiträge
+- Leistungen der AHV/IV/EO/ALV
+- Ergänzungsleistungen zur AHV/IV
+- Ausgleichskasse
+- Pensionierung
+- Berufliche Vorsorge
+- AHV/IV-Rente
+
+## Antwortformat
+
+Beantworten Sie die Frage mit True, wenn sie zu den oben genannten Themen gehört, ansonsten mit False.
+
+## Frage
+{query}"""
+
+TOPIC_CHECK_PROMPT_FR = """# Tâche
+Votre tâche consiste à évaluer si la question fait partie des sujets ci-dessous.
+
+## Sujets
+- Assurances sociales
+- Assurance vieillesse
+- Assurance invalidité
+- Assurance chômage
+- Allocations familiales
+- Cotisations AVS/AI/APG/AC
+- Prestations AVS/AI/APG/AC
+- Prestations complémentaires à l'AVS/AI
+- Caisse de compensation
+- Retraite
+- Prévoyance professionnelle
+- Rente AVS/AI
+
+## Format de réponse
+
+Répondez par True si la question fait partie des sujets ci-dessus, sinon répondez par False.
+
+## Question
+{query}"""
+
+TOPIC_CHECK_PROMPT_IT = """Compito
+Il vostro compito è quello di valutare se la domanda rientra in uno degli argomenti di seguito elencati.
+
+## Soggetti
+- Assicurazione sociale
+- Assicurazione di vecchiaia
+- Assicurazione di invalidità
+- Assicurazione contro la disoccupazione
+- Assegni familiari
+- Contributi AVS/AI/APG/AC
+- Prestazioni AVS/AI/APG/AC
+- Prestazioni complementari AVS/AI
+- Cassa di compensazione
+- Pensioni
+- Previdenza professionale
+- Rendita AVS/AI
+
+## Formato della risposta
+
+Rispondere con True se la domanda è una delle precedenti, altrimenti rispondere con False.
+
+## Domanda
+{query}"""
