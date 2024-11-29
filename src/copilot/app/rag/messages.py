@@ -18,6 +18,9 @@ from rag.prompts import (
     TOPIC_CHECK_PROMPT_DE,
     TOPIC_CHECK_PROMPT_FR,
     TOPIC_CHECK_PROMPT_IT,
+    AGENT_HANDOFF_PROMPT_DE,
+    AGENT_HANDOFF_PROMPT_FR,
+    AGENT_HANDOFF_PROMPT_IT,
 )
 from config.llm_config import (
     SUPPORTED_OPENAI_LLM_MODELS,
@@ -125,6 +128,100 @@ class MessageBuilder:
                 return prompt
             else:
                 prompt = TOPIC_CHECK_PROMPT_DE.format(
+                    query=query,
+                )
+                return prompt
+
+    @observe(name="MessageBuilder_build_agent_handoff_prompt")
+    def build_agent_handoff_prompt(self, query: str) -> Union[List[Dict], str]:
+        """
+        Format the Agent Handoff message to send to the appropriate LLM API.
+        """
+        if (
+            self.llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+        ):
+            if self.language == "de":
+                prompt = AGENT_HANDOFF_PROMPT_DE.format(
+                    query=query,
+                )
+                return [
+                    {"role": "system", "content": prompt},
+                ]
+            elif self.language == "fr":
+                prompt = AGENT_HANDOFF_PROMPT_FR.format(
+                    query=query,
+                )
+                return [
+                    {"role": "system", "content": prompt},
+                ]
+            elif self.language == "it":
+                prompt = AGENT_HANDOFF_PROMPT_IT.format(
+                    query=query,
+                )
+                return [
+                    {"role": "system", "content": prompt},
+                ]
+            else:
+                prompt = AGENT_HANDOFF_PROMPT_DE.format(
+                    query=query,
+                )
+                return [
+                    {"role": "system", "content": prompt},
+                ]
+
+        elif self.llm_model in SUPPORTED_ANTHROPIC_LLM_MODELS:
+            if self.language == "de":
+                prompt = AGENT_HANDOFF_PROMPT_DE.format(
+                    query=query,
+                )
+                return [
+                    {"role": "user", "content": prompt},
+                ]
+            elif self.language == "fr":
+                prompt = AGENT_HANDOFF_PROMPT_FR.format(
+                    query=query,
+                )
+                return [
+                    {"role": "user", "content": prompt},
+                ]
+            elif self.language == "it":
+                prompt = AGENT_HANDOFF_PROMPT_IT.format(
+                    query=query,
+                )
+                return [
+                    {"role": "user", "content": prompt},
+                ]
+            else:
+                prompt = AGENT_HANDOFF_PROMPT_DE.format(
+                    query=query,
+                )
+                return [
+                    {"role": "user", "content": prompt},
+                ]
+
+        elif self.llm_model.startswith(
+            "mlx-community/"
+        ) or self.llm_model.startswith("llama-cpp/"):
+            if self.language == "de":
+                prompt = AGENT_HANDOFF_PROMPT_DE.format(
+                    query=query,
+                )
+                return prompt
+            elif self.language == "fr":
+                prompt = AGENT_HANDOFF_PROMPT_FR.format(
+                    query=query,
+                )
+                return prompt
+            elif self.language == "it":
+                prompt = AGENT_HANDOFF_PROMPT_IT.format(
+                    query=query,
+                )
+                return prompt
+            else:
+                prompt = AGENT_HANDOFF_PROMPT_DE.format(
                     query=query,
                 )
                 return prompt

@@ -328,7 +328,10 @@ class ChatBot:
                 memory_client=self.chat_memory,
                 sources=sources,
             ):
-                yield token
+                token_str = token.decode("utf-8").replace("ß", "ss")
+                if "<a href=" not in token_str:
+                    assistant_response.append(token_str)
+                yield token_str.encode("utf-8")
 
         elif request.command:  # execute command
             if not request.user_uuid:

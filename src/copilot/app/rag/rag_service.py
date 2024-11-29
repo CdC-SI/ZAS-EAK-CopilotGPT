@@ -9,6 +9,7 @@ from chat.memory import ConversationalMemory
 
 from schemas.chat import ChatRequest
 from schemas.embedding import EmbeddingRequest
+from schemas.rag import AgentHandoff
 
 from sqlalchemy.orm import Session
 from utils.embedding import get_embedding
@@ -174,18 +175,58 @@ class RAGService:
         ):
             yield token
 
-        @observe()
-        async def process_agentic_rag(
-            self,
-            db: Session,
-            request: ChatRequest,
-            llm_client: BaseLLM,
-            streaming_handler: StreamingHandler,
-            retriever_client: RetrieverClient,
-            message_builder: MessageBuilder,
-            memory_client: ConversationalMemory,
-            sources: Dict,
-        ):
+    @observe()
+    async def process_agentic_rag(
+        self,
+        db: Session,
+        request: ChatRequest,
+        llm_client: BaseLLM,
+        streaming_handler: StreamingHandler,
+        retriever_client: RetrieverClient,
+        message_builder: MessageBuilder,
+        memory_client: ConversationalMemory,
+        sources: Dict,
+    ):
+        # On-topic check
+        yield "<routing>Routing to appropriate service</routing>".encode(
+            "utf-8"
+        )
+
+        messages = message_builder.build_agent_handoff_prompt(
+            query=request.query
+        )
+        res = await llm_client.llm_client.beta.chat.completions.parse(
+            model="gpt-4o-mini",
+            temperature=0,
+            top_p=0.95,
+            max_tokens=1024,
+            messages=messages,
+            response_format=AgentHandoff,
+        )
+
+        agent = res.choices[0].message.parsed.agent
+        logger.info(f"Selected Agent: {agent}")
+
+        if agent == "RAG_AGENT":
+            logger.info("Routing to RAG Agent")
+            yield "<agent>RAG Agent is processing your query</agent>".encode(
+                "utf-8"
+            )
+            async for token in self.process_rag(
+                db,
+                request,
+                llm_client,
+                streaming_handler,
+                retriever_client,
+                message_builder,
+                memory_client,
+                sources,
+            ):
+                yield token
+        elif agent == "FAK_EAK_AGENT":
+            logger.info("Routing to FAK-EAK Agent")
+            pass
+        else:
             pass
 
 

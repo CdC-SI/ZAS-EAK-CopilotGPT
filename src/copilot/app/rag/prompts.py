@@ -278,3 +278,93 @@ Rispondere con True se la domanda è una delle precedenti, altrimenti rispondere
 
 ## Domanda
 {query}"""
+
+AGENT_HANDOFF_PROMPT_DE = """# Aufgabe
+Ihre Aufgabe ist es, aus den folgenden Agenten den richtigen auszuwählen, um die Frage des Benutzers zu beantworten.
+
+## Agenten
+- RAG_AGENT
+- FAK_EAK_AGENT
+
+# Format der Antwort
+Antworten Sie mit dem Namen des geeigneten Agenten, um die Frage zu beantworten.
+
+# Beispiele
+Wie bestimme ich meinen Anspruch auf Ergänzungsleistungen? -> RAG_AGENT
+Welche Voraussetzungen muss ich erfüllen, um eine IV-Rente zu erhalten? -> RAG_AGENT
+Wann werden Ergänzungsleistungen gezahlt? -> RAG_AGENT
+Wann entsteht der Anspruch auf eine Altersrente? -> RAG_AGENT
+Was ändert sich mit AHV 21? -> RAG_AGENT
+Was bedeutet das flexible Rentenalter? -> RAG_AGENT
+
+Welche Arten von Kindergeld werden gezahlt? -> FAK_EAK_AGENT
+Wie hoch ist das Kindergeld? -> FAK_EAK_AGENT
+Werden die Zulagen nach dem Wohnkanton oder dem Arbeitskanton bestimmt? -> FAK_EAK_AGENT
+Wer hat Anspruch auf Kinderzulagen? -> FAK_EAK_AGENT
+Welcher Elternteil erhält die Kinderzulagen? -> FAK_EAK_AGENT
+Wie können Sie Ihren Anspruch auf Kindergeld bei der Familienausgleichskasse der Eidgenössischen Ausgleichskasse (FAK-EAK) geltend machen? -> FAK_EAK_AGENT
+Wie können Sie einen bestehenden Anspruch auf Ausbildungszulagen verlängern? -> FAK_EAK_AGENT
+Wie werden die Familienzulagen der Familienausgleichskasse der Eidgenössischen Ausgleichskasse ausbezahlt? -> FAK_EAK_AGENT
+
+# Frage
+{query}"""
+
+AGENT_HANDOFF_PROMPT_FR = """# Tâche
+Votre tâche est de sélectionner l'agent approprié pour répondre à la question posée par l'utilisateur parmis les agents suivants.
+
+## Agents
+- RAG_AGENT
+- FAK_EAK_AGENT
+
+# Format de réponse
+Répondez avec le nom de l'agent approprié pour répondre à la question.
+
+# Exemples
+Comment déterminer mon droit aux prestations complémentaires? -> RAG_AGENT
+Quelles sont les conditions pour bénéficier d'une rente AI? -> RAG_AGENT
+Quand des prestations complémentaires sont-elles versées ? -> RAG_AGENT
+Quand le droit à une rente de vieillesse prend-il naissance ? -> RAG_AGENT
+Qu'est-ce qui change avec AVS 21? -> RAG_AGENT
+Que signifie l'âge de la retraite flexible ? -> RAG_AGENT
+
+Quels types d’allocations familiales sont versés ? -> FAK_EAK_AGENT
+À combien s’élèvent les allocations familiales ? -> FAK_EAK_AGENT
+Les allocations sont-elles déterminées en fonction du canton de domicile ou du canton de travail ? -> FAK_EAK_AGENT
+Qui a droit aux allocations familiales ? -> FAK_EAK_AGENT
+Quel parent perçoit les allocations familiales ? -> FAK_EAK_AGENT
+Comment pouvez-vous faire valoir votre droit aux allocations familiales auprès de la Caisse d’allocations familiales de la Caisse fédérale de compensation (CAF-CFC) ? -> FAK_EAK_AGENT
+Comment pouvez-vous prolonger un droit existant aux allocations de formation ? -> FAK_EAK_AGENT
+Comment sont versées les allocations familiales de la caisse d’allocations familiales de la Caisse fédérale de compensation ? -> FAK_EAK_AGENT
+
+# Question
+{query}"""
+
+AGENT_HANDOFF_PROMPT_IT = """# Compito
+Il compito consiste nel selezionare l'agente appropriato per rispondere alla domanda posta dall'utente tra i seguenti agenti.
+
+## Agenti
+- RAG_AGENT
+- FAK_EAK_AGENT
+
+# Formato della risposta
+Rispondere con il nome dell'agente appropriato per rispondere alla domanda.
+
+# Esempi
+Come si determina il diritto alle prestazioni complementari? -> RAG_AGENT
+Quali sono le condizioni per ricevere una rendita AI? -> RAG_AGENT
+Quando vengono versate le prestazioni complementari? -> RAG_AGENT
+Quando nasce il diritto alla pensione di vecchiaia? -> RAG_AGENT
+Cosa cambia con l'AVS 21? -> RAG_AGENT
+Cosa significa l'età pensionabile flessibile? -> RAG_AGENT
+
+Quali tipi di assegni familiari vengono corrisposti? -> FAK_EAK_AGENT
+A quanto ammontano gli assegni familiari? -> FAK_EAK_AGENT
+L'assegno viene erogato in base al cantone di residenza o al cantone di occupazione? -> FAK_EAK_AGENT
+Chi ha diritto agli assegni familiari? -> FAK_EAK_AGENT
+Quale genitore riceve gli assegni familiari? -> FAK_EAK_AGENT
+Come si possono richiedere gli assegni familiari alla Caisse d'allocations familiales de la Caisse fédérale de compensation (CAF-CFC)? -> FAK_EAK_AGENT
+Come si può estendere un diritto esistente agli assegni di formazione? -> FAK_EAK_AGENT
+Come vengono pagati gli assegni familiari dalla Cassa per gli assegni familiari della Cassa federale di compensazione? -> FAK_EAK_AGENT
+
+# Domanda
+{query}"""
