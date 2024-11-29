@@ -203,7 +203,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -320,7 +320,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -328,6 +328,46 @@
         <article role="main" id="furo-main-content">
           <section id="source">
 <h1>Source<a class="headerlink" href="#source" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="database.service.source.SourceService">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">database.service.source.</span></span><span class="sig-name descname"><span class="pre">SourceService</span></span><a class="headerlink" href="#database.service.source.SourceService" title="Link to this definition">¶</a></dt>
+<dd><p>Class that provide services for source database operations</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="database.service.source.SourceService.get_by_url">
+<span class="sig-name descname"><span class="pre">get_by_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#database.service.source.SourceService.get_by_url" title="Link to this definition">¶</a></dt>
+<dd><p>Get a source item by its url. If it does not exist, return None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
+<li><p><strong>url</strong> (<em>str</em>) – Source url</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>database.models.Source or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="database.service.source.SourceService.get_or_create">
+<span class="sig-name descname"><span class="pre">get_or_create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj_in</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../schemas/source.html#schemas.source.SourceCreate" title="schemas.source.SourceCreate"><span class="pre">SourceCreate</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#database.service.source.SourceService.get_or_create" title="Link to this definition">¶</a></dt>
+<dd><p>Get a source item if it exists, otherwise create it</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
+<li><p><strong>obj_in</strong> (<a class="reference internal" href="../../schemas/source.html#schemas.source.SourceCreate" title="schemas.source.SourceCreate"><em>SourceCreate</em></a>) – Source schema to create a new source</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>database.models.Source</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
         </article>
@@ -373,8 +413,31 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Source</a><ul>
+<li><a class="reference internal" href="#database.service.source.SourceService"><code class="docutils literal notranslate"><span class="pre">SourceService</span></code></a><ul>
+<li><a class="reference internal" href="#database.service.source.SourceService.get_by_url"><code class="docutils literal notranslate"><span class="pre">SourceService.get_by_url()</span></code></a></li>
+<li><a class="reference internal" href="#database.service.source.SourceService.get_or_create"><code class="docutils literal notranslate"><span class="pre">SourceService.get_or_create()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

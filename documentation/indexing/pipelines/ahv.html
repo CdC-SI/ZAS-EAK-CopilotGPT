@@ -203,7 +203,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -320,7 +320,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -329,6 +329,188 @@
           <section id="ahv-iv-pipeline">
 <h1>AHV/IV pipeline<a class="headerlink" href="#ahv-iv-pipeline" title="Link to this heading">¶</a></h1>
 <p>Index the website <a class="reference external" href="https://www.ahv-iv.ch/">https://www.ahv-iv.ch/</a> for RAG data.</p>
+<dl class="py class" id="module-indexing.pipelines.ahv">
+<dt class="sig sig-object py" id="indexing.pipelines.ahv.AHVParser">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing.pipelines.ahv.</span></span><span class="sig-name descname"><span class="pre">AHVParser</span></span><a class="headerlink" href="#indexing.pipelines.ahv.AHVParser" title="Link to this definition">¶</a></dt>
+<dd><p>A class used to parse and clean documents.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="indexing.pipelines.ahv.AHVParser.pdf_converter">
+<span class="sig-name descname"><span class="pre">pdf_converter</span></span><a class="headerlink" href="#indexing.pipelines.ahv.AHVParser.pdf_converter" title="Link to this definition">¶</a></dt>
+<dd><p>An instance of PyPDFToDocument to convert PDF content to Document objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PyPDFToDocument</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="indexing.pipelines.ahv.AHVParser.cleaner">
+<span class="sig-name descname"><span class="pre">cleaner</span></span><a class="headerlink" href="#indexing.pipelines.ahv.AHVParser.cleaner" title="Link to this definition">¶</a></dt>
+<dd><p>An instance of DocumentCleaner to clean documents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DocumentCleaner</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="indexing.pipelines.ahv.AHVParser.splitter">
+<span class="sig-name descname"><span class="pre">splitter</span></span><a class="headerlink" href="#indexing.pipelines.ahv.AHVParser.splitter" title="Link to this definition">¶</a></dt>
+<dd><p>An instance of DocumentSplitter to split documents into chunks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DocumentSplitter</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.pipelines.ahv.AHVParser.parse_html">
+<span class="sig-name descname"><span class="pre">parse_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">html</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.pipelines.ahv.AHVParser.parse_html" title="Link to this definition">¶</a></dt>
+<dd><p>Extracts URLs from the given HTML content.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.pipelines.ahv.AHVParser.convert_pdf_to_documents">
+<span class="sig-name descname"><span class="pre">convert_pdf_to_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ByteStream</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../schemas/document.html#schemas.document.Document" title="schemas.document.Document"><span class="pre">Document</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.pipelines.ahv.AHVParser.convert_pdf_to_documents" title="Link to this definition">¶</a></dt>
+<dd><p>Converts PDF content to Document objects.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.pipelines.ahv.AHVParser.clean_documents">
+<span class="sig-name descname"><span class="pre">clean_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">documents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../schemas/document.html#schemas.document.Document" title="schemas.document.Document"><span class="pre">Document</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../schemas/document.html#schemas.document.Document" title="schemas.document.Document"><span class="pre">Document</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.pipelines.ahv.AHVParser.clean_documents" title="Link to this definition">¶</a></dt>
+<dd><p>Cleans the given documents.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.pipelines.ahv.AHVParser.split_documents">
+<span class="sig-name descname"><span class="pre">split_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">documents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../schemas/document.html#schemas.document.Document" title="schemas.document.Document"><span class="pre">Document</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../schemas/document.html#schemas.document.Document" title="schemas.document.Document"><span class="pre">Document</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.pipelines.ahv.AHVParser.split_documents" title="Link to this definition">¶</a></dt>
+<dd><p>Splits the given documents into chunks.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.pipelines.ahv.AHVParser.contains_tag">
+<span class="sig-name descname"><span class="pre">contains_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing.pipelines.ahv.AHVParser.contains_tag" title="Link to this definition">¶</a></dt>
+<dd><p>Checks if a tag contains a memento URL.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tag</strong> (<em>bs4.element.Tag</em>) – The tag to check.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the tag contains a memento URL, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.pipelines.ahv.AHVParser.get_pdf_paths">
+<span class="sig-name descname"><span class="pre">get_pdf_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soup</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing.pipelines.ahv.AHVParser.get_pdf_paths" title="Link to this definition">¶</a></dt>
+<dd><p>Extracts the paths of PDF documents from a BeautifulSoup object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>soup</strong> (<em>BeautifulSoup</em>) – The BeautifulSoup object to extract PDF paths from.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The list of PDF paths.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.pipelines.ahv.AHVParser.parse_urls">
+<span class="sig-name descname"><span class="pre">parse_urls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.pipelines.ahv.AHVParser.parse_urls" title="Link to this definition">¶</a></dt>
+<dd><p>Extracts URLs from the given content.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>content</strong> (<em>str</em>) – The content to extract URLs from.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of URLs extracted from the content.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.pipelines.ahv.AHVParser.convert_to_documents">
+<span class="sig-name descname"><span class="pre">convert_to_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.pipelines.ahv.AHVParser.convert_to_documents" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract method to convert some content to documents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>content</strong> (<em>list</em><em> of </em><em>Any</em>) – The content to convert.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The converted documents.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of <a class="reference internal" href="../../schemas/document.html#schemas.document.Document" title="schemas.document.Document">Document</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="indexing.pipelines.ahv.AHVIndexer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing.pipelines.ahv.</span></span><span class="sig-name descname"><span class="pre">AHVIndexer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scraper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing.pipelines.ahv.AHVIndexer" title="Link to this definition">¶</a></dt>
+<dd><p>A class used to index PDF Merkblätter documents into a VectorDB.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="indexing.pipelines.ahv.AHVIndexer.scraper">
+<span class="sig-name descname"><span class="pre">scraper</span></span><a class="headerlink" href="#indexing.pipelines.ahv.AHVIndexer.scraper" title="Link to this definition">¶</a></dt>
+<dd><p>An instance of Scraper to scrape URLs and extract content from them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../scraper.html#indexing.scraper.Scraper" title="indexing.scraper.Scraper">Scraper</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="indexing.pipelines.ahv.AHVIndexer.parser">
+<span class="sig-name descname"><span class="pre">parser</span></span><a class="headerlink" href="#indexing.pipelines.ahv.AHVIndexer.parser" title="Link to this definition">¶</a></dt>
+<dd><p>An instance of Parser to parse and clean documents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Parser</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.pipelines.ahv.AHVIndexer.index">
+<span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sitemap_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#indexing.pipelines.ahv.AHVIndexer.index" title="Link to this definition">¶</a></dt>
+<dd><p>Scraps, parses and indexes PDF content from the given sitemap URL into the VectorDB.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.pipelines.ahv.AHVIndexer.from_pages_to_content">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_pages_to_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ByteStream</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.pipelines.ahv.AHVIndexer.from_pages_to_content" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract method to convert URLs to content.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pages</strong> (<em>List</em><em>[</em><em>ByteStream</em><em>]</em>) – The HTML pages to convert to content.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The content extracted from the URLs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
         </article>
@@ -374,8 +556,47 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">AHV/IV pipeline</a><ul>
+<li><a class="reference internal" href="#indexing.pipelines.ahv.AHVParser"><code class="docutils literal notranslate"><span class="pre">AHVParser</span></code></a><ul>
+<li><a class="reference internal" href="#indexing.pipelines.ahv.AHVParser.pdf_converter"><code class="docutils literal notranslate"><span class="pre">AHVParser.pdf_converter</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.ahv.AHVParser.cleaner"><code class="docutils literal notranslate"><span class="pre">AHVParser.cleaner</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.ahv.AHVParser.splitter"><code class="docutils literal notranslate"><span class="pre">AHVParser.splitter</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.ahv.AHVParser.parse_html"><code class="docutils literal notranslate"><span class="pre">AHVParser.parse_html()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.ahv.AHVParser.convert_pdf_to_documents"><code class="docutils literal notranslate"><span class="pre">AHVParser.convert_pdf_to_documents()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.ahv.AHVParser.clean_documents"><code class="docutils literal notranslate"><span class="pre">AHVParser.clean_documents()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.ahv.AHVParser.split_documents"><code class="docutils literal notranslate"><span class="pre">AHVParser.split_documents()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.ahv.AHVParser.contains_tag"><code class="docutils literal notranslate"><span class="pre">AHVParser.contains_tag()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.ahv.AHVParser.get_pdf_paths"><code class="docutils literal notranslate"><span class="pre">AHVParser.get_pdf_paths()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.ahv.AHVParser.parse_urls"><code class="docutils literal notranslate"><span class="pre">AHVParser.parse_urls()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.ahv.AHVParser.convert_to_documents"><code class="docutils literal notranslate"><span class="pre">AHVParser.convert_to_documents()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indexing.pipelines.ahv.AHVIndexer"><code class="docutils literal notranslate"><span class="pre">AHVIndexer</span></code></a><ul>
+<li><a class="reference internal" href="#indexing.pipelines.ahv.AHVIndexer.scraper"><code class="docutils literal notranslate"><span class="pre">AHVIndexer.scraper</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.ahv.AHVIndexer.parser"><code class="docutils literal notranslate"><span class="pre">AHVIndexer.parser</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.ahv.AHVIndexer.index"><code class="docutils literal notranslate"><span class="pre">AHVIndexer.index()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.ahv.AHVIndexer.from_pages_to_content"><code class="docutils literal notranslate"><span class="pre">AHVIndexer.from_pages_to_content()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

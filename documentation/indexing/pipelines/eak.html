@@ -203,7 +203,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -320,7 +320,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -329,6 +329,154 @@
           <section id="eak-pipeline">
 <h1>EAK pipeline<a class="headerlink" href="#eak-pipeline" title="Link to this heading">¶</a></h1>
 <p>Index the website <a class="reference external" href="https://www.eak.admin.ch/">https://www.eak.admin.ch/</a> for RAG data.</p>
+<dl class="py class" id="module-indexing.pipelines.admin">
+<dt class="sig sig-object py" id="indexing.pipelines.admin.AdminParser">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing.pipelines.admin.</span></span><span class="sig-name descname"><span class="pre">AdminParser</span></span><a class="headerlink" href="#indexing.pipelines.admin.AdminParser" title="Link to this definition">¶</a></dt>
+<dd><p>A class used to parse, clean and split documents from a <a href="#id1"><span class="problematic" id="id2">*</span></a>.admin.ch website.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="indexing.pipelines.admin.AdminParser.html_converter">
+<span class="sig-name descname"><span class="pre">html_converter</span></span><a class="headerlink" href="#indexing.pipelines.admin.AdminParser.html_converter" title="Link to this definition">¶</a></dt>
+<dd><p>An instance of HTMLToDocument to convert HTML content to Document objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>HTMLToDocument</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="indexing.pipelines.admin.AdminParser.cleaner">
+<span class="sig-name descname"><span class="pre">cleaner</span></span><a class="headerlink" href="#indexing.pipelines.admin.AdminParser.cleaner" title="Link to this definition">¶</a></dt>
+<dd><p>An instance of DocumentCleaner to clean documents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DocumentCleaner</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="indexing.pipelines.admin.AdminParser.splitter">
+<span class="sig-name descname"><span class="pre">splitter</span></span><a class="headerlink" href="#indexing.pipelines.admin.AdminParser.splitter" title="Link to this definition">¶</a></dt>
+<dd><p>An instance of DocumentSplitter to split documents into chunks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DocumentSplitter</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.pipelines.admin.AdminParser.parse_xml">
+<span class="sig-name descname"><span class="pre">parse_xml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sitemap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.pipelines.admin.AdminParser.parse_xml" title="Link to this definition">¶</a></dt>
+<dd><p>Extracts URLs from the given XML sitemap.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.pipelines.admin.AdminParser.convert_html_to_documents">
+<span class="sig-name descname"><span class="pre">convert_html_to_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ByteStream</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../schemas/document.html#schemas.document.Document" title="schemas.document.Document"><span class="pre">Document</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.pipelines.admin.AdminParser.convert_html_to_documents" title="Link to this definition">¶</a></dt>
+<dd><p>Converts HTML content to Document objects.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.pipelines.admin.AdminParser.clean_documents">
+<span class="sig-name descname"><span class="pre">clean_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">documents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../schemas/document.html#schemas.document.Document" title="schemas.document.Document"><span class="pre">Document</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../schemas/document.html#schemas.document.Document" title="schemas.document.Document"><span class="pre">Document</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.pipelines.admin.AdminParser.clean_documents" title="Link to this definition">¶</a></dt>
+<dd><p>Cleans the given documents.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.pipelines.admin.AdminParser.split_documents">
+<span class="sig-name descname"><span class="pre">split_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">documents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../schemas/document.html#schemas.document.Document" title="schemas.document.Document"><span class="pre">Document</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../schemas/document.html#schemas.document.Document" title="schemas.document.Document"><span class="pre">Document</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.pipelines.admin.AdminParser.split_documents" title="Link to this definition">¶</a></dt>
+<dd><p>Splits the given documents into chunks.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.pipelines.admin.AdminParser.parse_urls">
+<span class="sig-name descname"><span class="pre">parse_urls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.pipelines.admin.AdminParser.parse_urls" title="Link to this definition">¶</a></dt>
+<dd><p>Extracts URLs from the given content.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>content</strong> (<em>str</em>) – The content to extract URLs from.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of URLs extracted from the content.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.pipelines.admin.AdminParser.convert_to_documents">
+<span class="sig-name descname"><span class="pre">convert_to_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.pipelines.admin.AdminParser.convert_to_documents" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract method to convert some content to documents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>content</strong> (<em>list</em><em> of </em><em>Any</em>) – The content to convert.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The converted documents.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of <a class="reference internal" href="../../schemas/document.html#schemas.document.Document" title="schemas.document.Document">Document</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="indexing.pipelines.admin.AdminIndexer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing.pipelines.admin.</span></span><span class="sig-name descname"><span class="pre">AdminIndexer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scraper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing.pipelines.admin.AdminIndexer" title="Link to this definition">¶</a></dt>
+<dd><p>A class used to index documents from <a href="#id3"><span class="problematic" id="id4">*</span></a>.admin.ch into a VectorDB.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="indexing.pipelines.admin.AdminIndexer.scraper">
+<span class="sig-name descname"><span class="pre">scraper</span></span><a class="headerlink" href="#indexing.pipelines.admin.AdminIndexer.scraper" title="Link to this definition">¶</a></dt>
+<dd><p>An instance of Scraper to scrape URLs and extract content from them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../scraper.html#indexing.scraper.Scraper" title="indexing.scraper.Scraper">Scraper</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="indexing.pipelines.admin.AdminIndexer.parser">
+<span class="sig-name descname"><span class="pre">parser</span></span><a class="headerlink" href="#indexing.pipelines.admin.AdminIndexer.parser" title="Link to this definition">¶</a></dt>
+<dd><p>An instance of Parser to parse and clean documents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Parser</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.pipelines.admin.AdminIndexer.index">
+<span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sitemap_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#indexing.pipelines.admin.AdminIndexer.index" title="Link to this definition">¶</a></dt>
+<dd><p>Scraps, parses and indexes HTML webpage content from the given sitemap URL into the VectorDB.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexing.pipelines.admin.AdminIndexer.from_pages_to_content">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_pages_to_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ByteStream</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.pipelines.admin.AdminIndexer.from_pages_to_content" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract method to convert URLs to content.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pages</strong> (<em>List</em><em>[</em><em>ByteStream</em><em>]</em>) – The HTML pages to convert to content.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The content extracted from the URLs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
         </article>
@@ -374,8 +522,45 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">EAK pipeline</a><ul>
+<li><a class="reference internal" href="#indexing.pipelines.admin.AdminParser"><code class="docutils literal notranslate"><span class="pre">AdminParser</span></code></a><ul>
+<li><a class="reference internal" href="#indexing.pipelines.admin.AdminParser.html_converter"><code class="docutils literal notranslate"><span class="pre">AdminParser.html_converter</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.admin.AdminParser.cleaner"><code class="docutils literal notranslate"><span class="pre">AdminParser.cleaner</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.admin.AdminParser.splitter"><code class="docutils literal notranslate"><span class="pre">AdminParser.splitter</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.admin.AdminParser.parse_xml"><code class="docutils literal notranslate"><span class="pre">AdminParser.parse_xml()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.admin.AdminParser.convert_html_to_documents"><code class="docutils literal notranslate"><span class="pre">AdminParser.convert_html_to_documents()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.admin.AdminParser.clean_documents"><code class="docutils literal notranslate"><span class="pre">AdminParser.clean_documents()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.admin.AdminParser.split_documents"><code class="docutils literal notranslate"><span class="pre">AdminParser.split_documents()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.admin.AdminParser.parse_urls"><code class="docutils literal notranslate"><span class="pre">AdminParser.parse_urls()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.admin.AdminParser.convert_to_documents"><code class="docutils literal notranslate"><span class="pre">AdminParser.convert_to_documents()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indexing.pipelines.admin.AdminIndexer"><code class="docutils literal notranslate"><span class="pre">AdminIndexer</span></code></a><ul>
+<li><a class="reference internal" href="#indexing.pipelines.admin.AdminIndexer.scraper"><code class="docutils literal notranslate"><span class="pre">AdminIndexer.scraper</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.admin.AdminIndexer.parser"><code class="docutils literal notranslate"><span class="pre">AdminIndexer.parser</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.admin.AdminIndexer.index"><code class="docutils literal notranslate"><span class="pre">AdminIndexer.index()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.pipelines.admin.AdminIndexer.from_pages_to_content"><code class="docutils literal notranslate"><span class="pre">AdminIndexer.from_pages_to_content()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
