@@ -16,7 +16,7 @@ with patch("sqlalchemy.create_engine") as mock_engine:
 client = TestClient(app)
 
 
-def test_read_main():
+def test_llm_models():
     response = client.get("/llm_models")
     assert response.status_code == 200
     expected_models = (
@@ -29,3 +29,17 @@ def test_read_main():
         + SUPPORTED_LLAMACPP_LLM_MODELS
     )
     assert response.json() == expected_models
+
+
+def test_retrieval_methods():
+    response = client.get("/retrieval_methods")
+    assert response.status_code == 200
+    expected_methods = [
+        "top_k_retriever",
+        "query_rewriting_retriever",
+        "contextual_compression_retriever",
+        "rag_fusion_retriever",
+        "bm25",
+        "reranking",
+    ]
+    assert response.json() == expected_methods
