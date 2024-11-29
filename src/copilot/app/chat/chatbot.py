@@ -18,6 +18,7 @@ from autocomplete.autocomplete_service import autocomplete_service
 from rag.rag_service import rag_service
 
 from schemas.chat import ChatRequest
+from schemas.llm import TopicCheck
 
 from sqlalchemy.orm import Session
 
@@ -48,7 +49,7 @@ class ChatBot:
 
     def _initialize_components(self, request: ChatRequest):
         """
-        Initialize LLM client, MessageBuilder, Retriever client, StreamingHandler and TranslationService.
+        Initialize LLM client, MessageBuilder, Retriever client, StreamingHandler and CommandService.
         """
         llm_client = LLMFactory.get_llm_client(
             llm_model=request.llm_model,
@@ -171,7 +172,7 @@ class ChatBot:
         ):
             yield token
 
-    @observe()
+    @observe(name="login_message")
     async def login_message(self, language: str = "de"):
 
         if language == "de":
@@ -185,6 +186,49 @@ class ChatBot:
 
         for token in message.split():
             yield f"{token} "
+
+    @observe(name="on_topic_check")
+    async def on_topic_check(
+        self,
+        query: str,
+        language: str,
+        llm_client: BaseLLM,
+        message_builder: MessageBuilder,
+    ):
+        """
+        Check if the query is on topic.
+        """
+        messages = message_builder.build_topic_check_prompt(query=query)
+        res = await llm_client.llm_client.beta.chat.completions.parse(
+            model="gpt-4o-mini",
+            temperature=0,
+            top_p=0.95,
+            max_tokens=512,
+            messages=messages,
+            response_format=TopicCheck,
+        )
+
+        on_topic = res.choices[0].message.parsed.on_topic
+
+        if not on_topic:
+            message = {
+                "de": "Wie kann ich Ihnen bei Ihren Fragen zur AHV/IV helfen?",
+                "fr": "Comment puis-je vous aider à répondre à vos questions concernant l'AVS/AI ?",
+                "it": "Come posso aiutarvi a rispondere alle vostre domande sull'AVS/AI?",
+            }.get(
+                language,
+                "Wie kann ich Ihnen bei Ihren Fragen zur AHV/IV helfen?",
+            )
+
+            for token in message.split():
+                yield f"{token} ".encode("utf-8")
+            yield "<source><a href='https://www.eak.admin.ch'>TEST</a></source>".encode(
+                "utf-8"
+            )
+            yield "<off_topic>true</off_topic>".encode("utf-8")
+            return
+        else:
+            yield "<off_topic>false</off_topic>".encode("utf-8")
 
     async def process_request(self, db: Session, request: ChatRequest):
         """
@@ -201,6 +245,54 @@ class ChatBot:
 
         assistant_response = []
         sources = {"documents": [], "source_url": None}
+
+        # On-topic check
+        yield "<topic_check>Validating query</topic_check>".encode("utf-8")
+
+        is_off_topic = False
+        async for token in self.on_topic_check(
+            query=request.query,
+            language=request.language,
+            llm_client=llm_client,
+            message_builder=message_builder,
+        ):
+            if b"<off_topic>true</off_topic>" in token:
+                is_off_topic = True
+            yield token
+            if (
+                b"<off_topic>true</off_topic>" not in token
+                and b"<off_topic>false</off_topic>" not in token
+            ):
+                token_str = token.decode("utf-8")
+                assistant_response.append(token_str)
+
+        if is_off_topic:
+            # index chat_history and chat_title for off-topic responses
+            if request.user_uuid:
+                assistant_message_uuid = str(uuid.uuid4())
+                yield f"\n\n<message_uuid>{assistant_message_uuid}</message_uuid>".encode(
+                    "utf-8"
+                )
+
+                user_message_uuid = str(uuid.uuid4())
+                assistant_response_text = "".join(assistant_response)
+                await self._index_conversation_turn(
+                    db,
+                    request,
+                    assistant_response_text,
+                    sources["documents"],
+                    sources["source_url"],
+                    user_message_uuid,
+                    assistant_message_uuid,
+                )
+                await self._index_chat_title(
+                    db,
+                    request,
+                    assistant_response_text,
+                    message_builder,
+                    llm_client,
+                )
+            return
 
         if request.rag:  # execute rag
             async for token in self.rag_service.process_rag(
