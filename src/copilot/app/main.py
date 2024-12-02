@@ -16,7 +16,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-PREFIX = "/apy"
+PREFIX = "/apy/v1"
 
 
 @asynccontextmanager
