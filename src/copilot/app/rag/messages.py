@@ -21,6 +21,9 @@ from rag.prompts import (
     AGENT_HANDOFF_PROMPT_DE,
     AGENT_HANDOFF_PROMPT_FR,
     AGENT_HANDOFF_PROMPT_IT,
+    FAK_EAK_FUNCTION_CALLING_PROMPT_DE,
+    FAK_EAK_FUNCTION_CALLING_PROMPT_FR,
+    FAK_EAK_FUNCTION_CALLING_PROMPT_IT,
 )
 from config.llm_config import (
     SUPPORTED_OPENAI_LLM_MODELS,
@@ -223,6 +226,114 @@ class MessageBuilder:
             else:
                 prompt = AGENT_HANDOFF_PROMPT_DE.format(
                     query=query,
+                )
+                return prompt
+
+    @observe(name="MessageBuilder_build_function_call_prompt")
+    def build_function_call_prompt(
+        self, query: str, func_metadata: str
+    ) -> Union[List[Dict], str]:
+        """
+        Format the Function Call message to send to the appropriate LLM API.
+        """
+        if (
+            self.llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+        ):
+            if self.language == "de":
+                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_DE.format(
+                    query=query,
+                    func_metadata=func_metadata,
+                )
+                return [
+                    {"role": "system", "content": prompt},
+                ]
+            elif self.language == "fr":
+                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_FR.format(
+                    query=query,
+                    func_metadata=func_metadata,
+                )
+                return [
+                    {"role": "system", "content": prompt},
+                ]
+            elif self.language == "it":
+                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_IT.format(
+                    query=query,
+                    func_metadata=func_metadata,
+                )
+                return [
+                    {"role": "system", "content": prompt},
+                ]
+            else:
+                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_DE.format(
+                    query=query,
+                    func_metadata=func_metadata,
+                )
+                return [
+                    {"role": "system", "content": prompt},
+                ]
+
+        elif self.llm_model in SUPPORTED_ANTHROPIC_LLM_MODELS:
+            if self.language == "de":
+                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_DE.format(
+                    query=query,
+                    func_metadata=func_metadata,
+                )
+                return [
+                    {"role": "user", "content": prompt},
+                ]
+            elif self.language == "fr":
+                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_FR.format(
+                    query=query,
+                    func_metadata=func_metadata,
+                )
+                return [
+                    {"role": "user", "content": prompt},
+                ]
+            elif self.language == "it":
+                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_IT.format(
+                    query=query,
+                    func_metadata=func_metadata,
+                )
+                return [
+                    {"role": "user", "content": prompt},
+                ]
+            else:
+                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_DE.format(
+                    query=query,
+                    func_metadata=func_metadata,
+                )
+                return [
+                    {"role": "user", "content": prompt},
+                ]
+
+        elif self.llm_model.startswith(
+            "mlx-community/"
+        ) or self.llm_model.startswith("llama-cpp/"):
+            if self.language == "de":
+                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_DE.format(
+                    query=query,
+                    func_metadata=func_metadata,
+                )
+                return prompt
+            elif self.language == "fr":
+                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_FR.format(
+                    query=query,
+                    func_metadata=func_metadata,
+                )
+                return prompt
+            elif self.language == "it":
+                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_IT.format(
+                    query=query,
+                    func_metadata=func_metadata,
+                )
+                return prompt
+            else:
+                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_DE.format(
+                    query=query,
+                    func_metadata=func_metadata,
                 )
                 return prompt
 

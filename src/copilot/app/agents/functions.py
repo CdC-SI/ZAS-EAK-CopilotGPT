@@ -1,7 +1,8 @@
 import logging
-
+from typing import Dict
 from datetime import date
 from dateutil.relativedelta import relativedelta
+from langfuse.decorators import observe
 
 logging.basicConfig(
     level=logging.INFO,
@@ -22,20 +23,24 @@ logger = logging.getLogger(__name__)
 
 
 # FAK-EAK
+@observe(name="FAK_EAK_calculate_reduction_rate_and_supplement")
 def calculate_reduction_rate_and_supplement(
-    date_of_birth, retirement_date, average_annual_income
-):
-    """
-    Calculate the reduction rate or pension supplement for women of the transitional generation.
+    date_of_birth: str, retirement_date: str, average_annual_income: float
+) -> Dict:
+    """Calculate the reduction rate or pension supplement for women of the transitional generation.
 
     Parameters:
-    - date_of_birth (datetime.date): The birth date of the woman (should be between 1961 and 1969).
-    - retirement_date (datetime.date): The planned retirement date.
-    - average_annual_income (float): The average annual income in CHF.
+    - date_of_birth (str) - Birth date in YYYY-MM-DD format for women born between 1961-1969
+    - retirement_date (str) - Planned retirement date in YYYY-MM-DD format
+    - average_annual_income (float) - Average annual income in CHF (minimum 0)
 
     Returns:
-    - str: A message indicating the reduction rate or the supplement amount.
-    - str: A message if the inputs do not meet the eligibility criteria, with a link for more information.
+    - Dict - A dictionary containing the calculated reduction rate, pension supplement or error message
+
+    Examples:
+    - date_of_birth: "1965-06-15"
+    - retirement_date: "2030-06-15"
+    - average_annual_income: 70000.00
     """
     date_of_birth = date.fromisoformat(date_of_birth)
     retirement_date = date.fromisoformat(retirement_date)
@@ -47,7 +52,9 @@ def calculate_reduction_rate_and_supplement(
     # Check if the woman is part of the transitional generation
     if not (1961 <= year_of_birth <= 1969):
         logger.info("------NOT ELIGIBLE")
-        return "You do not meet the eligibility criteria. For more information, please visit: [Taux de réduction favorable en cas d’anticipation de la rente](https://www.eak.admin.ch/eak/fr/home/dokumentation/pensionierung/reform-ahv21/kuerzungssaetze-bei-vorbezug.html)"
+        return {
+            "NotEligible": "https://www.eak.admin.ch/eak/fr/home/dokumentation/pensionierung/reform-ahv21/kuerzungssaetze-bei-vorbezug.html"
+        }
 
     # Calculate the age at retirement in years and months
     age_delta = relativedelta(retirement_date, date_of_birth)
@@ -82,10 +89,7 @@ def calculate_reduction_rate_and_supplement(
         base_supplement = 50
     else:
         logger.info("------INVALID INCOME")
-        return (
-            "The provided income is invalid. "
-            "Please ensure the income is in the correct range."
-        )
+        return {"InvalidIncome": ""}
 
     # Check if retiring at or after the reference age
     if age_total_months >= reference_age_months:
@@ -104,7 +108,7 @@ def calculate_reduction_rate_and_supplement(
         percentage = supplement_percentages[year_of_birth]
         supplement = base_supplement * (percentage / 100)
         logger.info("------PENSION SUPPLEMENT")
-        return f"Your pension supplement is {supplement:.2f} CHF per month."
+        return {"PensionSupplement": supplement}  # per month
     else:
         # Calculate anticipation months
         anticipation_months = reference_age_months - age_total_months
@@ -117,11 +121,9 @@ def calculate_reduction_rate_and_supplement(
 
         if anticipation_years_int not in [1, 2, 3]:
             logger.info("------INVALID ANTICIPATION YEARS")
-            return (
-                "The person does not meet the eligibility criteria for an early retirement reduction. "
-                "For more information, please visit: "
-                "https://www.eak.admin.ch/eak/fr/home/dokumentation/pensionierung/reform-ahv21/kuerzungssaetze-bei-vorbezug.html"
-            )
+            return {
+                "InvalidAnticipationYears": "https://www.eak.admin.ch/eak/fr/home/dokumentation/pensionierung/reform-ahv21/kuerzungssaetze-bei-vorbezug.html"
+            }
 
         # Reduction rates table
         reduction_rates = {
@@ -134,13 +136,12 @@ def calculate_reduction_rate_and_supplement(
         reduction_rate = reduction_rates[anticipation_years_int][
             income_bracket
         ]
-        logger.info("------REDUCTION RATE")
-        return f"Your reduction rate is {reduction_rate}%."
+        return {"ReductionRate": reduction_rate}
 
 
 def calculate_reference_age():
     pass
 
 
-def determine_parent_receiving_child_benefits():
+def determine_child_benefits_eligibility():
     pass

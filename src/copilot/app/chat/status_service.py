@@ -23,9 +23,9 @@ class StatusMessageService:
             "it": "Instradamento al servizio appropriato",
         },
         StatusType.AGENT_HANDOFF: {
-            "de": "{} Agent bearbeitet Ihre Anfrage",
-            "fr": "{} Agent traite votre demande",
-            "it": "L'agente {} sta elaborando la sua richiesta",
+            "de": "{} bearbeitet Ihre Anfrage",
+            "fr": "{} traite votre demande",
+            "it": "{} sta elaborando la sua richiesta",
         },
         StatusType.TOPIC_CHECK: {
             "de": "Validierungsabfrage",

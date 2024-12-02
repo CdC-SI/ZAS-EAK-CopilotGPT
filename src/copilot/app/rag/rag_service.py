@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 from utils.embedding import get_embedding
 from utils.streaming import StreamingHandler
 from rag.messages import MessageBuilder
-from agents import FAK_EAK_AGENT
+from agents import RAGAgent, PensionAgent, FollowUpAgent
 
 from config.base_config import rag_config
 
@@ -91,7 +91,9 @@ class RAGService:
         self.temperature = temperature
         self.top_p = top_p
         self.k_retrieve = top_k
-        self.fak_eak_agent = FAK_EAK_AGENT()
+        self.rag_agent = RAGAgent()
+        self.pension_agent = PensionAgent()
+        self.followup_agent = FollowUpAgent()
 
     async def embed(self, text_input: EmbeddingRequest):
         """
@@ -217,6 +219,10 @@ class RAGService:
             yield f"<agent_handoff>{status_service.get_status_message(StatusType.AGENT_HANDOFF, request.language, agent_name=agent_name)}</agent_handoff>".encode(
                 "utf-8"
             )
+            # Follow-up question
+            # async for token in self.followup_agent.process(FollowUp.RAG, request.language):
+            #     yield token
+
             async for token in self.process_rag(
                 db,
                 request,
@@ -228,19 +234,26 @@ class RAGService:
                 sources,
             ):
                 yield token
-        elif agent_name == "FAK_EAK_AGENT":
-            logger.info("Routing to FAK-EAK Agent")
+
+        elif agent_name == "PENSION_AGENT":
+            logger.info("Routing to PENSION Agent")
             yield f"<agent_handoff>{status_service.get_status_message(StatusType.AGENT_HANDOFF, request.language, agent_name=agent_name)}</agent_handoff>".encode(
                 "utf-8"
             )
-            async for token in self.fak_eak_agent.process(query=request.query):
-                yield token
+            async for token in self.pension_agent.process(
+                query=request.query,
+                language=request.language,
+                message_builder=message_builder,
+                llm_client=llm_client,
+            ):
+                yield token.encode("utf-8")
+
         else:
             logger.info("Agent handoff failed. Asking follow-up question.")
             # LLM logic to clarify topic/ask for more information?
             message = "Can you please provide more information?"
             async for token in message.split():
-                yield f"{token} "
+                yield f"{token} ".encode("utf-8")
 
 
 rag_service = RAGService(

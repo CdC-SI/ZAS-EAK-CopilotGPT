@@ -283,8 +283,8 @@ AGENT_HANDOFF_PROMPT_DE = """# Aufgabe
 Ihre Aufgabe ist es, aus den folgenden Agenten den richtigen auszuwählen, um die Frage des Benutzers zu beantworten.
 
 ## Agenten
-- RAG_AGENT
-- FAK_EAK_AGENT
+- RAG_AGENT: beantwortet allgemeine Fragen zur AHV/IV
+- PENSION_AGENT: beantwortet nur die für den Ruhestand spezifischen mathematischen Berechnungen, insbesondere die Berechnung des Kürzungssatzes und des Rentenzuschlags
 
 # Format der Antwort
 Antworten Sie mit dem Namen des geeigneten Agenten, um die Frage zu beantworten.
@@ -298,15 +298,10 @@ Wann entsteht der Anspruch auf eine Altersrente? -> RAG_AGENT
 Was ändert sich mit AHV 21? -> RAG_AGENT
 Was bedeutet das flexible Rentenalter? -> RAG_AGENT
 
-Für sehr spezifische Fragen zum Kindergeld und damit verbundenen Berechnungen -> FAK_EAK_AGENT
-Welche Arten von Kindergeld werden gezahlt? -> FAK_EAK_AGENT
-Wie hoch ist das Kindergeld? -> FAK_EAK_AGENT
-Werden die Zulagen nach dem Wohnkanton oder dem Arbeitskanton bestimmt? -> FAK_EAK_AGENT
-Wer hat Anspruch auf Kinderzulagen? -> FAK_EAK_AGENT
-Welcher Elternteil erhält die Kinderzulagen? -> FAK_EAK_AGENT
-Wie können Sie Ihren Anspruch auf Kindergeld bei der Familienausgleichskasse der Eidgenössischen Ausgleichskasse (FAK-EAK) geltend machen? -> FAK_EAK_AGENT
-Wie können Sie einen bestehenden Anspruch auf Ausbildungszulagen verlängern? -> FAK_EAK_AGENT
-Wie werden die Familienzulagen der Familienausgleichskasse der Eidgenössischen Ausgleichskasse ausbezahlt? -> FAK_EAK_AGENT
+Für sehr spezifische Fragen zu Berechnungen von Kürzungssätzen und Rentenzuschlägen im Zusammenhang mit der Pensionierung -> PENSION_AGENT
+Ich bin am 1962.31.12 geboren, möchte am 01.01.2025 in Rente gehen und mein Jahreseinkommen beträgt ca. 55'000 CHF. Wie hoch ist mein Kürzungssatz? -> PENSION_AGENT
+Wie hoch ist mein Kürzungssatz, wenn ich am 1965-11-07 geboren bin, am 2026-04-15 in Rente gehen möchte und mein Jahreseinkommen 76200 beträgt? -> PENSION_AGENT
+Hier sind meine Informationen: Geburtsdatum 03.01.1968 und ich gehe 2027 in Rente. Ich verdiene etwa 90000 CHF pro Jahr. Kann ich einen Zuschlag oder einen Kürzungssatz erhalten? -> PENSION_AGENT
 
 # Frage
 {query}"""
@@ -315,8 +310,8 @@ AGENT_HANDOFF_PROMPT_FR = """# Tâche
 Votre tâche est de sélectionner l'agent approprié pour répondre à la question posée par l'utilisateur parmis les agents suivants.
 
 ## Agents
-- RAG_AGENT
-- FAK_EAK_AGENT
+- RAG_AGENT: répond aux questions générales sur l'AVS/AI
+- PENSION_AGENT: répond seulement aux calculs mathématiques spécifiques à la retraite, particulièrement le calcul du taux de réduction et du supplément de rente
 
 # Format de réponse
 Répondez avec le nom de l'agent approprié pour répondre à la question.
@@ -330,15 +325,10 @@ Quand le droit à une rente de vieillesse prend-il naissance ? -> RAG_AGENT
 Qu'est-ce qui change avec AVS 21? -> RAG_AGENT
 Que signifie l'âge de la retraite flexible ? -> RAG_AGENT
 
-Pour des questions très spécifiques relatives aux allocations familiales et calculs associés -> RAG_AGENT
-Quels types d’allocations familiales sont versés ? -> FAK_EAK_AGENT
-À combien s’élèvent les allocations familiales ? -> FAK_EAK_AGENT
-Les allocations sont-elles déterminées en fonction du canton de domicile ou du canton de travail ? -> FAK_EAK_AGENT
-Qui a droit aux allocations familiales ? -> FAK_EAK_AGENT
-Quel parent perçoit les allocations familiales ? -> FAK_EAK_AGENT
-Comment pouvez-vous faire valoir votre droit aux allocations familiales auprès de la Caisse d’allocations familiales de la Caisse fédérale de compensation (CAF-CFC) ? -> FAK_EAK_AGENT
-Comment pouvez-vous prolonger un droit existant aux allocations de formation ? -> FAK_EAK_AGENT
-Comment sont versées les allocations familiales de la caisse d’allocations familiales de la Caisse fédérale de compensation ? -> FAK_EAK_AGENT
+Pour des questions très spécifiques concernant les calculs de taux de réduction et de suppléments de rente liés au départ à la retraite -> PENSION_AGENT
+Je suis née le 1962.31.12, je souhaite prendre ma retraite le 01.01.2025 et mon revenu annuel est d'environ 55'000 CHF. Quel est mon taux de réduction ? -> PENSION_AGENT
+Quel sera mon taux de réduction si je suis née le 1965-11-07, je souhaite prendre ma retraite le 2026-04-15 et mon revenu annuel est de 76200 ? -> PENSION_AGENT
+Voici mes informations: date de naissance le 03.01.1968 et je pars à la retraite en 2027. Je gagne environ 90000 CHF par an. Puis-je bénéficier d'un supplément ou taux de réduction ? -> PENSION_AGENT
 
 # Question
 {query}"""
@@ -347,8 +337,8 @@ AGENT_HANDOFF_PROMPT_IT = """# Compito
 Il compito consiste nel selezionare l'agente appropriato per rispondere alla domanda posta dall'utente tra i seguenti agenti.
 
 ## Agenti
-- RAG_AGENT
-- FAK_EAK_AGENT
+- RAG_AGENT: risponde a domande generali sull'AVS/AI
+- PENSION_AGENT: risponde solo ai calcoli matematici specifici per il pensionamento, in particolare al calcolo dell'aliquota di riduzione e del supplemento di pensione
 
 # Formato della risposta
 Rispondere con il nome dell'agente appropriato per rispondere alla domanda.
@@ -362,15 +352,199 @@ Quando nasce il diritto alla pensione di vecchiaia? -> RAG_AGENT
 Cosa cambia con l'AVS 21? -> RAG_AGENT
 Cosa significa l'età pensionabile flessibile? -> RAG_AGENT
 
-Per domande molto specifiche relative agli assegni familiari e ai relativi calcoli -> FAK_EAK_AGENT
-Quali tipi di assegni familiari vengono corrisposti? -> FAK_EAK_AGENT
-A quanto ammontano gli assegni familiari? -> FAK_EAK_AGENT
-L'assegno viene erogato in base al cantone di residenza o al cantone di occupazione? -> FAK_EAK_AGENT
-Chi ha diritto agli assegni familiari? -> FAK_EAK_AGENT
-Quale genitore riceve gli assegni familiari? -> FAK_EAK_AGENT
-Come si possono richiedere gli assegni familiari alla Caisse d'allocations familiales de la Caisse fédérale de compensation (CAF-CFC)? -> FAK_EAK_AGENT
-Come si può estendere un diritto esistente agli assegni di formazione? -> FAK_EAK_AGENT
-Come vengono pagati gli assegni familiari dalla Cassa per gli assegni familiari della Cassa federale di compensazione? -> FAK_EAK_AGENT
+Per domande molto specifiche sul calcolo dei tassi di riduzione e dei supplementi di pensione al momento del pensionamento -> PENSION_AGENT
+Sono nato il 31.12.1962, voglio andare in pensione il 01.01.2025 e il mio reddito annuo è di circa 55.000 franchi. Qual è il mio tasso di riduzione? -> PENSION_AGENT
+Qual è il mio tasso di riduzione se sono nato il 1965-11-07, voglio andare in pensione il 2026-04-15 e il mio reddito annuo è di CHF 76200? -> PENSION_AGENT
+Ecco le mie informazioni: sono nato il 03.01.1968 e andrò in pensione nel 2027. Guadagno circa 90.000 franchi all'anno. Posso beneficiare di un'integrazione o di una riduzione? -> PENSION_AGENT
 
 # Domanda
 {query}"""
+
+RAG_FOLLOWUP_AGENT_PROMPT_DE = """# Aufgabe"""
+
+RAG_FOLLOWUP_AGENT_PROMPT_FR = """# Tâche
+Votre tâche consiste à évaluer si la question suivante est formulée de manière suffisamment claire et précise pour effectuer une recherche sémantique dans une base de données vectorielle. Si la question est ambiguë ou nécessite des clarifications supplémentaires, vous devez poser des questions de suivi pour obtenir des informations supplémentaires.
+
+1. Déterminez le thème de la question
+2. Déterminez si la la question nécessite une question de suivi
+3. Formulez une question de suivi courte et précise pour obtenir des informations supplémentaires
+
+Vous pouvez également consulter l'historique de conversation pour obtenir des informations contextuelles supplémentaires.
+
+# Format de réponse
+theme: str - Thème de la question (e.g. "Splitting", "Bonifications pour tâches d'assistance", "Bonifications pour tâches éducatives", "Compte Individuel", etc.)
+followup: bool (True/False) - Indique si la question nécessite des clarifications ou des informations supplémentaires.
+question_de_suivi: str - Question de suivi courte et précise pour obtenir des informations supplémentaires.
+
+# Exemples de thèmes et questions de suivi
+Thème: Compte Individuel (CI)
+Comment puis-je vérifier mes cotisations ? -> Souhaitez-vous obtenir un extrait de votre compte individuel (CI) pour vérifier vos cotisations ?
+Est-ce que quelqu'un peut consulter mon compte individuel ? -> Souhaitez-vous savoir qui a accès à votre compte individuel (CI) ?
+Où puis-je obtenir mon relevé de compte ? -> Souhaitez-vous savoir auprès de quelle caisse de compensation vous pouvez demander votre extrait de compte ?
+Si je remarque une erreur sur mon compte, puis-je la corriger ? -> Souhaitez-vous savoir comment demander une rectification des inscriptions sur votre compte individuel (CI) ?
+Mon employeur a-t-il bien déclaré mes salaires ? -> Voulez-vous vérifier si votre employeur a correctement annoncé vos revenus à la caisse de compensation ?
+Que faire si je conteste les informations sur mon extrait ? -> Voulez-vous savoir comment contester ou faire rectifier les inscriptions sur votre compte individuel ?
+
+Thème: Splitting:
+Comment fonctionne le partage des revenus après un divorce ? -> Souhaitez-vous savoir quand le partage des revenus est effectué ou comment il est calculé ?
+Que dois-je faire après mon divorce concernant mes cotisations ? -> Souhaitez-vous savoir comment demander le partage des revenus auprès de la caisse de compensation ?
+Est-ce que je dois faire la demande avec mon ex-conjoint pour le partage des revenus ? -> Souhaitez-vous savoir si vous pouvez demander le partage des revenus individuellement ou si vous devez le faire conjointement ?
+Que se passe-t-il si je ne fais pas de demande pour le partage des revenus ? -> Souhaitez-vous savoir si le partage des revenus sera effectué automatiquement si vous ne le demandez pas ?
+Est-ce que mes revenus seront partagés si mon mariage a duré moins de deux ans ? -> Pouvez-vous me préciser les dates de votre mariage et de votre divorce pour déterminer si le partage s'applique ?
+À quel moment le partage des revenus est-il effectué si mon ex-conjoint est décédé ? -> Souhaitez-vous savoir si le partage des revenus a lieu lorsque vous atteignez l'âge de référence ou si vous avez droit à une rente d'invalidité ?
+
+Thème: Bonifications pour tâches d'assistance:
+Comment puis-je obtenir une aide pour m'occuper d'un proche ? -> Votre proche reçoit-il une allocation pour impotence et habitez-vous à proximité l'un de l'autre ?
+Puis-je avoir des bonifications si je m'occupe de mes parents âgés ? -> Est-ce que vos parents reçoivent une allocation pour impotence et vivez-vous à moins de 30 km d'eux ?
+Quel est le montant de la bonification pour tâches d'assistance ? -> Souhaitez-vous connaître le montant précis ou comment il est calculé ?
+Dois-je faire une demande chaque année pour les bonifications ? -> Voulez-vous savoir où et comment faire votre demande annuelle ?
+Est-ce que je peux obtenir la bonification si je m'occupe de mon partenaire ? -> Vivez-vous en ménage commun avec votre partenaire depuis au moins cinq ans sans interruption ?
+Quelles conditions faut-il remplir pour avoir droit aux bonifications ? -> Souhaitez-vous connaître les critères liés à la proximité de domicile et à l'état de la personne aidée ?
+
+Thème: Bonifications pour tâches éducatives:
+Comment puis-je obtenir une aide pour mes enfants ? -> Exercez-vous l'autorité parentale et êtes-vous marié(e), divorcé(e) ou non marié(e) avec l'autre parent ?
+Qui reçoit la bonification si on est séparés ? -> Avez-vous une décision des autorités ou une convention sur l'attribution des bonifications pour tâches éducatives ?
+Comment la bonification est-elle répartie entre les parents ? -> Exercez-vous l'autorité parentale conjointe avec l'autre parent, et avez-vous conclu une convention sur l'attribution des bonifications ?
+Que faire si on ne se met pas d'accord sur les bonifications pour les enfants ? -> Souhaitez-vous savoir comment l'APEA intervient en l'absence d'accord entre les parents ?
+Peut-on modifier l'attribution des bonifications pour nos enfants ? -> Souhaitez-vous conclure une nouvelle convention avec l'autre parent concernant l'attribution des bonifications ?
+Comment les bonifications sont-elles calculées si j'ai plusieurs enfants ? -> Voulez-vous savoir si les bonifications pour tâches éducatives se cumulent pour chaque enfant ?
+Dois-je informer la caisse de compensation si ma situation familiale change ? -> Souhaitez-vous savoir si vous devez signaler les changements concernant les bonifications pour tâches éducatives ?
+Que se passe-t-il si je suis le seul à m'occuper des enfants ? -> Exercez-vous l'autorité parentale exclusive, et êtes-vous marié(e), divorcé(e) ou non marié(e) avec l'autre parent ?
+
+Thème: Cotisations salariales à l’AVS, à l’AI et aux APG:
+À partir de quel âge doit-on commencer à payer des cotisations ? -> Pouvez-vous me dire en quelle année vous êtes né(e) ?
+Quand est-ce que je peux arrêter de cotiser à l'AVS ? -> Êtes-vous un homme ou une femme, et quelle est votre année de naissance ?
+Je continue à travailler après ma retraite, dois-je encore payer des cotisations ? -> Avez-vous atteint l'âge de référence et exercez-vous toujours une activité lucrative ?
+Comment fonctionne la franchise pour les retraités qui travaillent ? -> Souhaitez-vous connaître le montant de la franchise ou savoir comment elle s'applique ?
+Est-ce que je dois payer des cotisations si je gagne très peu ? -> Quel est le montant annuel de votre salaire pour chaque emploi ?
+Comment puis-je simplifier le paiement des cotisations ? -> Vos salariés gagnent-ils chacun moins de 22 050 francs par an, et le total des salaires ne dépasse-t-il pas 58 800 francs par an ?
+À quelle fréquence dois-je payer les cotisations ? -> Quel est le montant total annuel des salaires que vous versez à vos employés ?
+Que se passe-t-il si je paie mes cotisations en retard ? -> Souhaitez-vous connaître les intérêts moratoires applicables en cas de retard de paiement ?
+Quels types de rémunérations sont soumis à cotisations ? -> Voulez-vous savoir si des primes ou des allocations spécifiques sont concernées ?
+Les allocations familiales sont-elles soumises à cotisations ? -> Parlez-vous des allocations pour enfants ou de formation professionnelle conformes à l'usage local ou professionnel ?
+Est-ce que les indemnités journalières sont soumises à cotisations ? -> Faites-vous référence aux indemnités journalières de l'AI, de l'AC ou aux allocations pour perte de gain ?
+Les cadeaux de l'employeur sont-ils soumis à cotisations ? -> Pouvez-vous préciser le type de cadeaux et leur valeur approximative ?
+Dois-je payer des cotisations sur une gratification reçue plus tard ? -> Cette gratification concerne-t-elle une période où vous étiez assuré et tenu de cotiser ?
+Est-ce que les repas offerts par l'employeur sont soumis à cotisations ? -> Recevez-vous ces repas de manière régulière de la part de votre employeur ?
+Je suis membre du conseil d'administration, comment mes cotisations sont-elles calculées ? -> Percevez-vous des honoraires ou des tantièmes pour cette fonction, et si oui, de quel montant ?
+Est-ce que les allocations de déménagement sont soumises à cotisations ? -> Ces allocations sont-elles versées en raison d'un changement de domicile pour des raisons professionnelles ?
+Comment sont évaluées les prestations en nature ? -> Recevez-vous des avantages comme la nourriture ou le logement de manière régulière ?
+Les personnes qui travaillent dans une entreprise familiale paient-elles des cotisations ? -> Avez-vous moins de 20 ans et êtes-vous membre de la famille travaillant dans l'entreprise ?
+Est-ce que les membres de la famille qui travaillent dans une exploitation agricole doivent cotiser ? -> Êtes-vous une personne seule, mariée, et avez-vous des enfants mineurs à charge ?
+Dois-je payer des cotisations sur les allocations pour perte de gain versées en cas de service militaire ? -> Recevez-vous ces allocations directement ou par l'intermédiaire de votre employeur ?
+
+Thème: Cotisations des indépendants à l’AVS, à l’AI et aux APG:
+Est-ce que je suis considéré comme indépendant ? -> Pouvez-vous décrire votre activité professionnelle et si vous assumez les risques économiques ?
+Dois-je payer des cotisations si je suis à mon compte ? -> Exercez-vous une activité lucrative en Suisse en tant qu'indépendant ?
+À partir de quand dois-je commencer à cotiser ? -> Pouvez-vous me dire en quelle année vous êtes né(e) ?
+Jusqu'à quel âge dois-je payer des cotisations ? -> Avez-vous atteint l'âge de référence et continuez-vous à exercer une activité lucrative ?
+Quel est le taux de cotisation pour mon revenu ? -> Quel est votre revenu annuel provenant de votre activité indépendante ?
+Je gagne très peu, combien dois-je cotiser ? -> Quel est votre revenu annuel provenant de votre activité indépendante ?
+Je fais un petit travail indépendant en plus de mon emploi principal, dois-je cotiser dessus ? -> Quel est le montant annuel de votre revenu indépendant, et cotisez-vous déjà via votre emploi principal ?
+Je suis à la retraite mais je travaille encore, dois-je cotiser ? -> Exercez-vous une activité lucrative après avoir atteint l'âge de référence, et souhaitez-vous savoir si vous devez cotiser ?
+Comment fonctionne la franchise pour les retraités qui travaillent ? -> Souhaitez-vous connaître le montant de la franchise ou comment elle s'applique à vos revenus ?
+Dois-je payer des cotisations sur les indemnités que je reçois ? -> Recevez-vous des allocations pour perte de gain ou des indemnités journalières de l'AI, de l'AC ou de l'assurance militaire ?
+
+# Historique de conversation
+{conversational_memory}
+
+# Question
+{query}"""
+
+RAG_FOLLOWUP_AGENT_PROMPT_IT = """# """
+
+FAK_EAK_FOLLOWUP_AGENT_PROMPT_DE = """# Aufgabe"""
+
+FAK_EAK_FOLLOWUP_AGENT_PROMPT_FR = """# Tâche
+Votre tâche consiste à poser des questions de suivi pour obtenir les informations nécessaires pour exécuter une fonction. Vous disposez des fonctions suivantes:
+-
+
+
+Si la question porte sur les allocations familiales, vérifiez que vous disposez des éléments suivants:
+- Si la question porte sur les allocations familiales, vérifiez que vous disposez des éléments suivants:
+    1. Questions sur le taux de réduction en cas d'anticipation de rente pour les femmes de la génération de transition:
+        - date de naissance (datetime.date): La date de naissance de la femme (devrait être entre 1961 et 1969).
+        - date de départ à la retraite (datetime.date): La date prévue pour le départ à la retraite.
+        - revenu annuel moyen (float): Le revenu annuel moyen en CHF.
+    2. Questions sur quel parent reçoit les allocations familiales:
+        - 1 parent possède une activité lucrative OU les deux parents possèdent une activité lucrative ?
+        - quel(s) parent(s) ont l'autorité parentale ?
+        - les parents vivent-ils ensemble ?
+        - un parent travaille dans le canton de domicile de l'enfant ?
+        - 1 parent est salarité et l'autre indépendant OU les deux parents sont salariés OU les deux parents sont indépendants ?
+        -
+
+# Format de réponse
+
+# Exemples
+
+
+# Question
+{query}"""
+
+FAK_EAK_FOLLOWUP_AGENT_PROMPT_IT = """# """
+
+FAK_EAK_FUNCTION_CALLING_PROMPT_DE = """# Aufgabe
+Ihre Aufgabe ist es, die richtige Funktion aufzurufen, um die vom Benutzer gestellte Frage zu beantworten. Sie müssen die Frage analysieren und die Parameter extrahieren/formatieren, die für den Aufruf der ausgewählten Funktion erforderlich sind.
+
+# Verfügbare Funktionen
+- calculate_reduction_rate_and_supplement: Berechnet den Kürzungssatz und den Zuschlag für Frauen der Übergangsgeneration.
+- determine_child_benefits_eligibility: Bestimmt die Anspruchsberechtigung für Kindergeld für Eltern.
+
+# Signatur der Funktion
+{func_metadata}
+
+# Antwortformat
+function_name(param1, param2, ...)
+
+# Beispiele
+Ich bin am 1962.31.12 geboren, möchte am 01.01.2025 in Rente gehen und mein Jahreseinkommen beträgt ca. 55'000 CHF. Wie hoch ist mein Kürzungssatz? -> calculate_reduction_rate_and_supplement("1962-12-31“, "2025-01-01", 55000.0)
+Wie hoch ist mein Kürzungssatz, wenn ich am 1965-11-07 geboren bin, am 2026-04-15 in Rente gehen möchte und mein Jahreseinkommen 76200 beträgt? -> calculate_reduction_rate_and_supplement("1965-11-07", "2026-04-15", 76200.0)
+Hier sind meine Informationen: Geburtsdatum 03.01.1968 und ich werde 2027 in Rente gehen. Ich verdiene etwa 90.000 CHF pro Jahr. Kann ich einen Zuschlag oder eine Ermäßigung erhalten? -> calculate_reduction_rate_and_supplement("1968-01-03", "2027-01-01", 90000.0)
+
+# Frage
+{query}"""
+
+FAK_EAK_FUNCTION_CALLING_PROMPT_FR = """# Tâche
+Votre tâche consiste à appeler la fonction appropriée pour répondre à la question posée par l'utilisateur. Vous devez analyser la question et extraire/formatter les paramètres nécessaires pour appeler la fonction choisie.
+
+# Fonctions disponibles
+- calculate_reduction_rate_and_supplement: Calcule le taux de réduction et le supplément pour les femmes de la génération de transition.
+- determine_child_benefits_eligibility: Détermine l'éligibilité aux allocations familiales pour les parents.
+
+# Signature de la fonction
+{func_metadata}
+
+# Format de réponse
+function_name(param1, param2, ...)
+
+# Exemples
+Je suis née le 1962.31.12, je souhaite prendre ma retraite le 01.01.2025 et mon revenu annuel est d'environ 55'000 CHF. Quel est mon taux de réduction ? -> calculate_reduction_rate_and_supplement("1962-12-31", "2025-01-01", 55000.0)
+Quel sera mon taux de réduction si je suis née le 1965-11-07, je souhaite prendre ma retraite le 2026-04-15 et mon revenu annuel est de 76200 ? -> calculate_reduction_rate_and_supplement("1965-11-07", "2026-04-15", 76200.0)
+Voici mes informations: date de naissance le 03.01.1968 et je pars à la retraite en 2027. Je gagne environ 90000 CHF par an. Puis-je bénéficier d'un supplément ou taux de réduction ? -> calculate_reduction_rate_and_supplement("1968-01-03", "2027-01-01", 90000.0)
+
+# Question
+{query}"""
+
+FAK_EAK_FUNCTION_CALLING_PROMPT_IT = """# Compito
+Il compito consiste nel chiamare la funzione appropriata per rispondere alla domanda posta dall'utente. Dovete analizzare la domanda ed estrarre/formattare i parametri necessari per chiamare la funzione scelta.
+
+# Funzioni disponibili
+- calculate_reduction_rate_and_supplement: calcola il tasso di riduzione e il supplemento per le donne della generazione di transizione.
+- determine_child_benefits_eligibility: Determina l'ammissibilità agli assegni familiari per i genitori.
+
+# Firma della funzione
+{func_metadata}
+
+# Formato della risposta
+function_name(param1, param2, ...)
+
+# Esempi
+Sono nato il 31.12.1962, voglio andare in pensione il 01.01.2025 e il mio reddito annuo è di circa 55.000 franchi. Qual è il mio tasso di riduzione? -> calculate_reduction_rate_and_supplement("1962-12-31", "2025-01-01", 55000.0)
+Qual è il mio tasso di riduzione se sono nato il 1965-11-07, voglio andare in pensione il 2026-04-15 e il mio reddito annuo è di 76200? -> calculate_reduction_rate_and_supplement("1965-11-07", "2026-04-15", 76200.0)
+Ecco i miei dati: sono nato il 03.01.1968 e andrò in pensione nel 2027. Guadagno circa 90.000 franchi all'anno. Posso beneficiare di un supplemento o di un'aliquota di riduzione? -> calculate_reduction_rate_and_supplement("1968-01-03", "2027-01-01", 90000.0)
+
+# Domanda
+{query}
+
+Tradotto con www.DeepL.com/Translator (versione gratuita)"""
