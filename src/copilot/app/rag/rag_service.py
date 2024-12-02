@@ -143,7 +143,7 @@ class RAGService:
         and then uses an LLM client to generate a response based on the request query and the context.
         """
         # Retrieval status update
-        yield f"<retrieving>{status_service.get_status_message(StatusType.RETRIEVAL, request.language)}</retrieving>".encode(
+        yield f"<retrieval>{status_service.get_status_message(StatusType.RETRIEVAL, request.language)}</retrieval>".encode(
             "utf-8"
         )
 
@@ -214,7 +214,7 @@ class RAGService:
 
         if agent_name == "RAG_AGENT":
             logger.info("Routing to RAG Agent")
-            yield f"<agent>{status_service.get_status_message(StatusType.AGENT, request.language, agent_name=agent_name)}</agent>".encode(
+            yield f"<agent_handoff>{status_service.get_status_message(StatusType.AGENT_HANDOFF, request.language, agent_name=agent_name)}</agent_handoff>".encode(
                 "utf-8"
             )
             async for token in self.process_rag(
@@ -230,7 +230,7 @@ class RAGService:
                 yield token
         elif agent_name == "FAK_EAK_AGENT":
             logger.info("Routing to FAK-EAK Agent")
-            yield f"<agent>{status_service.get_status_message(StatusType.AGENT, request.language, agent_name=agent_name)}</agent>".encode(
+            yield f"<agent_handoff>{status_service.get_status_message(StatusType.AGENT_HANDOFF, request.language, agent_name=agent_name)}</agent_handoff>".encode(
                 "utf-8"
             )
             async for token in self.fak_eak_agent.process(query=request.query):

@@ -4,7 +4,7 @@ from enum import Enum
 class StatusType(Enum):
     RETRIEVAL = "retrieval"
     ROUTING = "routing"
-    AGENT = "agent"
+    AGENT_HANDOFF = "agent_handoff"
     TOPIC_CHECK = "topic_check"
 
 
@@ -22,7 +22,7 @@ class StatusMessageService:
             "fr": "Routage vers le service approprié",
             "it": "Instradamento al servizio appropriato",
         },
-        StatusType.AGENT: {
+        StatusType.AGENT_HANDOFF: {
             "de": "{} Agent bearbeitet Ihre Anfrage",
             "fr": "{} Agent traite votre demande",
             "it": "L'agente {} sta elaborando la sua richiesta",
@@ -44,7 +44,7 @@ class StatusMessageService:
         messages = cls._STATUS_MESSAGES[status_type]
         message = messages.get(language, messages.get(cls.DEFAULT_LANGUAGE))
 
-        if status_type == StatusType.AGENT and "agent_name" in kwargs:
+        if status_type == StatusType.AGENT_HANDOFF and "agent_name" in kwargs:
             message = message.format(kwargs["agent_name"])
 
         return message
