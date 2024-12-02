@@ -93,31 +93,29 @@ class ChatBot:
         Index the query and response in chat history.
         """
         if request.command:
-            self.chat_memory.memory_instance.add_message_to_memory(
-                db,
-                request.user_uuid,
-                request.conversation_uuid,
-                user_message_uuid,
-                "user",
-                request.command,
-                request.language,
+            user_message = request.command
+            retrieved_doc_ids = None
+        elif request.rag or request.agentic_rag:
+            user_message = request.query
+            retrieved_doc_ids = (
+                [doc["id"] for doc in documents if doc["id"]]
+                if documents
+                else None
             )
         else:
-            self.chat_memory.memory_instance.add_message_to_memory(
-                db,
-                user_uuid=request.user_uuid,
-                conversation_uuid=request.conversation_uuid,
-                message_uuid=user_message_uuid,
-                role="user",
-                message=request.query,
-                language="de",
-            )
+            user_message = request.query
+            retrieved_doc_ids = None
 
-        retrieved_doc_ids = (
-            [doc["id"] for doc in documents if doc["id"]]
-            if documents
-            else None
+        self.chat_memory.memory_instance.add_message_to_memory(
+            db,
+            user_uuid=request.user_uuid,
+            conversation_uuid=request.conversation_uuid,
+            message_uuid=user_message_uuid,
+            role="user",
+            message=user_message,
+            language=request.language,
         )
+
         self.chat_memory.memory_instance.add_message_to_memory(
             db,
             user_uuid=request.user_uuid,
@@ -125,7 +123,7 @@ class ChatBot:
             message_uuid=assistant_message_uuid,
             role="assistant",
             message=assistant_response,
-            language="fr",
+            language=request.language,
             url=source_url,
             retrieved_doc_ids=retrieved_doc_ids,
         )
