@@ -8,7 +8,7 @@ from rag.factory import RetrieverFactory
 from rag.llm.factory import LLMFactory
 from rag.llm.base import BaseLLM
 
-from utils.streaming import StreamingHandlerFactory, StreamingHandler
+from utils.streaming import StreamingHandlerFactory, StreamingHandler, Token
 from rag.messages import MessageBuilder
 from commands.command_service import CommandService, TranslationService
 
@@ -183,8 +183,7 @@ class ChatBot:
             "Bitte registrieren Sie sich und melden Sie sich an, um auf diese Funktion zuzugreifen.",
         )
 
-        for token in message.split():
-            yield f"{token} "
+        yield Token.from_text(message).content
 
     @observe(name="on_topic_check")
     async def on_topic_check(
@@ -211,16 +210,12 @@ class ChatBot:
 
         if not on_topic:
             message = offtopic_service.get_message(language)
-
-            for token in message.split():
-                yield f"{token} ".encode("utf-8")
-            yield "<source><a href='https://www.eak.admin.ch'>TEST</a></source>".encode(
-                "utf-8"
-            )
-            yield "<off_topic>true</off_topic>".encode("utf-8")
+            yield Token.from_text(message).content
+            yield Token.from_source("https://www.eak.admin.ch").content
+            yield Token.from_status("<off_topic>true</off_topic>").content
             return
         else:
-            yield "<off_topic>false</off_topic>".encode("utf-8")
+            yield Token.from_status("<off_topic>false</off_topic>").content
 
     async def process_request(self, db: Session, request: ChatRequest):
         """

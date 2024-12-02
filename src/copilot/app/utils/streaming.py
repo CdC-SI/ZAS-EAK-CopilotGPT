@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 from langfuse.decorators import observe
+from dataclasses import dataclass
+from typing import Optional
 
 from config.llm_config import (
     SUPPORTED_OPENAI_LLM_MODELS,
@@ -7,6 +9,31 @@ from config.llm_config import (
     SUPPORTED_ANTHROPIC_LLM_MODELS,
     SUPPORTED_GROQ_LLM_MODELS,
 )
+
+
+@dataclass
+class Token:
+    content: bytes
+    is_source: bool = False
+    is_status: bool = False
+    metadata: Optional[dict] = None
+
+    @classmethod
+    def from_text(cls, text: str) -> "Token":
+        return cls(content=text.encode("utf-8"))
+
+    @classmethod
+    def from_source(cls, url: str) -> "Token":
+        content = f"\n\n<source><a href='{url}' target='_blank' class='source-link'>{url}</a></source>"
+        return cls(
+            content=content.encode("utf-8"),
+            is_source=True,
+            metadata={"url": url},
+        )
+
+    @classmethod
+    def from_status(cls, status: str) -> "Token":
+        return cls(content=status.encode("utf-8"), is_status=True)
 
 
 class StreamingHandler(ABC):
@@ -23,11 +50,9 @@ class OpenAIStreaming(StreamingHandler):
         async for event in events:
             if event.choices[0].delta.content is not None:
                 content_received = True
-                yield event.choices[0].delta.content.encode("utf-8")
+                yield Token.from_text(event.choices[0].delta.content).content
             elif event.choices[0].delta.content is None and content_received:
-                yield f"\n\n<source><a href='{source_url}' target='_blank' class='source-link'>{source_url}</a></source>".encode(
-                    "utf-8"
-                )
+                yield Token.from_source(source_url).content
                 return
 
 
@@ -39,11 +64,9 @@ class AzureOpenAIStreaming(StreamingHandler):
         async for event in events:
             if event.choices[0].delta.content is not None:
                 content_received = True
-                yield event.choices[0].delta.content.encode("utf-8")
+                yield Token.from_text(event.choices[0].delta.content).content
             elif event.choices[0].delta.content is None and content_received:
-                yield f"\n\n<source><a href='{source_url}' target='_blank' class='source-link'>{source_url}</a></source>".encode(
-                    "utf-8"
-                )
+                yield Token.from_source(source_url).content
                 return
             elif not content_received:
                 continue  # Skip initial None token
@@ -55,11 +78,9 @@ class AnthropicStreaming(StreamingHandler):
         events = await events
         async for event in events:
             if event.type == "content_block_delta":
-                yield event.delta.text
+                yield Token.from_text(event.delta.text).content
             elif event.type == "content_block_stop":
-                yield f"\n\n<source><a href='{source_url}' target='_blank' class='source-link'>{source_url}</a><source>".encode(
-                    "utf-8"
-                )
+                yield Token.from_source(source_url).content
                 return
 
 
@@ -70,11 +91,9 @@ class MLXStreaming(StreamingHandler):
         async for event in events:
             if event.choices[0].delta.content is not None:
                 content_received = True
-                yield event.choices[0].delta.content.encode("utf-8")
+                yield Token.from_text(event.choices[0].delta.content).content
             elif event.choices[0].delta.content is None and content_received:
-                yield f"\n\n<source><a href='{source_url}' target='_blank' class='source-link'>{source_url}</a><source>".encode(
-                    "utf-8"
-                )
+                yield Token.from_source(source_url).content
                 return
             elif not content_received:
                 continue  # Skip initial None token
@@ -87,11 +106,9 @@ class LlamaCppStreaming(StreamingHandler):
         async for event in events:
             if event.choices[0].delta.content is not None:
                 content_received = True
-                yield event.choices[0].delta.content.encode("utf-8")
+                yield Token.from_text(event.choices[0].delta.content).content
             elif event.choices[0].delta.content is None and content_received:
-                yield f"\n\n<source><a href='{source_url}' target='_blank' class='source-link'>{source_url}</a><source>".encode(
-                    "utf-8"
-                )
+                yield Token.from_source(source_url).content
                 return
 
 

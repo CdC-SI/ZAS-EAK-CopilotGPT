@@ -14,7 +14,7 @@ from schemas.rag import AgentHandoff
 
 from sqlalchemy.orm import Session
 from utils.embedding import get_embedding
-from utils.streaming import StreamingHandler
+from utils.streaming import StreamingHandler, Token
 from rag.messages import MessageBuilder
 from agents import RAGAgent, PensionAgent, FollowUpAgent
 
@@ -145,9 +145,9 @@ class RAGService:
         and then uses an LLM client to generate a response based on the request query and the context.
         """
         # Retrieval status update
-        yield f"<retrieval>{status_service.get_status_message(StatusType.RETRIEVAL, request.language)}</retrieval>".encode(
-            "utf-8"
-        )
+        yield Token.from_status(
+            f"<retrieval>{status_service.get_status_message(StatusType.RETRIEVAL, request.language)}</retrieval>"
+        ).content
 
         documents = await self.retrieve(db, request, retriever_client)
         formatted_context_docs = "\n\n".join(
@@ -195,9 +195,9 @@ class RAGService:
         sources: Dict,
     ):
         # Routing status update
-        yield f"<routing>{status_service.get_status_message(StatusType.ROUTING, request.language)}</routing>".encode(
-            "utf-8"
-        )
+        yield Token.from_status(
+            f"<routing>{status_service.get_status_message(StatusType.ROUTING, request.language)}</routing>"
+        ).content
 
         messages = message_builder.build_agent_handoff_prompt(
             query=request.query
@@ -216,9 +216,10 @@ class RAGService:
 
         if agent_name == "RAG_AGENT":
             logger.info("Routing to RAG Agent")
-            yield f"<agent_handoff>{status_service.get_status_message(StatusType.AGENT_HANDOFF, request.language, agent_name=agent_name)}</agent_handoff>".encode(
-                "utf-8"
-            )
+            yield Token.from_status(
+                f"<agent_handoff>{status_service.get_status_message(StatusType.AGENT_HANDOFF, request.language, agent_name=agent_name)}</agent_handoff>"
+            ).content
+
             # Follow-up question
             # async for token in self.followup_agent.process(FollowUp.RAG, request.language):
             #     yield token
@@ -237,9 +238,10 @@ class RAGService:
 
         elif agent_name == "PENSION_AGENT":
             logger.info("Routing to PENSION Agent")
-            yield f"<agent_handoff>{status_service.get_status_message(StatusType.AGENT_HANDOFF, request.language, agent_name=agent_name)}</agent_handoff>".encode(
-                "utf-8"
-            )
+            yield Token.from_status(
+                f"<agent_handoff>{status_service.get_status_message(StatusType.AGENT_HANDOFF, request.language, agent_name=agent_name)}</agent_handoff>"
+            ).content
+
             async for token in self.pension_agent.process(
                 query=request.query,
                 language=request.language,
