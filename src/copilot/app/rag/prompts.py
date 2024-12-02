@@ -290,6 +290,7 @@ Ihre Aufgabe ist es, aus den folgenden Agenten den richtigen auszuwählen, um di
 Antworten Sie mit dem Namen des geeigneten Agenten, um die Frage zu beantworten.
 
 # Beispiele
+Für allgemeine Fragen zur AHV/IV -> RAG_AGENT
 Wie bestimme ich meinen Anspruch auf Ergänzungsleistungen? -> RAG_AGENT
 Welche Voraussetzungen muss ich erfüllen, um eine IV-Rente zu erhalten? -> RAG_AGENT
 Wann werden Ergänzungsleistungen gezahlt? -> RAG_AGENT
@@ -297,6 +298,7 @@ Wann entsteht der Anspruch auf eine Altersrente? -> RAG_AGENT
 Was ändert sich mit AHV 21? -> RAG_AGENT
 Was bedeutet das flexible Rentenalter? -> RAG_AGENT
 
+Für sehr spezifische Fragen zum Kindergeld und damit verbundenen Berechnungen -> FAK_EAK_AGENT
 Welche Arten von Kindergeld werden gezahlt? -> FAK_EAK_AGENT
 Wie hoch ist das Kindergeld? -> FAK_EAK_AGENT
 Werden die Zulagen nach dem Wohnkanton oder dem Arbeitskanton bestimmt? -> FAK_EAK_AGENT
@@ -320,6 +322,7 @@ Votre tâche est de sélectionner l'agent approprié pour répondre à la questi
 Répondez avec le nom de l'agent approprié pour répondre à la question.
 
 # Exemples
+Pour des questions générales relatives à l'AVS/AI -> RAG_AGENT
 Comment déterminer mon droit aux prestations complémentaires? -> RAG_AGENT
 Quelles sont les conditions pour bénéficier d'une rente AI? -> RAG_AGENT
 Quand des prestations complémentaires sont-elles versées ? -> RAG_AGENT
@@ -327,6 +330,7 @@ Quand le droit à une rente de vieillesse prend-il naissance ? -> RAG_AGENT
 Qu'est-ce qui change avec AVS 21? -> RAG_AGENT
 Que signifie l'âge de la retraite flexible ? -> RAG_AGENT
 
+Pour des questions très spécifiques relatives aux allocations familiales et calculs associés -> RAG_AGENT
 Quels types d’allocations familiales sont versés ? -> FAK_EAK_AGENT
 À combien s’élèvent les allocations familiales ? -> FAK_EAK_AGENT
 Les allocations sont-elles déterminées en fonction du canton de domicile ou du canton de travail ? -> FAK_EAK_AGENT
@@ -350,6 +354,7 @@ Il compito consiste nel selezionare l'agente appropriato per rispondere alla dom
 Rispondere con il nome dell'agente appropriato per rispondere alla domanda.
 
 # Esempi
+Per domande generali sull'AVS/AI -> RAG_AGENT
 Come si determina il diritto alle prestazioni complementari? -> RAG_AGENT
 Quali sono le condizioni per ricevere una rendita AI? -> RAG_AGENT
 Quando vengono versate le prestazioni complementari? -> RAG_AGENT
@@ -357,6 +362,7 @@ Quando nasce il diritto alla pensione di vecchiaia? -> RAG_AGENT
 Cosa cambia con l'AVS 21? -> RAG_AGENT
 Cosa significa l'età pensionabile flessibile? -> RAG_AGENT
 
+Per domande molto specifiche relative agli assegni familiari e ai relativi calcoli -> FAK_EAK_AGENT
 Quali tipi di assegni familiari vengono corrisposti? -> FAK_EAK_AGENT
 A quanto ammontano gli assegni familiari? -> FAK_EAK_AGENT
 L'assegno viene erogato in base al cantone di residenza o al cantone di occupazione? -> FAK_EAK_AGENT
