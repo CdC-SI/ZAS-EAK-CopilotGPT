@@ -1,3 +1,10 @@
+import os
+
+os.environ["HAYSTACK_TELEMETRY_ENABLED"] = (
+    "False"  # disable haystack telemetry
+)
+os.environ["TELEMETRY_ENABLED"] = "False"  # disable langfuse telemetry
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config.network_config import CORS_ALLOWED_ORIGINS
