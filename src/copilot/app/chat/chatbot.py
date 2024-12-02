@@ -3,6 +3,7 @@ from typing import Dict, List
 import uuid
 
 from chat.memory import ConversationalMemory
+from chat.status_service import status_service, StatusType, offtopic_service
 from rag.factory import RetrieverFactory
 from rag.llm.factory import LLMFactory
 from rag.llm.base import BaseLLM
@@ -185,21 +186,6 @@ class ChatBot:
         for token in message.split():
             yield f"{token} "
 
-    def get_ontopic_status(self, language: str) -> str:
-        """
-        Get the on-topic status message in the specified language.
-        """
-        status = {
-            "de": "Validierungsabfrage",
-            "fr": "Validation de la requête",
-            "it": "Convalida della query",
-        }.get(
-            language,
-            "Validierungsabfrage",
-        )
-
-        return status
-
     @observe(name="on_topic_check")
     async def on_topic_check(
         self,
@@ -224,14 +210,7 @@ class ChatBot:
         on_topic = res.choices[0].message.parsed.on_topic
 
         if not on_topic:
-            message = {
-                "de": "Wie kann ich Ihnen bei Ihren Fragen zur AHV/IV helfen?",
-                "fr": "Comment puis-je vous aider à répondre à vos questions concernant l'AVS/AI ?",
-                "it": "Come posso aiutarvi a rispondere alle vostre domande sull'AVS/AI?",
-            }.get(
-                language,
-                "Wie kann ich Ihnen bei Ihren Fragen zur AHV/IV helfen?",
-            )
+            message = offtopic_service.get_message(language)
 
             for token in message.split():
                 yield f"{token} ".encode("utf-8")
@@ -260,7 +239,7 @@ class ChatBot:
         sources = {"documents": [], "source_url": None}
 
         # On-topic check status update
-        yield f"<topic_check>{self.get_ontopic_status(request.language)}</topic_check>".encode(
+        yield f"<topic_check>{status_service.get_status_message(StatusType.TOPIC_CHECK, request.language)}</topic_check>".encode(
             "utf-8"
         )
 

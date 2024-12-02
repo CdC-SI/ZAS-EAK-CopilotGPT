@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from rag.llm.base import BaseLLM
 from rag.retrievers import RetrieverClient
 from chat.memory import ConversationalMemory
+from chat.status_service import status_service, StatusType
 
 from schemas.chat import ChatRequest
 from schemas.embedding import EmbeddingRequest
@@ -99,51 +100,6 @@ class RAGService:
         embedding = await get_embedding(text_input.text)
         return {"data": embedding}
 
-    def get_retrieval_status(self, language: str) -> str:
-        """
-        Get the retrieval status message in the specified language.
-        """
-        status = {
-            "de": "Suche nach relevanten Dokumenten",
-            "fr": "Recherche des documents pertinents",
-            "it": "Ricerca di documenti rilevanti",
-        }.get(
-            language,
-            "Suche nach relevanten Dokumenten",
-        )
-
-        return status
-
-    def get_agent_status(self, language: str, agent_name: str) -> str:
-        """
-        Get the agent status message in the specified language.
-        """
-        status = {
-            "de": f"{agent_name} Agent bearbeitet Ihre Anfrage",
-            "fr": f"{agent_name} Agent traite votre demande",
-            "it": f"L'agente {agent_name} sta elaborando la sua richiesta",
-        }.get(
-            language,
-            f"{agent_name} Agent bearbeitet Ihre Anfrage",
-        )
-
-        return status
-
-    def get_routing_status(self, language: str) -> str:
-        """
-        Get the routing status message in the specified language.
-        """
-        status = {
-            "de": "Weiterleitung an den entsprechenden Dienst",
-            "fr": "Routage vers le service approprié",
-            "it": "Instradamento al servizio appropriato",
-        }.get(
-            language,
-            "Weiterleitung an den entsprechenden Dienst",
-        )
-
-        return status
-
     @observe()
     async def retrieve(
         self,
@@ -187,7 +143,7 @@ class RAGService:
         and then uses an LLM client to generate a response based on the request query and the context.
         """
         # Retrieval status update
-        yield f"<retrieving>{self.get_retrieval_status(request.language)}</retrieving>".encode(
+        yield f"<retrieving>{status_service.get_status_message(StatusType.RETRIEVAL, request.language)}</retrieving>".encode(
             "utf-8"
         )
 
@@ -237,7 +193,7 @@ class RAGService:
         sources: Dict,
     ):
         # Routing status update
-        yield f"<routing>{self.get_routing_status(request.language)}</routing>".encode(
+        yield f"<routing>{status_service.get_status_message(StatusType.ROUTING, request.language)}</routing>".encode(
             "utf-8"
         )
 
@@ -258,7 +214,7 @@ class RAGService:
 
         if agent_name == "RAG_AGENT":
             logger.info("Routing to RAG Agent")
-            yield f"<agent>{self.get_agent_status(request.language, agent_name)}</agent>".encode(
+            yield f"<agent>{status_service.get_status_message(StatusType.AGENT, request.language, agent_name=agent_name)}</agent>".encode(
                 "utf-8"
             )
             async for token in self.process_rag(
@@ -274,14 +230,13 @@ class RAGService:
                 yield token
         elif agent_name == "FAK_EAK_AGENT":
             logger.info("Routing to FAK-EAK Agent")
-            yield f"<agent>{self.get_agent_status(request.language, agent_name)}</agent>".encode(
+            yield f"<agent>{status_service.get_status_message(StatusType.AGENT, request.language, agent_name=agent_name)}</agent>".encode(
                 "utf-8"
             )
             async for token in self.fak_eak_agent.process(query=request.query):
                 yield token
         else:
             logger.info("Agent handoff failed. Asking follow-up question.")
-            # implement multilingual messages
             # LLM logic to clarify topic/ask for more information?
             message = "Can you please provide more information?"
             async for token in message.split():
