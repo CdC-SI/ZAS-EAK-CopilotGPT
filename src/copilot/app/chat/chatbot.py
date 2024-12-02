@@ -173,17 +173,32 @@ class ChatBot:
     @observe(name="login_message")
     async def login_message(self, language: str = "de"):
 
-        if language == "de":
-            message = "Bitte registrieren Sie sich und melden Sie sich an, um auf diese Funktion zuzugreifen."
-        elif language == "fr":
-            message = "Veuillez vous inscrire et vous connecter pour accéder à cette fonctionnalité."
-        elif language == "it":
-            message = "Si prega di registrarsi e accedere per accedere a questa funzionalità."
-        else:
-            message = "Bitte registrieren Sie sich und melden Sie sich an, um auf diese Funktion zuzugreifen."
+        message = {
+            "de": "Bitte registrieren Sie sich und melden Sie sich an, um auf diese Funktion zuzugreifen.",
+            "fr": "Veuillez vous inscrire et vous connecter pour accéder à cette fonctionnalité.",
+            "it": "Si prega di registrarsi e accedere per accedere a questa funzionalità.",
+        }.get(
+            language,
+            "Bitte registrieren Sie sich und melden Sie sich an, um auf diese Funktion zuzugreifen.",
+        )
 
         for token in message.split():
             yield f"{token} "
+
+    def get_ontopic_status(self, language: str) -> str:
+        """
+        Get the on-topic status message in the specified language.
+        """
+        status = {
+            "de": "Validierungsabfrage",
+            "fr": "Validation de la requête",
+            "it": "Convalida della query",
+        }.get(
+            language,
+            "Validierungsabfrage",
+        )
+
+        return status
 
     @observe(name="on_topic_check")
     async def on_topic_check(
@@ -244,8 +259,10 @@ class ChatBot:
         assistant_response = []
         sources = {"documents": [], "source_url": None}
 
-        # On-topic check
-        yield "<topic_check>Validating query</topic_check>".encode("utf-8")
+        # On-topic check status update
+        yield f"<topic_check>{self.get_ontopic_status(request.language)}</topic_check>".encode(
+            "utf-8"
+        )
 
         is_off_topic = False
         async for token in self.on_topic_check(

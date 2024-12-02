@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 from utils.embedding import get_embedding
 from utils.streaming import StreamingHandler
 from rag.messages import MessageBuilder
+from agents import FAK_EAK_AGENT
 
 from config.base_config import rag_config
 
@@ -89,6 +90,7 @@ class RAGService:
         self.temperature = temperature
         self.top_p = top_p
         self.k_retrieve = top_k
+        self.fak_eak_agent = FAK_EAK_AGENT()
 
     async def embed(self, text_input: EmbeddingRequest):
         """
@@ -96,6 +98,51 @@ class RAGService:
         """
         embedding = await get_embedding(text_input.text)
         return {"data": embedding}
+
+    def get_retrieval_status(self, language: str) -> str:
+        """
+        Get the retrieval status message in the specified language.
+        """
+        status = {
+            "de": "Suche nach relevanten Dokumenten",
+            "fr": "Recherche des documents pertinents",
+            "it": "Ricerca di documenti rilevanti",
+        }.get(
+            language,
+            "Suche nach relevanten Dokumenten",
+        )
+
+        return status
+
+    def get_agent_status(self, language: str, agent_name: str) -> str:
+        """
+        Get the agent status message in the specified language.
+        """
+        status = {
+            "de": f"{agent_name} Agent bearbeitet Ihre Anfrage",
+            "fr": f"{agent_name} Agent traite votre demande",
+            "it": f"L'agente {agent_name} sta elaborando la sua richiesta",
+        }.get(
+            language,
+            f"{agent_name} Agent bearbeitet Ihre Anfrage",
+        )
+
+        return status
+
+    def get_routing_status(self, language: str) -> str:
+        """
+        Get the routing status message in the specified language.
+        """
+        status = {
+            "de": "Weiterleitung an den entsprechenden Dienst",
+            "fr": "Routage vers le service approprié",
+            "it": "Instradamento al servizio appropriato",
+        }.get(
+            language,
+            "Weiterleitung an den entsprechenden Dienst",
+        )
+
+        return status
 
     @observe()
     async def retrieve(
@@ -139,8 +186,10 @@ class RAGService:
         This method retrieves relevant documents from the database, constructs context from the documents and conversational history,
         and then uses an LLM client to generate a response based on the request query and the context.
         """
-        # Add retrieving message
-        yield "<retrieving>Retrieving documents</retrieving>".encode("utf-8")
+        # Retrieval status update
+        yield f"<retrieving>{self.get_retrieval_status(request.language)}</retrieving>".encode(
+            "utf-8"
+        )
 
         documents = await self.retrieve(db, request, retriever_client)
         formatted_context_docs = "\n\n".join(
@@ -187,8 +236,8 @@ class RAGService:
         memory_client: ConversationalMemory,
         sources: Dict,
     ):
-        # On-topic check
-        yield "<routing>Routing to appropriate service</routing>".encode(
+        # Routing status update
+        yield f"<routing>{self.get_routing_status(request.language)}</routing>".encode(
             "utf-8"
         )
 
@@ -204,12 +253,12 @@ class RAGService:
             response_format=AgentHandoff,
         )
 
-        agent = res.choices[0].message.parsed.agent
-        logger.info(f"Selected Agent: {agent}")
+        agent_name = res.choices[0].message.parsed.agent
+        logger.info(f"Selected Agent: {agent_name}")
 
-        if agent == "RAG_AGENT":
+        if agent_name == "RAG_AGENT":
             logger.info("Routing to RAG Agent")
-            yield "<agent>RAG Agent is processing your query</agent>".encode(
+            yield f"<agent>{self.get_agent_status(request.language, agent_name)}</agent>".encode(
                 "utf-8"
             )
             async for token in self.process_rag(
@@ -223,11 +272,20 @@ class RAGService:
                 sources,
             ):
                 yield token
-        elif agent == "FAK_EAK_AGENT":
+        elif agent_name == "FAK_EAK_AGENT":
             logger.info("Routing to FAK-EAK Agent")
-            pass
+            yield f"<agent>{self.get_agent_status(request.language, agent_name)}</agent>".encode(
+                "utf-8"
+            )
+            async for token in self.fak_eak_agent.process(query=request.query):
+                yield token
         else:
-            pass
+            logger.info("Agent handoff failed. Asking follow-up question.")
+            # implement multilingual messages
+            # LLM logic to clarify topic/ask for more information?
+            message = "Can you please provide more information?"
+            async for token in message.split():
+                yield f"{token} "
 
 
 rag_service = RAGService(
