@@ -86,7 +86,7 @@ class PensionAgent:
         llm_client: BaseLLM,
     ):
         """
-        Process the query with FAK-EAK agent.
+        Process the query with Pension agent.
         """
         func_metadata = extract_function_metadata(
             calculate_reduction_rate_and_supplement
