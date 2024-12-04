@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel, ConfigDict
 
@@ -11,7 +11,7 @@ class DocumentBase(BaseModel):
     language: Optional[str] = None
     """Language of the document text"""
 
-    tags: Optional[str] = None
+    tags: Optional[List[str]] = None
     """Tags of the document text"""
 
     text: str

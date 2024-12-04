@@ -177,7 +177,7 @@ class MatchingService(EmbeddingService):
         if language:
             stmt = stmt.filter(self.model.language == language)
         if tags:
-            stmt = stmt.filter(self.model.tags.in_(tags))
+            stmt = stmt.filter(self.model.tags.op("&&")(tags))
 
         if source:
             stmt = stmt.join(self.model.source).filter(Source.url.in_(source))

@@ -53,18 +53,20 @@ async def get_sources(db: Session = Depends(get_db)):
     return [url[0] for url in unique_urls]
 
 
-@app.get(
-    "/tags",
-    summary="Get tags from postgres 'document' table",
-    response_description="Return a list of tags",
-    status_code=200,
-)
+@app.get("/tags")
 async def get_tags(db: Session = Depends(get_db)):
-    """
-    Endpoint to get all sources from 'source' table in postgres.
-    """
-    unique_tags = db.query(Document.tags).distinct().all()
-    return [tag[0] for tag in unique_tags]
+    """Get all unique tags from document table."""
+    unique_tags = (
+        db.query(Document.tags)
+        .filter(Document.tags.isnot(None))
+        .distinct()
+        .all()
+    )
+    all_tags = set()
+    for tags in unique_tags:
+        if tags[0]:
+            all_tags.update(tags[0])
+    return sorted(all_tags)
 
 
 @app.get(

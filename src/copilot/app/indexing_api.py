@@ -137,8 +137,11 @@ async def upload_csv_rag(
             ast.literal_eval(row["embedding"]) if embedding_column else None
         )
         language = row["language"] if language_column else None
-        tags = row["tags"] if tags_column else None
-
+        tags = (
+            [tag.strip() for tag in row["tags"].split(",")]
+            if tags_column and row["tags"]
+            else None
+        )
         document = DocumentCreate(
             url=row["url"],
             text=row["text"],
@@ -331,7 +334,11 @@ def add_rag_data_from_csv(
                 else None
             )
             language = row["language"] if language_column else None
-            tags = row["tags"] if tags_column else None
+            tags = (
+                [tag.strip() for tag in row["tags"].split(",")]
+                if tags_column and row["tags"]
+                else None
+            )
 
             document = DocumentCreate(
                 url=row["url"],

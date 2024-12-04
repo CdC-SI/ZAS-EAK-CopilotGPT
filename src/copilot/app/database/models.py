@@ -26,7 +26,9 @@ class EmbeddedMixin:
         Vector(1536), nullable=True
     )
     language: Mapped[Optional[str]] = mapped_column(String(3), nullable=True)
-    tags: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    tags: Mapped[Optional[List[str]]] = mapped_column(
+        ARRAY(String), nullable=True
+    )
     url: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
     modified_at: Mapped[DateTime] = mapped_column(
