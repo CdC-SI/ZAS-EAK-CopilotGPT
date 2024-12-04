@@ -49,6 +49,7 @@ rag:
     top_p: 0.95
     stream: true
 chat:
+  topic_check: true
   memory:
     memory_type: "buffer"
     k_memory: 5
