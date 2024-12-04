@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 from utils.embedding import get_embedding
 from utils.streaming import StreamingHandler, Token
 from rag.messages import MessageBuilder
-from agents import RAGAgent, PensionAgent, FollowUpAgent
+from agents import RAGAgent, PensionAgent, FAK_EAK_Agent, FollowUpAgent
 
 from config.base_config import rag_config
 
@@ -93,6 +93,7 @@ class RAGService:
         self.k_retrieve = top_k
         self.rag_agent = RAGAgent()
         self.pension_agent = PensionAgent()
+        self.fak_eak_agent = FAK_EAK_Agent()
         self.followup_agent = FollowUpAgent()
 
     async def embed(self, text_input: EmbeddingRequest):
@@ -147,7 +148,7 @@ class RAGService:
         # Retrieval status update
         yield Token.from_status(
             f"<retrieval>{status_service.get_status_message(StatusType.RETRIEVAL, request.language)}</retrieval>"
-        ).content
+        )
 
         documents = await self.retrieve(db, request, retriever_client)
         formatted_context_docs = "\n\n".join(
@@ -156,9 +157,13 @@ class RAGService:
                 for i, doc in enumerate(documents, start=1)
             ]
         )
-        source_url = documents[0][
-            "url"
-        ]  # TO DO: display multiple sources in frontend
+        # TO DO: display multiple sources in frontend
+        # TO DO: don't return source if copilot can't answer (no docs retrieved, off topic, etc.)
+        source_url = (
+            documents[0]["url"]
+            if documents[0]["url"]
+            else "https://www.eak.admin.ch"
+        )
 
         sources["documents"] = documents
         sources["source_url"] = source_url
@@ -197,7 +202,7 @@ class RAGService:
         # Routing status update
         yield Token.from_status(
             f"<routing>{status_service.get_status_message(StatusType.ROUTING, request.language)}</routing>"
-        ).content
+        )
 
         messages = message_builder.build_agent_handoff_prompt(
             query=request.query
@@ -212,13 +217,13 @@ class RAGService:
         )
 
         agent_name = res.choices[0].message.parsed.agent
-        logger.info(f"Selected Agent: {agent_name}")
+        logger.info("Selected Agent: %s", agent_name)
 
         if agent_name == "RAG_AGENT":
             logger.info("Routing to RAG Agent")
             yield Token.from_status(
                 f"<agent_handoff>{status_service.get_status_message(StatusType.AGENT_HANDOFF, request.language, agent_name=agent_name)}</agent_handoff>"
-            ).content
+            )
 
             # Follow-up question
             # async for token in self.followup_agent.process(FollowUp.RAG, request.language):
@@ -240,7 +245,7 @@ class RAGService:
             logger.info("Routing to PENSION Agent")
             yield Token.from_status(
                 f"<agent_handoff>{status_service.get_status_message(StatusType.AGENT_HANDOFF, request.language, agent_name=agent_name)}</agent_handoff>"
-            ).content
+            )
 
             async for token in self.pension_agent.process(
                 query=request.query,
@@ -248,14 +253,27 @@ class RAGService:
                 message_builder=message_builder,
                 llm_client=llm_client,
             ):
-                yield token.encode("utf-8")
+                yield token
+
+        elif agent_name == "FAK_EAK_AGENT":
+            logger.info("Routing to FAK_EAK Agent")
+            yield Token.from_status(
+                f"<agent_handoff>{status_service.get_status_message(StatusType.AGENT_HANDOFF, request.language, agent_name=agent_name)}</agent_handoff>"
+            )
+
+            async for token in self.fak_eak_agent.process(
+                query=request.query,
+                language=request.language,
+                message_builder=message_builder,
+                llm_client=llm_client,
+            ):
+                yield token
 
         else:
             logger.info("Agent handoff failed. Asking follow-up question.")
             # LLM logic to clarify topic/ask for more information?
             message = "Can you please provide more information?"
-            async for token in message.split():
-                yield f"{token} ".encode("utf-8")
+            yield Token.from_text(message)
 
 
 rag_service = RAGService(
