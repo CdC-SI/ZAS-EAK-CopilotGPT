@@ -210,12 +210,12 @@ class ChatBot:
 
         if not on_topic:
             message = offtopic_service.get_message(language)
-            yield Token.from_text(message).content
-            yield Token.from_source("https://www.eak.admin.ch").content
-            yield Token.from_status("<off_topic>true</off_topic>").content
+            yield Token.from_text(message)
+            yield Token.from_source("https://www.eak.admin.ch")
+            yield Token.from_status("<off_topic>true</off_topic>")
             return
         else:
-            yield Token.from_status("<off_topic>false</off_topic>").content
+            yield Token.from_status("<off_topic>false</off_topic>")
 
     async def process_request(self, db: Session, request: ChatRequest):
         """
@@ -234,34 +234,34 @@ class ChatBot:
         sources = {"documents": [], "source_url": None}
 
         # On-topic check status update
-        yield f"<topic_check>{status_service.get_status_message(StatusType.TOPIC_CHECK, request.language)}</topic_check>".encode(
-            "utf-8"
-        )
+        yield Token.from_status(
+            f"<topic_check>{status_service.get_status_message(StatusType.TOPIC_CHECK, request.language)}</topic_check>"
+        ).content
 
         is_off_topic = False
-        async for token in self.on_topic_check(
-            query=request.query,
-            language=request.language,
-            llm_client=llm_client,
-            message_builder=message_builder,
-        ):
-            if b"<off_topic>true</off_topic>" in token:
-                is_off_topic = True
-            yield token
-            if (
-                b"<off_topic>true</off_topic>" not in token
-                and b"<off_topic>false</off_topic>" not in token
+        if chat_config["topic_check"]:
+            async for token in self.on_topic_check(
+                query=request.query,
+                language=request.language,
+                llm_client=llm_client,
+                message_builder=message_builder,
             ):
-                token_str = token.decode("utf-8")
-                assistant_response.append(token_str)
+                yield token.content
+                if b"<off_topic>true</off_topic>" in token.content:
+                    is_off_topic = True
+                if (
+                    b"<off_topic>true</off_topic>" not in token.content
+                    and b"<off_topic>false</off_topic>" not in token.content
+                ):
+                    assistant_response.append(token.content.decode("utf-8"))
 
         if is_off_topic:
             # index chat_history and chat_title for off-topic responses
             if request.user_uuid:
                 assistant_message_uuid = str(uuid.uuid4())
-                yield f"\n\n<message_uuid>{assistant_message_uuid}</message_uuid>".encode(
-                    "utf-8"
-                )
+                yield Token.from_status(
+                    f"\n\n<message_uuid>{assistant_message_uuid}</message_uuid>"
+                ).content
 
                 user_message_uuid = str(uuid.uuid4())
                 assistant_response_text = "".join(assistant_response)
@@ -294,18 +294,17 @@ class ChatBot:
                 memory_client=self.chat_memory,
                 sources=sources,
             ):
-                token_str = token.decode("utf-8").replace("ß", "ss")
-                if "<a href=" not in token_str:
-                    assistant_response.append(token_str)
-                yield token_str.encode("utf-8")
+                yield token.content
+                if not token.is_source:
+                    assistant_response.append(token.content.decode("utf-8"))
 
         elif request.agentic_rag:  # execute agentic rag
             if not request.user_uuid:
                 async for token in self.login_message(
                     language=request.language
                 ):
-                    assistant_response.append(token)
-                    yield token.encode("utf-8")
+                    assistant_response.append(token.decode("utf-8"))
+                    yield token
                 return
             async for token in self.rag_service.process_agentic_rag(
                 db=db,
@@ -317,18 +316,17 @@ class ChatBot:
                 memory_client=self.chat_memory,
                 sources=sources,
             ):
-                token_str = token.decode("utf-8").replace("ß", "ss")
-                if "<a href=" not in token_str:
-                    assistant_response.append(token_str)
-                yield token_str.encode("utf-8")
+                yield token.content
+                if not token.is_source:
+                    assistant_response.append(token.content.decode("utf-8"))
 
         elif request.command:  # execute command
             if not request.user_uuid:
                 async for token in self.login_message(
                     language=request.language
                 ):
-                    assistant_response.append(token)
-                    yield token.encode("utf-8")
+                    assistant_response.append(token.decode("utf-8"))
+                    yield token
                 return
             async for token in command_service.process_command(
                 request=request,
@@ -337,10 +335,9 @@ class ChatBot:
                 memory_client=self.chat_memory,
                 sources=sources,
             ):
-                token_str = token.decode("utf-8").replace("ß", "ss")
-                if "<a href=" not in token_str:
-                    assistant_response.append(token_str)
-                yield token_str.encode("utf-8")
+                yield token.content
+                if not token.is_source:
+                    assistant_response.append(token.content.decode("utf-8"))
 
         else:  # vanilla LLM call
             async for token in self.process_vanilla_llm(
@@ -349,17 +346,16 @@ class ChatBot:
                 llm_client=llm_client,
                 sources=sources,
             ):
-                token_str = token.decode("utf-8").replace("ß", "ss")
-                if "<a href=" not in token_str:
-                    assistant_response.append(token_str)
-                yield token_str.encode("utf-8")
+                yield token.content
+                if not token.is_source:
+                    assistant_response.append(token.content.decode("utf-8"))
 
         # index chat_history and chat_title
         if request.user_uuid:
             assistant_message_uuid = str(uuid.uuid4())
-            yield f"\n\n<message_uuid>{assistant_message_uuid}</message_uuid>".encode(
-                "utf-8"
-            )
+            yield Token.from_status(
+                f"\n\n<message_uuid>{assistant_message_uuid}</message_uuid>"
+            ).content
 
             user_message_uuid = str(uuid.uuid4())
             assistant_response_text = "".join(assistant_response)

@@ -4,7 +4,7 @@ from typing import List, Tuple, Dict, Any
 
 from schemas.chat import ChatRequest
 from rag.llm.base import BaseLLM
-from utils.streaming import StreamingHandler
+from utils.streaming import StreamingHandler, Token
 from chat.memory import ConversationalMemory
 
 import deepl
@@ -220,8 +220,8 @@ class CommandService:
             async for token in streaming_handler.generate_stream(
                 event_stream, sources["source_url"]
             ):
-                yield token
+                yield Token.from_text(token)
 
         elif translated_text:
             for token in translated_text:
-                yield token.encode("utf-8")
+                yield Token.from_text(token)
