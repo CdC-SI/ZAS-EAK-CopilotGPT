@@ -44,7 +44,7 @@ class MatchingService(EmbeddingService):
         if language:
             stmt = stmt.filter(self.model.language == language)
         if tags:
-            stmt = stmt.filter(self.model.tags.in_(tags))
+            stmt = stmt.filter(self.model.tags.op("&&")(tags))
 
         stmt = stmt.filter(self.model.text.like(search))
         if k > 0:
@@ -84,7 +84,7 @@ class MatchingService(EmbeddingService):
         if language:
             stmt = stmt.filter(self.model.language == language)
         if tags:
-            stmt = stmt.filter(self.model.tags.in_(tags))
+            stmt = stmt.filter(self.model.tags.op("&&")(tags))
 
         stmt = stmt.filter(
             func.levenshtein_less_equal(self.model.text, user_input, threshold)
@@ -125,7 +125,7 @@ class MatchingService(EmbeddingService):
         if language:
             stmt = stmt.filter(self.model.language == language)
         if tags:
-            stmt = stmt.filter(self.model.tags.in_(tags))
+            stmt = stmt.filter(self.model.tags.op("&&")(tags))
 
         stmt = stmt.filter(
             func.word_similarity(user_input, self.model.text) > threshold
