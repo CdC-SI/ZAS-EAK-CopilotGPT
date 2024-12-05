@@ -131,3 +131,17 @@ async def get_response_style():
     """
     response_styles = ["concise", "detailed", "formal", "legal"]
     return response_styles
+
+
+@app.get(
+    "/authorized_commands",
+    summary="Get list of authorized commands",
+    response_description="Return a list of authorized commands",
+    status_code=200,
+)
+async def get_authorized_commands():
+    """
+    Endpoint to get all supported authorized commands.
+    """
+    authorized_commands = ["/summarize", "/translate"]
+    return authorized_commands

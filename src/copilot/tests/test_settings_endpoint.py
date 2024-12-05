@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 with patch("sqlalchemy.create_engine") as mock_engine:
     from fastapi.testclient import TestClient
-    from app.options_api import app
+    from app.settings_api import app
     from app.config.llm_config import (
         SUPPORTED_OPENAI_LLM_MODELS,
         SUPPORTED_AZUREOPENAI_LLM_MODELS,

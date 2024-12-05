@@ -37,7 +37,7 @@ repos:
     hooks:
       - id: pytest-test-options-endpoint
         name: Run pytest on test_options_endpoint.py
-        entry: venv_copilot/bin/python -m pytest src/copilot/tests/test_options_endpoint.py
+        entry: venv_copilot/bin/python -m pytest src/copilot/tests/test_settings_endpoint.py
         language: system
         pass_filenames: false
         always_run: true
