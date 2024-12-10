@@ -124,33 +124,63 @@ CONTESTO:
 
 Parti rilevanti estratte:"""
 
-CREATE_CHAT_TITLE_PROMPT_DE = """Ihre Aufgabe ist es, einen Titel für den Chatverlauf aus der Frage des Nutzers (FRAGE) und der Antwort des Assistenten (ANTWORT) zu generieren. Generieren Sie aus FRAGE und ANTWORT einen hochrangigen Titel, der die Essenz des anschliessenden Gesprächs einfängt. Die Überschrift sollte äusserst prägnant und informativ sein und einen kurzen Überblick über das Thema geben, der NUR auf dem Inhalt von FRAGE und ANTWORT beruht.
+CREATE_CHAT_TITLE_PROMPT_DE = """# Aufgabe
+Ihre Aufgabe ist es, einen Titel für den Chatverlauf aus der Frage des Nutzers (FRAGE) und der Antwort des Assistenten (ANTWORT) zu generieren. Generieren Sie aus FRAGE und ANTWORT einen hochrangigen Titel, der die Essenz des anschliessenden Gesprächs einfängt. Die Überschrift sollte äusserst prägnant und informativ sein (MAXIMAL 4 WÖRTER) und einen kurzen Überblick über das Thema geben, der NUR auf dem Inhalt von FRAGE und ANTWORT beruht.
+
+# Format der Antwort
+- Der Titel MUSS auf DEUTSCH sein!
+- Maximal 4 Wörter
+- Nur mit dem Titel antworten!!!
+
+# Beispiele
+AHV: Berechnung der Renten
+Rentenalter
+Invalidenversicherung: Bedingungen für den Anspruch
+Arbeitslosenversicherung: Administrative Schritte
 
 FRAGE: {query}
 
 ANTWORT: {assistant_response}
 
-Der Titel MUSS auf DEUTSCH sein!
-
 CHAT-TITEL:"""
 
-CREATE_CHAT_TITLE_PROMPT_FR = """Votre tâche consiste à générer un titre pour l'historique du chat à partir de la question de l'utilisateur (QUESTION) et de la réponse de l'assistant (REPONSE). Générez un titre de haut niveau à partir de la QUESTION ET REPONSE qui capturera l'essence de la conversation qui s'ensuit. Le titre doit être extrêmement concis et informatif, et donner un bref aperçu du sujet en se basant UNIQUEMENT sur le contenu de la QUESTION et REPONSE.
+CREATE_CHAT_TITLE_PROMPT_FR = """# Tâche
+Votre tâche consiste à générer un titre pour l'historique du chat à partir de la question de l'utilisateur (QUESTION) et de la réponse de l'assistant (REPONSE). Générez un titre de haut niveau à partir de la QUESTION ET REPONSE qui capturera l'essence de la conversation qui s'ensuit. Le titre doit être extrêmement concis et informatif (MAXIMUM 4 MOTS), et donner un bref aperçu du sujet en se basant UNIQUEMENT sur le contenu de la QUESTION et REPONSE.
+
+# Format de réponse
+- Le titre DOIT être en FRANCAIS !
+- 4 mots maximum
+- Répondre uniquement avec le titre !!!
+
+# Exemples
+AVS: Calcul des rentes
+Age de la retraite
+Assurance invalidité: Conditions d'octroi
+Assurance chômage: Démarches administratives
 
 QUESTION : {query}
 
 REPONSE : {assistant_response}
 
-Le titre DOIT être en FRANCAIS !
-
 TITRE DU CHAT :"""
 
-CREATE_CHAT_TITLE_PROMPT_IT = """Il vostro compito è generare un titolo per la cronologia della chat a partire dalla domanda dell'utente (DOMANDA) e dalla risposta dell'assistente (RISPOSTA). Generare un titolo di alto livello dalla DOMANDA e dalla RISPOSTA che catturi l'essenza della conversazione che ne è seguita. Il titolo deve essere estremamente conciso e informativo, fornendo una breve panoramica dell'argomento basata SOLO sul contenuto della DOMANDA e della RISPOSTA.
+CREATE_CHAT_TITLE_PROMPT_IT = """# Compito
+Il vostro compito è generare un titolo per la cronologia della chat a partire dalla domanda dell'utente (DOMANDA) e dalla risposta dell'assistente (RISPOSTA). Generare un titolo di alto livello dalla DOMANDA e dalla RISPOSTA che catturi l'essenza della conversazione che ne è seguita. Il titolo deve essere estremamente conciso e informativo (MASSIMO 4 PAROLE), fornendo una breve panoramica dell'argomento basata SOLO sul contenuto della DOMANDA e della RISPOSTA.
+
+# Formato della risposta
+- Il titolo DEVE essere in italiano!
+- 4 parole al massimo
+- Rispondere solo con il titolo !!!
+
+# Esempi
+AVS: Calcolo delle pensioni
+Età pensionabile
+Assicurazione d'invalidità: Condizioni di diritto
+Assicurazione contro la disoccupazione: Procedure amministrative
 
 DOMANDA: {query}
 
 RISPOSTA: {assistant_response}
-
-Il titolo DEVE essere in ITALIANO!
 
 TITOLO DELLA CHAT:"""
 
@@ -284,7 +314,13 @@ Ihre Aufgabe ist es, aus den folgenden Agenten den richtigen auszuwählen, um di
 
 ## Agenten
 - RAG_AGENT: beantwortet allgemeine Fragen zur AHV/IV
-- PENSION_AGENT: beantwortet nur die für den Ruhestand spezifischen mathematischen Berechnungen, insbesondere die Berechnung des Kürzungssatzes und des Rentenzuschlags
+- PENSION_AGENT: Beantwortet nur die spezifischen mathematischen Berechnungen für den Ruhestand, insbesondere:
+    - die Berechnung des Kürzungssatzes und des Rentenzuschlags für Frauen der Übergangsgeneration (1961-1969)
+    - die Berechnung der geschätzten Altersrente
+    - Berechnung des Referenzalters (Alter, in dem eine Person ihre Altersrente erhält)
+- FAK_EAK_AGENT: beantwortet Fragen zum Kindergeld, insbesondere::
+    - Fragen zu Kindergeld im Allgemeinen
+    - Fragen dazu, welcher Elternteil das Kindergeld erhält
 
 # Format der Antwort
 Antworten Sie mit dem Namen des geeigneten Agenten, um die Frage zu beantworten.
@@ -298,10 +334,24 @@ Wann entsteht der Anspruch auf eine Altersrente? -> RAG_AGENT
 Was ändert sich mit AHV 21? -> RAG_AGENT
 Was bedeutet das flexible Rentenalter? -> RAG_AGENT
 
-Für sehr spezifische Fragen zu Berechnungen von Kürzungssätzen und Rentenzuschlägen im Zusammenhang mit der Pensionierung -> PENSION_AGENT
+Für sehr spezifische (individualisierte) Fragen zu Berechnungen von Kürzungssätzen und Rentenzuschlägen im Zusammenhang mit dem Eintritt in den Ruhestand und dem Bezug von Altersrenten -> PENSION_AGENT
 Ich bin am 1962.31.12 geboren, möchte am 01.01.2025 in Rente gehen und mein Jahreseinkommen beträgt ca. 55'000 CHF. Wie hoch ist mein Kürzungssatz? -> PENSION_AGENT
 Wie hoch ist mein Kürzungssatz, wenn ich am 1965-11-07 geboren bin, am 2026-04-15 in Rente gehen möchte und mein Jahreseinkommen 76200 beträgt? -> PENSION_AGENT
 Hier sind meine Informationen: Geburtsdatum 03.01.1968 und ich gehe 2027 in Rente. Ich verdiene etwa 90000 CHF pro Jahr. Kann ich einen Zuschlag oder einen Kürzungssatz erhalten? -> PENSION_AGENT
+Für sehr spezifische (individualisierte) Fragen zur Berechnung des Referenzalters für Frauen der Übergangsgeneration (1961-1969) -> PENSION_AGENT
+Wenn ich eine Frau bin, die 1960 geboren wurde, wie hoch ist mein Referenzalter? -> PENSION_AGENT
+Ich bin eine 1961 geborene Frau, was ist mein Referenzalter? -> PENSION_AGENT
+Ich bin am 01.01.1962 geboren, wie hoch ist mein Referenzalter? -> PENSION_AGENT
+
+Bei Fragen zum Kindergeld -> FAK_EAK_AGENT
+Welche Arten von Kindergeld werden gezahlt? -> FAK_EAK_AGENT
+Wie hoch ist das Kindergeld? -> FAK_EAK_AGENT
+Werden die Zulagen nach dem Wohnkanton oder dem Arbeitskanton bestimmt? -> FAK_EAK_AGENT
+Wer hat Anspruch auf Kinderzulagen? -> FAK_EAK_AGENT
+Welcher Elternteil erhält die Kinderzulagen? -> FAK_EAK_AGENT
+Wie können Sie Ihren Anspruch auf Kindergeld bei der Familienausgleichskasse der Eidgenössischen Ausgleichskasse (FAK-EAK) geltend machen? -> FAK_EAK_AGENT
+Wie können Sie einen bestehenden Anspruch auf Ausbildungszulagen verlängern? -> FAK_EAK_AGENT
+Wie werden die Familienzulagen der Familienausgleichskasse der Eidgenössischen Ausgleichskasse ausbezahlt? -> FAK_EAK_AGENT
 
 # Frage
 {query}"""
@@ -309,11 +359,17 @@ Hier sind meine Informationen: Geburtsdatum 03.01.1968 und ich gehe 2027 in Rent
 AGENT_HANDOFF_PROMPT_FR = """# Tâche
 Votre tâche est de sélectionner l'agent approprié pour répondre à la question posée par l'utilisateur parmis les agents suivants.
 
-## Agents
+## Agents
 - RAG_AGENT: répond aux questions générales sur l'AVS/AI
-- PENSION_AGENT: répond seulement aux calculs mathématiques spécifiques à la retraite, particulièrement le calcul du taux de réduction et du supplément de rente
+- PENSION_AGENT: répond seulement aux calculs mathématiques spécifiques à la retraite, particulièrement:
+    - le calcul du taux de réduction et du supplément de rente pour les femmes de la génération transitoire (1961-1969)
+    - le calcul d'estimation de la rente vieillesse
+    - le calcul de l'âge de référence (âge auquel une personne perçoit sa rente de vieillesse)
+- FAK_EAK_AGENT: répond aux question sur les allocations familiales, particulièrement:
+    - les questions sur les allocations familiales en général
+    - les questions sur quel parent perçoit les allocations familiales
 
-# Format de réponse
+# Format de réponse
 Répondez avec le nom de l'agent approprié pour répondre à la question.
 
 # Exemples
@@ -325,10 +381,26 @@ Quand le droit à une rente de vieillesse prend-il naissance ? -> RAG_AGENT
 Qu'est-ce qui change avec AVS 21? -> RAG_AGENT
 Que signifie l'âge de la retraite flexible ? -> RAG_AGENT
 
-Pour des questions très spécifiques concernant les calculs de taux de réduction et de suppléments de rente liés au départ à la retraite -> PENSION_AGENT
+Pour des questions très spécifiques (individualisées) concernant les calculs de taux de réduction et de suppléments de rente liés au départ à la retraite et la perception de rentes vieillesse -> PENSION_AGENT
 Je suis née le 1962.31.12, je souhaite prendre ma retraite le 01.01.2025 et mon revenu annuel est d'environ 55'000 CHF. Quel est mon taux de réduction ? -> PENSION_AGENT
 Quel sera mon taux de réduction si je suis née le 1965-11-07, je souhaite prendre ma retraite le 2026-04-15 et mon revenu annuel est de 76200 ? -> PENSION_AGENT
 Voici mes informations: date de naissance le 03.01.1968 et je pars à la retraite en 2027. Je gagne environ 90000 CHF par an. Puis-je bénéficier d'un supplément ou taux de réduction ? -> PENSION_AGENT
+Pour des questions très spécifiques (individualisées) concernant le calcul de l'âge de référence pour les femmes de la génération transitoire (1961-1969) -> PENSION_AGENT
+Je suis une femme née en 1960, quel est mon âge de référence ? -> PENSION_AGENT
+Je suis née le 01.01.1962, quel sera mon âge de référence ? -> PENSION_AGENT
+Je suis une femme, née le 12.02.1960. A quel âge puis-je prendre ma retraite ? -> PENSION_AGENT
+
+À partir de quand puis-je anticiper la perception de ma rente de vieillesse ? -> PENSION_AGENT
+
+Pour des questions sur les allocations familiales -> FAK_EAK_AGENT
+Quels types d’allocations familiales sont versés ? -> FAK_EAK_AGENT
+À combien s’élèvent les allocations familiales ? -> FAK_EAK_AGENT
+Les allocations sont-elles déterminées en fonction du canton de domicile ou du canton de travail ? -> FAK_EAK_AGENT
+Qui a droit aux allocations familiales ? -> FAK_EAK_AGENT
+Quel parent perçoit les allocations familiales ? -> FAK_EAK_AGENT
+Comment pouvez-vous faire valoir votre droit aux allocations familiales auprès de la Caisse d’allocations familiales de la Caisse fédérale de compensation (CAF-CFC) ? -> FAK_EAK_AGENT
+Comment pouvez-vous prolonger un droit existant aux allocations de formation ? -> FAK_EAK_AGENT
+Comment sont versées les allocations familiales de la caisse d’allocations familiales de la Caisse fédérale de compensation ? -> FAK_EAK_AGENT
 
 # Question
 {query}"""
@@ -338,7 +410,13 @@ Il compito consiste nel selezionare l'agente appropriato per rispondere alla dom
 
 ## Agenti
 - RAG_AGENT: risponde a domande generali sull'AVS/AI
-- PENSION_AGENT: risponde solo ai calcoli matematici specifici per il pensionamento, in particolare al calcolo dell'aliquota di riduzione e del supplemento di pensione
+- PENSION_AGENT: risponde solo ai calcoli matematici specifici per la pensione, in particolare:
+    - calcolo dell'aliquota di riduzione e del supplemento di pensione per le donne della generazione di transizione (1961-1969)
+    - calcolo della pensione di vecchiaia stimata
+    - calcolo dell'età di riferimento (l'età in cui una persona riceve la pensione di vecchiaia)
+- FAK_EAK_AGENT: risponde a domande sugli assegni familiari, in particolare:
+    - domande sugli assegni familiari in generale
+    - domande su quale genitore riceve gli assegni familiari
 
 # Formato della risposta
 Rispondere con il nome dell'agente appropriato per rispondere alla domanda.
@@ -352,10 +430,24 @@ Quando nasce il diritto alla pensione di vecchiaia? -> RAG_AGENT
 Cosa cambia con l'AVS 21? -> RAG_AGENT
 Cosa significa l'età pensionabile flessibile? -> RAG_AGENT
 
-Per domande molto specifiche sul calcolo dei tassi di riduzione e dei supplementi di pensione al momento del pensionamento -> PENSION_AGENT
+Per domande molto specifiche (personalizzate) relative al calcolo dei tassi di riduzione e dei supplementi di pensione legati al pensionamento e al percepimento di pensioni di vecchiaia -> PENSION_AGENT
 Sono nato il 31.12.1962, voglio andare in pensione il 01.01.2025 e il mio reddito annuo è di circa 55.000 franchi. Qual è il mio tasso di riduzione? -> PENSION_AGENT
 Qual è il mio tasso di riduzione se sono nato il 1965-11-07, voglio andare in pensione il 2026-04-15 e il mio reddito annuo è di CHF 76200? -> PENSION_AGENT
 Ecco le mie informazioni: sono nato il 03.01.1968 e andrò in pensione nel 2027. Guadagno circa 90.000 franchi all'anno. Posso beneficiare di un'integrazione o di una riduzione? -> PENSION_AGENT
+Per domande molto specifiche (personalizzate) sul calcolo dell'età di riferimento per le donne della generazione di transizione (1961-1969) -> PENSION_AGENT
+Se sono una donna nata nel 1960, qual è la mia età di riferimento? -> PENSION_AGENT
+Se sono una donna nata nel 1961, qual è la mia età di riferimento? -> PENSION_AGENT
+Sono nato il 01.01.1962, qual è la mia età di riferimento? -> PENSION_AGENT
+
+Per domande sugli assegni familiari -> FAK_EAK_AGENT
+Quali tipi di assegni familiari vengono erogati? -> FAK_EAK_AGENT
+A quanto ammontano gli assegni familiari? -> FAK_EAK_AGENT
+L'assegno viene pagato in base al cantone di residenza o al cantone di occupazione? -> FAK_EAK_AGENT
+Chi ha diritto agli assegni familiari? -> FAK_EAK_AGENT
+Quale genitore riceve gli assegni familiari? -> FAK_EAK_AGENT
+Come richiedere gli assegni familiari alla Caisse d'allocations familiales de la Caisse fédérale de compensation (CAF-CFC)? -> FAK_EAK_AGENT
+Come si può estendere un diritto esistente agli assegni di formazione? -> FAK_EAK_AGENT
+Come vengono pagati gli assegni familiari dalla Cassa per gli assegni familiari della Cassa federale di compensazione? -> FAK_EAK_AGENT
 
 # Domanda
 {query}"""
@@ -484,12 +576,13 @@ Si la question porte sur les allocations familiales, vérifiez que vous disposez
 
 FAK_EAK_FOLLOWUP_AGENT_PROMPT_IT = """# """
 
-FAK_EAK_FUNCTION_CALLING_PROMPT_DE = """# Aufgabe
+PENSION_FUNCTION_CALLING_PROMPT_DE = """# Aufgabe
 Ihre Aufgabe ist es, die richtige Funktion aufzurufen, um die vom Benutzer gestellte Frage zu beantworten. Sie müssen die Frage analysieren und die Parameter extrahieren/formatieren, die für den Aufruf der ausgewählten Funktion erforderlich sind.
 
 # Verfügbare Funktionen
-- calculate_reduction_rate_and_supplement: Berechnet den Kürzungssatz und den Zuschlag für Frauen der Übergangsgeneration.
-- determine_child_benefits_eligibility: Bestimmt die Anspruchsberechtigung für Kindergeld für Eltern.
+- determine_reduction_rate_and_supplement: Berechnet den Kürzungssatz und den Zuschlag für Frauen der Übergangsgeneration
+- estimate_pension: Schätzt die Altersrente
+- determine_reference_age: Bestimmt das Referenzalter (das Alter, in dem eine Person ihre Altersrente erhält)
 
 # Signatur der Funktion
 {func_metadata}
@@ -505,12 +598,13 @@ Hier sind meine Informationen: Geburtsdatum 03.01.1968 und ich werde 2027 in Ren
 # Frage
 {query}"""
 
-FAK_EAK_FUNCTION_CALLING_PROMPT_FR = """# Tâche
+PENSION_FUNCTION_CALLING_PROMPT_FR = """# Tâche
 Votre tâche consiste à appeler la fonction appropriée pour répondre à la question posée par l'utilisateur. Vous devez analyser la question et extraire/formatter les paramètres nécessaires pour appeler la fonction choisie.
 
 # Fonctions disponibles
-- calculate_reduction_rate_and_supplement: Calcule le taux de réduction et le supplément pour les femmes de la génération de transition.
-- determine_child_benefits_eligibility: Détermine l'éligibilité aux allocations familiales pour les parents.
+- determine_reduction_rate_and_supplement: Calcule le taux de réduction et le supplément pour les femmes de la génération de transition
+- estimate_pension: Estime la rente de vieillesse
+- determine_reference_age: Détermine l'âge de référence (âge auquel une personne perçoit sa rente de vieillesse)
 
 # Signature de la fonction
 {func_metadata}
@@ -526,12 +620,13 @@ Voici mes informations: date de naissance le 03.01.1968 et je pars à la retrait
 # Question
 {query}"""
 
-FAK_EAK_FUNCTION_CALLING_PROMPT_IT = """# Compito
+PENSION_FUNCTION_CALLING_PROMPT_IT = """# Compito
 Il compito consiste nel chiamare la funzione appropriata per rispondere alla domanda posta dall'utente. Dovete analizzare la domanda ed estrarre/formattare i parametri necessari per chiamare la funzione scelta.
 
 # Funzioni disponibili
-- calculate_reduction_rate_and_supplement: calcola il tasso di riduzione e il supplemento per le donne della generazione di transizione.
-- determine_child_benefits_eligibility: Determina l'ammissibilità agli assegni familiari per i genitori.
+- determine_reduction_rate_and_supplement: calcola il tasso di riduzione e il supplemento per le donne della generazione di transizione
+- estimate_pension: stima la pensione di vecchiaia
+- determine_reference_age: determina l'età di riferimento (l'età in cui una persona riceve la pensione di vecchiaia)
 
 # Firma della funzione
 {func_metadata}
@@ -545,6 +640,130 @@ Qual è il mio tasso di riduzione se sono nato il 1965-11-07, voglio andare in p
 Ecco i miei dati: sono nato il 03.01.1968 e andrò in pensione nel 2027. Guadagno circa 90.000 franchi all'anno. Posso beneficiare di un supplemento o di un'aliquota di riduzione? -> calculate_reduction_rate_and_supplement("1968-01-03", "2027-01-01", 90000.0)
 
 # Domanda
+{query}"""
+
+FAK_EAK_FUNCTION_CALLING_PROMPT_DE = """# Aufgabe"""
+
+FAK_EAK_FUNCTION_CALLING_PROMPT_FR = """# Tâche
+Votre tâche consiste à appeler la fonction appropriée pour répondre à la question posée par l'utilisateur. Vous devez analyser la question et extraire/formatter les paramètres nécessaires pour appeler la fonction choisie.
+
+# Fonctions disponibles
+- determine_child_benefits_eligibility: Détermine l'éligibilité aux allocations familiales pour les parents
+
+# Signature de la fonction
+{func_metadata}
+
+# Format de réponse
+function_name(param1, param2, ...)
+
+# Exemples
+
+
+# Question
+{query}"""
+
+FAK_EAK_FUNCTION_CALLING_PROMPT_IT = """# Compito"""
+
+STATIC_WORKERS_SNOWBALL_PROMPT_FR = """# Tâche
+Votre tâche consiste à poser des questions de suivi pour obtenir les informations nécessaires.
+-> read predefined plan (human): see mermaid diagram
+-> follow plan steps
+    -> collect information
+    -> execute actions
+    -> collect output
+    -> reflect on output
+    -> refine/critique plan
+    -> continue snowballing (repeat)"""
+
+PLANNER_PROMPT_FR = """# Tâche"""
+
+DYNAMIC_WORKERS_SNOWBALL_PROMPT_FR = """# Tâche
+-> create plan (agent) -> PLANNER_PROMPT
+-> follow plan steps
+    -> collect information
+    -> execute actions
+    -> collect output
+    -> reflect on output
+    -> refine/critique plan
+    -> continue snowballing (repeat)
+
+A[Start]
+B{Base Information/Plan -> Human or AI}
+C[Snowball prompt 1]
+D[Snowball prompt 2]
+E[Snowball prompt 3]
+F[Reflect on output]
+G[Refine/Critique/Update plan] -> Optionally loop back to B
+H[Summary/Format prompt]
+I[End]
+
+A --> B --> C --> D --> E --> F --> G --> B --> C --> ... --> H --> I
+
+Execute tasks in parallel (eg. retrieval with GraphRAG, HippoRAG, etc.)"""
+
+PLANNING_PROMPT_FR = """# Tâche
+Votre tâche consiste à créer un plan pour répondre à la question posée par l'utilisateur. Vous devez déterminer les étapes nécessaires pour collecter les informations, exécuter les actions, collecter les résultats, réfléchir sur les résultats, affiner/critiquer le plan et continuer à faire avancer la boule de neige.
+
+# Objecif et contexte
+RAG
+
+# Fonctions à disposition
+fonctions
+
+# Format d'appel de fonctions
+<function_call>function_name(param1, param2, ...)</function_call>
+
+# Format de réponse
+1. <étape 1>
+2. <étape 2>
+...
+N. <étape N>
+
+# Exemple
+Question: xxx
+1. Identifier les mots-clés pertinents pour la recherche: "xxx"
+2. Réformuler plusieurs version de la question pour une recherche sématique plus précise avec les mots-clés.
+3. Effectuer une recherche sémantique dans la base de données vectorielle: <function_call>semantic_search(xxx)</function_call>
+4. Evaluer la pertinence des résultats de la recherche.
+5. Si les documents ne sont pas pertinents, demander à l'utilisateur des informations supplémentaires pour affiner la recherche et répéter les étapes 2 à 4.
+6. Répondre à la question de l'utilisateur.
+
+1. Collecter les informations sur la situation de l'utilisateur.
+2. Poser des questions de suivi pour obtenir des détails supplémentaires.
+3. Identifier les agents appropriés pour répondre à la question.
+4. Transférer la conversation à l'agent approprié.
+5. Suivre la conversation pour s'assurer que l'utilisateur obtient la réponse souhaitée.
+6. Critiquer et réfléchir à la pertinence des documents obtenus pour pouvoir fournir une réponse de qualité.
+6. Répondre à l'utilisateur avec les informations demandées.
+
+1. Identifier les éléments clés de la question.
+2. Déterminer si la question nécessite des clarifications ou des informations supplémentaires.
+3. Formuler une question de suivi pour obtenir des informations supplémentaires.
+4. Utiliser l'outil approprié pour répondre à la question.
+5. Répondre à la question de l'utilisateur.
+
+Ces exemples servent de marche à suivre générale mais peuvent être ajustés en fonction de la complexité de la question et des informations disponibles.
+
+# Question
 {query}
 
-Tradotto con www.DeepL.com/Translator (versione gratuita)"""
+PLAN: """
+
+PLAN_PARSER_PROMPT_FR = """# Tâche
+Votre tâche consiste à"""
+
+AGENT_EXECUTOR_PROMPT_FR = """# Tâche
+Votre tâche consiste à exécuter les étapes du plan pour répondre à la question posée par l'utilisateur. Si une étape consiste à appeler une fonction (<function_call>...</function_call>)
+
+# Plan
+{plan}
+
+"""
+
+X = """
+THINK/PLAN LIKE A HUMAN: WHAT WOULD A HUMAN NEED/DO TO ANSWER? methodology
+1. High level planning: Define available tools/actions
+2. Plan parser into steps, generate tags for step execution
+3. inject results into EXECUTOR_PROMPT
+4. Analyze/critique information and decide on action (<ask_followup_q>, <retrieval>, <answer>, etc.)
+"""

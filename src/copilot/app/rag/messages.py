@@ -21,15 +21,16 @@ from rag.prompts import (
     AGENT_HANDOFF_PROMPT_DE,
     AGENT_HANDOFF_PROMPT_FR,
     AGENT_HANDOFF_PROMPT_IT,
-    FAK_EAK_FUNCTION_CALLING_PROMPT_DE,
-    FAK_EAK_FUNCTION_CALLING_PROMPT_FR,
-    FAK_EAK_FUNCTION_CALLING_PROMPT_IT,
+    PENSION_FUNCTION_CALLING_PROMPT_DE,
+    PENSION_FUNCTION_CALLING_PROMPT_FR,
+    PENSION_FUNCTION_CALLING_PROMPT_IT,
 )
 from config.llm_config import (
     SUPPORTED_OPENAI_LLM_MODELS,
     SUPPORTED_AZUREOPENAI_LLM_MODELS,
     SUPPORTED_ANTHROPIC_LLM_MODELS,
     SUPPORTED_GROQ_LLM_MODELS,
+    SUPPORTED_OLLAMA_LLM_MODELS,
 )
 
 from langfuse.decorators import observe
@@ -243,7 +244,7 @@ class MessageBuilder:
             + SUPPORTED_GROQ_LLM_MODELS
         ):
             if self.language == "de":
-                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_DE.format(
+                prompt = PENSION_FUNCTION_CALLING_PROMPT_DE.format(
                     query=query,
                     func_metadata=func_metadata,
                 )
@@ -251,7 +252,7 @@ class MessageBuilder:
                     {"role": "system", "content": prompt},
                 ]
             elif self.language == "fr":
-                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_FR.format(
+                prompt = PENSION_FUNCTION_CALLING_PROMPT_FR.format(
                     query=query,
                     func_metadata=func_metadata,
                 )
@@ -259,7 +260,7 @@ class MessageBuilder:
                     {"role": "system", "content": prompt},
                 ]
             elif self.language == "it":
-                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_IT.format(
+                prompt = PENSION_FUNCTION_CALLING_PROMPT_IT.format(
                     query=query,
                     func_metadata=func_metadata,
                 )
@@ -267,7 +268,7 @@ class MessageBuilder:
                     {"role": "system", "content": prompt},
                 ]
             else:
-                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_DE.format(
+                prompt = PENSION_FUNCTION_CALLING_PROMPT_DE.format(
                     query=query,
                     func_metadata=func_metadata,
                 )
@@ -277,7 +278,7 @@ class MessageBuilder:
 
         elif self.llm_model in SUPPORTED_ANTHROPIC_LLM_MODELS:
             if self.language == "de":
-                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_DE.format(
+                prompt = PENSION_FUNCTION_CALLING_PROMPT_DE.format(
                     query=query,
                     func_metadata=func_metadata,
                 )
@@ -285,7 +286,7 @@ class MessageBuilder:
                     {"role": "user", "content": prompt},
                 ]
             elif self.language == "fr":
-                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_FR.format(
+                prompt = PENSION_FUNCTION_CALLING_PROMPT_FR.format(
                     query=query,
                     func_metadata=func_metadata,
                 )
@@ -293,7 +294,7 @@ class MessageBuilder:
                     {"role": "user", "content": prompt},
                 ]
             elif self.language == "it":
-                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_IT.format(
+                prompt = PENSION_FUNCTION_CALLING_PROMPT_IT.format(
                     query=query,
                     func_metadata=func_metadata,
                 )
@@ -301,7 +302,7 @@ class MessageBuilder:
                     {"role": "user", "content": prompt},
                 ]
             else:
-                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_DE.format(
+                prompt = PENSION_FUNCTION_CALLING_PROMPT_DE.format(
                     query=query,
                     func_metadata=func_metadata,
                 )
@@ -313,25 +314,25 @@ class MessageBuilder:
             "mlx-community/"
         ) or self.llm_model.startswith("llama-cpp/"):
             if self.language == "de":
-                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_DE.format(
+                prompt = PENSION_FUNCTION_CALLING_PROMPT_DE.format(
                     query=query,
                     func_metadata=func_metadata,
                 )
                 return prompt
             elif self.language == "fr":
-                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_FR.format(
+                prompt = PENSION_FUNCTION_CALLING_PROMPT_FR.format(
                     query=query,
                     func_metadata=func_metadata,
                 )
                 return prompt
             elif self.language == "it":
-                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_IT.format(
+                prompt = PENSION_FUNCTION_CALLING_PROMPT_IT.format(
                     query=query,
                     func_metadata=func_metadata,
                 )
                 return prompt
             else:
-                prompt = FAK_EAK_FUNCTION_CALLING_PROMPT_DE.format(
+                prompt = PENSION_FUNCTION_CALLING_PROMPT_DE.format(
                     query=query,
                     func_metadata=func_metadata,
                 )
@@ -389,7 +390,10 @@ class MessageBuilder:
                     {"role": "system", "content": prompt},
                 ]
 
-        elif self.llm_model in SUPPORTED_ANTHROPIC_LLM_MODELS:
+        elif (
+            self.llm_model in SUPPORTED_ANTHROPIC_LLM_MODELS
+            or self.llm_model in SUPPORTED_OLLAMA_LLM_MODELS
+        ):
             if self.language == "de":
                 prompt = RAG_SYSTEM_PROMPT_DE.format(
                     context_docs=context_docs,
@@ -700,7 +704,10 @@ class MessageBuilder:
                 ]
 
         # NEED TO IMPLEMENT OPTIMIZED CONTEXTUAL COMPRESSION
-        elif self.llm_model in SUPPORTED_ANTHROPIC_LLM_MODELS:
+        elif (
+            self.llm_model in SUPPORTED_ANTHROPIC_LLM_MODELS
+            or self.llm_model in SUPPORTED_OLLAMA_LLM_MODELS
+        ):
             if self.language == "de":
                 prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(
                     query=query, assistant_response=assistant_response
@@ -768,7 +775,7 @@ class MessageBuilder:
             + SUPPORTED_AZUREOPENAI_LLM_MODELS
             + SUPPORTED_GROQ_LLM_MODELS
         ):
-            if command == "/summarize":
+            if command == "summarize":
                 if self.language == "de":
                     prompt = SUMMARIZE_COMMAND_PROMPT_DE.format(
                         input_text=input_text, mode=mode, style=style
@@ -800,7 +807,7 @@ class MessageBuilder:
 
         # For Anthropic LLM models
         if self.llm_model in SUPPORTED_ANTHROPIC_LLM_MODELS:
-            if command == "/summarize":
+            if command == "summarize":
                 if self.language == "de":
                     prompt = SUMMARIZE_COMMAND_PROMPT_DE.format(
                         input_text=input_text, mode=mode, style=style
@@ -833,7 +840,7 @@ class MessageBuilder:
         if self.llm_model.startswith(
             "mlx-community/"
         ) or self.llm_model.startswith("llama-cpp/"):
-            if command == "/summarize":
+            if command == "summarize":
                 if self.language == "de":
                     prompt = SUMMARIZE_COMMAND_PROMPT_DE.format(
                         input_text=input_text, mode=mode, style=style
