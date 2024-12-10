@@ -15,7 +15,7 @@ from autocomplete_api import app as autocomplete_app
 from rag_api import app as rag_app
 from conversations_api import app as conversations_app
 from command_api import app as command_app
-from options_api import app as options_app
+from settings_api import app as settings_app
 from chat_api import app as chat_app
 
 import logging
@@ -50,7 +50,7 @@ api.mount("/autocomplete", autocomplete_app)
 api.mount("/rag", rag_app)
 api.mount("/conversations", conversations_app)
 api.mount("/command", command_app)
-api.mount("/options", options_app)
+api.mount("/settings", settings_app)
 api.mount("/chat", chat_app)
 
 
