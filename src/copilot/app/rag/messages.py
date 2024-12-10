@@ -651,96 +651,46 @@ class MessageBuilder:
         """
         Format the SummarizeCommand message to send to the appropriate LLM API.
         """
-        # For OpenAI LLM models
         if (
             self.llm_model
             in SUPPORTED_OPENAI_LLM_MODELS
             + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
             + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
         ):
-            if command == "summarize":
+            if command == "/summarize":
                 if self.language == "de":
-                    prompt = SUMMARIZE_COMMAND_PROMPT_DE.format(
+                    system_prompt = SUMMARIZE_COMMAND_PROMPT_DE.format(
                         input_text=input_text, mode=mode, style=style
                     )
                     return [
-                        {"role": "system", "content": prompt},
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": command},
                     ]
                 elif self.language == "fr":
-                    prompt = SUMMARIZE_COMMAND_PROMPT_FR.format(
+                    system_prompt = SUMMARIZE_COMMAND_PROMPT_FR.format(
                         input_text=input_text, mode=mode, style=style
                     )
                     return [
-                        {"role": "system", "content": prompt},
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": command},
                     ]
                 elif self.language == "it":
-                    prompt = SUMMARIZE_COMMAND_PROMPT_IT.format(
+                    system_prompt = SUMMARIZE_COMMAND_PROMPT_IT.format(
                         input_text=input_text, mode=mode, style=style
                     )
                     return [
-                        {"role": "system", "content": prompt},
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": command},
                     ]
                 else:
-                    prompt = SUMMARIZE_COMMAND_PROMPT_DE.format(
+                    system_prompt = SUMMARIZE_COMMAND_PROMPT_DE.format(
                         input_text=input_text, mode=mode, style=style
                     )
                     return [
-                        {"role": "system", "content": prompt},
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": command},
                     ]
-
-        # For Anthropic LLM models
-        if self.llm_model in SUPPORTED_ANTHROPIC_LLM_MODELS:
-            if command == "summarize":
-                if self.language == "de":
-                    prompt = SUMMARIZE_COMMAND_PROMPT_DE.format(
-                        input_text=input_text, mode=mode, style=style
-                    )
-                    return [
-                        {"role": "user", "content": prompt},
-                    ]
-                elif self.language == "fr":
-                    prompt = SUMMARIZE_COMMAND_PROMPT_FR.format(
-                        input_text=input_text, mode=mode, style=style
-                    )
-                    return [
-                        {"role": "user", "content": prompt},
-                    ]
-                elif self.language == "it":
-                    prompt = SUMMARIZE_COMMAND_PROMPT_IT.format(
-                        input_text=input_text, mode=mode, style=style
-                    )
-                    return [
-                        {"role": "user", "content": prompt},
-                    ]
-                else:
-                    prompt = SUMMARIZE_COMMAND_PROMPT_DE.format(
-                        input_text=input_text, mode=mode, style=style
-                    )
-                    return [
-                        {"role": "user", "content": prompt},
-                    ]
-
-        if self.llm_model.startswith(
-            "mlx-community/"
-        ) or self.llm_model.startswith("llama-cpp/"):
-            if command == "summarize":
-                if self.language == "de":
-                    prompt = SUMMARIZE_COMMAND_PROMPT_DE.format(
-                        input_text=input_text, mode=mode, style=style
-                    )
-                    return prompt
-                elif self.language == "fr":
-                    prompt = SUMMARIZE_COMMAND_PROMPT_FR.format(
-                        input_text=input_text, mode=mode, style=style
-                    )
-                    return prompt
-                elif self.language == "it":
-                    prompt = SUMMARIZE_COMMAND_PROMPT_IT.format(
-                        input_text=input_text, mode=mode, style=style
-                    )
-                    return prompt
-                else:
-                    prompt = SUMMARIZE_COMMAND_PROMPT_DE.format(
-                        input_text=input_text, mode=mode, style=style
-                    )
-                    return prompt

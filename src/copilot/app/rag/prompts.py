@@ -165,7 +165,9 @@ SUMMARIZE_COMMAND_PROMPT_DE = """Ihre Aufgabe besteht darin, eine Zusammenfassun
 Sie müssen sich auf {mode} des TEXT konzentrieren.
 
 STIL: {style}
-TEXT: {input_text}
+TEXT:
+
+{input_text}
 
 Die Zusammenfassung muss auf DEUTSCH verfasst sein!
 
@@ -176,7 +178,9 @@ SUMMARIZE_COMMAND_PROMPT_FR = """Votre tâche consiste à générer un résumé 
 Vous devez vous concentrer sur {mode} du TEXTE.
 
 STYLE: {style}
-TEXTE : {input_text}
+TEXTE :
+
+{input_text}
 
 Le résumé doit être rédigé en FRANCAIS !
 
@@ -187,7 +191,9 @@ SUMMARIZE_COMMAND_PROMPT_IT = """Il vostro compito è generare un riassunto del 
 È necessario concentrarsi {mode} del TESTO.
 
 STILE: {style}
-TESTO: {input_text}
+TESTO:
+
+{input_text}
 
 Il riassunto deve essere scritto in ITALIANO!
 
