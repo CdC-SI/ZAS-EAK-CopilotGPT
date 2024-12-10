@@ -94,7 +94,7 @@ class ChatBot:
         Index the query and response in chat history.
         """
         if request.command:
-            user_message = request.command
+            user_message = f"{request.command} {request.command_args}"
             retrieved_doc_ids = None
         elif request.rag or request.agentic_rag:
             user_message = request.query
@@ -295,7 +295,7 @@ class ChatBot:
                 sources=sources,
             ):
                 yield token.content
-                if not token.is_source:
+                if not token.is_source and b"<retrieval>" not in token.content:
                     assistant_response.append(token.content.decode("utf-8"))
 
         elif request.agentic_rag:  # execute agentic rag
