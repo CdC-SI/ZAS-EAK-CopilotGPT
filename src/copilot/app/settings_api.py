@@ -16,6 +16,7 @@ from config.llm_config import (
     SUPPORTED_GROQ_LLM_MODELS,
     SUPPORTED_MLX_LLM_MODELS,
     SUPPORTED_LLAMACPP_LLM_MODELS,
+    SUPPORTED_OLLAMA_LLM_MODELS,
 )
 
 load_dotenv()
@@ -94,6 +95,7 @@ async def get_llm_models():
     if os.environ.get("LLM_GENERATION_ENDPOINT", None):
         llm_models.extend(SUPPORTED_MLX_LLM_MODELS)
         llm_models.extend(SUPPORTED_LLAMACPP_LLM_MODELS)
+        llm_models.extend(SUPPORTED_OLLAMA_LLM_MODELS)
 
     return llm_models
 

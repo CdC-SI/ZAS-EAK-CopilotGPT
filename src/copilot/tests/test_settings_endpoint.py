@@ -11,6 +11,7 @@ with patch("sqlalchemy.create_engine") as mock_engine:
         SUPPORTED_GROQ_LLM_MODELS,
         SUPPORTED_MLX_LLM_MODELS,
         SUPPORTED_LLAMACPP_LLM_MODELS,
+        SUPPORTED_OLLAMA_LLM_MODELS,
     )
 
 client = TestClient(app)
@@ -27,6 +28,7 @@ def test_llm_models():
         + SUPPORTED_GROQ_LLM_MODELS
         + SUPPORTED_MLX_LLM_MODELS
         + SUPPORTED_LLAMACPP_LLM_MODELS
+        + SUPPORTED_OLLAMA_LLM_MODELS
     )
     assert response.json() == expected_models
 

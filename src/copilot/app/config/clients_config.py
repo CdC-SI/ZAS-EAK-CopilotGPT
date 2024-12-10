@@ -20,6 +20,7 @@ from config.llm_config import (
     SUPPORTED_GROQ_LLM_MODELS,
     SUPPORTED_OPENAI_EMBEDDING_MODELS,
     SUPPORTED_AZUREOPENAI_EMBEDDING_MODELS,
+    SUPPORTED_OLLAMA_LLM_MODELS,
 )
 
 load_dotenv()
@@ -32,6 +33,7 @@ AZUREOPENAI_ENDPOINT = os.environ.get("AZUREOPENAI_ENDPOINT", None)
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", None)
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", None)
 COHERE_API_KEY = os.environ.get("COHERE_API_KEY", None)
+LLM_GENERATION_ENDPOINT = os.environ.get("LLM_GENERATION_ENDPOINT", None)
 
 # LLM model
 llm_model = rag_config["llm"]["model"]
@@ -97,6 +99,14 @@ elif llm_model in SUPPORTED_GROQ_LLM_MODELS and GROQ_API_KEY:
     from groq import AsyncGroq
 
     clientLLM = AsyncGroq(api_key=GROQ_API_KEY, http_client=httpx_client)
+elif llm_model in SUPPORTED_OLLAMA_LLM_MODELS:
+    from ollama import AsyncClient
+
+    clientLLM = AsyncClient(
+        host=LLM_GENERATION_ENDPOINT,
+        proxy=HTTP_PROXY,
+        verify=REQUESTS_CA_BUNDLE,
+    )
 
 if COHERE_API_KEY:
     clientRerank = cohere.AsyncClient(

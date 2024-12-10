@@ -1,5 +1,5 @@
 from rag.llm.base import BaseLLM
-from rag.llm import OpenAILLM, AnthropicLLM, MLXLLM, LlamaCppLLM
+from rag.llm import OpenAILLM, AnthropicLLM, MLXLLM, LlamaCppLLM, OllamaLLM
 from config.llm_config import (
     SUPPORTED_OPENAI_LLM_MODELS,
     SUPPORTED_AZUREOPENAI_LLM_MODELS,
@@ -77,6 +77,14 @@ class LLMFactory:
             )
         elif llm_model.startswith("llama-cpp/"):
             return LlamaCppLLM(
+                model_name=llm_model,
+                stream=stream,
+                temperature=temperature,
+                top_p=top_p,
+                max_tokens=max_tokens,
+            )
+        elif llm_model.startswith("ollama/"):
+            return OllamaLLM(
                 model_name=llm_model,
                 stream=stream,
                 temperature=temperature,

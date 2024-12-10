@@ -10,6 +10,10 @@ from config.llm_config import (
     SUPPORTED_GROQ_LLM_MODELS,
 )
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 @dataclass
 class Token:
@@ -113,6 +117,19 @@ class LlamaCppStreaming(StreamingHandler):
                 return
 
 
+class OllamaStreaming(StreamingHandler):
+    @observe()
+    async def generate_stream(self, events, source_url):
+        content_received = False
+        async for event in events:
+            if event.choices[0].delta.content is not None:
+                content_received = True
+                yield Token.from_text(event.choices[0].delta.content)
+            elif event.choices[0].delta.content is None and content_received:
+                yield Token.from_source(source_url)
+                return
+
+
 class StreamingHandlerFactory:
     @staticmethod
     def get_streaming_strategy(llm_model):
@@ -129,5 +146,7 @@ class StreamingHandlerFactory:
             return MLXStreaming()
         elif llm_model.startswith("llama-cpp/"):
             return LlamaCppStreaming()
+        elif llm_model.startswith("ollama/"):
+            return OllamaStreaming()
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
