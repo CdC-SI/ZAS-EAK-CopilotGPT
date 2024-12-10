@@ -1,5 +1,6 @@
 import os
 import logging
+from typing import List, Dict
 from rag.llm.base import BaseLLM
 from config.llm_config import DEFAULT_MLX_LLM_MODEL
 from schemas.llm import ResponseModel, Choice, Delta, Message
@@ -56,7 +57,22 @@ class MLXLLM(BaseLLM):
         self.llm_client = None
         super().__init__(stream)
 
-    async def agenerate(self, messages: str) -> str:
+    def _format_prompt(self, messages: List[Dict]) -> str:
+        """Extract system and user prompts from messages list and format them."""
+        system_prompt = ""
+        query = ""
+
+        for message in messages:
+            if message.get("role") == "system":
+                system_prompt = message.get("content", "")
+            elif message.get("role") == "user":
+                query = message.get("content", "")
+
+        return (
+            f"{system_prompt}\n\n{query}" if system_prompt and query else query
+        )
+
+    async def agenerate(self, messages: List[Dict]) -> str:
         """
         Generate a response using the MLXLLM model.
 
@@ -75,6 +91,7 @@ class MLXLLM(BaseLLM):
         Exception
             If an error occurs during generation.
         """
+        messages = self._format_prompt(messages)
         async with aiohttp.ClientSession() as session:
             logger.info(messages)
             async with session.get(
@@ -92,7 +109,8 @@ class MLXLLM(BaseLLM):
                     choices=[Choice(message=Message(content=text))]
                 )
 
-    async def _astream(self, messages: str):
+    async def _astream(self, messages: List[Dict]):
+        messages = self._format_prompt(messages)
         async with aiohttp.ClientSession() as session:
             headers = {
                 "Accept": "text/event-stream",

@@ -3,15 +3,15 @@ from rag.prompts import (
     RAG_SYSTEM_PROMPT_DE,
     RAG_SYSTEM_PROMPT_FR,
     RAG_SYSTEM_PROMPT_IT,
+    CHAT_TITLE_SYSTEM_PROMPT_DE,
+    CHAT_TITLE_SYSTEM_PROMPT_FR,
+    CHAT_TITLE_SYSTEM_PROMPT_IT,
     QUERY_REWRITING_PROMPT_DE,
     QUERY_REWRITING_PROMPT_FR,
     QUERY_REWRITING_PROMPT_IT,
     CONTEXTUAL_COMPRESSION_PROMPT_DE,
     CONTEXTUAL_COMPRESSION_PROMPT_FR,
     CONTEXTUAL_COMPRESSION_PROMPT_IT,
-    CREATE_CHAT_TITLE_PROMPT_DE,
-    CREATE_CHAT_TITLE_PROMPT_FR,
-    CREATE_CHAT_TITLE_PROMPT_IT,
     SUMMARIZE_COMMAND_PROMPT_DE,
     SUMMARIZE_COMMAND_PROMPT_FR,
     SUMMARIZE_COMMAND_PROMPT_IT,
@@ -31,6 +31,8 @@ from config.llm_config import (
     SUPPORTED_ANTHROPIC_LLM_MODELS,
     SUPPORTED_GROQ_LLM_MODELS,
     SUPPORTED_OLLAMA_LLM_MODELS,
+    SUPPORTED_MLX_LLM_MODELS,
+    SUPPORTED_LLAMACPP_LLM_MODELS,
 )
 
 from langfuse.decorators import observe
@@ -41,6 +43,113 @@ class MessageBuilder:
     def __init__(self, language: str, llm_model: str):
         self.language = language
         self.llm_model = llm_model
+
+    @observe(name="MessageBuilder_build_chat_prompt")
+    def build_chat_prompt(
+        self, context_docs: List[Dict], query: str, conversational_memory: str
+    ) -> Union[List[Dict], str]:
+        """
+        Format the RAG message to send to the appropriate LLM API.
+        """
+        # NEED TO IMPLEMENT OPTIMIZED PROMPTS per model and provider
+        # For OpenAI LLM models
+        if (
+            self.llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+            if self.language == "de":
+                system_prompt = RAG_SYSTEM_PROMPT_DE.format(
+                    context_docs=context_docs,
+                    conversational_memory=conversational_memory,
+                )
+                return [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": query},
+                ]
+            elif self.language == "fr":
+                system_prompt = RAG_SYSTEM_PROMPT_FR.format(
+                    context_docs=context_docs,
+                    conversational_memory=conversational_memory,
+                )
+                return [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": query},
+                ]
+            elif self.language == "it":
+                system_prompt = RAG_SYSTEM_PROMPT_IT.format(
+                    context_docs=context_docs,
+                    conversational_memory=conversational_memory,
+                )
+                return [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": query},
+                ]
+            else:
+                system_prompt = RAG_SYSTEM_PROMPT_DE.format(
+                    context_docs=context_docs,
+                    conversational_memory=conversational_memory,
+                )
+                return [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": query},
+                ]
+
+    @observe(name="MessageBuilder_build_chat_title_prompt")
+    def build_chat_title_prompt(
+        self, query: str, assistant_response: str
+    ) -> List[Dict]:
+        """
+        Format the CreateChatTitle message to send to the appropriate LLM API.
+        """
+        # For OpenAI LLM models
+        if (
+            self.llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+            if self.language == "de":
+                system_prompt = CHAT_TITLE_SYSTEM_PROMPT_DE.format(
+                    assistant_response=assistant_response
+                )
+                return [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": query},
+                ]
+            elif self.language == "fr":
+                system_prompt = CHAT_TITLE_SYSTEM_PROMPT_FR.format(
+                    assistant_response=assistant_response
+                )
+                return [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": query},
+                ]
+            elif self.language == "it":
+                system_prompt = CHAT_TITLE_SYSTEM_PROMPT_IT.format(
+                    assistant_response=assistant_response
+                )
+                return [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": query},
+                ]
+            else:
+                system_prompt = CHAT_TITLE_SYSTEM_PROMPT_DE.format(
+                    assistant_response=assistant_response
+                )
+                return [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": query},
+                ]
 
     @observe(name="MessageBuilder_build_topic_check_prompt")
     def build_topic_check_prompt(self, query: str) -> Union[List[Dict], str]:
@@ -338,131 +447,6 @@ class MessageBuilder:
                 )
                 return prompt
 
-    @observe(name="MessageBuilder_build_chat_prompt")
-    def build_chat_prompt(
-        self, context_docs: List[Dict], query: str, conversational_memory: str
-    ) -> Union[List[Dict], str]:
-        """
-        Format the RAG message to send to the appropriate LLM API.
-        """
-        # NEED TO IMPLEMENT OPTIMIZED PROMPTS per model and provider
-        # For OpenAI LLM models
-        if (
-            self.llm_model
-            in SUPPORTED_OPENAI_LLM_MODELS
-            + SUPPORTED_AZUREOPENAI_LLM_MODELS
-            + SUPPORTED_GROQ_LLM_MODELS
-        ):
-            if self.language == "de":
-                prompt = RAG_SYSTEM_PROMPT_DE.format(
-                    context_docs=context_docs,
-                    query=query,
-                    conversational_memory=conversational_memory,
-                )
-                return [
-                    {"role": "system", "content": prompt},
-                ]
-            elif self.language == "fr":
-                prompt = RAG_SYSTEM_PROMPT_FR.format(
-                    context_docs=context_docs,
-                    query=query,
-                    conversational_memory=conversational_memory,
-                )
-                return [
-                    {"role": "system", "content": prompt},
-                ]
-            elif self.language == "it":
-                prompt = RAG_SYSTEM_PROMPT_IT.format(
-                    context_docs=context_docs,
-                    query=query,
-                    conversational_memory=conversational_memory,
-                )
-                return [
-                    {"role": "system", "content": prompt},
-                ]
-            else:
-                prompt = RAG_SYSTEM_PROMPT_DE.format(
-                    context_docs=context_docs,
-                    query=query,
-                    conversational_memory=conversational_memory,
-                )
-                return [
-                    {"role": "system", "content": prompt},
-                ]
-
-        elif (
-            self.llm_model in SUPPORTED_ANTHROPIC_LLM_MODELS
-            or self.llm_model in SUPPORTED_OLLAMA_LLM_MODELS
-        ):
-            if self.language == "de":
-                prompt = RAG_SYSTEM_PROMPT_DE.format(
-                    context_docs=context_docs,
-                    query=query,
-                    conversational_memory=conversational_memory,
-                )
-                return [
-                    {"role": "user", "content": prompt},
-                ]
-            elif self.language == "fr":
-                prompt = RAG_SYSTEM_PROMPT_FR.format(
-                    context_docs=context_docs,
-                    query=query,
-                    conversational_memory=conversational_memory,
-                )
-                return [
-                    {"role": "user", "content": prompt},
-                ]
-            elif self.language == "it":
-                prompt = RAG_SYSTEM_PROMPT_IT.format(
-                    context_docs=context_docs,
-                    query=query,
-                    conversational_memory=conversational_memory,
-                )
-                return [
-                    {"role": "user", "content": prompt},
-                ]
-            else:
-                prompt = RAG_SYSTEM_PROMPT_DE.format(
-                    context_docs=context_docs,
-                    query=query,
-                    conversational_memory=conversational_memory,
-                )
-                return [
-                    {"role": "user", "content": prompt},
-                ]
-
-        elif self.llm_model.startswith(
-            "mlx-community/"
-        ) or self.llm_model.startswith("llama-cpp/"):
-            if self.language == "de":
-                prompt = RAG_SYSTEM_PROMPT_DE.format(
-                    context_docs=context_docs,
-                    query=query,
-                    conversational_memory=conversational_memory,
-                )
-                return prompt
-            elif self.language == "fr":
-                prompt = RAG_SYSTEM_PROMPT_FR.format(
-                    context_docs=context_docs,
-                    query=query,
-                    conversational_memory=conversational_memory,
-                )
-                return prompt
-            elif self.language == "it":
-                prompt = RAG_SYSTEM_PROMPT_IT.format(
-                    context_docs=context_docs,
-                    query=query,
-                    conversational_memory=conversational_memory,
-                )
-                return prompt
-            else:
-                prompt = RAG_SYSTEM_PROMPT_DE.format(
-                    context_docs=context_docs,
-                    query=query,
-                    conversational_memory=conversational_memory,
-                )
-                return prompt
-
     @observe(name="MessageBuilder_build_query_rewriting_prompt")
     def build_query_rewriting_prompt(
         self, n_alt_queries: int, query: str
@@ -657,107 +641,6 @@ class MessageBuilder:
             else:
                 prompt = CONTEXTUAL_COMPRESSION_PROMPT_DE.format(
                     context_doc=context_doc, query=query
-                )
-                return prompt
-
-    @observe(name="MessageBuilder_build_chat_title_prompt")
-    def build_chat_title_prompt(
-        self, query: str, assistant_response: str
-    ) -> List[Dict]:
-        """
-        Format the CreateChatTitle message to send to the appropriate LLM API.
-        """
-        # For OpenAI LLM models
-        if (
-            self.llm_model
-            in SUPPORTED_OPENAI_LLM_MODELS
-            + SUPPORTED_AZUREOPENAI_LLM_MODELS
-            + SUPPORTED_GROQ_LLM_MODELS
-        ):
-            if self.language == "de":
-                prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(
-                    query=query, assistant_response=assistant_response
-                )
-                return [
-                    {"role": "system", "content": prompt},
-                ]
-            elif self.language == "fr":
-                prompt = CREATE_CHAT_TITLE_PROMPT_FR.format(
-                    query=query, assistant_response=assistant_response
-                )
-                return [
-                    {"role": "system", "content": prompt},
-                ]
-            elif self.language == "it":
-                prompt = CREATE_CHAT_TITLE_PROMPT_IT.format(
-                    query=query, assistant_response=assistant_response
-                )
-                return [
-                    {"role": "system", "content": prompt},
-                ]
-            else:
-                prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(
-                    query=query, assistant_response=assistant_response
-                )
-                return [
-                    {"role": "system", "content": prompt},
-                ]
-
-        # NEED TO IMPLEMENT OPTIMIZED CONTEXTUAL COMPRESSION
-        elif (
-            self.llm_model in SUPPORTED_ANTHROPIC_LLM_MODELS
-            or self.llm_model in SUPPORTED_OLLAMA_LLM_MODELS
-        ):
-            if self.language == "de":
-                prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(
-                    query=query, assistant_response=assistant_response
-                )
-                return [
-                    {"role": "user", "content": prompt},
-                ]
-            elif self.language == "fr":
-                prompt = CREATE_CHAT_TITLE_PROMPT_FR.format(
-                    query=query, assistant_response=assistant_response
-                )
-                return [
-                    {"role": "user", "content": prompt},
-                ]
-            elif self.language == "it":
-                prompt = CREATE_CHAT_TITLE_PROMPT_IT.format(
-                    query=query, assistant_response=assistant_response
-                )
-                return [
-                    {"role": "user", "content": prompt},
-                ]
-            else:
-                prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(
-                    query=query, assistant_response=assistant_response
-                )
-                return [
-                    {"role": "user", "content": prompt},
-                ]
-
-        elif self.llm_model.startswith(
-            "mlx-community/"
-        ) or self.llm_model.startswith("llama-cpp/"):
-            if self.language == "de":
-                prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(
-                    query=query, assistant_response=assistant_response
-                )
-                return prompt
-            elif self.language == "fr":
-                prompt = CREATE_CHAT_TITLE_PROMPT_FR.format(
-                    query=query, assistant_response=assistant_response
-                )
-                return prompt
-            elif self.language == "it":
-                prompt = CREATE_CHAT_TITLE_PROMPT_IT.format(
-                    query=query, assistant_response=assistant_response
-                )
-                return prompt
-            else:
-                prompt = CREATE_CHAT_TITLE_PROMPT_DE.format(
-                    query=query, assistant_response=assistant_response
                 )
                 return prompt
 
