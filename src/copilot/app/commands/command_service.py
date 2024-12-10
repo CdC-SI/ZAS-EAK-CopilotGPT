@@ -220,8 +220,9 @@ class CommandService:
             async for token in streaming_handler.generate_stream(
                 event_stream, sources["source_url"]
             ):
-                yield Token.from_text(token)
+                yield token
 
         elif translated_text:
             for token in translated_text:
                 yield Token.from_text(token)
+            yield Token.from_source(sources["source_url"])
