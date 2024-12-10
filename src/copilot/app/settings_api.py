@@ -145,5 +145,5 @@ async def get_authorized_commands():
     """
     Endpoint to get all supported authorized commands.
     """
-    authorized_commands = ["/summarize", "/translate"]
+    authorized_commands = ["/summarize", "/translate", "/explain"]
     return authorized_commands
