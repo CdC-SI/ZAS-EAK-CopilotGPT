@@ -7,6 +7,7 @@ import logging
 from typing import List, Any
 from rag.llm.base import BaseLLM
 from config.llm_config import DEFAULT_ANTHROPIC_LLM_MODEL
+from schemas.llm import ResponseModel, Choice, Message
 
 from config.clients_config import create_llm_client
 
@@ -51,6 +52,13 @@ class AnthropicLLM(BaseLLM):
         self.llm_client = create_llm_client(model_name)
         super().__init__(stream)
 
+    def _extract_system_prompt(self, messages: List[dict]) -> str:
+        """Extract system prompt from messages list."""
+        for message in messages:
+            if message.get("role") == "system":
+                return message.get("content", "")
+        return ""
+
     async def agenerate(self, messages: List[dict]) -> str:
         """
         Generate a response using the LLM model.
@@ -71,26 +79,35 @@ class AnthropicLLM(BaseLLM):
             If an error occurs during generation.
         """
         try:
-            return await self.llm_client.messages.create(
+            system_prompt = self._extract_system_prompt(messages)
+            response = await self.llm_client.messages.create(
                 model=self.model_name,
                 stream=False,
                 temperature=self.temperature,
                 top_p=self.top_p,
                 max_tokens=self.max_tokens,
-                messages=messages,
+                system=system_prompt,
+                messages=[m for m in messages if m.get("role") != "system"],
+            )
+            return ResponseModel(
+                choices=[
+                    Choice(message=Message(content=response.content[0].text))
+                ]
             )
         except Exception as e:
             raise e
 
     async def _astream(self, messages: List[Any]):
         try:
+            system_prompt = self._extract_system_prompt(messages)
             return await self.llm_client.messages.create(
                 model=self.model_name,
                 stream=True,
                 temperature=self.temperature,
                 top_p=self.top_p,
                 max_tokens=self.max_tokens,
-                messages=messages,
+                system=system_prompt,
+                messages=[m for m in messages if m.get("role") != "system"],
             )
         except Exception as e:
             raise e
