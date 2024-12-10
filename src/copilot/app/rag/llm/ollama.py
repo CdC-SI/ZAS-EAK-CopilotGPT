@@ -1,6 +1,6 @@
 import logging
 from typing import List, Any
-from config.clients_config import clientLLM
+from config.clients_config import create_llm_client
 from rag.llm.base import BaseLLM
 from config.llm_config import DEFAULT_OLLAMA_LLM_MODEL
 from schemas.llm import ResponseModel, Choice, Delta, Message
@@ -51,7 +51,7 @@ class OllamaLLM(BaseLLM):
         self.temperature = temperature
         self.top_p = top_p
         self.max_tokens = max_tokens
-        self.llm_client = clientLLM
+        self.llm_client = create_llm_client(model_name)
         super().__init__(stream)
 
     async def agenerate(self, messages: List[Any]) -> str:
