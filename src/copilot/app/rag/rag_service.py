@@ -3,7 +3,7 @@ import logging
 from typing import Dict
 from dotenv import load_dotenv
 
-from rag.llm.base import BaseLLM
+from llm.base import BaseLLM
 from rag.retrievers import RetrieverClient
 from chat.memory import ConversationalMemory
 from chat.status_service import status_service, StatusType
@@ -191,6 +191,7 @@ class RAGService:
             event_stream, source_url
         ):
             yield token
+        yield Token.from_source("https://test.com")
 
     @observe()
     async def process_agentic_rag(

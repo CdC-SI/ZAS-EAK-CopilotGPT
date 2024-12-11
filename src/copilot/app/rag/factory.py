@@ -10,7 +10,7 @@ from rag.retrievers import (
     Reranker,
 )
 from config.clients_config import clientRerank
-from rag.llm.base import BaseLLM
+from llm.base import BaseLLM
 from chat.messages import MessageBuilder
 
 
