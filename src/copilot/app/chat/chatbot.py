@@ -9,7 +9,7 @@ from rag.llm.factory import LLMFactory
 from rag.llm.base import BaseLLM
 
 from utils.streaming import StreamingHandlerFactory, StreamingHandler, Token
-from rag.messages import MessageBuilder
+from chat.messages import MessageBuilder
 from commands.command_service import CommandService, TranslationService
 
 from config.base_config import chat_config
@@ -59,9 +59,7 @@ class ChatBot:
             top_p=request.top_p,
             max_tokens=request.max_output_tokens,
         )
-        message_builder = MessageBuilder(
-            language=request.language, llm_model=request.llm_model
-        )
+        message_builder = MessageBuilder()
         retriever_client = RetrieverFactory.get_retriever_client(
             retrieval_method=request.retrieval_method,
             llm_client=llm_client,
@@ -144,7 +142,10 @@ class ChatBot:
             db, request.conversation_uuid
         ):
             create_title_message = message_builder.build_chat_title_prompt(
-                query=request.query, assistant_response=assistant_response
+                language=request.language,
+                llm_model=request.llm_model,
+                query=request.query,
+                assistant_response=assistant_response,
             )
             chat_title = await llm_client.agenerate(create_title_message)
             self.chat_memory.memory_instance.index_chat_title(
@@ -196,7 +197,9 @@ class ChatBot:
         """
         Check if the query is on topic.
         """
-        messages = message_builder.build_topic_check_prompt(query=query)
+        messages = message_builder.build_topic_check_prompt(
+            language=language, llm_model="gpt-4o-mini", query=query
+        )
         res = await llm_client.llm_client.beta.chat.completions.parse(
             model="gpt-4o-mini",
             temperature=0,

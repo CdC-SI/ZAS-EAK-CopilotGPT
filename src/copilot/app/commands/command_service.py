@@ -186,6 +186,8 @@ class CommandService:
                 request.language, summary_mode
             )
             messages = self.message_builder.build_summarize_prompt(
+                request.language,
+                request.llm_model,
                 request.command,
                 input_text,
                 mode=summary_mode,

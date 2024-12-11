@@ -15,7 +15,7 @@ from schemas.rag import AgentHandoff
 from sqlalchemy.orm import Session
 from utils.embedding import get_embedding
 from utils.streaming import StreamingHandler, Token
-from rag.messages import MessageBuilder
+from chat.messages import MessageBuilder
 from agents import RAGAgent, PensionAgent, FAK_EAK_Agent, FollowUpAgent
 
 from config.base_config import rag_config
@@ -123,6 +123,7 @@ class RAGService:
             tags=tags,
             source=request.source,
             k=request.k_retrieve,
+            llm_model=request.llm_model,
         )
 
         return rows if len(rows) > 0 else [{"id": "", "text": "", "url": ""}]
@@ -175,9 +176,12 @@ class RAGService:
         )
 
         messages = message_builder.build_chat_prompt(
+            language=request.language,
+            llm_model=request.llm_model,
             context_docs=formatted_context_docs,
             query=request.query,
             conversational_memory=conversational_memory,
+            response_style=request.response_style,
         )
 
         # stream response
@@ -205,7 +209,9 @@ class RAGService:
         )
 
         messages = message_builder.build_agent_handoff_prompt(
-            query=request.query
+            language=request.language,
+            llm_model=request.llm_model,
+            query=request.query,
         )
         res = await llm_client.llm_client.beta.chat.completions.parse(
             model="gpt-4o-mini",

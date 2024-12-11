@@ -11,7 +11,7 @@ from rag.retrievers import (
 )
 from config.clients_config import clientRerank
 from rag.llm.base import BaseLLM
-from rag.messages import MessageBuilder
+from chat.messages import MessageBuilder
 
 
 class RetrieverFactory:
