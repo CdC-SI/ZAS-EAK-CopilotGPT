@@ -5,8 +5,8 @@ import uuid
 from chat.memory import ConversationalMemory
 from chat.status_service import status_service, StatusType, offtopic_service
 from rag.factory import RetrieverFactory
-from rag.llm.factory import LLMFactory
-from rag.llm.base import BaseLLM
+from llm.factory import LLMFactory
+from llm.base import BaseLLM
 
 from utils.streaming import StreamingHandlerFactory, StreamingHandler, Token
 from chat.messages import MessageBuilder

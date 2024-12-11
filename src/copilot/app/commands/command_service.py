@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from typing import List, Tuple, Dict, Any
 
 from schemas.chat import ChatRequest
-from rag.llm.base import BaseLLM
+from llm.base import BaseLLM
 from utils.streaming import StreamingHandler, Token
 from chat.memory import ConversationalMemory
 
