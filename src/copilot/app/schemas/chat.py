@@ -20,6 +20,7 @@ class ChatRequest(BaseModel):
     k_retrieve: Optional[int] = rag_config["retrieval"]["top_k"]
     k_memory: Optional[int] = chat_config["memory"]["k_memory"]
     response_style: Optional[str] = None
+    response_format: Optional[str] = None
     command: Optional[str] = None
     command_args: Optional[str] = None
     autocomplete: Optional[bool] = True

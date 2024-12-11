@@ -41,12 +41,12 @@ from prompts.response_style import (
     RULES_LEGAL_DE,
     RULES_LEGAL_FR,
     RULES_LEGAL_IT,
-    REWRITE_COMPLETE_DE,
-    REWRITE_COMPLETE_FR,
-    REWRITE_COMPLETE_IT,
-    REWRITE_CONDENSED_DE,
-    REWRITE_CONDENSED_FR,
-    REWRITE_CONDENSED_IT,
+    COMPLETE_PROMPT_DE,
+    COMPLETE_PROMPT_FR,
+    COMPLETE_PROMPT_IT,
+    CONDENSED_PROMPT_DE,
+    CONDENSED_PROMPT_FR,
+    CONDENSED_PROMPT_IT,
     PROMPT_TEMPLATE_CONCISE_DE,
     PROMPT_TEMPLATE_CONCISE_FR,
     PROMPT_TEMPLATE_CONCISE_IT,
@@ -160,14 +160,14 @@ class MessageBuilder:
 
     _COMPLETENESS = {
         "complete": {
-            "de": REWRITE_COMPLETE_DE,
-            "fr": REWRITE_COMPLETE_FR,
-            "it": REWRITE_COMPLETE_IT,
+            "de": COMPLETE_PROMPT_DE,
+            "fr": COMPLETE_PROMPT_FR,
+            "it": COMPLETE_PROMPT_IT,
         },
         "condensed": {
-            "de": REWRITE_CONDENSED_DE,
-            "fr": REWRITE_CONDENSED_FR,
-            "it": REWRITE_CONDENSED_IT,
+            "de": CONDENSED_PROMPT_DE,
+            "fr": CONDENSED_PROMPT_FR,
+            "it": CONDENSED_PROMPT_IT,
         },
     }
 
@@ -211,7 +211,8 @@ class MessageBuilder:
         context_docs: List[Dict],
         query: str,
         conversational_memory: str,
-        response_style: str = "concise",
+        response_style: str,
+        response_format: str,
     ) -> Union[List[Dict], str]:
         """
         Format the RAG message to send to the appropriate LLM API.
@@ -231,10 +232,15 @@ class MessageBuilder:
                 language, self._RAG_SYSTEM_PROMPT.get(self._DEFAULT_LANGUAGE)
             )
 
-            # Need to add frontend option for completeness (complete, condensed)
             completeness = self._COMPLETENESS.get(
-                self._DEFAULT_COMPLETENESS
-            ).get(language, self._COMPLETENESS.get(self._DEFAULT_COMPLETENESS))
+                response_format,
+                self._COMPLETENESS.get(self._DEFAULT_COMPLETENESS),
+            ).get(
+                language,
+                self._COMPLETENESS.get(self._DEFAULT_COMPLETENESS).get(
+                    self._DEFAULT_LANGUAGE
+                ),
+            )
 
             rules = self._RULES.get(
                 response_style, self._RULES.get(self._DEFAULT_RULE)

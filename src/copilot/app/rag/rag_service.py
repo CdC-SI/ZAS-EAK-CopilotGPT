@@ -182,6 +182,7 @@ class RAGService:
             query=request.query,
             conversational_memory=conversational_memory,
             response_style=request.response_style,
+            response_format=request.response_format,
         )
 
         # stream response
