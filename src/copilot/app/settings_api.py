@@ -131,7 +131,7 @@ async def get_response_style():
     """
     Endpoint to get all supported response_styles.
     """
-    response_styles = ["concise", "detailed", "formal", "legal"]
+    response_styles = ["concise", "detailed", "plain", "easy", "legal"]
     return response_styles
 
 
