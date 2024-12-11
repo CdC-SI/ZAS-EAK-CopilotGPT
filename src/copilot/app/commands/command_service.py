@@ -168,10 +168,16 @@ class CommandService:
             summary_mode, n_msg, summary_style = self.get_summarize_args(args)
             input_text = ""
             if request.user_uuid:
-                input_text = (
-                    memory_client.memory_instance.format_conversational_memory(
+                conversation_turns = (
+                    memory_client.memory_instance.retrieve_conversation(
                         request.user_uuid, request.conversation_uuid, n_msg
                     )
+                )
+                input_text = "\n\n".join(
+                    message
+                    for turn in conversation_turns
+                    for role, message in turn.items()
+                    if role == "assistant"
                 )
             summary_style = self.map_summary_style_to_language(
                 request.language, summary_style
@@ -190,10 +196,16 @@ class CommandService:
             n_msg, target_lang = self.get_translate_args(args)
             input_text = ""
             if request.user_uuid:
-                input_text = (
-                    memory_client.memory_instance.format_conversational_memory(
+                conversation_turns = (
+                    memory_client.memory_instance.retrieve_conversation(
                         request.user_uuid, request.conversation_uuid, n_msg
                     )
+                )
+                input_text = "\n\n".join(
+                    message
+                    for turn in conversation_turns
+                    for role, message in turn.items()
+                    if role == "assistant"
                 )
             translated_text = await self.translate(input_text, target_lang)
             return {"translated_text": translated_text}
