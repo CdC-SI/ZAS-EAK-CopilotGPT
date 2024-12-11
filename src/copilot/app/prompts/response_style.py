@@ -295,22 +295,22 @@ RULES_LS_IT = """- Prima le cose importanti: iniziate il testo con le informazio
 - Una riga di testo contiene al massimo 85 caratteri, spazi inclusi."""
 
 
-REWRITE_COMPLETE_DE = """- Achte immer sehr genau darauf, dass ALLE Informationen aus dem Text in der Antwort enthalten sind. Kürzen Sie die Informationen niemals ab."""
+COMPLETE_PROMPT_DE = """- Achte immer sehr genau darauf, dass ALLE Informationen aus dem Text in der Antwort enthalten sind. Kürzen Sie die Informationen niemals ab."""
 
 
-REWRITE_COMPLETE_FR = """- Veille toujours très attentivement à ce que TOUTES les informations du texte soient incluses dans la réponse. Ne jamais abréger les informations."""
+COMPLETE_PROMPT_FR = """- Veille toujours très attentivement à ce que TOUTES les informations du texte soient incluses dans la réponse. Ne jamais abréger les informations."""
 
 
-REWRITE_COMPLETE_IT = """- Assicuratevi sempre che TUTTE le informazioni contenute nel testo siano incluse nella risposta. Non abbreviare mai le informazioni."""
+COMPLETE_PROMPT_IT = """- Assicuratevi sempre che TUTTE le informazioni contenute nel testo siano incluse nella risposta. Non abbreviare mai le informazioni."""
 
 
-REWRITE_CONDENSED_DE = """- Konzentriere dich auf das Wichtigste. Gib die essenziellen Informationen wieder und lass den Rest weg."""
+CONDENSED_PROMPT_DE = """- Konzentriere dich auf das Wichtigste. Gib die essenziellen Informationen wieder und lass den Rest weg."""
 
 
-REWRITE_CONDENSED_FR = """- Concentre-toi sur l'essentiel. Reproduis les informations essentielles et laisse de côté le reste."""
+CONDENSED_PROMPT_FR = """- Concentre-toi sur l'essentiel. Reproduis les informations essentielles et laisse de côté le reste."""
 
 
-REWRITE_CONDENSED_IT = """- Concentratevi sui punti più importanti. Date le informazioni essenziali e tralasciate il resto."""
+CONDENSED_PROMPT_IT = """- Concentratevi sui punti più importanti. Date le informazioni essenziali e tralasciate il resto."""
 
 
 PROMPT_TEMPLATE_CONCISE_DE = """Bitte formulieren Sie die Antwort an den Benutzer kurz und bündig.
