@@ -99,8 +99,8 @@ class LoginMessageService:
             return messages
 
 
-class OfftopicMessageService:
-    """Service for handling off-topic responses in different languages"""
+class TopicCheckService:
+    """Service for handling topic validation and off-topic responses"""
 
     _MESSAGES = {
         "de": "Wie kann ich Ihnen bei Ihren Fragen zur AHV/IV helfen?",
@@ -110,18 +110,14 @@ class OfftopicMessageService:
 
     DEFAULT_LANGUAGE = "de"
 
-    @classmethod
-    def get_message(cls, language: str) -> str:
-        """Get off-topic message for given language"""
-        return cls._MESSAGES.get(language, cls._MESSAGES[cls.DEFAULT_LANGUAGE])
-
-
-class TopicCheckService:
-    """Service for handling topic validation and off-topic responses"""
-
     def __init__(self, model_name: str = "gpt-4o-mini"):
         self.model_name = model_name
-        self.offtopic_service = OfftopicMessageService()
+
+    def get_message(self, language: str) -> str:
+        """Get off-topic message for given language"""
+        return self._MESSAGES.get(
+            language, self._MESSAGES[self.DEFAULT_LANGUAGE]
+        )
 
     @observe(name="check_topic")
     async def check_topic(
@@ -147,18 +143,17 @@ class TopicCheckService:
 
         on_topic = res.choices[0].message.parsed.on_topic
 
-        if not on_topic:
+        if on_topic:
+            return
+        else:
             message_uuid = str(uuid.uuid4())
-            message = self.offtopic_service.get_message(language)
+            message = self.get_message(language)
             yield Token.from_text(message)
             yield Token.from_status(
                 f"\n\n<message_uuid>{message_uuid}</message_uuid>"
             )
-            yield Token.from_status("<is_on_topic>false</is_on_topic>")
-        else:
-            yield Token.from_status("<is_on_topic>true</is_on_topic>")
+            return
 
 
 login_message_service = LoginMessageService()
-offtopic_service = OfftopicMessageService()
 topic_check_service = TopicCheckService()

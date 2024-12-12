@@ -176,8 +176,8 @@ class ChatBot:
         ):
             yield token
 
-    @observe(name="on_topic_check")
-    async def on_topic_check(
+    @observe(name="topic_check")
+    async def _topic_check(
         self,
         query: str,
         language: str,
@@ -234,18 +234,16 @@ class ChatBot:
                 f"<topic_check>{status_service.get_status_message(StatusType.TOPIC_CHECK, request.language)}</topic_check>"
             ).content
 
-            async for token in self.on_topic_check(
+            async for token in self._topic_check(
                 query=request.query,
                 language=request.language,
                 llm_client=llm_client,
                 message_builder=message_builder,
             ):
-                if b"<is_on_topic>" not in token.content:
-                    yield token.content
-                if not token.is_source or b"<is_on_topic>" in token.content:
+                yield token.content
+                if not token.is_source or token.is_status:
                     assistant_response.append(token.content.decode("utf-8"))
-                if b"<is_on_topic>false</is_on_topic>" in token.content:
-                    is_on_topic = False
+                is_on_topic = False
 
         # Only proceed with regular processing if is on topic
         if is_on_topic:
