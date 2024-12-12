@@ -221,7 +221,6 @@ class CommandService:
         llm_client: BaseLLM,
         streaming_handler: StreamingHandler,
         memory_client: ConversationalMemory,
-        sources: Dict,
     ):
 
         result = await self.execute_command(request, memory_client)
@@ -231,12 +230,9 @@ class CommandService:
         # stream response
         if messages:
             event_stream = llm_client.call(messages)
-            async for token in streaming_handler.generate_stream(
-                event_stream, sources["source_url"]
-            ):
+            async for token in streaming_handler.generate_stream(event_stream):
                 yield token
 
         elif translated_text:
             for token in translated_text:
                 yield Token.from_text(token)
-            yield Token.from_source(sources["source_url"])

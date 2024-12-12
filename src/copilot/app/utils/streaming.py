@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class Token:
     content: bytes
+    is_text: bool = False
     is_source: bool = False
     is_status: bool = False
     metadata: Optional[dict] = None
@@ -25,7 +26,7 @@ class Token:
     @classmethod
     def from_text(cls, text: str) -> "Token":
         text = text.replace("ß", "ss")
-        return cls(content=text.encode("utf-8"))
+        return cls(content=text.encode("utf-8"), is_text=True)
 
     @classmethod
     def from_source(cls, url: str) -> "Token":
@@ -43,13 +44,13 @@ class Token:
 
 class StreamingHandler(ABC):
     @abstractmethod
-    async def generate_stream(self, stream, source_url):
+    async def generate_stream(self, stream):
         pass
 
 
 class OpenAIStreaming(StreamingHandler):
     @observe()
-    async def generate_stream(self, events, source_url):
+    async def generate_stream(self, events):
         events = await events
         content_received = False
         async for event in events:
@@ -57,13 +58,12 @@ class OpenAIStreaming(StreamingHandler):
                 content_received = True
                 yield Token.from_text(event.choices[0].delta.content)
             elif event.choices[0].delta.content is None and content_received:
-                yield Token.from_source(source_url)
                 return
 
 
 class AzureOpenAIStreaming(StreamingHandler):
     @observe()
-    async def generate_stream(self, events, source_url):
+    async def generate_stream(self, events):
         events = await events
         content_received = False
         async for event in events:
@@ -71,7 +71,6 @@ class AzureOpenAIStreaming(StreamingHandler):
                 content_received = True
                 yield Token.from_text(event.choices[0].delta.content)
             elif event.choices[0].delta.content is None and content_received:
-                yield Token.from_source(source_url)
                 return
             elif not content_received:
                 continue  # Skip initial None token
@@ -79,26 +78,24 @@ class AzureOpenAIStreaming(StreamingHandler):
 
 class AnthropicStreaming(StreamingHandler):
     @observe()
-    async def generate_stream(self, events, source_url):
+    async def generate_stream(self, events):
         events = await events
         async for event in events:
             if event.type == "content_block_delta":
                 yield Token.from_text(event.delta.text)
             elif event.type == "content_block_stop":
-                yield Token.from_source(source_url)
                 return
 
 
 class MLXStreaming(StreamingHandler):
     @observe()
-    async def generate_stream(self, events, source_url):
+    async def generate_stream(self, events):
         content_received = False
         async for event in events:
             if event.choices[0].delta.content is not None:
                 content_received = True
                 yield Token.from_text(event.choices[0].delta.content)
             elif event.choices[0].delta.content is None and content_received:
-                yield Token.from_source(source_url)
                 return
             elif not content_received:
                 continue  # Skip initial None token
@@ -106,27 +103,25 @@ class MLXStreaming(StreamingHandler):
 
 class LlamaCppStreaming(StreamingHandler):
     @observe()
-    async def generate_stream(self, events, source_url):
+    async def generate_stream(self, events):
         content_received = False
         async for event in events:
             if event.choices[0].delta.content is not None:
                 content_received = True
                 yield Token.from_text(event.choices[0].delta.content)
             elif event.choices[0].delta.content is None and content_received:
-                yield Token.from_source(source_url)
                 return
 
 
 class OllamaStreaming(StreamingHandler):
     @observe()
-    async def generate_stream(self, events, source_url):
+    async def generate_stream(self, events):
         content_received = False
         async for event in events:
             if event.choices[0].delta.content is not None:
                 content_received = True
                 yield Token.from_text(event.choices[0].delta.content)
             elif event.choices[0].delta.content is None and content_received:
-                yield Token.from_source(source_url)
                 return
 
 

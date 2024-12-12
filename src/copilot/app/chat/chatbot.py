@@ -165,15 +165,12 @@ class ChatBot:
         request: ChatRequest,
         llm_client: BaseLLM,
         streaming_handler: StreamingHandler,
-        sources: Dict,
     ):
 
         messages = [{"role": "user", "content": request.query}]
 
         event_stream = llm_client.call(messages)
-        async for token in streaming_handler.generate_stream(
-            event_stream, sources["source_url"]
-        ):
+        async for token in streaming_handler.generate_stream(event_stream):
             yield token
 
     @observe(name="topic_check")
@@ -229,7 +226,7 @@ class ChatBot:
 
         # Query validation
         is_on_topic = True
-        if chat_config["topic_check"]:
+        if request.topic_check:
             yield Token.from_status(
                 f"<topic_check>{status_service.get_status_message(StatusType.TOPIC_CHECK, request.language)}</topic_check>"
             ).content
@@ -259,10 +256,7 @@ class ChatBot:
                     sources=sources,
                 ):
                     yield token.content
-                    if (
-                        not token.is_source
-                        and b"<retrieval>" not in token.content
-                    ):
+                    if not token.is_source or token.is_status:
                         assistant_response.append(
                             token.content.decode("utf-8")
                         )
@@ -279,7 +273,7 @@ class ChatBot:
                     sources=sources,
                 ):
                     yield token.content
-                    if not token.is_source:
+                    if not token.is_source or token.is_status:
                         assistant_response.append(
                             token.content.decode("utf-8")
                         )
@@ -290,23 +284,21 @@ class ChatBot:
                     llm_client=llm_client,
                     streaming_handler=streaming_handler,
                     memory_client=self.chat_memory,
-                    sources=sources,
                 ):
                     yield token.content
-                    if not token.is_source:
+                    if not token.is_source or token.is_status:
                         assistant_response.append(
                             token.content.decode("utf-8")
                         )
 
-            else:  # vanilla LLM call
+            else:
                 async for token in self.process_vanilla_llm(
                     request=request,
                     streaming_handler=streaming_handler,
                     llm_client=llm_client,
-                    sources=sources,
                 ):
                     yield token.content
-                    if not token.is_source:
+                    if not token.is_source or token.is_status:
                         assistant_response.append(
                             token.content.decode("utf-8")
                         )

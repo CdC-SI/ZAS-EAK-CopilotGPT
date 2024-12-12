@@ -26,6 +26,8 @@ class ChatRequest(BaseModel):
     autocomplete: Optional[bool] = True
     rag: Optional[bool] = True
     agentic_rag: Optional[bool] = False
+    topic_check: Optional[bool] = False
+    source_validation: Optional[bool] = False
     is_followup_q: Optional[bool] = False
     user_uuid: Optional[str] = None
     conversation_uuid: Optional[str] = None

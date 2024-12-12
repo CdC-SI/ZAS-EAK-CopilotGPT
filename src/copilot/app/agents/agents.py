@@ -277,7 +277,7 @@ class SourceValidatorAgent:
                             "---------Source validated: %s",
                             result.choices[0].message.parsed,
                         )
-                        return Token.from_source(document["url"])
+                        return document
                     return None
             except Exception as e:
                 if attempt == self.max_retries - 1:

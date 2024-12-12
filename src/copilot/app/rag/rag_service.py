@@ -159,32 +159,36 @@ class RAGService:
         )
 
         documents = await self.retrieve(db, request, retriever_client)
+
+        validated_docs = []
+        validated_sources = []
+
+        # Source validation
+        if request.source_validation:
+            async for doc in self.source_validator_agent.validate_sources(
+                request.language,
+                request.query,
+                documents,
+                llm_client,
+                message_builder,
+            ):
+                yield Token.from_source(doc["url"])
+                validated_docs.append(doc)
+                validated_sources.append(doc["url"])
+
+        else:
+            # Return top sources if no source validation
+            for doc in documents:
+                yield Token.from_source(doc["url"])
+                validated_docs.append(doc)
+                validated_sources.append(doc["url"])
+
         formatted_context_docs = "\n\n".join(
             [
                 f"DOC [{i}]: {doc['text']}"
-                for i, doc in enumerate(documents, start=1)
+                for i, doc in enumerate(validated_docs, start=1)
             ]
         )
-        # TO DO: don't return source if copilot can't answer (no docs retrieved, off topic, etc.)
-        source_url = (
-            documents[0]["url"]
-            if documents[0]["url"]
-            else "https://www.eak.admin.ch"
-        )
-
-        sources["documents"] = documents
-        sources["source_url"] = source_url
-
-        async for token in self.source_validator_agent.validate_sources(
-            request.language,
-            request.query,
-            documents,
-            llm_client,
-            message_builder,
-        ):
-            yield token
-        # TO DO: check streaming logic for source token yielding
-        # TO DO: load more data to check functionality
 
         conversational_memory = (
             memory_client.memory_instance.format_conversational_memory(
@@ -204,10 +208,12 @@ class RAGService:
 
         # stream response
         event_stream = llm_client.call(messages)
-        async for token in streaming_handler.generate_stream(
-            event_stream, source_url
-        ):
+        async for token in streaming_handler.generate_stream(event_stream):
             yield token
+
+        # TO DO: update this
+        sources["documents"] = validated_docs
+        sources["source_url"] = validated_sources[0]
 
     @observe()
     async def process_agentic_rag(
