@@ -16,7 +16,13 @@ from sqlalchemy.orm import Session
 from utils.embedding import get_embedding
 from utils.streaming import StreamingHandler, Token
 from chat.messages import MessageBuilder
-from agents import RAGAgent, PensionAgent, FAK_EAK_Agent, FollowUpAgent
+from agents import (
+    RAGAgent,
+    PensionAgent,
+    FAK_EAK_Agent,
+    FollowUpAgent,
+    SourceValidatorAgent,
+)
 
 from config.base_config import rag_config
 
@@ -95,6 +101,7 @@ class RAGService:
         self.pension_agent = PensionAgent()
         self.fak_eak_agent = FAK_EAK_Agent()
         self.followup_agent = FollowUpAgent()
+        self.source_validator_agent = SourceValidatorAgent()
 
     async def embed(self, text_input: EmbeddingRequest):
         """
@@ -158,7 +165,6 @@ class RAGService:
                 for i, doc in enumerate(documents, start=1)
             ]
         )
-        # TO DO: display multiple sources in frontend
         # TO DO: don't return source if copilot can't answer (no docs retrieved, off topic, etc.)
         source_url = (
             documents[0]["url"]
@@ -168,6 +174,17 @@ class RAGService:
 
         sources["documents"] = documents
         sources["source_url"] = source_url
+
+        async for token in self.source_validator_agent.validate_sources(
+            request.language,
+            request.query,
+            documents,
+            llm_client,
+            message_builder,
+        ):
+            yield token
+        # TO DO: check streaming logic for source token yielding
+        # TO DO: load more data to check functionality
 
         conversational_memory = (
             memory_client.memory_instance.format_conversational_memory(
@@ -191,7 +208,6 @@ class RAGService:
             event_stream, source_url
         ):
             yield token
-        yield Token.from_source("https://test.com")
 
     @observe()
     async def process_agentic_rag(
