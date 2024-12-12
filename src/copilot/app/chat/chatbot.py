@@ -3,7 +3,12 @@ from typing import Dict, List
 import uuid
 
 from chat.memory import ConversationalMemory
-from chat.status_service import status_service, StatusType, offtopic_service
+from chat.status_service import (
+    status_service,
+    StatusType,
+    login_message_service,
+    topic_check_service,
+)
 from rag.factory import RetrieverFactory
 from llm.factory import LLMFactory
 from llm.base import BaseLLM
@@ -19,7 +24,6 @@ from autocomplete.autocomplete_service import autocomplete_service
 from rag.rag_service import rag_service
 
 from schemas.chat import ChatRequest
-from schemas.llm import TopicCheck
 
 from sqlalchemy.orm import Session
 
@@ -172,20 +176,6 @@ class ChatBot:
         ):
             yield token
 
-    @observe(name="login_message")
-    async def login_message(self, language: str = "de"):
-
-        message = {
-            "de": "Bitte registrieren Sie sich und melden Sie sich an, um auf diese Funktion zuzugreifen.",
-            "fr": "Veuillez vous inscrire et vous connecter pour accéder à cette fonctionnalité.",
-            "it": "Si prega di registrarsi e accedere per accedere a questa funzionalità.",
-        }.get(
-            language,
-            "Bitte registrieren Sie sich und melden Sie sich an, um auf diese Funktion zuzugreifen.",
-        )
-
-        yield Token.from_text(message).content
-
     @observe(name="on_topic_check")
     async def on_topic_check(
         self,
@@ -194,37 +184,38 @@ class ChatBot:
         llm_client: BaseLLM,
         message_builder: MessageBuilder,
     ):
-        """
-        Check if the query is on topic.
-        """
-        messages = message_builder.build_topic_check_prompt(
-            language=language, llm_model="gpt-4o-mini", query=query
-        )
-        res = await llm_client.llm_client.beta.chat.completions.parse(
-            model="gpt-4o-mini",
-            temperature=0,
-            top_p=0.95,
-            max_tokens=512,
-            messages=messages,
-            response_format=TopicCheck,
-        )
+        """Check if the query is on topic."""
+        async for token in topic_check_service.check_topic(
+            query=query,
+            language=language,
+            llm_client=llm_client,
+            message_builder=message_builder,
+        ):
+            yield token
 
-        on_topic = res.choices[0].message.parsed.on_topic
+    async def _handle_login_required(self, language: str):
+        """Handle case when user is not logged in"""
+        message_uuid = str(uuid.uuid4())
+        message = login_message_service.get_message(StatusType.LOGIN, language)
 
-        if not on_topic:
-            message = offtopic_service.get_message(language)
-            yield Token.from_text(message)
-            yield Token.from_source("https://www.eak.admin.ch")
-            yield Token.from_status("<off_topic>true</off_topic>")
-            return
-        else:
-            yield Token.from_status("<off_topic>false</off_topic>")
+        yield Token.from_text(message)
+        yield Token.from_status(
+            f"\n\n<message_uuid>{message_uuid}</message_uuid>"
+        )
 
     async def process_request(self, db: Session, request: ChatRequest):
         """
         Process a request by setting up necessary components and routing to appropriate service.
         """
+        # Login check for advanced features
+        if not request.user_uuid:
+            async for token in self._handle_login_required(request.language):
+                yield token.content
+            return
+
         logger.info("Request params: %s", request.dict())
+
+        # Initialize components
         (
             llm_client,
             message_builder,
@@ -236,148 +227,116 @@ class ChatBot:
         assistant_response = []
         sources = {"documents": [], "source_url": None}
 
-        # On-topic check status update
-        yield Token.from_status(
-            f"<topic_check>{status_service.get_status_message(StatusType.TOPIC_CHECK, request.language)}</topic_check>"
-        ).content
-
-        is_off_topic = False
+        # Query validation
+        is_on_topic = True
         if chat_config["topic_check"]:
+            yield Token.from_status(
+                f"<topic_check>{status_service.get_status_message(StatusType.TOPIC_CHECK, request.language)}</topic_check>"
+            ).content
+
             async for token in self.on_topic_check(
                 query=request.query,
                 language=request.language,
                 llm_client=llm_client,
                 message_builder=message_builder,
             ):
-                yield token.content
-                if b"<off_topic>true</off_topic>" in token.content:
-                    is_off_topic = True
-                if (
-                    b"<off_topic>true</off_topic>" not in token.content
-                    and b"<off_topic>false</off_topic>" not in token.content
+                if b"<is_on_topic>" not in token.content:
+                    yield token.content
+                if not token.is_source or b"<is_on_topic>" in token.content:
+                    assistant_response.append(token.content.decode("utf-8"))
+                if b"<is_on_topic>false</is_on_topic>" in token.content:
+                    is_on_topic = False
+
+        # Only proceed with regular processing if is on topic
+        if is_on_topic:
+            if request.rag:
+                async for token in self.rag_service.process_rag(
+                    db=db,
+                    request=request,
+                    llm_client=llm_client,
+                    streaming_handler=streaming_handler,
+                    retriever_client=retriever_client,
+                    message_builder=message_builder,
+                    memory_client=self.chat_memory,
+                    sources=sources,
                 ):
-                    assistant_response.append(token.content.decode("utf-8"))
+                    yield token.content
+                    if (
+                        not token.is_source
+                        and b"<retrieval>" not in token.content
+                    ):
+                        assistant_response.append(
+                            token.content.decode("utf-8")
+                        )
 
-        if is_off_topic:
-            # index chat_history and chat_title for off-topic responses
-            if request.user_uuid:
-                assistant_message_uuid = str(uuid.uuid4())
-                yield Token.from_status(
-                    f"\n\n<message_uuid>{assistant_message_uuid}</message_uuid>"
-                ).content
-
-                user_message_uuid = str(uuid.uuid4())
-                assistant_response_text = "".join(assistant_response)
-                await self._index_conversation_turn(
-                    db,
-                    request,
-                    assistant_response_text,
-                    sources["documents"],
-                    sources["source_url"],
-                    user_message_uuid,
-                    assistant_message_uuid,
-                )
-                await self._index_chat_title(
-                    db,
-                    request,
-                    assistant_response_text,
-                    message_builder,
-                    llm_client,
-                )
-            return
-
-        if request.rag:  # execute rag
-            async for token in self.rag_service.process_rag(
-                db=db,
-                request=request,
-                llm_client=llm_client,
-                streaming_handler=streaming_handler,
-                retriever_client=retriever_client,
-                message_builder=message_builder,
-                memory_client=self.chat_memory,
-                sources=sources,
-            ):
-                yield token.content
-                if not token.is_source and b"<retrieval>" not in token.content:
-                    assistant_response.append(token.content.decode("utf-8"))
-
-        elif request.agentic_rag:  # execute agentic rag
-            if not request.user_uuid:
-                async for token in self.login_message(
-                    language=request.language
+            elif request.agentic_rag:
+                async for token in self.rag_service.process_agentic_rag(
+                    db=db,
+                    request=request,
+                    llm_client=llm_client,
+                    streaming_handler=streaming_handler,
+                    retriever_client=retriever_client,
+                    message_builder=message_builder,
+                    memory_client=self.chat_memory,
+                    sources=sources,
                 ):
-                    assistant_response.append(token.decode("utf-8"))
-                    yield token
-                return
-            async for token in self.rag_service.process_agentic_rag(
-                db=db,
-                request=request,
-                llm_client=llm_client,
-                streaming_handler=streaming_handler,
-                retriever_client=retriever_client,
-                message_builder=message_builder,
-                memory_client=self.chat_memory,
-                sources=sources,
-            ):
-                yield token.content
-                if not token.is_source:
-                    assistant_response.append(token.content.decode("utf-8"))
+                    yield token.content
+                    if not token.is_source:
+                        assistant_response.append(
+                            token.content.decode("utf-8")
+                        )
 
-        elif request.command:  # execute command
-            if not request.user_uuid:
-                async for token in self.login_message(
-                    language=request.language
+            elif request.command:
+                async for token in command_service.process_command(
+                    request=request,
+                    llm_client=llm_client,
+                    streaming_handler=streaming_handler,
+                    memory_client=self.chat_memory,
+                    sources=sources,
                 ):
-                    assistant_response.append(token.decode("utf-8"))
-                    yield token
-                return
-            async for token in command_service.process_command(
-                request=request,
-                llm_client=llm_client,
-                streaming_handler=streaming_handler,
-                memory_client=self.chat_memory,
-                sources=sources,
-            ):
-                yield token.content
-                if not token.is_source:
-                    assistant_response.append(token.content.decode("utf-8"))
+                    yield token.content
+                    if not token.is_source:
+                        assistant_response.append(
+                            token.content.decode("utf-8")
+                        )
 
-        else:  # vanilla LLM call
-            async for token in self.process_vanilla_llm(
-                request=request,
-                streaming_handler=streaming_handler,
-                llm_client=llm_client,
-                sources=sources,
-            ):
-                yield token.content
-                if not token.is_source:
-                    assistant_response.append(token.content.decode("utf-8"))
+            else:  # vanilla LLM call
+                async for token in self.process_vanilla_llm(
+                    request=request,
+                    streaming_handler=streaming_handler,
+                    llm_client=llm_client,
+                    sources=sources,
+                ):
+                    yield token.content
+                    if not token.is_source:
+                        assistant_response.append(
+                            token.content.decode("utf-8")
+                        )
 
-        # index chat_history and chat_title
-        if request.user_uuid:
-            assistant_message_uuid = str(uuid.uuid4())
-            yield Token.from_status(
-                f"\n\n<message_uuid>{assistant_message_uuid}</message_uuid>"
-            ).content
+        # Always index the response, whether off-topic or not
+        assistant_message_uuid = str(uuid.uuid4())
+        yield Token.from_status(
+            f"\n\n<message_uuid>{assistant_message_uuid}</message_uuid>"
+        ).content
 
-            user_message_uuid = str(uuid.uuid4())
-            assistant_response_text = "".join(assistant_response)
-            await self._index_conversation_turn(
-                db,
-                request,
-                assistant_response_text,
-                sources["documents"],
-                sources["source_url"],
-                user_message_uuid,
-                assistant_message_uuid,
-            )
-            await self._index_chat_title(
-                db,
-                request,
-                assistant_response_text,
-                message_builder,
-                llm_client,
-            )
+        user_message_uuid = str(uuid.uuid4())
+        assistant_response_text = "".join(assistant_response)
+        await self._index_conversation_turn(
+            db,
+            request,
+            assistant_response_text,
+            sources["documents"],
+            sources["source_url"],
+            user_message_uuid,
+            assistant_message_uuid,
+        )
+        await self._index_chat_title(
+            db,
+            request,
+            assistant_response_text,
+            message_builder,
+            llm_client,
+        )
 
 
 bot = ChatBot()

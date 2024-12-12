@@ -1,4 +1,16 @@
 from enum import Enum
+import uuid
+
+from utils.streaming import Token
+from llm.base import BaseLLM
+from chat.messages import MessageBuilder
+from schemas.agents import TopicCheck
+
+from langfuse.decorators import observe
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class StatusType(Enum):
@@ -7,6 +19,7 @@ class StatusType(Enum):
     AGENT_HANDOFF = "agent_handoff"
     TOOL_USE = "tool_use"
     TOPIC_CHECK = "topic_check"
+    LOGIN = "login"
 
 
 class StatusMessageService:
@@ -62,6 +75,30 @@ class StatusMessageService:
 status_service = StatusMessageService()
 
 
+class LoginMessageService:
+    """Service for handling login messages in different languages"""
+
+    _LOGIN_MESSAGES = {
+        StatusType.LOGIN: {
+            "de": "Bitte registrieren Sie sich und melden Sie sich an, um auf diese Funktion zuzugreifen.",
+            "fr": "Veuillez vous inscrire et vous connecter pour accéder à cette fonctionnalité.",
+            "it": "Si prega di registrarsi e accedere per accedere a questa funzionalità.",
+        },
+    }
+
+    DEFAULT_LANGUAGE = "de"
+
+    @classmethod
+    def get_message(cls, status_type: StatusType, language: str) -> str:
+        """Get login message for given language"""
+        if status_type == StatusType.LOGIN:
+            messages = cls._LOGIN_MESSAGES[status_type]
+            messages = messages.get(
+                language, messages.get(cls.DEFAULT_LANGUAGE)
+            )
+            return messages
+
+
 class OfftopicMessageService:
     """Service for handling off-topic responses in different languages"""
 
@@ -79,4 +116,49 @@ class OfftopicMessageService:
         return cls._MESSAGES.get(language, cls._MESSAGES[cls.DEFAULT_LANGUAGE])
 
 
+class TopicCheckService:
+    """Service for handling topic validation and off-topic responses"""
+
+    def __init__(self, model_name: str = "gpt-4o-mini"):
+        self.model_name = model_name
+        self.offtopic_service = OfftopicMessageService()
+
+    @observe(name="check_topic")
+    async def check_topic(
+        self,
+        query: str,
+        language: str,
+        llm_client: BaseLLM,
+        message_builder: MessageBuilder,
+    ):
+        """Check if query is on topic and yield appropriate responses"""
+        messages = message_builder.build_topic_check_prompt(
+            language=language, llm_model=self.model_name, query=query
+        )
+
+        res = await llm_client.llm_client.beta.chat.completions.parse(
+            model=self.model_name,
+            temperature=0,
+            top_p=0.95,
+            max_tokens=512,
+            messages=messages,
+            response_format=TopicCheck,
+        )
+
+        on_topic = res.choices[0].message.parsed.on_topic
+
+        if not on_topic:
+            message_uuid = str(uuid.uuid4())
+            message = self.offtopic_service.get_message(language)
+            yield Token.from_text(message)
+            yield Token.from_status(
+                f"\n\n<message_uuid>{message_uuid}</message_uuid>"
+            )
+            yield Token.from_status("<is_on_topic>false</is_on_topic>")
+        else:
+            yield Token.from_status("<is_on_topic>true</is_on_topic>")
+
+
+login_message_service = LoginMessageService()
 offtopic_service = OfftopicMessageService()
+topic_check_service = TopicCheckService()
