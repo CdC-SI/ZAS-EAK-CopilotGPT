@@ -5,6 +5,7 @@ class StatusType(Enum):
     RETRIEVAL = "retrieval"
     ROUTING = "routing"
     AGENT_HANDOFF = "agent_handoff"
+    TOOL_USE = "tool_use"
     TOPIC_CHECK = "topic_check"
 
 
@@ -27,6 +28,11 @@ class StatusMessageService:
             "fr": "{} traite votre demande",
             "it": "{} sta elaborando la sua richiesta",
         },
+        StatusType.TOOL_USE: {
+            "de": "Verwendung des Tools: {}",
+            "fr": "Utilisation de l'outil: {}",
+            "it": "Utilizzo dello strumento: {}",
+        },
         StatusType.TOPIC_CHECK: {
             "de": "Validierungsabfrage",
             "fr": "Validation de la requête",
@@ -46,6 +52,9 @@ class StatusMessageService:
 
         if status_type == StatusType.AGENT_HANDOFF and "agent_name" in kwargs:
             message = message.format(kwargs["agent_name"])
+
+        if status_type == StatusType.TOOL_USE and "tool_name" in kwargs:
+            message = message.format(kwargs["tool_name"])
 
         return message
 
