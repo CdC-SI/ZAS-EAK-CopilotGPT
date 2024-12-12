@@ -32,6 +32,9 @@ from prompts.agents import (
     PENSION_FUNCTION_CALLING_PROMPT_DE,
     PENSION_FUNCTION_CALLING_PROMPT_FR,
     PENSION_FUNCTION_CALLING_PROMPT_IT,
+    UNIQUE_SOURCE_VALIDATION_PROMPT_DE,
+    UNIQUE_SOURCE_VALIDATION_PROMPT_FR,
+    UNIQUE_SOURCE_VALIDATION_PROMPT_IT,
 )
 from prompts.response_style import (
     RULES_ES_DE,
@@ -102,6 +105,12 @@ class MessageBuilder:
         "de": TOPIC_CHECK_PROMPT_DE,
         "fr": TOPIC_CHECK_PROMPT_FR,
         "it": TOPIC_CHECK_PROMPT_IT,
+    }
+
+    _UNIQUE_SOURCE_VALIDATION_PROMPT = {
+        "de": UNIQUE_SOURCE_VALIDATION_PROMPT_DE,
+        "fr": UNIQUE_SOURCE_VALIDATION_PROMPT_FR,
+        "it": UNIQUE_SOURCE_VALIDATION_PROMPT_IT,
     }
 
     _AGENT_HANDOFF_PROMPT = {
@@ -285,7 +294,6 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
-    @observe(name="MessageBuilder_build_chat_title_prompt")
     def build_chat_title_prompt(
         self,
         language: str,
@@ -330,7 +338,11 @@ class MessageBuilder:
             llm_model
             in SUPPORTED_OPENAI_LLM_MODELS
             + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
             + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
         ):
             topic_check_system_prompt = self._TOPIC_CHECK_PROMPT.get(
                 language, self._TOPIC_CHECK_PROMPT.get(self._DEFAULT_LANGUAGE)
@@ -340,6 +352,47 @@ class MessageBuilder:
             )
             return [
                 {"role": "system", "content": topic_check_system_prompt},
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
+    @observe(name="MessageBuilder_build_unique_source_validation_prompt")
+    def build_unique_source_validation_prompt(
+        self, language: str, llm_model: str, query: str, source: Dict
+    ) -> List[Dict]:
+        """
+        Format the Unique Source Validation message to send to the appropriate LLM API.
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+            unique_source_validation_system_prompt = (
+                self._UNIQUE_SOURCE_VALIDATION_PROMPT.get(
+                    language,
+                    self._UNIQUE_SOURCE_VALIDATION_PROMPT.get(
+                        self._DEFAULT_LANGUAGE
+                    ),
+                )
+            )
+
+            unique_source_validation_system_prompt = (
+                unique_source_validation_system_prompt.format(
+                    query=query,
+                    source=source,
+                )
+            )
+            return [
+                {
+                    "role": "system",
+                    "content": unique_source_validation_system_prompt,
+                },
             ]
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
@@ -355,7 +408,11 @@ class MessageBuilder:
             llm_model
             in SUPPORTED_OPENAI_LLM_MODELS
             + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
             + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
         ):
 
             agent_handoff_system_prompt = self._AGENT_HANDOFF_PROMPT.get(
@@ -382,7 +439,11 @@ class MessageBuilder:
             llm_model
             in SUPPORTED_OPENAI_LLM_MODELS
             + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
             + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
         ):
             pension_function_calling_system_prompt = (
                 self._PENSION_FUNCTION_CALLING_PROMPT.get(
@@ -418,7 +479,11 @@ class MessageBuilder:
             llm_model
             in SUPPORTED_OPENAI_LLM_MODELS
             + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
             + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
         ):
             query_rewriting_system_prompt = self._QUERY_REWRITING_PROMPT.get(
                 language,
@@ -447,7 +512,11 @@ class MessageBuilder:
             llm_model
             in SUPPORTED_OPENAI_LLM_MODELS
             + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
             + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
         ):
             contextual_compression_system_prompt = (
                 self._CONTEXTUAL_COMPRESSION_PROMPT.get(
