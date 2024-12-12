@@ -2,6 +2,10 @@ from typing import List
 from pydantic import BaseModel
 
 
+class TopicCheck(BaseModel):
+    on_topic: bool
+
+
 class FunctionCall(BaseModel):
     function_call: str
 
