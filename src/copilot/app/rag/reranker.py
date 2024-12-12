@@ -4,6 +4,8 @@ from config.clients_config import clientRerank
 
 from database.models import Document
 
+from langfuse.decorators import observe
+
 # Setup logging
 import logging
 
@@ -34,6 +36,7 @@ class Reranker:
         except Exception as e:
             logger.error(f"Reranker raised an exception: {e}")
 
+    @observe(name="rerank")
     async def rerank(
         self, query, documents: List[Document]
     ) -> Tuple[List[Document], List[int]]:
