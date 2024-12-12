@@ -458,6 +458,95 @@ Come vengono pagati gli assegni familiari dalla Cassa per gli assegni familiari 
 {query}"""
 
 
-SOURCE_VALIDATION_PROMPT_FR = """# Tâche
+MULTIPLE_SOURCE_VALIDATION_PROMPT_FR = """# Tâche
+Votre tâche consiste à valider les sources d'information pour répondre à la question posée par l'utilisateur. Vous devez vérifier la fiabilité et la pertinence des sources pour garantir la qualité de la réponse.
 
-"""
+# Format de réponse
+Répondez avec une liste d'indices numérotés pour chaque source d'information valide. Par exemple: [1, 3, 5] ou [] si aucune source n'est valide. L'indexation commence à 0 (comme en Python).
+
+# Note importante
+Il se peut qu'aucune source ne puisse être validée. Dans ce cas, veuillez répondre avec une liste vide ([]).
+Il se peut également que une ou plusieurs sources soient valides. Dans ce cas, veuillez répondre avec une liste d'indices correspondant à ces sources.
+
+# Exemples
+Question: Qu'est-ce qui change avec AVS 21?
+Sources:
+    0. Le 25 septembre 2022,le peuple et les cantons ont accepté la réforme AVS 21 et assuré ainsi un financement suffisant de l’AVS jusqu’à l’horizon 2030. La modification entrera en vigueur le 1er janvier 2024. La réforme comprenait deux objets : la modification de la loi sur l’assurance-vieillesse et survivants (LAVS) et l’arrêté fédéral sur le financement additionnel de l’AVS par le biais d’un relèvement de la TVA. Les deux objets étaient liés. Ainsi,le financement de l’AVS et le niveau des rentes seront garantis pour les prochaines années. L’âge de référence des femmes sera relevé à 65 ans,comme pour les hommes,le départ à la retraite sera flexibilisé et la TVA augmentera légèrement. La stabilisation de l’AVS comprend quatre mesures : \n\n• harmonisation de l’âge de la retraite (à l’avenir «âge de référence») des femmes et des hommes à 65 ans\n• mesures de compensation pour les femmes de la génération transitoire\n• retraite flexible dans l’AVS\n• financement additionnel par le relèvement de la TVA
+    1. Vous pouvez déterminer votre droit aux prestations de façon simple et rapide,grâce au calculateur de prestations complémentaires en ligne : www.ahv-iv.ch/r/calculateurpc\n\n Le calcul est effectué de façon tout à fait anonyme. Vos données ne sont pas enregistrées. Le résultat qui en ressort constitue une estimation provisoire fondée sur une méthode de calcul simplifiée. Il s’agit d’une estimation sans engagement,qui ne tient pas lieu de demande de prestation et n’implique aucun droit. Le calcul n’est valable que pour les personnes qui vivent à domicile. Si vous résidez dans un home,veuillez vous adresser à sa direction,qui vous fournira les renseignements appropriés au sujet des prestations complémentaires.
+Sources validées: [0]
+
+Question: Quand des prestations complémentaires sont-elles versées ?
+Sources:
+    0. Lorsque la rente AVS ne suffit pas. Les rentes AVS sont en principe destinées à couvrir les besoins vitaux d'un assuré. Lorsque ces ressources ne sont pas suffisantes pour assurer la subsistance des bénéficiaires de rentes AVS,ceux-ci peuvent prétendre à des prestations complémentaires (PC).\n\nLe versement d'une telle prestation dépend du revenu et de la fortune de chaque assuré. Les PC ne sont pas des prestations d'assistance mais constituent un droit que la personne assurée peut faire valoir en toute légitimité lorsque les conditions légales sont réunies.
+    1. La rente peut être anticipée ou ajournée. Anticipation de la rente : Femmes et hommes peuvent anticiper la perception de leur rente dès le premier jour du mois qui suit leur 63e anniversaire. Les femmes nées entre 1961 et 1969 pourront continuer à anticiper leur rente à 62 ans. Leur situation est régie par des dispositions transitoires spéciales. Pour plus d’informations à ce sujet,veuillez vous adresser à votre caisse de compensation. Durant la période d'anticipation,il n'existe pas de droit à une rente pour enfant. Ajournement de la rente : Les personnes qui ajournent leur retraite d'au moins un an et de cinq ans au maximum bénéficient d'une rente de vieilesse majorée d'une augmentation pendant toute la durée de leur retraite. Combinaison : Il est également possible de combiner l'anticipation et l'ajournement. Une partie de la rente de vieillesse peut être anticipée et une partie peut être ajournée une fois l'âge de référence atteint. Le montant de la réduction ou de la majoration de la rente est fixé selon le principe des calculs actuariels. Dans le cadre d'un couple,il est possible que l'un des conjoints anticipe son droit à la rente alors que l'autre l'ajourne.
+    2. Quand des prestations complémentaires sont-elles versées ? Lorsque la rente AVS ne suffit pas. Les rentes AVS sont en principe destinées à couvrir les besoins vitaux d'un assuré. Lorsque ces ressources ne sont pas suffisantes pour assurer la subsistance des bénéficiaires de rentes AVS,ceux-ci peuvent prétendre à des prestations complémentaires (PC).\n\nLe versement d'une telle prestation dépend du revenu et de la fortune de chaque assuré. Les PC ne sont pas des prestations d'assistance mais constituent un droit que la personne assurée peut faire valoir en toute légitimité lorsque les conditions légales sont réunies.
+    3. Si vous souhaitez vérifier que votre durée de cotisations ne présente pas de lacune ou que votre employeur a effectivement annoncé à la caisse de compensation les revenus sur lesquels vous avez cotisé, vous pouvez en tout temps demander par écrit un extrait de compte à une caisse de compensation ou sous www.avs-ai.ch. Il vous faut indiquer pour cela votre numéro AVS et votre adresse postale.
+Sources validées: [2]
+
+# Sources
+{sources}
+
+# Question
+{query}"""
+
+
+UNIQUE_SOURCE_VALIDATION_PROMPT_DE = """# Aufgabe
+Ihre Aufgabe ist es, die Informationsquelle zur Beantwortung der vom Nutzer gestellten Frage zu validieren. Sie müssen feststellen:
+- ob die Quelle relevant ist und die Informationen enthält, die zur Beantwortung der Frage notwendig sind.
+- ob die Quelle teilweise (enthält nicht alle notwendigen Informationen) oder vollständig ist.
+- den Grund für die Validierung der Quelle.
+
+# Format der Antwort
+UniqueSourceValidation(
+    is_partial: bool, # True, wenn die Quelle Teilinformationen enthält, False sonst.
+    is_valid: bool # True, wenn die Quelle gültig ist, False sonst.
+    reason: str # Begründung für die Validierung der Quelle (ein kurzer Satz)
+)
+
+# Quelle
+{source}
+
+# Frage
+{query}"""
+
+
+UNIQUE_SOURCE_VALIDATION_PROMPT_FR = """# Tâche
+Votre tâche consiste à valider la source d'information pour répondre à la question posée par l'utilisateur. Vous devez déterminer :
+- si la source est pertinente et contient l'information nécessaire pour répondre à la question.
+- si la source est partielle (ne contient pas toutes les informations nécessaires) ou complète.
+- la raison de la validation de la source.
+
+Soyez extrêmement strict dans votre validation.
+
+# Format de réponse
+UniqueSourceValidation(
+    is_partial: bool, # True si la source contient des informations partielles, False sinon
+    is_valid: bool # True si la source est valide, False sinon
+    reason: str # Raison de la validation de la source (une phrase courte)
+)
+
+# Source
+{source}
+
+# Question
+{query}"""
+
+
+UNIQUE_SOURCE_VALIDATION_PROMPT_IT = """## Compito
+Il vostro compito è quello di convalidare la fonte delle informazioni per rispondere alla domanda posta dall'utente. Dovete determinare se:
+- se la fonte è pertinente e contiene le informazioni necessarie per rispondere alla domanda.
+- se la fonte è parziale (non contiene tutte le informazioni necessarie) o completa.
+- il motivo della convalida della fonte.
+
+# Formato della risposta
+UniqueSourceValidation(
+    is_partial: bool, # True se la fonte contiene informazioni parziali, False altrimenti
+    is_valid: bool # True se la fonte è valida, False altrimenti
+    reason: str # Motivo della convalida della fonte (una breve frase)
+)
+
+# Fonte
+{source}
+
+# Domanda
+{query}"""
