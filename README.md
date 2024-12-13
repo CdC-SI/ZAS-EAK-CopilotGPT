@@ -34,6 +34,7 @@ For more in-depth procedures and examples, see:
 
 ### Version 0.3.0
 
+- Ollama OS LLMs
 - Agentic RAG
 - Source validation
 - Topic Check
