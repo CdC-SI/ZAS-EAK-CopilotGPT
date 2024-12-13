@@ -42,7 +42,14 @@ class RetrieverClient(BaseRetriever):
 
     @observe(name="RetrieverClient")
     async def get_documents(
-        self, db, query, k, language=None, tags=None, source=None, **kwargs
+        self,
+        db,
+        query,
+        k_retrieve,
+        language=None,
+        tags=None,
+        source=None,
+        **kwargs
     ) -> List[Document]:
         """
         Retrieve documents using multiple retrievers in parallel, optionally rerank retrieved documents if a reranker is defined.
@@ -58,7 +65,13 @@ class RetrieverClient(BaseRetriever):
         tasks = [
             asyncio.create_task(
                 retriever.get_documents(
-                    db, query, k, language, tags, source, **kwargs
+                    db=db,
+                    query=query,
+                    k=k_retrieve,
+                    language=language,
+                    tags=tags,
+                    source=source,
+                    **kwargs
                 )
             )
             for retriever in self.retrievers
@@ -85,11 +98,13 @@ class RetrieverClient(BaseRetriever):
 
         # Rerank the documents and get the top-k
         if unique_docs and self.reranker:
-            unique_docs, _ = await self.reranker.rerank(query, unique_docs)
+            unique_docs, _ = await self.reranker.rerank(
+                query, unique_docs, k_retrieve
+            )
 
-        logger.info("Retrieved %d documents", len(unique_docs[:k]))
+        logger.info("Retrieved %d documents", len(unique_docs[:k_retrieve]))
 
-        return unique_docs[:k]
+        return unique_docs[:k_retrieve]
 
 
 class TopKRetriever(BaseRetriever):

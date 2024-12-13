@@ -24,7 +24,7 @@ class RetrieverFactory:
 
     @staticmethod
     def get_retriever_client(
-        retrieval_method: str,
+        retrieval_method: str = rag_config["retrieval"]["retrieval_method"],
         llm_client: BaseLLM = None,
         message_builder: MessageBuilder = None,
     ) -> BaseRetriever:
@@ -124,9 +124,6 @@ class RetrieverFactory:
                         Reranker(
                             model=rag_config["retrieval"]["reranking_params"][
                                 "model"
-                            ],
-                            top_k=rag_config["retrieval"]["reranking_params"][
-                                "top_k"
                             ],
                         )
                         if clientRerank is not None
