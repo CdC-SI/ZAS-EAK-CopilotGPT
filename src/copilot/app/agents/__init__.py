@@ -1,8 +1,8 @@
-from .agents import PensionAgent
-from .agents import RAGAgent
-from .agents import FollowUpAgent
-from .agents import FAK_EAK_Agent
-from .agents import SourceValidatorAgent
+from agents.agents import PensionAgent
+from agents.agents import RAGAgent
+from agents.agents import FollowUpAgent
+from agents.agents import FAK_EAK_Agent
+from agents.agents import SourceValidatorAgent
 
 __all__ = [
     "PensionAgent",

@@ -5,9 +5,9 @@ import asyncio
 from asyncio import Semaphore
 from collections.abc import AsyncIterator
 
-from .function_metadata import extract_function_metadata
-from .functions import determine_reduction_rate_and_supplement
-from .function_executor import FunctionExecutor
+from agents.function_metadata import extract_function_metadata
+from agents.functions import determine_reduction_rate_and_supplement
+from agents.function_executor import FunctionExecutor
 from chat.messages import MessageBuilder
 from llm.base import BaseLLM
 from prompts.agents import (
@@ -16,7 +16,7 @@ from prompts.agents import (
     RAG_FOLLOWUP_AGENT_PROMPT_IT,
 )
 from schemas.agents import FunctionCall, UniqueSourceValidation
-from .response_service import calculation_response_service
+from agents.response_service import calculation_response_service
 from utils.streaming import Token
 from chat.status_service import status_service, StatusType
 
