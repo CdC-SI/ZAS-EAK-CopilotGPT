@@ -181,4 +181,4 @@ async def get_project_version() -> List[str]:
     #     "release_date": ProjectConfig.RELEASE_DATE.value,
     # }
     # return [project_version]
-    return [ProjectConfig.PYTHON_PROJECT_VERSION]
+    return [ProjectConfig.PYTHON_PROJECT_VERSION.value]
