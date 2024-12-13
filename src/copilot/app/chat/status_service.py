@@ -72,9 +72,6 @@ class StatusMessageService:
         return message
 
 
-status_service = StatusMessageService()
-
-
 class LoginMessageService:
     """Service for handling login messages in different languages"""
 
@@ -155,5 +152,6 @@ class TopicCheckService:
             return
 
 
+status_service = StatusMessageService()
 login_message_service = LoginMessageService()
 topic_check_service = TopicCheckService()
