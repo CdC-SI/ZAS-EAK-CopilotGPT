@@ -2,4 +2,4 @@ from enum import Enum
 
 
 class ProjectConfig(Enum):
-    VERSION = "0.3.0"
+    PYTHON_PROJECT_VERSION = "0.3.0"

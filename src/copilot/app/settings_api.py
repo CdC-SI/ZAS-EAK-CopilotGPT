@@ -175,4 +175,4 @@ async def get_project_version() -> List:
     """
     Endpoint to get project version.
     """
-    return [ProjectConfig.VERSION.value]
+    return [ProjectConfig.PYTHON_PROJECT_VERSION.value]
