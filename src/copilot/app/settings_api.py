@@ -1,10 +1,12 @@
 import os
 from dotenv import load_dotenv
 import logging
-
+from typing import List
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
+
+from config.project_config import ProjectConfig
 from config.network_config import CORS_ALLOWED_ORIGINS
 from database.database import get_db
 from database.models import Source, Document
@@ -46,7 +48,7 @@ app.add_middleware(
     response_description="Return a list of sources",
     status_code=200,
 )
-async def get_sources(db: Session = Depends(get_db)):
+async def get_sources(db: Session = Depends(get_db)) -> List:
     """
     Endpoint to get all sources from 'source' table in postgres.
     """
@@ -55,7 +57,7 @@ async def get_sources(db: Session = Depends(get_db)):
 
 
 @app.get("/tags")
-async def get_tags(db: Session = Depends(get_db)):
+async def get_tags(db: Session = Depends(get_db)) -> List:
     """Get all unique tags from document table."""
     unique_tags = (
         db.query(Document.tags)
@@ -76,7 +78,7 @@ async def get_tags(db: Session = Depends(get_db)):
     response_description="Return a list of llm models",
     status_code=200,
 )
-async def get_llm_models():
+async def get_llm_models() -> List:
     """
     Endpoint to get all supported llm_models from config.
     """
@@ -106,7 +108,7 @@ async def get_llm_models():
     response_description="Return a list of retrieval methods",
     status_code=200,
 )
-async def get_retrieval_methods():
+async def get_retrieval_methods() -> List:
     """
     Endpoint to get all supported retrieval methods.
     """
@@ -127,7 +129,7 @@ async def get_retrieval_methods():
     response_description="Return a list of response styles",
     status_code=200,
 )
-async def get_response_style():
+async def get_response_style() -> List:
     """
     Endpoint to get all supported response_styles.
     """
@@ -141,7 +143,7 @@ async def get_response_style():
     response_description="Return a list of response formats",
     status_code=200,
 )
-async def get_response_format():
+async def get_response_format() -> List:
     """
     Endpoint to get all supported response_formats.
     """
@@ -155,9 +157,22 @@ async def get_response_format():
     response_description="Return a list of authorized commands",
     status_code=200,
 )
-async def get_authorized_commands():
+async def get_authorized_commands() -> List:
     """
     Endpoint to get all supported authorized commands.
     """
     authorized_commands = ["/summarize", "/translate"]
     return authorized_commands
+
+
+@app.get(
+    "/project_version",
+    summary="Get project version",
+    response_description="Return project version",
+    status_code=200,
+)
+async def get_project_version() -> List:
+    """
+    Endpoint to get project version.
+    """
+    return [ProjectConfig.VERSION.value]
