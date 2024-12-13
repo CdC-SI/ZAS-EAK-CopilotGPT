@@ -27,11 +27,23 @@ For more in-depth procedures and examples, see:
 - Livingdocs Adapter
 - Confluence Adapter
 - Local Private Embeddings
-- Agentic RAG
 - GraphRAG
 - RAPTOR
 - Optimized Indexing Pipeline
 - Anonymization/De-Anonymization Module
+
+### Version 0.3.0
+
+- Agentic RAG
+- Source validation
+- Topic Check
+- Commands
+    - `/summarize`
+    - `/translate`
+
+### Version 0.2.0
+
+- `llama.cpp` OS models
 
 ### Version 0.1.0
 
@@ -41,9 +53,7 @@ For more in-depth procedures and examples, see:
 - Chat History
 - Autocomplete
 - Optimized RAG
-- Commands
-    - `/summarize`
-    - `/translate`
+
 - Survey Pipeline
 - Local Private LLM
     - `llama.cpp` (all compatible models eg. HuggingFace)
