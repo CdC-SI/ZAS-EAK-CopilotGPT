@@ -6,7 +6,7 @@ from asyncio import Semaphore
 from collections.abc import AsyncIterator
 
 from agents.function_metadata import extract_function_metadata
-from agents.functions import determine_reduction_rate_and_supplement
+from agents.tools import determine_reduction_rate_and_supplement
 from agents.function_executor import FunctionExecutor
 from chat.messages import MessageBuilder
 from llm.base import BaseLLM
