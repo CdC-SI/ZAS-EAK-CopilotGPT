@@ -171,8 +171,14 @@ async def get_authorized_commands() -> List:
     response_description="Return project version",
     status_code=200,
 )
-async def get_project_version() -> List:
+async def get_project_version() -> List[str]:
     """
     Endpoint to get project version.
     """
-    return [ProjectConfig.PYTHON_PROJECT_VERSION.value]
+    # project_version = {
+    #     "version": ProjectConfig.PYTHON_PROJECT_VERSION.value,
+    #     "repository_url": ProjectConfig.REPOSITORY_URL.value,
+    #     "release_date": ProjectConfig.RELEASE_DATE.value,
+    # }
+    # return [project_version]
+    return [ProjectConfig.PYTHON_PROJECT_VERSION]
