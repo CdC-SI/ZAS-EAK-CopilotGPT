@@ -213,7 +213,9 @@ class RAGService:
 
         # TO DO: update this
         sources["documents"] = validated_docs
-        sources["source_url"] = validated_sources[0]
+        sources["source_url"] = (
+            validated_sources[0] if validated_sources else None
+        )
 
     @observe()
     async def process_agentic_rag(
