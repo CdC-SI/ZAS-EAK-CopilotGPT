@@ -496,6 +496,8 @@ Ihre Aufgabe ist es, die Informationsquelle zur Beantwortung der vom Nutzer gest
 - ob die Quelle teilweise (enthält nicht alle notwendigen Informationen) oder vollständig ist.
 - den Grund für die Validierung der Quelle.
 
+Seien Sie bei der Validierung äußerst streng. Validieren Sie eine Quelle nur, wenn Sie genaue Passagen aus der Quelle zitieren könnten, um die Frage zu beantworten.
+
 # Format der Antwort
 UniqueSourceValidation(
     is_partial: bool, # True, wenn die Quelle Teilinformationen enthält, False sonst.
@@ -516,7 +518,7 @@ Votre tâche consiste à valider la source d'information pour répondre à la qu
 - si la source est partielle (ne contient pas toutes les informations nécessaires) ou complète.
 - la raison de la validation de la source.
 
-Soyez extrêmement strict dans votre validation.
+Soyez extrêmement strict dans votre validation. Validez une source seulement si vous pourriez citer des passages exacts de la source pour répondre à la question.
 
 # Format de réponse
 UniqueSourceValidation(
@@ -537,6 +539,8 @@ Il vostro compito è quello di convalidare la fonte delle informazioni per rispo
 - se la fonte è pertinente e contiene le informazioni necessarie per rispondere alla domanda.
 - se la fonte è parziale (non contiene tutte le informazioni necessarie) o completa.
 - il motivo della convalida della fonte.
+
+Siate estremamente rigorosi nella convalida. Convalidate una fonte solo se potete citarne i passaggi esatti per rispondere alla domanda.
 
 # Formato della risposta
 UniqueSourceValidation(
