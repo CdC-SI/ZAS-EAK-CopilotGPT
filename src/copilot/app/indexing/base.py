@@ -296,7 +296,13 @@ class BaseIndexer(ABC):
         """
 
     async def add_content_to_db(
-        self, db: Session, content: List[Any], source: str, embed: bool
+        self,
+        db: Session,
+        content: List[Any],
+        source: str,
+        user_uuid: str,
+        language: str,
+        embed: bool,
     ):
         """
         Add content to the database.
@@ -309,8 +315,12 @@ class BaseIndexer(ABC):
             Content to add to the database.
         source : str
             The source of the content.
+        user_uuid : str
+            The UUID of the user who added the content.
+        language: str
+            Language of the content.
         embed : bool
-            Whether to embed the content
+            Whether to embed the content.
 
         Returns
         -------
@@ -329,6 +339,8 @@ class BaseIndexer(ABC):
         # Split documents into chunks
         chunks = self.parser.split_documents(documents["documents"])
 
+        user_uuid = user_uuid if user_uuid else None
+
         # TO DO: refactor embedding logic to embed from documents (add from_documents method)
         # Upsert documents into VectorDB
         for doc in chunks["documents"]:
@@ -337,7 +349,13 @@ class BaseIndexer(ABC):
             url = doc.meta["url"] if "url" in doc.meta else source
             await document_service.upsert(
                 db,
-                DocumentCreate(url=url, text=text, source=source),
+                DocumentCreate(
+                    url=url,
+                    text=text,
+                    source=source,
+                    user_uuid=user_uuid,
+                    language=language,
+                ),
                 embed=embed,
             )
 

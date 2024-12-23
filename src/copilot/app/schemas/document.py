@@ -14,6 +14,12 @@ class DocumentBase(BaseModel):
     tags: Optional[List[str]] = None
     """Tags of the document text"""
 
+    organization: Optional[str] = None
+    """Organization to which the document belongs"""
+
+    user_uuid: Optional[str] = None
+    """UUID of the user who added the document"""
+
     text: str
     """Content of the document"""
 

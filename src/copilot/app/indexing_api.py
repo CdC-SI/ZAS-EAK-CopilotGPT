@@ -129,6 +129,7 @@ async def upload_csv_rag(
     embedding_column = "embedding" in data.fieldnames
     language_column = "language" in data.fieldnames
     tags_column = "tags" in data.fieldnames
+    organization_column = "organization" in data.fieldnames
 
     logger.info("Start adding data to database...")
     i = 0
@@ -142,6 +143,11 @@ async def upload_csv_rag(
             if tags_column and row["tags"]
             else None
         )
+        organization = (
+            row["organization"]
+            if organization_column and row["organization"]
+            else None
+        )
         document = DocumentCreate(
             url=row["url"],
             text=row["text"],
@@ -149,6 +155,7 @@ async def upload_csv_rag(
             source=file.filename,
             language=language,
             tags=tags,
+            organization=organization,
         )
         await document_service.upsert(db, document, embed=embed)
         i += 1
@@ -236,6 +243,8 @@ async def upload_csv_faq(
 async def upload_pdf_rag(
     files: List[UploadFile] = File(..., description="PDF files only"),
     embed: bool = False,
+    user_uuid: str = None,
+    language: str = "de",
     db: Session = Depends(get_db),
 ):
     """
@@ -247,6 +256,8 @@ async def upload_pdf_rag(
         The PDF file sent by the user
     embed : bool, optional
         Whether to embed the data or not. Defaults to False.
+    user_uuid : str, optional
+        UUID of the user who uploaded the file
     db : Session
         Database session
 
@@ -272,6 +283,8 @@ async def upload_pdf_rag(
             db,
             content=[Path(temp_filename)],
             source=file.filename,
+            user_uuid=user_uuid,
+            language=language,
             embed=embed,
         )
         uploaded_files.append(file.filename)
@@ -325,6 +338,7 @@ def add_rag_data_from_csv(
         embedding_column = "embedding" in data.fieldnames
         language_column = "language" in data.fieldnames
         tags_column = "tags" in data.fieldnames
+        organization_column = "organization" in data.fieldnames
 
         i = 0
         for row in data:
@@ -339,6 +353,7 @@ def add_rag_data_from_csv(
                 if tags_column and row["tags"]
                 else None
             )
+            organization = row["organization"] if organization_column else None
 
             document = DocumentCreate(
                 url=row["url"],
@@ -347,6 +362,7 @@ def add_rag_data_from_csv(
                 source=file_path,
                 language=language,
                 tags=tags,
+                organization=organization,
             )
             document_service.upsert(db, document, embed=embed)
             i += 1

@@ -23,7 +23,16 @@ logger = logging.getLogger(__name__)
 class BaseRetriever(ABC):
     @abstractmethod
     def get_documents(
-        self, db, query, k, language=None, tags=None, source=None, **kwargs
+        self,
+        db,
+        query,
+        k,
+        language=None,
+        tags=None,
+        source=None,
+        organization=None,
+        user_uuid=None,
+        **kwargs
     ) -> List[Document]:
         pass
 
@@ -49,6 +58,8 @@ class RetrieverClient(BaseRetriever):
         language=None,
         tags=None,
         source=None,
+        organization=None,
+        user_uuid=None,
         **kwargs
     ) -> List[Document]:
         """
@@ -71,6 +82,8 @@ class RetrieverClient(BaseRetriever):
                     language=language,
                     tags=tags,
                     source=source,
+                    organization=organization,
+                    user_uuid=user_uuid,
                     **kwargs
                 )
             )
@@ -117,14 +130,30 @@ class TopKRetriever(BaseRetriever):
 
     @observe(name="TopKRetriever_get_documents")
     async def get_documents(
-        self, db, query, k, language=None, tags=None, source=None, **kwargs
+        self,
+        db,
+        query,
+        k,
+        language=None,
+        tags=None,
+        source=None,
+        organization=None,
+        user_uuid=None,
+        **kwargs
     ) -> List[Document]:
         """
         Retrieves the top k documents that semantically match the given query.
         Ignores any extra kwargs not needed by this retriever.
         """
         docs = await document_service.get_semantic_match(
-            db, query, language=language, tags=tags, source=source, k=k
+            db,
+            query,
+            language=language,
+            tags=tags,
+            source=source,
+            organization=organization,
+            user_uuid=user_uuid,
+            k=k,
         )
         return docs[: self.top_k]
 
@@ -159,7 +188,16 @@ class QueryRewritingRetriever(BaseRetriever):
 
     @observe(name="QueryRewritingRetriever_get_documents")
     async def get_documents(
-        self, db, query, k, language=None, tags=None, source=None, **kwargs
+        self,
+        db,
+        query,
+        k,
+        language=None,
+        tags=None,
+        source=None,
+        organization=None,
+        user_uuid=None,
+        **kwargs
     ) -> List[Document]:
         """
         Retrieves the top k documents that semantically match the given original + rewritten queries.
@@ -172,7 +210,14 @@ class QueryRewritingRetriever(BaseRetriever):
         # Execute all semantic matching operations concurrently
         tasks = [
             document_service.get_semantic_match(
-                db, query, language=language, tags=tags, source=source, k=k
+                db,
+                query,
+                language=language,
+                tags=tags,
+                source=source,
+                organization=organization,
+                user_uuid=user_uuid,
+                k=k,
             )
             for query in rewritten_queries
         ]
@@ -230,7 +275,16 @@ class ContextualCompressionRetriever(BaseRetriever):
 
     @observe(name="ContextualCompressionRetriever_get_documents")
     async def get_documents(
-        self, db, query, k, language=None, tags=None, source=None, **kwargs
+        self,
+        db,
+        query,
+        k,
+        language=None,
+        tags=None,
+        source=None,
+        organization=None,
+        user_uuid=None,
+        **kwargs
     ) -> List[Document]:
         """
         Retrieves the top k documents that semantically match the given query, then applies contextual compression.
@@ -238,7 +292,14 @@ class ContextualCompressionRetriever(BaseRetriever):
         llm_model = kwargs.get("llm_model", "gpt-4o-mini")
 
         docs = await document_service.get_semantic_match(
-            db, query, language=language, tags=tags, source=source, k=k
+            db,
+            query,
+            language=language,
+            tags=tags,
+            source=source,
+            organization=organization,
+            user_uuid=user_uuid,
+            k=k,
         )
 
         # Compress the documents asynchronously
@@ -299,7 +360,16 @@ class RAGFusionRetriever(QueryRewritingRetriever):
 
     @observe(name="RAGFusionRetriever_get_documents")
     async def get_documents(
-        self, db, query, k, language=None, tags=None, source=None, **kwargs
+        self,
+        db,
+        query,
+        k,
+        language=None,
+        tags=None,
+        source=None,
+        organization=None,
+        user_uuid=None,
+        **kwargs
     ) -> List[Document]:
 
         llm_model = kwargs.get("llm_model", "gpt-4o-mini")
@@ -311,7 +381,14 @@ class RAGFusionRetriever(QueryRewritingRetriever):
         docs = []
         for query in rewritten_queries:
             query_docs = await document_service.get_semantic_match(
-                db, query, language=language, tags=tags, source=source, k=k
+                db,
+                query,
+                language=language,
+                tags=tags,
+                source=source,
+                organization=organization,
+                user_uuid=user_uuid,
+                k=k,
             )
             docs.append(query_docs)
 
@@ -351,7 +428,16 @@ class BM25Retriever(BaseRetriever):
 
     @observe(name="BM25Retriever_get_documents")
     async def get_documents(
-        self, db, query, k, language=None, tags=None, source=None, **kwargs
+        self,
+        db,
+        query,
+        k,
+        language=None,
+        tags=None,
+        source=None,
+        organization=None,
+        user_uuid=None,
+        **kwargs
     ) -> List[Document]:
         """
         Retrieves the top k documents for a given query and language.

@@ -25,6 +25,8 @@ class DocumentService(MatchingService):
             language=obj_in.language,
             text=obj_in.text,
             tags=obj_in.tags,
+            organization=obj_in.organization,
+            user_uuid=obj_in.user_uuid,
             embedding=obj_in.embedding,
             source=source,
             source_id=source.id,

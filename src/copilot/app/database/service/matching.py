@@ -145,6 +145,8 @@ class MatchingService(EmbeddingService):
         symbol: str = "<=>",
         tags: List[str] = None,
         source: List[str] = None,
+        organization: str = None,
+        user_uuid: str = None,
     ):
         """
         Get semantic similarity match from database
@@ -164,6 +166,10 @@ class MatchingService(EmbeddingService):
             Filter by tags
         source : List[str], optional
             Filter by source
+        organization : str, optional
+            Filter by organization
+        user_uuid : str, optional
+            Filter by user_uuid
 
         Returns
         -------
@@ -178,7 +184,28 @@ class MatchingService(EmbeddingService):
             stmt = stmt.filter(self.model.language == language)
         if tags:
             stmt = stmt.filter(self.model.tags.op("&&")(tags))
-
+        if organization:
+            docs_with_org = select(self.model.id).where(
+                self.model.organization == organization
+            )
+            docs_without_org = select(self.model.id).where(
+                self.model.organization.is_(None)
+            )
+            stmt = stmt.filter(
+                self.model.id.in_(docs_with_org.union(docs_without_org))
+            )
+        else:
+            stmt = stmt.filter(self.model.organization.is_(None))
+        if user_uuid:
+            docs_with_uuid = select(self.model.id).where(
+                self.model.user_uuid == user_uuid
+            )
+            docs_without_uuid = select(self.model.id).where(
+                self.model.user_uuid.is_(None)
+            )
+            stmt = stmt.filter(
+                self.model.id.in_(docs_with_uuid.union(docs_without_uuid))
+            )
         if source:
             stmt = stmt.join(self.model.source).filter(Source.url.in_(source))
             stmt = stmt.options(joinedload(self.model.source))

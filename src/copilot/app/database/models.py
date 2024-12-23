@@ -30,6 +30,8 @@ class EmbeddedMixin:
         ARRAY(String), nullable=True
     )
     url: Mapped[str] = mapped_column(Text, nullable=False)
+    organization: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    user_uuid: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
     modified_at: Mapped[DateTime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now()
