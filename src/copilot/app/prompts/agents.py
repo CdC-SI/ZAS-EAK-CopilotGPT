@@ -498,12 +498,17 @@ Ihre Aufgabe ist es, die Informationsquelle zur Beantwortung der vom Nutzer gest
 
 Seien Sie bei der Validierung äußerst streng. Validieren Sie eine Quelle nur, wenn Sie genaue Passagen aus der Quelle zitieren könnten, um die Frage zu beantworten.
 
+Sie können auch die mit der Quelle verbundenen Themen konsultieren, um bei der Validierung der Quelle zu helfen, aber Ihre Entscheidung sollte sich hauptsächlich auf den Inhalt der Quelle selbst stützen.
+
 # Format der Antwort
 UniqueSourceValidation(
     is_partial: bool, # True, wenn die Quelle Teilinformationen enthält, False sonst.
     is_valid: bool # True, wenn die Quelle gültig ist, False sonst.
     reason: str # Begründung für die Validierung der Quelle (ein kurzer Satz)
 )
+
+# Themen
+{tags}
 
 # Quelle
 {source}
@@ -520,17 +525,22 @@ Votre tâche consiste à valider la source d'information pour répondre à la qu
 
 Soyez extrêmement strict dans votre validation. Validez une source seulement si vous pourriez citer des passages exacts de la source pour répondre à la question.
 
-# Format de réponse
+Vous pouvez également consulter les sujets associés à la source pour aider à valider la source, mais votre décision doit principalement reposer sur le contenu de la source elle-même.
+
+# Format de réponse
 UniqueSourceValidation(
     is_partial: bool, # True si la source contient des informations partielles, False sinon
     is_valid: bool # True si la source est valide, False sinon
     reason: str # Raison de la validation de la source (une phrase courte)
 )
 
+# Sujets
+{tags}
+
 # Source
 {source}
 
-# Question
+# Question
 {query}"""
 
 
@@ -542,12 +552,17 @@ Il vostro compito è quello di convalidare la fonte delle informazioni per rispo
 
 Siate estremamente rigorosi nella convalida. Convalidate una fonte solo se potete citarne i passaggi esatti per rispondere alla domanda.
 
+Per convalidare la fonte si possono anche consultare gli argomenti ad essa associati, ma la decisione deve basarsi principalmente sul contenuto della fonte stessa.
+
 # Formato della risposta
 UniqueSourceValidation(
     is_partial: bool, # True se la fonte contiene informazioni parziali, False altrimenti
     is_valid: bool # True se la fonte è valida, False altrimenti
     reason: str # Motivo della convalida della fonte (una breve frase)
 )
+
+# Argomenti
+{tags}
 
 # Fonte
 {source}
