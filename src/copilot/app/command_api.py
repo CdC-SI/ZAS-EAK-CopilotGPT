@@ -1,5 +1,4 @@
 import logging
-import re
 from pydantic import BaseModel
 
 from fastapi import FastAPI
@@ -43,7 +42,34 @@ class CommandRequest(BaseModel):
     input_text: str
 
 
-@app.post("/")
+# @app.post("/")
+# async def advanced_command(request: CommandRequest):
+#     input_text = request.input_text.strip()
+#     response = {"command_recognized": False}
+
+#     # Regular expression pattern for commands
+#     pattern = r"^/(\w+)(?:\s+(.*))?$"
+#     match = re.match(pattern, input_text)
+
+#     if match:
+#         cmd_name = f"/{match.group(1)}"
+#         parameters = match.group(2)  # Optional parameters
+#         if cmd_name in COMMANDS:
+#             response["command_recognized"] = True
+#             response["command"] = cmd_name
+#             # response['action'] = COMMANDS[cmd_name]['action']
+#             if parameters:
+#                 response["parameters"] = parameters
+#     return JSONResponse(content=response)
+
+
+@app.get("/")
+async def get_commands():
+    """Get all available commands and their metadata."""
+    return {"commands": COMMANDS}
+
+
+@app.post("/test")
 async def command(request: CommandRequest):
     input_text = request.input_text.strip()
     response = {"command_recognized": False}
@@ -55,25 +81,4 @@ async def command(request: CommandRequest):
             # response['action'] = action['action']
             break
 
-    return JSONResponse(content=response)
-
-
-@app.post("/advanced")
-async def advanced_command(request: CommandRequest):
-    input_text = request.input_text.strip()
-    response = {"command_recognized": False}
-
-    # Regular expression pattern for commands
-    pattern = r"^/(\w+)(?:\s+(.*))?$"
-    match = re.match(pattern, input_text)
-
-    if match:
-        cmd_name = f"/{match.group(1)}"
-        parameters = match.group(2)  # Optional parameters
-        if cmd_name in COMMANDS:
-            response["command_recognized"] = True
-            response["command"] = cmd_name
-            # response['action'] = COMMANDS[cmd_name]['action']
-            if parameters:
-                response["parameters"] = parameters
     return JSONResponse(content=response)
