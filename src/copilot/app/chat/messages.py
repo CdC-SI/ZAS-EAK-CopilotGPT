@@ -234,6 +234,48 @@ class MessageBuilder:
         """
         Format the RAG message to send to the appropriate LLM API.
         """
+
+        rag_system_prompt = self._RAG_SYSTEM_PROMPT.get(
+            language, self._RAG_SYSTEM_PROMPT.get(self._DEFAULT_LANGUAGE)
+        )
+
+        completeness = self._COMPLETENESS.get(
+            response_format,
+            self._COMPLETENESS.get(self._DEFAULT_COMPLETENESS),
+        ).get(
+            language,
+            self._COMPLETENESS.get(self._DEFAULT_COMPLETENESS).get(
+                self._DEFAULT_LANGUAGE
+            ),
+        )
+
+        rules = self._RULES.get(
+            response_style, self._RULES.get(self._DEFAULT_RULE)
+        ).get(
+            language,
+            self._RULES.get(self._DEFAULT_RULE).get(self._DEFAULT_LANGUAGE),
+        )
+
+        response_format = self._RESPONSE_FORMAT.get(
+            response_style, self._RESPONSE_FORMAT.get(self._DEFAULT_STYLE)
+        ).get(
+            language,
+            self._RESPONSE_FORMAT.get(self._DEFAULT_STYLE).get(
+                self._DEFAULT_LANGUAGE
+            ),
+        )
+
+        response_format = response_format.format(
+            completeness=completeness,
+            rules=rules,
+        )
+
+        rag_system_prompt = rag_system_prompt.format(
+            context_docs=context_docs,
+            conversational_memory=conversational_memory,
+            response_format=response_format,
+        )
+
         if (
             llm_model
             in SUPPORTED_OPENAI_LLM_MODELS
@@ -244,49 +286,6 @@ class MessageBuilder:
             + SUPPORTED_MLX_LLM_MODELS
             + SUPPORTED_LLAMACPP_LLM_MODELS
         ):
-
-            rag_system_prompt = self._RAG_SYSTEM_PROMPT.get(
-                language, self._RAG_SYSTEM_PROMPT.get(self._DEFAULT_LANGUAGE)
-            )
-
-            completeness = self._COMPLETENESS.get(
-                response_format,
-                self._COMPLETENESS.get(self._DEFAULT_COMPLETENESS),
-            ).get(
-                language,
-                self._COMPLETENESS.get(self._DEFAULT_COMPLETENESS).get(
-                    self._DEFAULT_LANGUAGE
-                ),
-            )
-
-            rules = self._RULES.get(
-                response_style, self._RULES.get(self._DEFAULT_RULE)
-            ).get(
-                language,
-                self._RULES.get(self._DEFAULT_RULE).get(
-                    self._DEFAULT_LANGUAGE
-                ),
-            )
-
-            response_format = self._RESPONSE_FORMAT.get(
-                response_style, self._RESPONSE_FORMAT.get(self._DEFAULT_STYLE)
-            ).get(
-                language,
-                self._RESPONSE_FORMAT.get(self._DEFAULT_STYLE).get(
-                    self._DEFAULT_LANGUAGE
-                ),
-            )
-
-            response_format = response_format.format(
-                completeness=completeness,
-                rules=rules,
-            )
-
-            rag_system_prompt = rag_system_prompt.format(
-                context_docs=context_docs,
-                conversational_memory=conversational_memory,
-                response_format=response_format,
-            )
             return [
                 {"role": "system", "content": rag_system_prompt},
                 {"role": "user", "content": query},
@@ -385,7 +384,8 @@ class MessageBuilder:
             unique_source_validation_system_prompt = (
                 unique_source_validation_system_prompt.format(
                     query=query,
-                    source=source,
+                    tags=source.get("tags"),
+                    source=source.get("text"),
                 )
             )
             return [
