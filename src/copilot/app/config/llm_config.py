@@ -45,16 +45,6 @@ SUPPORTED_GROQ_LLM_MODELS = [
 ]
 DEFAULT_GROQ_LLM_MODEL = "llama-3.1-8b-instant"
 
-# Open Source
-SUPPORTED_MLX_LLM_MODELS = [
-    "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX"
-]
-DEFAULT_MLX_LLM_MODEL = "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX"
-
-# Huggingface
-SUPPORTED_HUGGINGFACE_LLM_MODELS = []
-DEFAULT_HUGGINGFACE_LLM_MODEL = ""
-
 # mlx
 SUPPORTED_MLX_LLM_MODELS = [
     "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX"
@@ -71,7 +61,10 @@ DEFAULT_OLLAMA_LLM_MODEL = "ollama/llama3.2:1b"
 
 # Embedding models
 # OpenAI
-SUPPORTED_OPENAI_EMBEDDING_MODELS = ["text-embedding-ada-002"]
+SUPPORTED_OPENAI_EMBEDDING_MODELS = [
+    "text-embedding-ada-002",
+    "text-embedding-3-small",
+]
 DEFAULT_OPENAI_EMBEDDING_MODEL = "text-embedding-ada-002"
 
 # OpenAI
