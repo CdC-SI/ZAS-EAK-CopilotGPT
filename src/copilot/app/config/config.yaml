@@ -40,16 +40,17 @@ rag:
     reranking_params:
       model: rerank-multilingual-v3.0
       top_k: 5
-    top_k: 10
+    top_k: 5
     metric: cosine_similarity
   llm:
-    model: gpt-4o-2024-05-13
+    model: gpt-4o-mini
     temperature: 0
     max_output_tokens: 4096
     top_p: 0.95
     stream: true
 chat:
   topic_check: true
+  source_validation: false
   memory:
     memory_type: "buffer"
     k_memory: 5
