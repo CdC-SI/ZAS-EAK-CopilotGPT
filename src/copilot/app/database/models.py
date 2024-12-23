@@ -199,6 +199,21 @@ class ChatFeedback(Base):
     )
 
 
+# class TokenUsage(Base):
+#     __tablename__ = "token_usage"
+#     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+#     user_uuid: Mapped[str] = mapped_column(String)
+#     conversation_uuid: Mapped[str] = mapped_column(String)
+#     token_count: Mapped[int] = mapped_column(Integer)
+#     token_cost: Mapped[float] = mapped_column(Float)
+#     timestamp: Mapped[DateTime] = mapped_column(
+#         DateTime, default=datetime.utcnow
+#     )
+
+# retrieve generations by user_uuid and conversation_uuid from db
+# setup API (usage_api?)
+# setup enums (see PR) for models, tokenizer and pricing
+
 # Init relationship mappers
 Document.questions = relationship(
     "Question", order_by=Question.id, back_populates="answer"
