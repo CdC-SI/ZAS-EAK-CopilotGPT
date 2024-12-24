@@ -10,7 +10,7 @@ from chat.status_service import status_service, StatusType
 
 from schemas.chat import ChatRequest
 from schemas.embedding import EmbeddingRequest
-from schemas.rag import AgentHandoff
+from schemas.agents import IntentDetection, SourceSelection, AgentHandoff
 
 from sqlalchemy.orm import Session
 from utils.embedding import get_embedding
@@ -236,32 +236,124 @@ class RAGService:
             f"<routing>{status_service.get_status_message(StatusType.ROUTING, request.language)}</routing>"
         )
 
-        messages = message_builder.build_agent_handoff_prompt(
+        # TO DO: refactor based on rag/agentic_rag usage requirements
+        conversational_memory = (
+            memory_client.memory_instance.format_conversational_memory(
+                request.user_uuid, request.conversation_uuid, request.k_memory
+            )
+        )
+
+        # Intent detection
+        # TO DO: perform retrieval to get context docs
+        # TO DO: format docs
+        documents = await self.retrieve(db, request, retriever_client)
+        # formatted_docs = "\n\n".join([doc["text"] for doc in documents])
+
+        messages = await message_builder.build_intent_detection_prompt(
             language=request.language,
             llm_model=request.llm_model,
             query=request.query,
+            conversational_memory=conversational_memory,
+            documents=documents,
+            db=db,
         )
         res = await llm_client.llm_client.beta.chat.completions.parse(
             model="gpt-4o-mini",
             temperature=0,
             top_p=0.95,
-            max_tokens=1024,
+            max_tokens=2048,
+            messages=messages,
+            response_format=IntentDetection,
+        )
+
+        # Follow-up question
+        # TO DO: while loop? (eg. while followup_required)
+        if res.choices[0].message.parsed.followup_required:
+            yield Token.from_text(
+                res.choices[0].message.parsed.followup_question
+            )
+            logger.info(
+                f"------Follow-up question asked for INTENT DETECTION: {res.choices[0].message.parsed}"
+            )
+            return
+        else:
+            inferred_intent = res.choices[0].message.parsed.intent
+            inferred_tags = res.choices[0].message.parsed.tags
+            logger.info(
+                f"------Intent detected: {res.choices[0].message.parsed}"
+            )
+
+        # Agent handoff
+        messages = await message_builder.build_agent_handoff_prompt(
+            language=request.language,
+            llm_model=request.llm_model,
+            query=request.query,
+            intent=inferred_intent,
+            tags=inferred_tags,
+            conversational_memory=conversational_memory,
+        )
+        res = await llm_client.llm_client.beta.chat.completions.parse(
+            model="gpt-4o-mini",
+            temperature=0,
+            top_p=0.95,
+            max_tokens=2048,
             messages=messages,
             response_format=AgentHandoff,
         )
 
         agent_name = res.choices[0].message.parsed.agent
+        agent_name = agent_name if agent_name else "RAG_AGENT"
+
+        yield Token.from_status(
+            f"<agent_handoff>{status_service.get_status_message(StatusType.AGENT_HANDOFF, request.language, agent_name=agent_name)}</agent_handoff>"
+        )
+
         logger.info("Selected Agent: %s", agent_name)
 
         if agent_name == "RAG_AGENT":
             logger.info("Routing to RAG Agent")
-            yield Token.from_status(
-                f"<agent_handoff>{status_service.get_status_message(StatusType.AGENT_HANDOFF, request.language, agent_name=agent_name)}</agent_handoff>"
-            )
 
-            # Follow-up question
-            # async for token in self.followup_agent.process(FollowUp.RAG, request.language):
-            #     yield token
+            # source selection based on source and intent
+            if not request.source:
+                messages = await message_builder.build_source_selection_prompt(
+                    language=request.language,
+                    llm_model=request.llm_model,
+                    query=request.query,
+                    intent=inferred_intent if inferred_intent else None,
+                    tags=inferred_tags if inferred_tags else None,
+                    conversational_memory=conversational_memory,
+                    db=db,
+                )
+
+                res = await llm_client.llm_client.beta.chat.completions.parse(
+                    model="gpt-4o-mini",
+                    temperature=0,
+                    top_p=0.95,
+                    max_tokens=2048,
+                    messages=messages,
+                    response_format=SourceSelection,
+                )
+
+                # Follow-up question
+                # TO DO: while loop? (eg. while followup_required)
+                if res.choices[0].message.parsed.followup_required:
+                    yield Token.from_text(
+                        res.choices[0].message.parsed.followup_question
+                    )
+                    logger.info(
+                        f"------Followup question asked for SOURCE DETECTION: {res.choices[0].message.parsed}"
+                    )
+                    return
+                else:
+                    inferred_sources = res.choices[
+                        0
+                    ].message.parsed.selected_sources
+                    request.source = (
+                        inferred_sources if inferred_sources else None
+                    )
+                    logger.info(
+                        f"------Source detected: {res.choices[0].message.parsed}"
+                    )
 
             async for token in self.process_rag(
                 db,
@@ -277,9 +369,6 @@ class RAGService:
 
         elif agent_name == "PENSION_AGENT":
             logger.info("Routing to PENSION Agent")
-            yield Token.from_status(
-                f"<agent_handoff>{status_service.get_status_message(StatusType.AGENT_HANDOFF, request.language, agent_name=agent_name)}</agent_handoff>"
-            )
 
             async for token in self.pension_agent.process(
                 query=request.query,
