@@ -1,4 +1,7 @@
 from typing import List, Dict, Union
+from fastapi import Depends
+from sqlalchemy.orm import Session
+
 from prompts.rag import (
     RAG_SYSTEM_PROMPT_DE,
     RAG_SYSTEM_PROMPT_FR,
@@ -26,6 +29,12 @@ from prompts.chat import (
     CHAT_TITLE_SYSTEM_PROMPT_IT,
 )
 from prompts.agents import (
+    INTENT_DETECTION_PROMPT_DE,
+    INTENT_DETECTION_PROMPT_FR,
+    INTENT_DETECTION_PROMPT_IT,
+    SOURCE_SELECTION_PROMPT_DE,
+    SOURCE_SELECTION_PROMPT_FR,
+    SOURCE_SELECTION_PROMPT_IT,
     AGENT_HANDOFF_PROMPT_DE,
     AGENT_HANDOFF_PROMPT_FR,
     AGENT_HANDOFF_PROMPT_IT,
@@ -84,6 +93,9 @@ from config.llm_config import (
     SUPPORTED_LLAMACPP_LLM_MODELS,
 )
 
+from database.database import get_db
+from settings_api import get_tags_descriptions, get_sources_descriptions
+
 from langfuse.decorators import observe
 
 
@@ -111,6 +123,18 @@ class MessageBuilder:
         "de": UNIQUE_SOURCE_VALIDATION_PROMPT_DE,
         "fr": UNIQUE_SOURCE_VALIDATION_PROMPT_FR,
         "it": UNIQUE_SOURCE_VALIDATION_PROMPT_IT,
+    }
+
+    _INTENT_DETECTION_PROMPT = {
+        "de": INTENT_DETECTION_PROMPT_DE,
+        "fr": INTENT_DETECTION_PROMPT_FR,
+        "it": INTENT_DETECTION_PROMPT_IT,
+    }
+
+    _SOURCE_SELECTION_PROMPT = {
+        "de": SOURCE_SELECTION_PROMPT_DE,
+        "fr": SOURCE_SELECTION_PROMPT_FR,
+        "it": SOURCE_SELECTION_PROMPT_IT,
     }
 
     _AGENT_HANDOFF_PROMPT = {
@@ -397,9 +421,103 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
+    @observe(name="MessageBuilder_build_intent_detection_prompt")
+    async def build_intent_detection_prompt(
+        self,
+        language: str,
+        llm_model: str,
+        query: str,
+        conversational_memory: str,
+        documents: str,
+        db: Session = Depends(get_db),
+    ) -> Union[List[Dict], str]:
+        """
+        Format the Intent Detection message to send to the appropriate LLM API.
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+
+            tags = await get_tags_descriptions(db)
+            intent_detection_system_prompt = self._INTENT_DETECTION_PROMPT.get(
+                language,
+                self._INTENT_DETECTION_PROMPT.get(self._DEFAULT_LANGUAGE),
+            )
+            intent_detection_system_prompt = (
+                intent_detection_system_prompt.format(
+                    conversational_memory=conversational_memory,
+                    documents=documents,
+                    tags=tags,
+                    query=query,
+                )
+            )
+            return [
+                {"role": "system", "content": intent_detection_system_prompt},
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
+    @observe(name="MessageBuilder_build_source_selection_prompt")
+    async def build_source_selection_prompt(
+        self,
+        language: str,
+        llm_model: str,
+        query: str,
+        intent: str,
+        tags: List[str],
+        conversational_memory: str,
+        db: Session = Depends(get_db),
+    ) -> Union[List[Dict], str]:
+        """
+        Format the Source Selection message to send to the appropriate LLM API.
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+
+            sources = await get_sources_descriptions(db)
+            source_selection_system_prompt = self._SOURCE_SELECTION_PROMPT.get(
+                language,
+                self._SOURCE_SELECTION_PROMPT.get(self._DEFAULT_LANGUAGE),
+            )
+            source_selection_system_prompt = (
+                source_selection_system_prompt.format(
+                    query=query,
+                    intent=intent,
+                    tags=tags,
+                    conversational_memory=conversational_memory,
+                    sources=sources,
+                )
+            )
+            return [
+                {"role": "system", "content": source_selection_system_prompt},
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
     @observe(name="MessageBuilder_build_agent_handoff_prompt")
-    def build_agent_handoff_prompt(
-        self, language: str, llm_model: str, query: str
+    async def build_agent_handoff_prompt(
+        self,
+        language: str,
+        llm_model: str,
+        query: str,
+        intent: str,
+        tags: List[str],
+        conversational_memory: str,
     ) -> Union[List[Dict], str]:
         """
         Format the Agent Handoff message to send to the appropriate LLM API.
@@ -421,6 +539,9 @@ class MessageBuilder:
             )
             agent_handoff_system_prompt = agent_handoff_system_prompt.format(
                 query=query,
+                intent=intent,
+                tags=tags,
+                conversational_memory=conversational_memory,
             )
             return [
                 {"role": "system", "content": agent_handoff_system_prompt},
