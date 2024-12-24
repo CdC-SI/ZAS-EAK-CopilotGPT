@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 import logging
-from typing import List
+from typing import List, Dict
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
@@ -56,6 +56,20 @@ async def get_sources(db: Session = Depends(get_db)) -> List:
     return [url[0] for url in unique_urls]
 
 
+async def get_sources_descriptions(db: Session = Depends(get_db)) -> Dict:
+    """
+    Endpoint to get all sources descriptions from 'source' table in postgres.
+    """
+    # TO DO: LLM call to parse user uploaded docs and add to table
+    # TO DO: multilingual descriptions
+    # TO DO: update source names
+    sources_descriptions = {
+        "rag_test_data_tags_lang_org.csv": "Les documents rag_test_data_tags_lang_org.csv contiennent toute l'information sur l'AVS/AI en général.",
+        "akis.csv": "Les documents rag_test_data_tags_lang_org.csv contiennent toute l'information sur l'outil AKIS.",
+    }
+    return sources_descriptions
+
+
 @app.get("/tags")
 async def get_tags(db: Session = Depends(get_db)) -> List:
     """Get all unique tags from document table."""
@@ -70,6 +84,21 @@ async def get_tags(db: Session = Depends(get_db)) -> List:
         if tags[0]:
             all_tags.update(tags[0])
     return sorted(all_tags)
+
+
+async def get_tags_descriptions(db: Session = Depends(get_db)) -> Dict:
+    """
+    Endpoint to get all tags descriptions from 'tags' table in postgres.
+    """
+    # TO DO: multilingual descriptions
+    tags_descriptions = {
+        "AKIS": "Les documents AKIS contient toute l'information sur l'outil d'aide en ligne AKIS.",
+        "Familienzulagen": "Les documents Familienzulagen contiennent toute l'information sur les allocations familiales.",
+        "Firmen": "Les documents Firmen contiennent toute l'information sur l'AVS/AI des entreprises.",
+        "Private": "Les documents Private contiennent toute l'information sur l'AVS/AI des personnes privées.",
+        "Documentation": "Les documents Documentation contiennent toute l'information sur l'AVS/AI des personnes privées.",
+    }
+    return tags_descriptions
 
 
 @app.get(
