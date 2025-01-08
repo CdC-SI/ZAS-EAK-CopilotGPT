@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from config.project_config import ProjectConfig
 from config.network_config import CORS_ALLOWED_ORIGINS
 from database.database import get_db
-from database.models import Source, Document
+from database.models import Source, Document, Tag
 from config.llm_config import (
     SUPPORTED_OPENAI_LLM_MODELS,
     SUPPORTED_AZUREOPENAI_LLM_MODELS,
@@ -86,19 +86,24 @@ async def get_tags(db: Session = Depends(get_db)) -> List:
     return sorted(all_tags)
 
 
-async def get_tags_descriptions(db: Session = Depends(get_db)) -> Dict:
+async def get_tags_descriptions(
+    db: Session = Depends(get_db), language: str = None
+) -> Dict:
     """
-    Endpoint to get all tags descriptions from 'tags' table in postgres.
+    Endpoint to get all tags descriptions from 'tags' table in postgres based on language.
     """
-    # TO DO: multilingual descriptions
-    tags_descriptions = {
-        "AKIS": "Les documents AKIS contient toute l'information sur l'outil d'aide en ligne AKIS.",
-        "Familienzulagen": "Les documents Familienzulagen contiennent toute l'information sur les allocations familiales.",
-        "Firmen": "Les documents Firmen contiennent toute l'information sur l'AVS/AI des entreprises.",
-        "Private": "Les documents Private contiennent toute l'information sur l'AVS/AI des personnes privées.",
-        "Documentation": "Les documents Documentation contiennent toute l'information sur l'AVS/AI des personnes privées.",
-    }
-    return tags_descriptions
+    # TO DO: semantic search on tag description embeddings by language (embed all language descriptions of description col)
+
+    tags_descriptions = db.query(Tag).filter(Tag.language == language).all()
+
+    # tags_descriptions = {
+    #     "AKIS": "Les documents AKIS contient toute l'information sur l'outil d'aide en ligne AKIS.",
+    #     "Familienzulagen": "Les documents Familienzulagen contiennent toute l'information sur les allocations familiales.",
+    #     "Firmen": "Les documents Firmen contiennent toute l'information sur l'AVS/AI des entreprises.",
+    #     "Private": "Les documents Private contiennent toute l'information sur l'AVS/AI des personnes privées.",
+    #     "Documentation": "Les documents Documentation contiennent toute l'information sur l'AVS/AI des personnes privées.",
+    # }
+    return [(tag.tag_en, tag.description) for tag in tags_descriptions]
 
 
 @app.get(

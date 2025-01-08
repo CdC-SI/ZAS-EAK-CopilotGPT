@@ -156,6 +156,35 @@ class Question(Base, EmbeddedMixin):
         return serialized_data
 
 
+class Tag(Base):
+    """
+    Tags used for RAG context docs and user intent detection.
+    """
+
+    __tablename__ = "tag"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+
+    tag_en: Mapped[str] = mapped_column(String, nullable=False, unique=False)
+    description_en: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(String, nullable=False)
+    language: Mapped[str] = mapped_column(String, nullable=False)
+    embedding: Mapped[Optional[Vector]] = mapped_column(
+        Vector(1536), nullable=True
+    )
+
+    created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
+    modified_at: Mapped[DateTime] = mapped_column(
+        DateTime, default=func.now(), onupdate=func.now()
+    )
+
+    def to_dict(self):
+        serialized_data = {
+            c.key: getattr(self, c.key)
+            for c in inspect(self).mapper.column_attrs
+        }
+        return serialized_data
+
+
 class ChatHistory(Base):
     __tablename__ = "chat_history"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)

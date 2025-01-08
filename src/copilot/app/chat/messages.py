@@ -445,7 +445,10 @@ class MessageBuilder:
             + SUPPORTED_LLAMACPP_LLM_MODELS
         ):
 
-            tags = await get_tags_descriptions(db)
+            tags = await get_tags_descriptions(db, language)
+            formatted_tags = "\n".join([f"{tag[0]}: {tag[1]}" for tag in tags])
+            # TO DO: check duplicates
+            # better formatting and prompt instruction
             intent_detection_system_prompt = self._INTENT_DETECTION_PROMPT.get(
                 language,
                 self._INTENT_DETECTION_PROMPT.get(self._DEFAULT_LANGUAGE),
@@ -454,7 +457,7 @@ class MessageBuilder:
                 intent_detection_system_prompt.format(
                     conversational_memory=conversational_memory,
                     documents=documents,
-                    tags=tags,
+                    tags=formatted_tags,
                     query=query,
                 )
             )

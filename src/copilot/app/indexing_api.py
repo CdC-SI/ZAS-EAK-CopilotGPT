@@ -19,8 +19,10 @@ from indexing.pipelines.bsv import BSVIndexer
 from sqlalchemy.orm import Session
 from database.service.question import question_service
 from database.service.document import document_service
+from database.service.tag import tag_service
 from schemas.question import Question, QuestionCreate, QuestionItem
 from schemas.document import DocumentCreate
+from schemas.tag import TagCreate
 from database.database import get_db
 
 # Load models
@@ -235,6 +237,86 @@ async def upload_csv_faq(
 
 
 @app.post(
+    "/upload_csv_tags",
+    summary="Upload a CSV file for tags data",
+    status_code=200,
+    response_model=ResponseBody,
+)
+async def upload_csv_tags(
+    file: UploadFile = File(...),
+    embed: bool = False,
+    db: Session = Depends(get_db),
+):
+    """
+    Upload a CSV file containing tags data to the database with optional embeddings.
+    The function acknowledges the following columns:
+
+    - *tags_en:* Tag name in english
+    - *description_en:* English description of the tag
+    - *description:* Description of the tag
+    - *language:* Language of the tag
+    - *embedding (optional):* Embedding of the description
+
+    Parameters
+    ----------
+    file : UploadFile
+        The CSV file sent by the user
+    embed : bool, optional
+        Whether to embed the data or not. Defaults to False.
+    db : Session
+        Database session
+
+    Returns
+    -------
+    ResponseBody
+        A response body containing a confirmation message upon successful completion of the process.
+    """
+    logger.info(f"Downloading {file.filename}...")
+    data = csv.DictReader(codecs.iterdecode(file.file, "utf-8"))
+
+    embedding_column = "embedding" in data.fieldnames
+    language_column = "language" in data.fieldnames
+    tag_en_column = "tag_en" in data.fieldnames
+    description_en_column = "description_en" in data.fieldnames
+    description_column = "description" in data.fieldnames
+
+    logger.info("Start adding data to database...")
+    i = 0
+    for row in data:
+        embedding = (
+            ast.literal_eval(row["embedding"]) if embedding_column else None
+        )
+        language = row["language"] if language_column else None
+        tag_en = (
+            row["tag_en"].strip() if tag_en_column and row["tag_en"] else None
+        )
+        description_en = (
+            row["description_en"].strip()
+            if description_en_column and row["description_en"]
+            else None
+        )
+        description = (
+            row["description"].strip()
+            if description_column and row["description"]
+            else None
+        )
+
+        tag = TagCreate(
+            tag_en=tag_en,
+            description_en=description_en,
+            description=description,
+            language=language,
+            embedding=embedding,
+        )
+        await tag_service.upsert(db, tag, embed=embed)
+        i += 1
+
+    file.file.close()
+    logger.info(f"Finished adding {i} entries to tags database.")
+    return {"content": f"Successfully added {i} entries to tags database."}
+
+
+@app.post(
     "/upload_pdf_rag",
     summary="Upload a PDF files for RAG data",
     status_code=200,
@@ -266,9 +348,12 @@ async def upload_pdf_rag(
     ResponseBody
         A response body containing a confirmation message upon successful completion of the process.
     """
+    logger.info("Starting PDF upload")
     uploaded_files = []
     for file in files:
+        logger.info(f"Processing file: {file.filename}")
         if file.content_type != "application/pdf":
+            logger.error(f"{file.filename} is not a valid PDF file.")
             return {"content": f"{file.filename} is not a valid PDF file."}
 
         # Handle temporary file creation and processing
@@ -288,9 +373,11 @@ async def upload_pdf_rag(
             embed=embed,
         )
         uploaded_files.append(file.filename)
+        logger.info(f"File {file.filename} processed successfully")
 
         os.remove(temp_filename)  # Clean up temp file after use
 
+    logger.info(f"Finished uploading {len(uploaded_files)} files")
     return {
         "content": f"{len(uploaded_files)} files indexed successfully",
         "files": uploaded_files,

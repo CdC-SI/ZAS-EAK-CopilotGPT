@@ -289,6 +289,25 @@ class EmbeddingService(BaseService):
         """
         return db.query(self.model).filter(self.model.text == text).first()
 
+    # TO DO: update this
+    def get_by_tag(self, db: Session, tag: str):
+        """
+        Get object by tag
+
+        Parameters
+        ----------
+        db : Session
+            Database session
+        tag : str
+            Object text
+
+        Returns
+        -------
+        Base
+            Database object
+        """
+        return db.query(self.model).filter(self.model.tag_en == tag).first()
+
     async def _update(self, db: Session, db_obj, obj_in, embed=False):
         exclude = await self._update_embed_exclude(db_obj, obj_in, embed=embed)
         obj_data = obj_in.model_dump(exclude_unset=True, exclude=exclude)
@@ -364,10 +383,21 @@ class EmbeddingService(BaseService):
             logger.error(f"Update failed due to {e}")
             raise
 
+    # TO DO: update this
     async def upsert(self, db: Session, obj_in: BaseModel, embed=False):
-        db_obj = self.get_by_text(db, obj_in.text)
-        if db_obj:
-            db_obj = await self._update(db, db_obj, obj_in, embed=embed)
+        if hasattr(obj_in, "text"):
+            db_obj = self.get_by_text(db, obj_in.text)
+        elif hasattr(obj_in, "tag_en"):
+            db_obj = self.get_by_tag(db, obj_in.tag_en)
+
+        if db_obj and hasattr(obj_in, "text"):
+            db_obj = await self._update(
+                db, db_obj, obj_in, embed=embed
+            )  # update for duplicate docs
+        elif db_obj and hasattr(obj_in, "tag_en"):
+            db_obj = await self._create(
+                db, obj_in, embed=embed
+            )  # create for duplicate tags (normal)
         else:
             db_obj = await self._create(db, obj_in, embed=embed)
 
