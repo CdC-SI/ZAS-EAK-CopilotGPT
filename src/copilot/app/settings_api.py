@@ -53,7 +53,7 @@ async def get_sources(db: Session = Depends(get_db)) -> List:
     Endpoint to get all sources from 'source' table in postgres.
     """
     unique_urls = db.query(Source.url).distinct().all()
-    return [url[0] for url in unique_urls]
+    return [url[0].replace(".csv", "") for url in unique_urls]
 
 
 async def get_sources_descriptions(db: Session = Depends(get_db)) -> Dict:
