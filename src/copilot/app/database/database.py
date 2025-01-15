@@ -90,10 +90,10 @@ if configuration.without_db is False:
         con.execute(
             text(
                 """
-            CREATE EXTENSION IF NOT EXISTS vector;
-            CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
-            CREATE EXTENSION IF NOT EXISTS pg_trgm;
-        """
+                CREATE EXTENSION IF NOT EXISTS vector;
+                CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
+                CREATE EXTENSION IF NOT EXISTS pg_trgm;
+                """
             )
         )
         con.commit()
