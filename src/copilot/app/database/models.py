@@ -21,20 +21,9 @@ from sqlalchemy.orm import declarative_base
 
 
 class EmbeddedMixin:
-    text: Mapped[str] = mapped_column(Text, nullable=False)
+
     embedding: Mapped[Optional[Vector]] = mapped_column(
         Vector(1536), nullable=True
-    )
-    language: Mapped[Optional[str]] = mapped_column(String(3), nullable=True)
-    tags: Mapped[Optional[List[str]]] = mapped_column(
-        ARRAY(String), nullable=True
-    )
-    url: Mapped[str] = mapped_column(Text, nullable=False)
-    organization: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    user_uuid: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
-    modified_at: Mapped[DateTime] = mapped_column(
-        DateTime, default=func.now(), onupdate=func.now()
     )
 
 
@@ -49,6 +38,12 @@ class Source(Base):
     __tablename__ = "source"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     url: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
+    modified_at: Mapped[DateTime] = mapped_column(
+        DateTime, default=func.now(), onupdate=func.now()
+    )
 
     __table_args__ = (Index("idx_source_url", "url"),)
 
@@ -70,11 +65,36 @@ class Document(Base, EmbeddedMixin):
 
     __tablename__ = "document"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    language: Mapped[Optional[str]] = mapped_column(String(3), nullable=True)
+    tags: Mapped[Optional[List[str]]] = mapped_column(
+        ARRAY(String), nullable=True
+    )
+    subtopics: Mapped[Optional[List[str]]] = mapped_column(
+        ARRAY(String), nullable=True
+    )
+    hyq: Mapped[Optional[List[str]]] = mapped_column(
+        ARRAY(String), nullable=True
+    )
+    hyq_declarative: Mapped[Optional[List[str]]] = mapped_column(
+        ARRAY(String), nullable=True
+    )
+    summary: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    url: Mapped[str] = mapped_column(Text, nullable=False)
+    doctype: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    organization: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    user_uuid: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+
     source_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("source.id"), nullable=False
     )
     source: Mapped["Source"] = relationship(
         "Source", back_populates="documents"
+    )
+
+    created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
+    modified_at: Mapped[DateTime] = mapped_column(
+        DateTime, default=func.now(), onupdate=func.now()
     )
 
     __table_args__ = (
@@ -114,6 +134,11 @@ class Question(Base, EmbeddedMixin):
 
     __tablename__ = "question"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    language: Mapped[Optional[str]] = mapped_column(String(3), nullable=True)
+    tags: Mapped[Optional[List[str]]] = mapped_column(
+        ARRAY(String), nullable=True
+    )
     answer_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("document.id"), nullable=False
     )
@@ -126,6 +151,12 @@ class Question(Base, EmbeddedMixin):
     source: Mapped[Optional["Source"]] = relationship(
         "Source", back_populates="questions"
     )
+
+    created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
+    modified_at: Mapped[DateTime] = mapped_column(
+        DateTime, default=func.now(), onupdate=func.now()
+    )
+
     __table_args__ = (
         Index(
             "idx_text_gin",
