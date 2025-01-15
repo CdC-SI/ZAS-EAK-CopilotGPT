@@ -14,6 +14,21 @@ class DocumentBase(BaseModel):
     tags: Optional[List[str]] = None
     """Tags of the document text"""
 
+    subtopics: Optional[List[str]] = None
+    """Subtopics of the document text"""
+
+    summary: Optional[str] = None
+    """Summary of the document text"""
+
+    hyq: Optional[List[str]] = None
+    """Hypothetical queries associated to the document text"""
+
+    hyq_declarative: Optional[List[str]] = None
+    """Declarative hypothetical queries associated to the document text"""
+
+    doctype: Optional[str] = None
+    """Type of the document"""
+
     organization: Optional[str] = None
     """Organization to which the document belongs"""
 
