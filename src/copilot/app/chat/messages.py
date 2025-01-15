@@ -11,6 +11,9 @@ from prompts.retrieval import (
     QUERY_REWRITING_PROMPT_DE,
     QUERY_REWRITING_PROMPT_FR,
     QUERY_REWRITING_PROMPT_IT,
+    DECLARATIVE_QUERY_REWRITING_PROMPT_DE,
+    DECLARATIVE_QUERY_REWRITING_PROMPT_FR,
+    DECLARATIVE_QUERY_REWRITING_PROMPT_IT,
     CONTEXTUAL_COMPRESSION_PROMPT_DE,
     CONTEXTUAL_COMPRESSION_PROMPT_FR,
     CONTEXTUAL_COMPRESSION_PROMPT_IT,
@@ -27,6 +30,11 @@ from prompts.chat import (
     CHAT_TITLE_SYSTEM_PROMPT_DE,
     CHAT_TITLE_SYSTEM_PROMPT_FR,
     CHAT_TITLE_SYSTEM_PROMPT_IT,
+)
+from prompts.source import (
+    SOURCE_DESCRIPTION_SYSTEM_PROMPT_DE,
+    SOURCE_DESCRIPTION_SYSTEM_PROMPT_FR,
+    SOURCE_DESCRIPTION_SYSTEM_PROMPT_IT,
 )
 from prompts.agents import (
     INTENT_DETECTION_PROMPT_DE,
@@ -113,6 +121,12 @@ class MessageBuilder:
         "it": CHAT_TITLE_SYSTEM_PROMPT_IT,
     }
 
+    _SOURCE_DESCRIPTION_PROMPT = {
+        "de": SOURCE_DESCRIPTION_SYSTEM_PROMPT_DE,
+        "fr": SOURCE_DESCRIPTION_SYSTEM_PROMPT_FR,
+        "it": SOURCE_DESCRIPTION_SYSTEM_PROMPT_IT,
+    }
+
     _TOPIC_CHECK_PROMPT = {
         "de": TOPIC_CHECK_PROMPT_DE,
         "fr": TOPIC_CHECK_PROMPT_FR,
@@ -153,6 +167,12 @@ class MessageBuilder:
         "de": QUERY_REWRITING_PROMPT_DE,
         "fr": QUERY_REWRITING_PROMPT_FR,
         "it": QUERY_REWRITING_PROMPT_IT,
+    }
+
+    _DECLARATIVE_QUERY_REWRITING_PROMPT = {
+        "de": DECLARATIVE_QUERY_REWRITING_PROMPT_DE,
+        "fr": DECLARATIVE_QUERY_REWRITING_PROMPT_FR,
+        "it": DECLARATIVE_QUERY_REWRITING_PROMPT_IT,
     }
 
     _CONTEXTUAL_COMPRESSION_PROMPT = {
@@ -346,6 +366,49 @@ class MessageBuilder:
             return [
                 {"role": "system", "content": chat_title_system_prompt},
                 {"role": "user", "content": query},
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
+    def build_source_description_prompt(
+        self,
+        language: str,
+        llm_model: str,
+        source_name: str,
+        docs: str,
+    ) -> List[Dict]:
+        """
+        Format the CreateSourceDescription message to send to the appropriate LLM API.
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+            source_description_system_prompt = (
+                self._SOURCE_DESCRIPTION_PROMPT.get(
+                    language,
+                    self._SOURCE_DESCRIPTION_PROMPT.get(
+                        self._DEFAULT_LANGUAGE
+                    ),
+                )
+            )
+            source_description_system_prompt = (
+                source_description_system_prompt.format(
+                    source_name=source_name,
+                    docs=docs,
+                )
+            )
+            return [
+                {
+                    "role": "system",
+                    "content": source_description_system_prompt,
+                },
             ]
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
@@ -620,6 +683,45 @@ class MessageBuilder:
             )
             return [
                 {"role": "system", "content": query_rewriting_system_prompt},
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
+    @observe(name="MessageBuilder_build_declarative_query_rewriting_prompt")
+    def build_declarative_query_rewriting_prompt(
+        self, language: str, llm_model: str, n_alt_queries: int, query: str
+    ) -> List[Dict]:
+        """
+        Format the Declarative Query Rewriting message to send to the appropriate LLM API.
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+            declarative_query_rewriting_system_prompt = (
+                self._DECLARATIVE_QUERY_REWRITING_PROMPT.get(
+                    language,
+                    self._DECLARATIVE_QUERY_REWRITING_PROMPT.get(
+                        self._DEFAULT_LANGUAGE
+                    ),
+                )
+            )
+            declarative_query_rewriting_system_prompt = (
+                declarative_query_rewriting_system_prompt.format(
+                    n_alt_queries=n_alt_queries, query=query
+                )
+            )
+            return [
+                {
+                    "role": "system",
+                    "content": declarative_query_rewriting_system_prompt,
+                },
             ]
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")

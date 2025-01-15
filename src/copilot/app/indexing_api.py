@@ -1,6 +1,7 @@
 import logging
 import os
 from typing import List
+import tiktoken
 
 from fastapi import FastAPI, Depends, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,7 +24,12 @@ from database.service.tag import tag_service
 from schemas.question import Question, QuestionCreate, QuestionItem
 from schemas.document import DocumentCreate
 from schemas.tag import TagCreate
-from database.database import get_db
+from database.models import Source
+from database.database import get_db, SessionLocal
+from utils.parsing import remove_file_extension
+from chat.messages import MessageBuilder
+from config.base_config import rag_config
+from config.clients_config import create_llm_client
 
 # Load models
 from schemas.indexing import ResponseBody
@@ -77,6 +83,77 @@ async def init_indexing():
             raise NotImplementedError("Feature is not implemented yet.")
 
 
+async def create_source_descriptions() -> None:
+    """
+    Create source descriptions for all sources in the database.
+    Only generates descriptions for sources where description field is null.
+    """
+    # TO DO: tokenizer factory for all llm models
+    # enums for model params (eg. max tokens)
+    # subtract prompt length from max tokens
+    # language management in doc preprocessing
+
+    db = SessionLocal()
+    message_builder = MessageBuilder()
+    llm_client = create_llm_client(rag_config["llm"]["model"])
+    tokenizer = tiktoken.encoding_for_model(rag_config["llm"]["model"])
+
+    try:
+        # Get only sources with null descriptions
+        sources = db.query(Source).filter(Source.description.is_(None)).all()
+        logger.info(f"Found {len(sources)} sources without descriptions")
+
+        # Get all documents grouped by source
+        for source in sources:
+            documents = document_service.get_all_documents(
+                db, source=[source.url]
+            )
+            if not documents:
+                logger.warning(f"No documents found for source: {source.url}")
+                continue
+
+            combined_text = "\n\n".join([doc.text for doc in documents])
+            language = documents[0].language
+
+            logger.info(
+                f"Processing source URL: {source.url} with {len(documents)} documents"
+            )
+
+            # Generate source description
+            n_tokens = len(tokenizer.encode(combined_text))
+            if n_tokens > 128_000:
+                logger.warning(
+                    f"Too many documents for '{source.url}': ({n_tokens} tokens). Truncated to max token input."
+                )
+                combined_text = tokenizer.decode(
+                    tokenizer.encode(combined_text)[:125_000]
+                )
+
+            messages = message_builder.build_source_description_prompt(
+                language=language,
+                llm_model=rag_config["llm"]["model"],
+                source_name=source.url,
+                docs=combined_text,
+            )
+            source_description = await llm_client.chat.completions.create(
+                model=rag_config["llm"]["model"],
+                stream=False,
+                temperature=0,
+                top_p=0.95,
+                max_tokens=2048,
+                messages=messages,
+            )
+
+            # Update source description in database
+            source.description = source_description.choices[0].message.content
+            db.commit()
+
+            logger.info(f"Updated source description for {source.url}")
+
+    finally:
+        db.close()
+
+
 # Create an instance of FastAPI
 app = FastAPI(**indexing_app_config)
 
@@ -110,6 +187,13 @@ async def upload_csv_rag(
     - *language (optional):* Language of the document
     - *embedding (optional):* Embedding of the document
     - *tags (optional):* Tags of the document
+    - *organization (optional):* Organization of the document
+    - *subtopics (optional):* Subtopics of the document
+    - *summary (optional):* Summary of the document
+    - *hyq (optional):* Hypothetical queries associated to the document
+    - *hyq_declarative (optional):* Declarative hypothetical queries associated to the document
+    - *doctype (optional):* Type of the document
+    - *user_uuid (optional):* UUID of the user who uploaded the file
 
     Parameters
     ----------
@@ -131,11 +215,18 @@ async def upload_csv_rag(
     embedding_column = "embedding" in data.fieldnames
     language_column = "language" in data.fieldnames
     tags_column = "tags" in data.fieldnames
+    subtopics_column = "subtopics" in data.fieldnames
+    summary_column = "summary" in data.fieldnames
+    hyq_column = "hyq" in data.fieldnames
+    hyq_declarative_column = "hyq_declarative" in data.fieldnames
+    doctype_column = "doctype" in data.fieldnames
     organization_column = "organization" in data.fieldnames
 
     logger.info("Start adding data to database...")
     i = 0
     for row in data:
+        text = row["text"].strip() if row["text"] else None
+        url = row["url"].strip() if row["url"] else None
         embedding = (
             ast.literal_eval(row["embedding"]) if embedding_column else None
         )
@@ -145,18 +236,45 @@ async def upload_csv_rag(
             if tags_column and row["tags"]
             else None
         )
+        subtopics = (
+            [subtopic.strip() for subtopic in row["subtopics"].split(",")]
+            if subtopics_column and row["subtopics"]
+            else None
+        )
+        summary = (
+            row["summary"].strip()
+            if summary_column and row["summary"]
+            else None
+        )
+        hyq = (
+            [query.strip() for query in row["hyq"].split(",")]
+            if hyq_column and row["hyq"]
+            else None
+        )
+        hyq_declarative = (
+            [query.strip() for query in row["hyq_declarative"].split(",")]
+            if hyq_declarative_column and row["hyq_declarative"]
+            else None
+        )
+        doctype = row["doctype"].strip() if doctype_column else None
         organization = (
             row["organization"]
             if organization_column and row["organization"]
             else None
         )
+        formatted_source_name = remove_file_extension(file.filename)
         document = DocumentCreate(
-            url=row["url"],
-            text=row["text"],
+            url=url,
+            text=text,
             embedding=embedding,
-            source=file.filename,
+            source=formatted_source_name,
             language=language,
             tags=tags,
+            subtopics=subtopics,
+            summary=summary,
+            hyq=hyq,
+            hyq_declarative=hyq_declarative,
+            doctype=doctype,
             organization=organization,
         )
         await document_service.upsert(db, document, embed=embed)
@@ -164,6 +282,7 @@ async def upload_csv_rag(
 
     file.file.close()
     logger.info(f"Finished adding {i} entries to RAG database.")
+
     return {"content": f"Successfully added {i} entries to RAG database."}
 
 

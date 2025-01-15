@@ -10,7 +10,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from config.network_config import CORS_ALLOWED_ORIGINS
 from contextlib import asynccontextmanager
 
-from indexing_api import init_indexing, app as indexing_app
+from indexing_api import (
+    init_indexing,
+    create_source_descriptions,
+    app as indexing_app,
+)
 from autocomplete_api import app as autocomplete_app
 from rag_api import app as rag_app
 from conversations_api import app as conversations_app
@@ -29,6 +33,7 @@ PREFIX = "/apy/v1"
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_indexing()
+    await create_source_descriptions()
     yield
 
 
