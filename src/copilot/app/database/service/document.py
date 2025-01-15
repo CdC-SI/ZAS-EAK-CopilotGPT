@@ -32,7 +32,7 @@ class DocumentService(MatchingService):
             doctype=obj_in.doctype,
             organization=obj_in.organization,
             user_uuid=obj_in.user_uuid,
-            embedding=obj_in.embedding,
+            text_embedding=obj_in.embedding,
             source=source,
             source_id=source.id,
         )

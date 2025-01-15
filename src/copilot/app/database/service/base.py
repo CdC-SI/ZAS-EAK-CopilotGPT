@@ -1,6 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from ..models import Base, EmbeddedMixin
+from ..models import Base, TextEmbeddingMixin
 from pydantic import BaseModel
 
 from utils.embedding import get_embedding
@@ -176,14 +176,14 @@ class EmbeddingService(BaseService):
     Base class for embedding services
     """
 
-    async def _embedding(self, db_obj: EmbeddedMixin, text: str):
-        db_obj.embedding = await get_embedding(text)
+    async def _embedding(self, db_obj: TextEmbeddingMixin, text: str):
+        db_obj.text_embedding = await get_embedding(text)
         return db_obj
 
-    async def _embed(self, db_obj: EmbeddedMixin):
+    async def _embed(self, db_obj: TextEmbeddingMixin):
         return await self._embedding(db_obj, db_obj.text)
 
-    async def embed_one(self, db: Session, db_obj: EmbeddedMixin):
+    async def embed_one(self, db: Session, db_obj: TextEmbeddingMixin):
         """
         Embed a single object in the database
 
@@ -191,12 +191,12 @@ class EmbeddingService(BaseService):
         ----------
         db : Session
             Database session
-        db_obj : EmbeddedMixin
+        db_obj : TextEmbeddingMixin
             Database object
 
         Returns
         -------
-        EmbeddedMixin
+        TextEmbeddingMixin
             Embedded database object
         """
         db_obj = await self._embed(db_obj)
@@ -220,12 +220,12 @@ class EmbeddingService(BaseService):
 
         Returns
         -------
-        list[EmbeddedMixin]
+        list[TextEmbeddingMixin]
             List of embedded database objects
         """
         stmt = select(self.model)
         if embed_empty_only:
-            stmt = stmt.filter(self.model.embedding.is_(None))
+            stmt = stmt.filter(self.model.text_embedding.is_(None))
         db_objs = db.scalars(stmt).all()
         logger.info(f"Embedding {len(db_objs)} objects")
         i = 0
@@ -335,13 +335,13 @@ class EmbeddingService(BaseService):
         """
         exclude = {"source"}
         # prevent from replacing existing embedding by None, check if obj_in has an embedding
-        if obj_in.embedding is None:
+        if obj_in.text_embedding is None:
             exclude.add("embedding")
 
             # specified embedding from obj_in has priority on requesting a new one
             # embed only if the text has changed
             if embed and (
-                (db_obj.text != obj_in.text) or (db_obj.embedding is None)
+                (db_obj.text != obj_in.text) or (db_obj.text_embedding is None)
             ):
                 logger.info("Embedding updated")
                 await self._embedding(db_obj, obj_in.text)

@@ -20,9 +20,27 @@ from datetime import datetime
 from sqlalchemy.orm import declarative_base
 
 
-class EmbeddedMixin:
+class TextEmbeddingMixin:
+    """Base mixin for text embeddings shared between Document and Question"""
 
-    embedding: Mapped[Optional[Vector]] = mapped_column(
+    text_embedding: Mapped[Optional[Vector]] = mapped_column(
+        Vector(1536), nullable=True
+    )
+
+
+class DocumentEmbeddingMixin(TextEmbeddingMixin):
+    """Extended mixin for Document-specific embeddings"""
+
+    summary_embedding: Mapped[Optional[Vector]] = mapped_column(
+        Vector(1536), nullable=True
+    )
+    subtopics_embedding: Mapped[Optional[Vector]] = mapped_column(
+        Vector(1536), nullable=True
+    )
+    hyq_embedding: Mapped[Optional[Vector]] = mapped_column(
+        Vector(1536), nullable=True
+    )
+    hyq_declarative_embedding: Mapped[Optional[Vector]] = mapped_column(
         Vector(1536), nullable=True
     )
 
@@ -58,7 +76,7 @@ class Source(Base):
         return serialized_data
 
 
-class Document(Base, EmbeddedMixin):
+class Document(Base, DocumentEmbeddingMixin):
     """
     Documents used for the RAG
     """
@@ -105,7 +123,9 @@ class Document(Base, EmbeddedMixin):
             postgresql_ops={"text": "gin_trgm_ops"},
         ),
         Index(
-            "idx_document_embedding", "embedding", postgresql_using="ivfflat"
+            "idx_document_text_embedding",
+            "text_embedding",
+            postgresql_using="ivfflat",
         ),
         Index("idx_document_language", "language"),
         Index("idx_document_language_tag", "language", "tags"),
@@ -127,7 +147,7 @@ class Document(Base, EmbeddedMixin):
         return serialized_data
 
 
-class Question(Base, EmbeddedMixin):
+class Question(Base, TextEmbeddingMixin):
     """
     Question used for Autocomplete, answers are stored in the Document table.
     """
