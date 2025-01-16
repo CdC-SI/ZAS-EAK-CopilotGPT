@@ -2,8 +2,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .base import BaseService
-from ..models import Source
+from ..models import Source, Document
 from schemas.source import SourceCreate
+from utils.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 class SourceService(BaseService):
@@ -55,6 +58,31 @@ class SourceService(BaseService):
 
         # otherwise, create a new source
         return self.create(db, obj_in)
+
+    def delete_expired_sources(self, db: Session):
+        """
+        Delete all sources that have no associated documents.
+
+        Parameters
+        ----------
+        db: Session
+            Database session
+        """
+        try:
+            subquery = select(Document.url).distinct()
+            deleted_count = (
+                db.query(Source)
+                .filter(~Source.url.in_(subquery))
+                .delete(synchronize_session=False)
+            )
+            db.commit()
+            logger.info("Deleted %i orphaned sources.", deleted_count)
+        except Exception as e:
+            db.rollback()
+            logger.error(
+                "An error occurred while deleting orphaned sources: %s", e
+            )
+            raise
 
 
 source_service = SourceService()

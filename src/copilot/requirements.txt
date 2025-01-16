@@ -30,6 +30,7 @@ haystack-ai==2.2.3
 aiohttp==3.9.5
 pypdf==4.2.0
 trafilatura==1.11.0
+apscheduler==3.11.0
 
 # sqlAlchemy
 pgvector

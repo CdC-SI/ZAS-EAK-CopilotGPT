@@ -10,17 +10,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from config.network_config import CORS_ALLOWED_ORIGINS
 from contextlib import asynccontextmanager
 
-from indexing_api import (
-    init_indexing,
-    create_source_descriptions,
-    app as indexing_app,
-)
+from indexing_api import init_indexing, app as indexing_app
 from autocomplete_api import app as autocomplete_app
 from rag_api import app as rag_app
 from conversations_api import app as conversations_app
 from command_api import app as command_app
 from settings_api import app as settings_app
 from chat_api import app as chat_app
+
+from utils.scheduler import start_scheduler, stop_scheduler
 
 import logging
 
@@ -32,9 +30,14 @@ PREFIX = "/apy/v1"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """
+    Application lifespan context manager
+    """
     await init_indexing()
-    await create_source_descriptions()
+    await start_scheduler()
     yield
+
+    await stop_scheduler()
 
 
 app = FastAPI(lifespan=lifespan)

@@ -1,4 +1,5 @@
 from typing import List
+from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
 from sqlalchemy import select
@@ -9,6 +10,9 @@ from ..models import Document
 from schemas.document import DocumentCreate, DocumentUpdate
 from schemas.source import SourceCreate
 from database.models import Source
+from utils.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 class DocumentService(MatchingService):
@@ -111,6 +115,32 @@ class DocumentService(MatchingService):
         if source:
             stmt = stmt.join(self.model.source).filter(Source.url.in_(source))
         return db.scalars(stmt).all()
+
+    def delete_expired_documents(self, db: Session):
+        """
+        Delete all documents over 24 hours old that have a user_uuid.
+
+        Parameters
+        ----------
+        db: Session
+            Database session
+        """
+        try:
+            cutoff_time = datetime.utcnow() - timedelta(hours=24)
+            deleted_count = (
+                db.query(Document)
+                .filter(Document.modified_at < cutoff_time)
+                .filter(Document.user_uuid.isnot(None))
+                .delete(synchronize_session=False)
+            )
+            db.commit()
+            logger.info("Deleted %i expired user documents.", deleted_count)
+        except Exception as e:
+            db.rollback()
+            logger.error(
+                "An error occurred while deleting expired documents: %s", e
+            )
+            raise
 
 
 document_service = DocumentService()
