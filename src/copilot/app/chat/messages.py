@@ -102,7 +102,7 @@ from config.llm_config import (
 )
 
 from database.database import get_db
-from settings_api import get_tags_descriptions, get_sources_descriptions
+from settings_api import get_tags_descriptions, get_source_descriptions
 
 from langfuse.decorators import observe
 
@@ -555,7 +555,7 @@ class MessageBuilder:
             + SUPPORTED_LLAMACPP_LLM_MODELS
         ):
 
-            sources = await get_sources_descriptions(db)
+            sources = await get_source_descriptions(db)
             source_selection_system_prompt = self._SOURCE_SELECTION_PROMPT.get(
                 language,
                 self._SOURCE_SELECTION_PROMPT.get(self._DEFAULT_LANGUAGE),
