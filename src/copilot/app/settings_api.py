@@ -43,6 +43,19 @@ app.add_middleware(
 
 
 @app.get(
+    "/organization",
+    summary="Get organizations list",
+    response_description="Return a list of organizations",
+    status_code=200,
+)
+async def get_organizations(db: Session = Depends(get_db)) -> List[str]:
+    """
+    Endpoint to get all organizations.
+    """
+    return ["ZAS", "EAK"]
+
+
+@app.get(
     "/sources",
     summary="Get sources from postgres 'source' table",
     response_description="Return a list of sources",
@@ -52,22 +65,27 @@ async def get_sources(db: Session = Depends(get_db)) -> List:
     """
     Endpoint to get all sources from 'source' table in postgres.
     """
-    unique_urls = db.query(Source.url).distinct().all()
-    return [url[0].replace(".csv", "") for url in unique_urls]
+    unique_sources = db.query(Source.url, Source.description).distinct().all()
+    return [source.url for source in unique_sources]
 
 
-async def get_sources_descriptions(db: Session = Depends(get_db)) -> Dict:
+@app.get(
+    "/source_descriptions",
+    summary="Get source descriptions from postgres 'source' table",
+    response_description="Return a list of source descriptions",
+    status_code=200,
+)
+async def get_source_descriptions(db: Session = Depends(get_db)) -> List[Dict]:
     """
     Endpoint to get all sources descriptions from 'source' table in postgres.
     """
-    # TO DO: LLM call to parse user uploaded docs and add to table
-    # TO DO: multilingual descriptions
-    # TO DO: update source names
-    sources_descriptions = {
-        "rag_test_data_tags_lang_org.csv": "Les documents rag_test_data_tags_lang_org.csv contiennent toute l'information sur l'AVS/AI en général.",
-        "akis.csv": "Les documents rag_test_data_tags_lang_org.csv contiennent toute l'information sur l'outil AKIS.",
-    }
-    return sources_descriptions
+    source_descriptions = (
+        db.query(Source.url, Source.description).distinct().all()
+    )
+    return [
+        {"url": source.url, "description": source.description}
+        for source in source_descriptions
+    ]
 
 
 @app.get("/tags")
