@@ -10,7 +10,7 @@ class ChatRequest(BaseModel):
     language: Optional[str] = None
     tags: Optional[List[str]] = None
     source: Optional[List[str]] = None
-    organization: Optional[str] = None
+    organizations: Optional[List[str]] = None
     llm_model: Optional[str] = rag_config["llm"]["model"]
     temperature: Optional[float] = rag_config["llm"]["temperature"]
     top_p: Optional[float] = rag_config["llm"]["top_p"]

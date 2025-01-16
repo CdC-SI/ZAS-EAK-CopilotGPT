@@ -30,7 +30,7 @@ class BaseRetriever(ABC):
         language=None,
         tags=None,
         source=None,
-        organization=None,
+        organizations=None,
         user_uuid=None,
         **kwargs
     ) -> List[Document]:
@@ -58,7 +58,7 @@ class RetrieverClient(BaseRetriever):
         language=None,
         tags=None,
         source=None,
-        organization=None,
+        organizations=None,
         user_uuid=None,
         **kwargs
     ) -> List[Document]:
@@ -82,9 +82,9 @@ class RetrieverClient(BaseRetriever):
                     language=language,
                     tags=tags,
                     source=source,
-                    organization=organization,
+                    organizations=organizations,
                     user_uuid=user_uuid,
-                    **kwargs
+                    **kwargs,
                 )
             )
             for retriever in self.retrievers
@@ -137,7 +137,7 @@ class TopKRetriever(BaseRetriever):
         language=None,
         tags=None,
         source=None,
-        organization=None,
+        organizations=None,
         user_uuid=None,
         **kwargs
     ) -> List[Document]:
@@ -151,7 +151,7 @@ class TopKRetriever(BaseRetriever):
             language=language,
             tags=tags,
             source=source,
-            organization=organization,
+            organizations=organizations,
             user_uuid=user_uuid,
             k=k,
         )
@@ -171,11 +171,11 @@ class QueryRewritingRetriever(BaseRetriever):
         self, language: str, llm_model: str, query: str, n_alt_queries: int = 3
     ) -> List[str]:
         """
-        Rewrite the input query into multiple queries.
-
+        Rewrite the input query into multiple query variations (variations, declarative).
         This method uses the llm_client to rewrite the input query into multiple queries.
-        The number of rewritten queries is specified by the parameter `n_alt_queries`.
+        The number of rewritten queries (total: 2*n_alt_queries) is specified by the parameter `n_alt_queries`.
         """
+        # Query reformulations (variations)
         messages = self.message_builder.build_query_rewriting_prompt(
             language, llm_model, n_alt_queries, query
         )
@@ -184,7 +184,23 @@ class QueryRewritingRetriever(BaseRetriever):
             "\n"
         )
 
-        return rewritten_queries
+        # Query reformulations (declarative)
+        messages = (
+            self.message_builder.build_declarative_query_rewriting_prompt(
+                language, llm_model, n_alt_queries, query
+            )
+        )
+        rewritten_declarative_queries = await self.llm_client.agenerate(
+            messages
+        )
+        rewritten_declarative_queries = rewritten_declarative_queries.choices[
+            0
+        ].message.content.split("\n")
+
+        reformulated_queries = (
+            rewritten_queries + rewritten_declarative_queries
+        )
+        return reformulated_queries
 
     @observe(name="QueryRewritingRetriever_get_documents")
     async def get_documents(
@@ -195,7 +211,7 @@ class QueryRewritingRetriever(BaseRetriever):
         language=None,
         tags=None,
         source=None,
-        organization=None,
+        organizations=None,
         user_uuid=None,
         **kwargs
     ) -> List[Document]:
@@ -215,7 +231,7 @@ class QueryRewritingRetriever(BaseRetriever):
                 language=language,
                 tags=tags,
                 source=source,
-                organization=organization,
+                organizations=organizations,
                 user_uuid=user_uuid,
                 k=k,
             )
@@ -282,7 +298,7 @@ class ContextualCompressionRetriever(BaseRetriever):
         language=None,
         tags=None,
         source=None,
-        organization=None,
+        organizations=None,
         user_uuid=None,
         **kwargs
     ) -> List[Document]:
@@ -297,7 +313,7 @@ class ContextualCompressionRetriever(BaseRetriever):
             language=language,
             tags=tags,
             source=source,
-            organization=organization,
+            organizations=organizations,
             user_uuid=user_uuid,
             k=k,
         )
@@ -367,7 +383,7 @@ class RAGFusionRetriever(QueryRewritingRetriever):
         language=None,
         tags=None,
         source=None,
-        organization=None,
+        organizations=None,
         user_uuid=None,
         **kwargs
     ) -> List[Document]:
@@ -386,7 +402,7 @@ class RAGFusionRetriever(QueryRewritingRetriever):
                 language=language,
                 tags=tags,
                 source=source,
-                organization=organization,
+                organizations=organizations,
                 user_uuid=user_uuid,
                 k=k,
             )
@@ -435,7 +451,7 @@ class BM25Retriever(BaseRetriever):
         language=None,
         tags=None,
         source=None,
-        organization=None,
+        organizations=None,
         user_uuid=None,
         **kwargs
     ) -> List[Document]:
@@ -464,3 +480,88 @@ class BM25Retriever(BaseRetriever):
             for doc in top_docs
         ]
         return docs
+
+
+class MetadataRetriever(BaseRetriever):
+    """
+    A class used to retrieve documents using text content and metadata embeddings (summary, hyq, declarative_hyq).
+    """
+
+    pass
+
+
+class SemanticMetadataRetriever(TopKRetriever):
+    """
+    A subclass of TopKRetriever that adds additional logic for retrieving documents through semantic match of additional metadata.
+    """
+
+    def __init__(self, top_k):
+        super().__init__(top_k)
+
+    @observe(name="SemanticMetadataRetriever_get_documents")
+    async def get_documents(
+        self,
+        db,
+        query,
+        k,
+        language=None,
+        tags=None,
+        source=None,
+        organizations=None,
+        user_uuid=None,
+        **kwargs
+    ) -> List[Document]:
+        """
+        Extends the get_documents method of TopKRetriever to add semantic matching of additional metadata.
+        """
+        docs_from_text = await super().get_documents(
+            db,
+            query,
+            k,
+            language=language,
+            tags=tags,
+            source=source,
+            organizations=organizations,
+            user_uuid=user_uuid,
+            **kwargs,
+        )
+
+        docs_from_metadata = await document_service.get_semantic_match(
+            db,
+            query,
+            language=language,
+            tags=tags,
+            source=source,
+            organizations=organizations,
+            user_uuid=user_uuid,
+            k=k,
+        )
+
+        docs = docs_from_text + docs_from_metadata
+
+        return docs[: self.top_k]
+
+
+class FedlexRetriever(BaseRetriever):
+    """
+    A class used to retrieve documents with "fedlex" tag.
+    Also checks the art.1 (application/applicability) of the law upon which each document is based.
+    """
+
+    pass
+
+
+class ContextualRagRetriever(BaseRetriever):
+    pass
+
+
+class RaptorRetriever(BaseRetriever):
+    pass
+
+
+class GraphRagRetriever(BaseRetriever):
+    pass
+
+
+class LightRagRetriever(BaseRetriever):
+    pass

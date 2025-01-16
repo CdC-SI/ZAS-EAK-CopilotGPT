@@ -145,7 +145,7 @@ class MatchingService(EmbeddingService):
         symbol: str = "<=>",
         tags: List[str] = None,
         source: List[str] = None,
-        organization: str = None,
+        organizations: List[str] = None,
         user_uuid: str = None,
     ):
         """
@@ -166,8 +166,8 @@ class MatchingService(EmbeddingService):
             Filter by tags
         source : List[str], optional
             Filter by source
-        organization : str, optional
-            Filter by organization
+        organizations : List[str], optional
+            Filter by organizations
         user_uuid : str, optional
             Filter by user_uuid
 
@@ -184,18 +184,18 @@ class MatchingService(EmbeddingService):
             stmt = stmt.filter(self.model.language == language)
         if tags:
             stmt = stmt.filter(self.model.tags.op("&&")(tags))
-        if organization:
+        if organizations:
             docs_with_org = select(self.model.id).where(
-                self.model.organization == organization
+                self.model.organizations.overlap(organizations)
             )
             docs_without_org = select(self.model.id).where(
-                self.model.organization.is_(None)
+                self.model.organizations.is_(None)
             )
             stmt = stmt.filter(
                 self.model.id.in_(docs_with_org.union(docs_without_org))
             )
         else:
-            stmt = stmt.filter(self.model.organization.is_(None))
+            stmt = stmt.filter(self.model.organizations.is_(None))
         if user_uuid:
             docs_with_uuid = select(self.model.id).where(
                 self.model.user_uuid == user_uuid

@@ -34,7 +34,7 @@ class DocumentService(MatchingService):
             hyq=obj_in.hyq,
             hyq_declarative=obj_in.hyq_declarative,
             doctype=obj_in.doctype,
-            organization=obj_in.organization,
+            organizations=obj_in.organizations,
             user_uuid=obj_in.user_uuid,
             text_embedding=obj_in.embedding,
             source=source,

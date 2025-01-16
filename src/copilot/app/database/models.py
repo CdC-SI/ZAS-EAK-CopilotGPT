@@ -100,7 +100,9 @@ class Document(Base, DocumentEmbeddingMixin):
     summary: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     url: Mapped[str] = mapped_column(Text, nullable=False)
     doctype: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    organization: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    organizations: Mapped[Optional[List[str]]] = mapped_column(
+        ARRAY(String), nullable=True
+    )
     user_uuid: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
     source_id: Mapped[int] = mapped_column(
