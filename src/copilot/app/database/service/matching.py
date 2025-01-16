@@ -178,7 +178,7 @@ class MatchingService(EmbeddingService):
         q_embedding = await get_embedding(user_input)
 
         # Start building the query
-        stmt = select(self.model).filter(self.model.embedding.isnot(None))
+        stmt = select(self.model).filter(self.model.text_embedding.isnot(None))
 
         if language:
             stmt = stmt.filter(self.model.language == language)
@@ -212,7 +212,7 @@ class MatchingService(EmbeddingService):
 
         # Order by similarity
         stmt = stmt.order_by(
-            self.model.embedding.op(symbol)(q_embedding).asc()
+            self.model.text_embedding.op(symbol)(q_embedding).asc()
         )
 
         if k > 0:
