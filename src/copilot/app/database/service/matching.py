@@ -184,10 +184,27 @@ class MatchingService(EmbeddingService):
         # Start building the query
         stmt = select(self.model).filter(self.model.text_embedding.isnot(None))
 
+        if user_uuid:
+            docs_with_uuid = select(self.model.id).where(
+                self.model.user_uuid == user_uuid
+            )
+            docs_without_uuid = select(self.model.id).where(
+                self.model.user_uuid.is_(None)
+            )
+            stmt = stmt.filter(
+                self.model.id.in_(docs_with_uuid.union(docs_without_uuid))
+            )
+
         if language:
             stmt = stmt.filter(self.model.language == language)
+
+        if source:
+            stmt = stmt.join(self.model.source).filter(Source.url.in_(source))
+            stmt = stmt.options(joinedload(self.model.source))
+
         if tags:
             stmt = stmt.filter(self.model.tags.op("&&")(tags))
+
         if organizations:
             docs_with_org = select(self.model.id).where(
                 self.model.organizations.op("&&")(organizations)
@@ -200,19 +217,6 @@ class MatchingService(EmbeddingService):
             )
         else:
             stmt = stmt.filter(self.model.organizations.is_(None))
-        if user_uuid:
-            docs_with_uuid = select(self.model.id).where(
-                self.model.user_uuid == user_uuid
-            )
-            docs_without_uuid = select(self.model.id).where(
-                self.model.user_uuid.is_(None)
-            )
-            stmt = stmt.filter(
-                self.model.id.in_(docs_with_uuid.union(docs_without_uuid))
-            )
-        if source:
-            stmt = stmt.join(self.model.source).filter(Source.url.in_(source))
-            stmt = stmt.options(joinedload(self.model.source))
 
         # Order by similarity
         stmt = stmt.order_by(
