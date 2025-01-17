@@ -7,6 +7,10 @@ from .base import EmbeddingService
 from database.models import Source
 from utils.embedding import get_embedding
 
+from utils.logging import get_logger
+
+logger = get_logger(__name__)
+
 
 class MatchingService(EmbeddingService):
     """
@@ -186,7 +190,7 @@ class MatchingService(EmbeddingService):
             stmt = stmt.filter(self.model.tags.op("&&")(tags))
         if organizations:
             docs_with_org = select(self.model.id).where(
-                self.model.organizations.overlap(organizations)
+                self.model.organizations.op("&&")(organizations)
             )
             docs_without_org = select(self.model.id).where(
                 self.model.organizations.is_(None)
