@@ -12,8 +12,8 @@ from config.network_config import CORS_ALLOWED_ORIGINS
 from config.base_config import autocomplete_app_config
 
 from sqlalchemy.orm import Session
-from schemas.question import Question
-from database.service.question import question_service
+from schemas.question import FaqQuestion
+from database.service.question import faq_question_service
 from database.database import get_db
 
 # Setup logging
@@ -39,7 +39,7 @@ app.add_middleware(
 @app.get(
     "/",
     summary="Facade for autocomplete",
-    response_model=List[Question],
+    response_model=List[FaqQuestion],
     response_description="List of matching questions",
 )
 async def autocomplete(
@@ -79,7 +79,7 @@ async def autocomplete(
 @app.get(
     "/exact_match",
     summary="Search Questions with exact match",
-    response_model=List[Question],
+    response_model=List[FaqQuestion],
     response_description="List of matching questions",
 )
 def exact_match(
@@ -109,7 +109,7 @@ def exact_match(
     ------
     list of dict
     """
-    return question_service.get_exact_match(
+    return faq_question_service.get_exact_match(
         db, question, language, k=k, tags=tags
     )
 
@@ -117,7 +117,7 @@ def exact_match(
 @app.get(
     "/fuzzy_match",
     summary="Search Questions with fuzzy match",
-    response_model=List[Question],
+    response_model=List[FaqQuestion],
     response_description="List of matching questions",
 )
 def fuzzy_match(
@@ -150,7 +150,7 @@ def fuzzy_match(
     ------
     list of dict
     """
-    return question_service.get_fuzzy_match(
+    return faq_question_service.get_fuzzy_match(
         db, question, threshold=threshold, language=language, k=k, tags=tags
     )
 
@@ -158,7 +158,7 @@ def fuzzy_match(
 @app.get(
     "/trigram_match",
     summary="Search Questions with trigram match",
-    response_model=List[Question],
+    response_model=List[FaqQuestion],
     response_description="List of matching questions",
 )
 def trigram_match(
@@ -191,7 +191,7 @@ def trigram_match(
     ------
     list of dict
     """
-    return question_service.get_trigram_match(
+    return faq_question_service.get_trigram_match(
         db, question, threshold=threshold, language=language, k=k, tags=tags
     )
 
@@ -199,7 +199,7 @@ def trigram_match(
 @app.get(
     "/semantic_similarity_match",
     summary="Search Questions with semantic similarity match",
-    response_model=List[Question],
+    response_model=List[FaqQuestion],
     response_description="List of matching questions",
 )
 def semantic_similarity_match(
@@ -229,6 +229,6 @@ def semantic_similarity_match(
     ------
     list of dict
     """
-    return question_service.get_semantic_match(
+    return faq_question_service.get_semantic_match(
         db, question, language=language, k=k, tags=tags
     )

@@ -36,9 +36,14 @@ class DocumentService(MatchingService):
             doctype=obj_in.doctype,
             organizations=obj_in.organizations,
             user_uuid=obj_in.user_uuid,
-            text_embedding=obj_in.embedding,
             source=source,
             source_id=source.id,
+            text_embedding=obj_in.text_embedding,
+            tags_embedding=obj_in.tags_embedding,
+            subtopics_embedding=obj_in.subtopics_embedding,
+            summary_embedding=obj_in.summary_embedding,
+            hyq_embedding=obj_in.hyq_embedding,
+            hyq_declarative_embedding=obj_in.hyq_declarative_embedding,
         )
         if embed:
             db_document = await self._embed(db_document)

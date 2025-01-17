@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, ClassVar, Dict
 from sqlalchemy import (
     Integer,
     ForeignKey,
@@ -10,7 +10,7 @@ from sqlalchemy import (
     ARRAY,
     JSON,
 )
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, declared_attr
 from pgvector.sqlalchemy import Vector
 from sqlalchemy.inspection import inspect
 from datetime import datetime
@@ -20,8 +20,20 @@ from datetime import datetime
 from sqlalchemy.orm import declarative_base
 
 
+class EmbeddableField:
+    """Represents a field that can be embedded with its corresponding embedding field."""
+
+    def __init__(self, content_field: str, embedding_field: str):
+        self.content_field = content_field
+        self.embedding_field = embedding_field
+
+
 class TextEmbeddingMixin:
-    """Base mixin for text embeddings shared between Document and Question"""
+    """Base mixin for text embeddings"""
+
+    embeddable_fields: ClassVar[Dict[str, EmbeddableField]] = {
+        "text": EmbeddableField("text", "text_embedding")
+    }
 
     text_embedding: Mapped[Optional[Vector]] = mapped_column(
         Vector(1536), nullable=True
@@ -31,10 +43,24 @@ class TextEmbeddingMixin:
 class DocumentEmbeddingMixin(TextEmbeddingMixin):
     """Extended mixin for Document-specific embeddings"""
 
-    summary_embedding: Mapped[Optional[Vector]] = mapped_column(
+    embeddable_fields: ClassVar[Dict[str, EmbeddableField]] = {
+        "text": EmbeddableField("text", "text_embedding"),
+        "tags": EmbeddableField("tags", "tags_embedding"),
+        "subtopics": EmbeddableField("subtopics", "subtopics_embedding"),
+        "summary": EmbeddableField("summary", "summary_embedding"),
+        "hyq": EmbeddableField("hyq", "hyq_embedding"),
+        "hyq_declarative": EmbeddableField(
+            "hyq_declarative", "hyq_declarative_embedding"
+        ),
+    }
+
+    tags_embedding: Mapped[Optional[Vector]] = mapped_column(
         Vector(1536), nullable=True
     )
     subtopics_embedding: Mapped[Optional[Vector]] = mapped_column(
+        Vector(1536), nullable=True
+    )
+    summary_embedding: Mapped[Optional[Vector]] = mapped_column(
         Vector(1536), nullable=True
     )
     hyq_embedding: Mapped[Optional[Vector]] = mapped_column(
@@ -76,15 +102,18 @@ class Source(Base):
         return serialized_data
 
 
-class Document(Base, DocumentEmbeddingMixin):
+class BaseContentModel(Base):
     """
-    Documents used for the RAG
+    Abstract base model for content-based models with common fields and behavior.
+    Not meant to be instantiated directly.
     """
 
-    __tablename__ = "document"
+    __abstract__ = True
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     text: Mapped[str] = mapped_column(Text, nullable=False)
     language: Mapped[Optional[str]] = mapped_column(String(3), nullable=True)
+    url: Mapped[str] = mapped_column(Text, nullable=False)
     tags: Mapped[Optional[List[str]]] = mapped_column(
         ARRAY(String), nullable=True
     )
@@ -98,23 +127,43 @@ class Document(Base, DocumentEmbeddingMixin):
         ARRAY(String), nullable=True
     )
     summary: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    url: Mapped[str] = mapped_column(Text, nullable=False)
-    doctype: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     organizations: Mapped[Optional[List[str]]] = mapped_column(
         ARRAY(String), nullable=True
     )
-    user_uuid: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    doctype: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
     source_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("source.id"), nullable=False
     )
-    source: Mapped["Source"] = relationship(
-        "Source", back_populates="documents"
-    )
+
+    @declared_attr
+    def source(cls) -> Mapped["Source"]:
+        return relationship("Source")
 
     created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
     modified_at: Mapped[DateTime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now()
+    )
+
+    def to_dict(self) -> dict:
+        """Convert model instance to dictionary with serializable fields."""
+        serialized_data = {
+            c.key: getattr(self, c.key)
+            for c in inspect(self).mapper.column_attrs
+        }
+        if self.source:
+            serialized_data["source"] = self.source.to_dict()
+        return serialized_data
+
+
+class Document(BaseContentModel, DocumentEmbeddingMixin):
+    """Documents used for RAG system."""
+
+    __tablename__ = "document"
+
+    user_uuid: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    source: Mapped["Source"] = relationship(
+        "Source", back_populates="documents", overlaps="source"
     )
 
     __table_args__ = (
@@ -129,54 +178,65 @@ class Document(Base, DocumentEmbeddingMixin):
             "text_embedding",
             postgresql_using="ivfflat",
         ),
+        Index(
+            "idx_document_summary_embedding",
+            "summary_embedding",
+            postgresql_using="ivfflat",
+        ),
+        Index(
+            "idx_document_hyq_embedding",
+            "hyq_embedding",
+            postgresql_using="ivfflat",
+        ),
+        Index(
+            "idx_document_hyq_declarative_embedding",
+            "hyq_declarative_embedding",
+            postgresql_using="ivfflat",
+        ),
         Index("idx_document_language", "language"),
         Index("idx_document_language_tag", "language", "tags"),
-        Index("idx_document_language_source_id", "language", "source_id"),
+        Index(
+            "idx_document_language_tags_source_id",
+            "language",
+            "tags",
+            "source_id",
+        ),
+        Index(
+            "idx_document_language_tags_source_id_subtopics",
+            "language",
+            "tags",
+            "source_id",
+            "subtopics",
+        ),
+        Index(
+            "idx_document_language_tags_source_id_subtopics_organizations",
+            "language",
+            "tags",
+            "source_id",
+            "subtopics",
+            "organizations",
+        ),
+        #     Index("idx_document_language_tags_source_id_subtopics_organizations_doctype", "language", "tags", "source_id", "subtopics", "organizations", "doctype"),
+        #     Index("idx_document_language_tags_source_id_subtopics_organizations_doctype_user_uuid", "language", "tags", "source_id", "subtopics", "organizations", "doctype", "user_uuid"),
     )
 
     def __repr__(self) -> str:
         return f"Document(id={self.id!r}, url={self.url!r}, text={self.text!r}, language={self.language!r})"
 
-    def to_dict(self):
-        serialized_data = {
-            c.key: getattr(self, c.key)
-            for c in inspect(self).mapper.column_attrs
-        }
-        if self.source:
-            serialized_data["source"] = self.source.to_dict()
-        else:
-            serialized_data["source"] = None
-        return serialized_data
 
-
-class Question(Base, TextEmbeddingMixin):
-    """
-    Question used for Autocomplete, answers are stored in the Document table.
-    """
+class Question(BaseContentModel, DocumentEmbeddingMixin):
+    """Questions for FAQ system, with answers stored in Document table."""
 
     __tablename__ = "question"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    text: Mapped[str] = mapped_column(Text, nullable=False)
-    language: Mapped[Optional[str]] = mapped_column(String(3), nullable=True)
-    tags: Mapped[Optional[List[str]]] = mapped_column(
-        ARRAY(String), nullable=True
-    )
+
     answer_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("document.id"), nullable=False
     )
     answer: Mapped["Document"] = relationship(
         "Document", back_populates="questions"
     )
-    source_id: Mapped[Optional[int]] = mapped_column(
-        Integer, ForeignKey("source.id"), nullable=True
-    )
-    source: Mapped[Optional["Source"]] = relationship(
-        "Source", back_populates="questions"
-    )
-
-    created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
-    modified_at: Mapped[DateTime] = mapped_column(
-        DateTime, default=func.now(), onupdate=func.now()
+    source: Mapped["Source"] = relationship(
+        "Source", back_populates="questions", overlaps="source"
     )
 
     __table_args__ = (
@@ -191,22 +251,13 @@ class Question(Base, TextEmbeddingMixin):
     )
 
     def __repr__(self) -> str:
-        return f"Question(id={self.id!r}, url={self.url!r}, question={self.text!r}, answer_id={self.answer_id!r}, language={self.language!r})"
+        return f"Question(id={self.id!r}, url={self.url!r}, question={self.text!r}, language={self.language!r}, answer_id={self.answer_id!r})"
 
-    def to_dict(self):
-        """
-        Convert the SQLAlchemy model instance to a dictionary
-        that only includes serializable fields.
-        """
-        serialized_data = {
-            c.key: getattr(self, c.key)
-            for c in inspect(self).mapper.column_attrs
-        }
-        serialized_data["answer"] = (
-            self.answer.to_dict() if self.answer else None
-        )
-
-        return serialized_data
+    def to_dict(self) -> dict:
+        """Extends base to_dict with answer data."""
+        data = super().to_dict()
+        data["answer"] = self.answer.to_dict() if self.answer else None
+        return data
 
 
 class Tag(Base):

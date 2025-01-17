@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from .matching import MatchingService
 from .document import document_service
 from ..models import Question
-from schemas.question import QuestionCreate, QuestionUpdate
+from schemas.question import FaqQuestionCreate, FaqQuestionUpdate
 from schemas.document import DocumentCreate
 
 import logging
@@ -17,7 +17,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class QuestionService(MatchingService):
+class FaqQuestionService(MatchingService):
     """
     Class that provide services for question database operations
     """
@@ -28,7 +28,7 @@ class QuestionService(MatchingService):
     async def _create(
         self,
         db: Session,
-        obj_in: QuestionCreate,
+        obj_in: FaqQuestionCreate,
         embed: Union[Tuple[bool, bool], bool] = False,
     ):
         # if embed is not a tuple, convert it to a tuple to use it for both question and answer
@@ -39,8 +39,10 @@ class QuestionService(MatchingService):
         db_document = await document_service.upsert(
             db,
             DocumentCreate(
-                **obj_in.model_dump(exclude={"text", "answer", "embedding"}),
-                text=obj_in.answer
+                **obj_in.model_dump(
+                    exclude={"text", "answer", "text_embedding"}
+                ),
+                text=obj_in.answer,
             ),
             embed=embed[1],
         )
@@ -48,14 +50,20 @@ class QuestionService(MatchingService):
         # create the question
         db_question = Question(
             text=obj_in.text,
-            embedding=obj_in.embedding,
             answer=db_document,
             answer_id=db_document.id,
             language=obj_in.language,
             url=obj_in.url,
             source=db_document.source,
             tags=obj_in.tags,
+            subtopics=obj_in.subtopics,
+            summary=obj_in.summary,
+            hyq=obj_in.hyq,
+            hyq_declarative=obj_in.hyq_declarative,
             source_id=db_document.source_id,
+            organizations=obj_in.organizations,
+            doctype=obj_in.doctype,
+            text_embedding=obj_in.text_embedding,
         )
         if embed[0]:
             db_question = await self._embed(db_question)
@@ -67,7 +75,7 @@ class QuestionService(MatchingService):
     async def create(
         self,
         db: Session,
-        obj_in: QuestionCreate,
+        obj_in: FaqQuestionCreate,
         embed: Union[Tuple[bool, bool], bool] = False,
     ):
         """
@@ -94,7 +102,7 @@ class QuestionService(MatchingService):
         self,
         db: Session,
         db_question: Question,
-        question: QuestionCreate,
+        question: FaqQuestionCreate,
         embed: Union[Tuple[bool, bool], bool] = False,
     ):
         # if embed is not a tuple, convert it to a tuple to use it for both question and answer
@@ -111,6 +119,7 @@ class QuestionService(MatchingService):
                 language=question.language,
                 source=question.source,
                 tags=question.tags,
+                organizations=question.organizations,
             ),
             embed=embed[1],
         )
@@ -122,13 +131,13 @@ class QuestionService(MatchingService):
         await super()._update(
             db,
             db_question,
-            QuestionUpdate(
+            FaqQuestionUpdate(
                 **question.model_dump(exclude=exclude),
-                source_id=db_question.answer.source_id
+                source_id=db_question.answer.source_id,
             ),
         )
 
         return db_question
 
 
-question_service = QuestionService()
+faq_question_service = FaqQuestionService()

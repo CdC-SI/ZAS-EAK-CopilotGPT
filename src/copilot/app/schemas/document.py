@@ -8,7 +8,13 @@ class DocumentBase(BaseModel):
     Base class for Document
     """
 
-    language: Optional[str] = None
+    text: str
+    """Content of the document"""
+
+    url: str
+    """URL where the document was found"""
+
+    language: str = None
     """Language of the document text"""
 
     tags: Optional[List[str]] = None
@@ -29,17 +35,11 @@ class DocumentBase(BaseModel):
     doctype: Optional[str] = None
     """Type of the document"""
 
-    organization: Optional[str] = None
-    """Organization to which the document belongs"""
+    organizations: Optional[List[str]] = None
+    """Organizations to which the document belongs"""
 
     user_uuid: Optional[str] = None
     """UUID of the user who added the document"""
-
-    text: str
-    """Content of the document"""
-
-    url: str
-    """URL where the document was found"""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -49,7 +49,12 @@ class DocumentCreate(DocumentBase):
     Create class for Document
     """
 
-    embedding: Optional[list[float]] = None
+    text_embedding: Optional[list[float]] = None
+    tags_embedding: Optional[list[float]] = None
+    subtopics_embedding: Optional[list[float]] = None
+    summary_embedding: Optional[list[float]] = None
+    hyq_embedding: Optional[list[float]] = None
+    hyq_declarative_embedding: Optional[list[float]] = None
 
     source: str
     """How the document was found, can be a URL or a file path for example"""
@@ -71,7 +76,13 @@ class DocumentUpdate(DocumentBase):
 
     source_id: Optional[int] = None
 
-    embedding: Optional[list[float]] = None
+    text_embedding: Optional[list[float]] = None
+    subtopics_embedding: Optional[list[float]] = None
+    tags_embedding: Optional[list[float]] = None
+    text_embedding: Optional[list[float]] = None
+    summary_embedding: Optional[list[float]] = None
+    hyq_embedding: Optional[list[float]] = None
+    hyq_declarative_embedding: Optional[list[float]] = None
 
 
 class Document(DocumentBase):

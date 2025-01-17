@@ -17,10 +17,10 @@ from indexing.pipelines.ahv import ahv_indexer
 from indexing.pipelines.bsv import BSVIndexer
 
 from sqlalchemy.orm import Session
-from database.service.question import question_service
+from database.service.question import faq_question_service
 from database.service.document import document_service
 from database.service.tag import tag_service
-from schemas.question import Question, QuestionCreate, QuestionItem
+from schemas.question import FaqQuestion, FaqQuestionCreate, FaqQuestionItem
 from schemas.document import DocumentCreate
 from schemas.tag import TagCreate
 from database.database import get_db
@@ -108,7 +108,7 @@ async def upload_csv_rag(
     - *language (optional):* Language of the document
     - *embedding (optional):* Embedding of the document
     - *tags (optional):* Tags of the document
-    - *organization (optional):* Organization of the document
+    - *organizations (optional):* Organizations access of the document
     - *subtopics (optional):* Subtopics of the document
     - *summary (optional):* Summary of the document
     - *hyq (optional):* Hypothetical queries associated to the document
@@ -133,7 +133,6 @@ async def upload_csv_rag(
     logger.info(f"Downloading {file.filename}...")
     data = csv.DictReader(codecs.iterdecode(file.file, "utf-8"))
 
-    embedding_column = "embedding" in data.fieldnames
     language_column = "language" in data.fieldnames
     tags_column = "tags" in data.fieldnames
     subtopics_column = "subtopics" in data.fieldnames
@@ -141,62 +140,140 @@ async def upload_csv_rag(
     hyq_column = "hyq" in data.fieldnames
     hyq_declarative_column = "hyq_declarative" in data.fieldnames
     doctype_column = "doctype" in data.fieldnames
-    organization_column = "organization" in data.fieldnames
+    organizations_column = "organizations" in data.fieldnames
+    user_uuid_column = "user_uuid" in data.fieldnames
+    text_embedding_column = "text_embedding" in data.fieldnames
+    summary_embedding_column = "summary_embedding" in data.fieldnames
+    tags_embedding_column = "tags_embedding" in data.fieldnames
+    subtopics_embedding_column = "subtopics_embedding" in data.fieldnames
+    hyq_embedding_column = "hyq_embedding" in data.fieldnames
+    hyq_declarative_embedding_column = (
+        "hyq_declarative_embedding" in data.fieldnames
+    )
 
     logger.info("Start adding data to database...")
     i = 0
     for row in data:
-        text = row["text"].strip() if row["text"] else None
-        url = row["url"].strip() if row["url"] else None
-        embedding = (
-            ast.literal_eval(row["embedding"]) if embedding_column else None
+        text = (
+            row["text"].strip()
+            if row["text"] and row["text"].strip()
+            else None
         )
-        language = row["language"] if language_column else None
+        url = row["url"].strip() if row["url"] and row["url"].strip() else None
+        language = (
+            row["language"]
+            if language_column and row["language"] and row["language"].strip()
+            else None
+        )
         tags = (
             [tag.strip() for tag in row["tags"].split(",")]
-            if tags_column and row["tags"]
+            if tags_column and row["tags"] and row["tags"].strip()
             else None
         )
         subtopics = (
             [subtopic.strip() for subtopic in row["subtopics"].split(",")]
-            if subtopics_column and row["subtopics"]
+            if subtopics_column
+            and row["subtopics"]
+            and row["subtopics"].strip()
             else None
         )
         summary = (
             row["summary"].strip()
-            if summary_column and row["summary"]
+            if summary_column and row["summary"] and row["summary"].strip()
             else None
         )
         hyq = (
             [query.strip() for query in row["hyq"].split(",")]
-            if hyq_column and row["hyq"]
+            if hyq_column and row["hyq"] and row["hyq"].strip()
             else None
         )
         hyq_declarative = (
             [query.strip() for query in row["hyq_declarative"].split(",")]
-            if hyq_declarative_column and row["hyq_declarative"]
+            if hyq_declarative_column
+            and row["hyq_declarative"]
+            and row["hyq_declarative"].strip()
             else None
         )
         doctype = row["doctype"].strip() if doctype_column else None
-        organization = (
-            row["organization"]
-            if organization_column and row["organization"]
+        organizations = (
+            [org.strip() for org in row["organizations"].split(",")]
+            if organizations_column
+            and row["organizations"]
+            and row["organizations"].strip()
             else None
         )
+        user_uuid = (
+            row["user_uuid"].strip()
+            if user_uuid_column
+            and row["user_uuid"]
+            and row["user_uuid"].strip()
+            else None
+        )
+
         formatted_source_name = remove_file_extension(file.filename)
+
+        text_embedding = (
+            ast.literal_eval(row["text_embedding"])
+            if text_embedding_column
+            and row["text_embedding"]
+            and row["text_embedding"].strip()
+            else None
+        )
+        tags_embedding = (
+            ast.literal_eval(row["tags_embedding"])
+            if tags_embedding_column
+            and row["tags_embedding"]
+            and row["tags_embedding"].strip()
+            else None
+        )
+        subtopics_embedding = (
+            ast.literal_eval(row["subtopics_embedding"])
+            if subtopics_embedding_column
+            and row["subtopics_embedding"]
+            and row["subtopics_embedding"].strip()
+            else None
+        )
+        summary_embedding = (
+            ast.literal_eval(row["summary_embedding"])
+            if summary_embedding_column
+            and row["summary_embedding"]
+            and row["summary_embedding"].strip()
+            else None
+        )
+        hyq_embedding = (
+            ast.literal_eval(row["hyq_embedding"])
+            if hyq_embedding_column
+            and row["hyq_embedding"]
+            and row["hyq_embedding"].strip()
+            else None
+        )
+        hyq_declarative_embedding = (
+            ast.literal_eval(row["hyq_declarative_embedding"])
+            if hyq_declarative_embedding_column
+            and row["hyq_declarative_embedding"]
+            and row["hyq_declarative_embedding"].strip()
+            else None
+        )
+
         document = DocumentCreate(
-            url=url,
             text=text,
-            embedding=embedding,
-            source=formatted_source_name,
+            url=url,
             language=language,
             tags=tags,
+            source=formatted_source_name,
             subtopics=subtopics,
             summary=summary,
             hyq=hyq,
             hyq_declarative=hyq_declarative,
             doctype=doctype,
-            organization=organization,
+            organizations=organizations,
+            user_uuid=user_uuid,
+            text_embedding=text_embedding,
+            tags_embedding=tags_embedding,
+            subtopics_embedding=subtopics_embedding,
+            summary_embedding=summary_embedding,
+            hyq_embedding=hyq_embedding,
+            hyq_declarative_embedding=hyq_declarative_embedding,
         )
         await document_service.upsert(db, document, embed=embed)
         i += 1
@@ -226,7 +303,7 @@ async def upload_csv_faq(
     - *text:* Text content of the question
     - *answer:* Text content of the answer
     - *language (optional):* Language of the question and answer
-    - *embedding (optional):* Embedding of the question
+    - *text_embedding (optional):* Embedding of the question text
     - *tags (optional):* Tags of the document
 
     Parameters
@@ -246,29 +323,155 @@ async def upload_csv_faq(
     logger.info(f"Downloading {file.filename}...")
     data = csv.DictReader(codecs.iterdecode(file.file, "utf-8"))
 
-    embedding_column = "embedding" in data.fieldnames
     language_column = "language" in data.fieldnames
     tags_column = "tags" in data.fieldnames
+    subtopics_column = "subtopics" in data.fieldnames
+    summary_column = "summary" in data.fieldnames
+    hyq_column = "hyq" in data.fieldnames
+    hyq_declarative_column = "hyq_declarative" in data.fieldnames
+    doctype_column = "doctype" in data.fieldnames
+    organizations_column = "organizations" in data.fieldnames
+    text_embedding_column = "text_embedding" in data.fieldnames
+    answer_embedding_column = "answer_embedding" in data.fieldnames
+    tags_embedding_column = "tags_embedding" in data.fieldnames
+    subtopics_embedding_column = "subtopics_embedding" in data.fieldnames
+    summary_embedding_column = "summary_embedding" in data.fieldnames
+    hyq_embedding_column = "hyq_embedding" in data.fieldnames
+    hyq_declarative_embedding_column = (
+        "hyq_declarative_embedding" in data.fieldnames
+    )
 
     logger.info("Start adding data to database...")
     i = 0
     for row in data:
-        embedding = (
-            ast.literal_eval(row["embedding"]) if embedding_column else None
+        text = (
+            row["text"].strip()
+            if row["text"] and row["text"].strip()
+            else None
         )
-        language = row["language"] if language_column else None
-        tags = row["tags"] if tags_column else None
+        url = row["url"].strip() if row["url"] and row["url"].strip() else None
+        answer = (
+            row["answer"].strip()
+            if row["answer"] and row["answer"].strip()
+            else None
+        )
+        language = (
+            row["language"]
+            if language_column and row["language"] and row["language"].strip()
+            else None
+        )
+        tags = (
+            [tag.strip() for tag in row["tags"].split(",")]
+            if tags_column and row["tags"] and row["tags"].strip()
+            else None
+        )
+        subtopics = (
+            [subtopic.strip() for subtopic in row["subtopics"].split(",")]
+            if subtopics_column
+            and row["subtopics"]
+            and row["subtopics"].strip()
+            else None
+        )
+        summary = (
+            row["summary"].strip()
+            if summary_column and row["summary"] and row["summary"].strip()
+            else None
+        )
+        hyq = (
+            [query.strip() for query in row["hyq"].split(",")]
+            if hyq_column and row["hyq"] and row["hyq"].strip()
+            else None
+        )
+        hyq_declarative = (
+            [query.strip() for query in row["hyq_declarative"].split(",")]
+            if hyq_declarative_column
+            and row["hyq_declarative"]
+            and row["hyq_declarative"].strip()
+            else None
+        )
+        doctype = row["doctype"].strip() if doctype_column else None
+        organizations = (
+            [org.strip() for org in row["organizations"].split(",")]
+            if organizations_column
+            and row["organizations"]
+            and row["organizations"].strip()
+            else None
+        )
 
-        question = QuestionCreate(
-            url=row["url"],
-            text=row["text"],
-            answer=row["answer"],
-            embedding=embedding,
-            source=file.filename,
+        formatted_source_name = remove_file_extension(file.filename)
+
+        text_embedding = (
+            ast.literal_eval(row["text_embedding"])
+            if text_embedding_column
+            and row["text_embedding"]
+            and row["text_embedding"].strip()
+            else None
+        )
+        answer_embedding = (
+            ast.literal_eval(row["answer_embedding"])
+            if answer_embedding_column
+            and row["answer_embedding"]
+            and row["answer_embedding"].strip()
+            else None
+        )
+        tags_embedding = (
+            ast.literal_eval(row["tags_embedding"])
+            if tags_embedding_column
+            and row["tags_embedding"]
+            and row["tags_embedding"].strip()
+            else None
+        )
+        subtopics_embedding = (
+            ast.literal_eval(row["subtopics_embedding"])
+            if subtopics_embedding_column
+            and row["subtopics_embedding"]
+            and row["subtopics_embedding"].strip()
+            else None
+        )
+        summary_embedding = (
+            ast.literal_eval(row["summary_embedding"])
+            if summary_embedding_column
+            and row["summary_embedding"]
+            and row["summary_embedding"].strip()
+            else None
+        )
+        hyq_embedding = (
+            ast.literal_eval(row["hyq_embedding"])
+            if hyq_embedding_column
+            and row["hyq_embedding"]
+            and row["hyq_embedding"].strip()
+            else None
+        )
+        hyq_declarative_embedding = (
+            ast.literal_eval(row["hyq_declarative_embedding"])
+            if hyq_declarative_embedding_column
+            and row["hyq_declarative_embedding"]
+            and row["hyq_declarative_embedding"].strip()
+            else None
+        )
+
+        question = FaqQuestionCreate(
+            text=text,
+            url=url,
+            answer=answer,
+            source=formatted_source_name,
             language=language,
             tags=tags,
+            subtopics=subtopics,
+            summary=summary,
+            hyq=hyq,
+            hyq_declarative=hyq_declarative,
+            doctype=doctype,
+            organizations=organizations,
+            text_embedding=text_embedding,
+            answer_embedding=answer_embedding,
+            tags_embedding=tags_embedding,
+            subtopics_embedding=subtopics_embedding,
+            summary_embedding=summary_embedding,
+            hyq_embedding=hyq_embedding,
+            hyq_declarative_embedding=hyq_declarative_embedding,
         )
-        await question_service.upsert(db, question, embed=embed)
+        await faq_question_service.upsert(db, question, embed=embed)
         i += 1
 
     file.file.close()
@@ -550,7 +753,7 @@ def add_faq_data_from_csv(
             language = row["language"] if language_column else None
             tags = row["tags"] if tags_column else None
 
-            question = QuestionCreate(
+            question = FaqQuestionCreate(
                 url=row["url"],
                 text=row["text"],
                 answer=row["answer"],
@@ -559,7 +762,7 @@ def add_faq_data_from_csv(
                 language=language,
                 tags=tags,
             )
-            question_service.upsert(db, question, embed=embed)
+            faq_question_service.upsert(db, question, embed=embed)
 
     logger.info("Finished adding entries to FAQ database.")
     return {"content": "Successfully added entries to FAQ database."}
@@ -621,7 +824,7 @@ def embed_faq_data(
     str
         Confirmation message upon successful completion of the process
     """
-    question_service.embed_many(db, embed_empty_only, k)
+    faq_question_service.embed_many(db, embed_empty_only, k)
     return {"content": "yay"}
 
 
@@ -735,16 +938,16 @@ async def index_faq_data(
 @app.put(
     "/data",
     summary="Update or Insert FAQ Data",
-    response_model=Question,
+    response_model=FaqQuestion,
     response_description="Updated or Inserted Data",
 )
-async def index_data(item: QuestionItem, db: Session = Depends(get_db)):
+async def index_data(item: FaqQuestionItem, db: Session = Depends(get_db)):
     """
     Upsert a single entry to the FAQ dataset.
 
     Parameters
     ----------
-    item : QuestionItem
+    item : FaqQuestionItem
         The Question item to insert or update :
             id : int, optional
                 The item if update is wanted
@@ -771,7 +974,7 @@ async def index_data(item: QuestionItem, db: Session = Depends(get_db)):
     item.source = "placeholder_user"
 
     if item.id:
-        db_question = question_service.get(db, item.id)
-        return await question_service.update(db, db_question, item)
+        db_question = faq_question_service.get(db, item.id)
+        return await faq_question_service.update(db, db_question, item)
     else:
-        return await question_service.create(db, item)
+        return await faq_question_service.create(db, item)
