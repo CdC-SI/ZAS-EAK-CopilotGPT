@@ -167,57 +167,47 @@ class Document(BaseContentModel, DocumentEmbeddingMixin):
     )
 
     __table_args__ = (
+        # Text search optimizations
         Index(
-            "idx_document_text_tsv",
+            "idx_document_text_gin",
             "text",
             postgresql_using="gin",
             postgresql_ops={"text": "gin_trgm_ops"},
         ),
+        # Common filter combinations
+        Index("idx_document_language", "language"),
+        Index("idx_document_tags", "tags", postgresql_using="gin"),
+        Index(
+            "idx_document_organizations",
+            "organizations",
+            postgresql_using="gin",
+        ),
+        # Vector search optimizations - IVFFlat with different list sizes based on expected data size
         Index(
             "idx_document_text_embedding",
             "text_embedding",
             postgresql_using="ivfflat",
+            postgresql_with={"lists": 100},
         ),
         Index(
-            "idx_document_summary_embedding",
-            "summary_embedding",
+            "idx_document_tags_embedding",
+            "tags_embedding",
             postgresql_using="ivfflat",
+            postgresql_with={"lists": 50},
         ),
         Index(
-            "idx_document_hyq_embedding",
-            "hyq_embedding",
+            "idx_document_subtopics_embedding",
+            "subtopics_embedding",
             postgresql_using="ivfflat",
+            postgresql_with={"lists": 50},
         ),
+        # Combined indexes for common query patterns
         Index(
-            "idx_document_hyq_declarative_embedding",
-            "hyq_declarative_embedding",
-            postgresql_using="ivfflat",
-        ),
-        Index("idx_document_language", "language"),
-        Index("idx_document_language_tag", "language", "tags"),
-        Index(
-            "idx_document_language_tags_source_id",
+            "idx_document_language_user",
             "language",
-            "tags",
-            "source_id",
+            "user_uuid",
+            postgresql_using="btree",
         ),
-        Index(
-            "idx_document_language_tags_source_id_subtopics",
-            "language",
-            "tags",
-            "source_id",
-            "subtopics",
-        ),
-        Index(
-            "idx_document_language_tags_source_id_subtopics_organizations",
-            "language",
-            "tags",
-            "source_id",
-            "subtopics",
-            "organizations",
-        ),
-        #     Index("idx_document_language_tags_source_id_subtopics_organizations_doctype", "language", "tags", "source_id", "subtopics", "organizations", "doctype"),
-        #     Index("idx_document_language_tags_source_id_subtopics_organizations_doctype_user_uuid", "language", "tags", "source_id", "subtopics", "organizations", "doctype", "user_uuid"),
     )
 
     def __repr__(self) -> str:
@@ -240,14 +230,25 @@ class Question(BaseContentModel, DocumentEmbeddingMixin):
     )
 
     __table_args__ = (
+        # Text search optimizations
         Index(
-            "idx_text_gin",
+            "idx_question_text_gin",
             "text",
             postgresql_using="gin",
             postgresql_ops={"text": "gin_trgm_ops"},
         ),
+        # Common filter combinations
         Index("idx_question_language", "language"),
-        Index("idx_question_tag", "language", "tags"),
+        Index("idx_question_tags", "tags", postgresql_using="gin"),
+        # Vector search optimizations
+        Index(
+            "idx_question_text_embedding",
+            "text_embedding",
+            postgresql_using="ivfflat",
+            postgresql_with={"lists": 100},
+        ),
+        # Answer relationship optimization
+        Index("idx_question_answer", "answer_id"),
     )
 
     def __repr__(self) -> str:
