@@ -185,10 +185,8 @@ class QueryRewritingRetriever(BaseRetriever):
         )
 
         # Query reformulations (declarative)
-        messages = (
-            self.message_builder.build_declarative_query_rewriting_prompt(
-                language, llm_model, n_alt_queries, query
-            )
+        messages = self.message_builder.build_query_statement_rewriting_prompt(
+            language, llm_model, n_alt_queries, query
         )
         rewritten_declarative_queries = await self.llm_client.agenerate(
             messages

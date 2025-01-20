@@ -11,9 +11,9 @@ from prompts.retrieval import (
     QUERY_REWRITING_PROMPT_DE,
     QUERY_REWRITING_PROMPT_FR,
     QUERY_REWRITING_PROMPT_IT,
-    DECLARATIVE_QUERY_REWRITING_PROMPT_DE,
-    DECLARATIVE_QUERY_REWRITING_PROMPT_FR,
-    DECLARATIVE_QUERY_REWRITING_PROMPT_IT,
+    QUERY_STATEMENT_REWRITING_PROMPT_DE,
+    QUERY_STATEMENT_REWRITING_PROMPT_FR,
+    QUERY_STATEMENT_REWRITING_PROMPT_IT,
     CONTEXTUAL_COMPRESSION_PROMPT_DE,
     CONTEXTUAL_COMPRESSION_PROMPT_FR,
     CONTEXTUAL_COMPRESSION_PROMPT_IT,
@@ -169,10 +169,10 @@ class MessageBuilder:
         "it": QUERY_REWRITING_PROMPT_IT,
     }
 
-    _DECLARATIVE_QUERY_REWRITING_PROMPT = {
-        "de": DECLARATIVE_QUERY_REWRITING_PROMPT_DE,
-        "fr": DECLARATIVE_QUERY_REWRITING_PROMPT_FR,
-        "it": DECLARATIVE_QUERY_REWRITING_PROMPT_IT,
+    _QUERY_STATEMENT_REWRITING_PROMPT = {
+        "de": QUERY_STATEMENT_REWRITING_PROMPT_DE,
+        "fr": QUERY_STATEMENT_REWRITING_PROMPT_FR,
+        "it": QUERY_STATEMENT_REWRITING_PROMPT_IT,
     }
 
     _CONTEXTUAL_COMPRESSION_PROMPT = {
@@ -687,12 +687,12 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
-    @observe(name="MessageBuilder_build_declarative_query_rewriting_prompt")
-    def build_declarative_query_rewriting_prompt(
+    @observe(name="MessageBuilder_build_query_statement_rewriting_prompt")
+    def build_query_statement_rewriting_prompt(
         self, language: str, llm_model: str, n_alt_queries: int, query: str
     ) -> List[Dict]:
         """
-        Format the Declarative Query Rewriting message to send to the appropriate LLM API.
+        Format the Query Statement Rewriting message to send to the appropriate LLM API.
         """
         if (
             llm_model
@@ -704,23 +704,23 @@ class MessageBuilder:
             + SUPPORTED_MLX_LLM_MODELS
             + SUPPORTED_LLAMACPP_LLM_MODELS
         ):
-            declarative_query_rewriting_system_prompt = (
-                self._DECLARATIVE_QUERY_REWRITING_PROMPT.get(
+            query_statement_rewriting_system_prompt = (
+                self._QUERY_STATEMENT_REWRITING_PROMPT.get(
                     language,
-                    self._DECLARATIVE_QUERY_REWRITING_PROMPT.get(
+                    self._QUERY_STATEMENT_REWRITING_PROMPT.get(
                         self._DEFAULT_LANGUAGE
                     ),
                 )
             )
-            declarative_query_rewriting_system_prompt = (
-                declarative_query_rewriting_system_prompt.format(
+            query_statement_rewriting_system_prompt = (
+                query_statement_rewriting_system_prompt.format(
                     n_alt_queries=n_alt_queries, query=query
                 )
             )
             return [
                 {
                     "role": "system",
-                    "content": declarative_query_rewriting_system_prompt,
+                    "content": query_statement_rewriting_system_prompt,
                 },
             ]
         else:
