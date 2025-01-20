@@ -1,7 +1,7 @@
-from config.clients_config import llm_client
+from config.clients_config import clientLLM
 
 agent_config = {
-    "llm_client": llm_client,
+    "llm_client": clientLLM,
     "system_prompt": "Assist with pension-related queries.",
     "max_iterations": 5,
     "tools": ["calculator", "knowledge_base"],  # Example tools
