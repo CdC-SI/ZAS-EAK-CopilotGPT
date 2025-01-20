@@ -129,7 +129,7 @@ class RAGService:
             language=request.language,
             tags=tags,
             source=request.source,
-            organization=request.organization,
+            organizations=request.organizations,
             user_uuid=request.user_uuid,
             k_retrieve=request.k_retrieve,
             llm_model=request.llm_model,
