@@ -183,12 +183,12 @@ async def upload_csv_rag(
             else None
         )
         hyq = (
-            [query.strip() for query in row["hyq"].split(",")]
+            [query.strip() for query in row["hyq"].split("{SEP}")]
             if hyq_column and row["hyq"] and row["hyq"].strip()
             else None
         )
         hyq_declarative = (
-            [query.strip() for query in row["hyq_declarative"].split(",")]
+            [query.strip() for query in row["hyq_declarative"].split("{SEP}")]
             if hyq_declarative_column
             and row["hyq_declarative"]
             and row["hyq_declarative"].strip()
