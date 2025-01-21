@@ -3,10 +3,13 @@ from typing import List, Tuple, Dict, Any
 from config.clients_config import clientDeepl
 from schemas.chat import ChatRequest
 from llm.base import BaseLLM
-from utils.streaming import StreamingHandler, Token
 from chat.memory import ConversationalMemory
+from utils.streaming import StreamingHandler, Token
+from utils.logging import get_logger
 
 from langfuse.decorators import observe
+
+logger = get_logger(__name__)
 
 
 class TranslationService:
@@ -14,12 +17,17 @@ class TranslationService:
         self.deepl_client = clientDeepl
 
     async def translate(self, input_text: str, target_lang: str) -> str:
-
-        translation = self.deepl_client.translate_text(
-            input_text, target_lang=target_lang.upper()
-        )
-
-        return translation.text
+        if self.deepl_client:
+            try:
+                translation = self.deepl_client.translate_text(
+                    input_text, target_lang=target_lang.upper()
+                )
+                return translation.text
+            except Exception as e:
+                logger.info("Translation failed: %s", e)
+                return "Translation failed. Please try again."
+        else:
+            return "Translation service is not available - API key not configured."
 
 
 class CommandService:
@@ -205,7 +213,7 @@ class CommandService:
             translated_text = await self.translate(input_text, target_lang)
             return {"translated_text": translated_text}
         else:
-            raise ValueError(f"Unknown command: {request.command}")
+            return f"Unknown command: {request.command}"
 
     @observe()
     async def process_command(
