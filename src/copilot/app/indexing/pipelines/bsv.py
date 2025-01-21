@@ -6,8 +6,8 @@ from lxml import etree
 import re
 
 if __name__ != "__main__":
-    from database.service.question import question_service
-    from schemas.question import QuestionCreate
+    from database.service.question import faq_question_service
+    from schemas.question import FaqQuestionCreate
     from sqlalchemy.orm import Session
 
 SITEMAP_URL = "http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -96,14 +96,14 @@ class BSVIndexer:
 
                 elif db:
                     self.logger.info(f"extract: {url}")
-                    article_in = QuestionCreate(
+                    article_in = FaqQuestionCreate(
                         text=h1,
                         answer=article,
                         language=lang,
                         url=url,
                         source=self.base_url,
                     )
-                    question_service.upsert(db, article_in, embed=embed)
+                    faq_question_service.upsert(db, article_in, embed=embed)
 
         self.logger.info(f"Done! {count} articles have been processed.")
         return urls

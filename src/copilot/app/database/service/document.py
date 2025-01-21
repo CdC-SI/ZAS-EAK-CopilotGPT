@@ -1,4 +1,5 @@
 from typing import List
+from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
 from sqlalchemy import select
@@ -9,6 +10,9 @@ from ..models import Document
 from schemas.document import DocumentCreate, DocumentUpdate
 from schemas.source import SourceCreate
 from database.models import Source
+from utils.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 class DocumentService(MatchingService):
@@ -25,9 +29,21 @@ class DocumentService(MatchingService):
             language=obj_in.language,
             text=obj_in.text,
             tags=obj_in.tags,
-            embedding=obj_in.embedding,
+            subtopics=obj_in.subtopics,
+            summary=obj_in.summary,
+            hyq=obj_in.hyq,
+            hyq_declarative=obj_in.hyq_declarative,
+            doctype=obj_in.doctype,
+            organizations=obj_in.organizations,
+            user_uuid=obj_in.user_uuid,
             source=source,
             source_id=source.id,
+            text_embedding=obj_in.text_embedding,
+            tags_embedding=obj_in.tags_embedding,
+            subtopics_embedding=obj_in.subtopics_embedding,
+            summary_embedding=obj_in.summary_embedding,
+            hyq_embedding=obj_in.hyq_embedding,
+            hyq_declarative_embedding=obj_in.hyq_declarative_embedding,
         )
         if embed:
             db_document = await self._embed(db_document)
@@ -104,6 +120,32 @@ class DocumentService(MatchingService):
         if source:
             stmt = stmt.join(self.model.source).filter(Source.url.in_(source))
         return db.scalars(stmt).all()
+
+    def delete_expired_documents(self, db: Session):
+        """
+        Delete all documents over 24 hours old that have a user_uuid.
+
+        Parameters
+        ----------
+        db: Session
+            Database session
+        """
+        try:
+            cutoff_time = datetime.utcnow() - timedelta(hours=24)
+            deleted_count = (
+                db.query(Document)
+                .filter(Document.modified_at < cutoff_time)
+                .filter(Document.user_uuid.isnot(None))
+                .delete(synchronize_session=False)
+            )
+            db.commit()
+            logger.info("Deleted %i expired user documents.", deleted_count)
+        except Exception as e:
+            db.rollback()
+            logger.error(
+                "An error occurred while deleting expired documents: %s", e
+            )
+            raise
 
 
 document_service = DocumentService()

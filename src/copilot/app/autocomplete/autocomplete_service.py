@@ -3,7 +3,7 @@ import hashlib
 from sqlalchemy.orm import Session
 
 from config.base_config import autocomplete_config
-from database.service.question import question_service
+from database.service.question import faq_question_service
 
 
 class Autocompleter:
@@ -84,7 +84,7 @@ class Autocompleter:
             a list of matching results
         """
         # Get fuzzy match
-        unique_matches = question_service.get_trigram_match(
+        unique_matches = faq_question_service.get_trigram_match(
             db,
             question,
             threshold=self.trigram_match_threshold,
@@ -106,7 +106,7 @@ class Autocompleter:
             if cache_key in self.semantic_matches_cache:
                 semantic_match = self.semantic_matches_cache[cache_key]
             else:
-                semantic_match = await question_service.get_semantic_match(
+                semantic_match = await faq_question_service.get_semantic_match(
                     db, question, language, k=self.limit, tags=tags
                 )
                 self.semantic_matches_cache[cache_key] = semantic_match

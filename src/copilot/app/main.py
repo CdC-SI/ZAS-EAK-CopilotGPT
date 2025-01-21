@@ -18,6 +18,8 @@ from command_api import app as command_app
 from settings_api import app as settings_app
 from chat_api import app as chat_app
 
+from utils.scheduler import start_scheduler, stop_scheduler
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -28,8 +30,14 @@ PREFIX = "/apy/v1"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """
+    Application lifespan context manager
+    """
     await init_indexing()
+    await start_scheduler()
     yield
+
+    await stop_scheduler()
 
 
 app = FastAPI(lifespan=lifespan)

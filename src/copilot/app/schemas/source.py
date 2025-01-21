@@ -1,5 +1,5 @@
 from .document import DocumentBase
-from .question import QuestionBase
+from .question import FaqQuestionBase
 
 from pydantic import BaseModel, ConfigDict
 
@@ -28,7 +28,7 @@ class Source(SourceBase):
 
     id: int
 
-    questions: list[QuestionBase] = []
+    questions: list[FaqQuestionBase] = []
     """A list of questions from this source"""
 
     documents: list[DocumentBase] = []

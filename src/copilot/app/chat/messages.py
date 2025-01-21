@@ -1,4 +1,7 @@
 from typing import List, Dict, Union
+from fastapi import Depends
+from sqlalchemy.orm import Session
+
 from prompts.rag import (
     RAG_SYSTEM_PROMPT_DE,
     RAG_SYSTEM_PROMPT_FR,
@@ -8,6 +11,9 @@ from prompts.retrieval import (
     QUERY_REWRITING_PROMPT_DE,
     QUERY_REWRITING_PROMPT_FR,
     QUERY_REWRITING_PROMPT_IT,
+    QUERY_STATEMENT_REWRITING_PROMPT_DE,
+    QUERY_STATEMENT_REWRITING_PROMPT_FR,
+    QUERY_STATEMENT_REWRITING_PROMPT_IT,
     CONTEXTUAL_COMPRESSION_PROMPT_DE,
     CONTEXTUAL_COMPRESSION_PROMPT_FR,
     CONTEXTUAL_COMPRESSION_PROMPT_IT,
@@ -25,7 +31,18 @@ from prompts.chat import (
     CHAT_TITLE_SYSTEM_PROMPT_FR,
     CHAT_TITLE_SYSTEM_PROMPT_IT,
 )
+from prompts.source import (
+    SOURCE_DESCRIPTION_SYSTEM_PROMPT_DE,
+    SOURCE_DESCRIPTION_SYSTEM_PROMPT_FR,
+    SOURCE_DESCRIPTION_SYSTEM_PROMPT_IT,
+)
 from prompts.agents import (
+    INTENT_DETECTION_PROMPT_DE,
+    INTENT_DETECTION_PROMPT_FR,
+    INTENT_DETECTION_PROMPT_IT,
+    SOURCE_SELECTION_PROMPT_DE,
+    SOURCE_SELECTION_PROMPT_FR,
+    SOURCE_SELECTION_PROMPT_IT,
     AGENT_HANDOFF_PROMPT_DE,
     AGENT_HANDOFF_PROMPT_FR,
     AGENT_HANDOFF_PROMPT_IT,
@@ -84,6 +101,9 @@ from config.llm_config import (
     SUPPORTED_LLAMACPP_LLM_MODELS,
 )
 
+from database.database import get_db
+from settings_api import get_tags_descriptions, get_source_descriptions
+
 from langfuse.decorators import observe
 
 
@@ -101,6 +121,12 @@ class MessageBuilder:
         "it": CHAT_TITLE_SYSTEM_PROMPT_IT,
     }
 
+    _SOURCE_DESCRIPTION_PROMPT = {
+        "de": SOURCE_DESCRIPTION_SYSTEM_PROMPT_DE,
+        "fr": SOURCE_DESCRIPTION_SYSTEM_PROMPT_FR,
+        "it": SOURCE_DESCRIPTION_SYSTEM_PROMPT_IT,
+    }
+
     _TOPIC_CHECK_PROMPT = {
         "de": TOPIC_CHECK_PROMPT_DE,
         "fr": TOPIC_CHECK_PROMPT_FR,
@@ -111,6 +137,18 @@ class MessageBuilder:
         "de": UNIQUE_SOURCE_VALIDATION_PROMPT_DE,
         "fr": UNIQUE_SOURCE_VALIDATION_PROMPT_FR,
         "it": UNIQUE_SOURCE_VALIDATION_PROMPT_IT,
+    }
+
+    _INTENT_DETECTION_PROMPT = {
+        "de": INTENT_DETECTION_PROMPT_DE,
+        "fr": INTENT_DETECTION_PROMPT_FR,
+        "it": INTENT_DETECTION_PROMPT_IT,
+    }
+
+    _SOURCE_SELECTION_PROMPT = {
+        "de": SOURCE_SELECTION_PROMPT_DE,
+        "fr": SOURCE_SELECTION_PROMPT_FR,
+        "it": SOURCE_SELECTION_PROMPT_IT,
     }
 
     _AGENT_HANDOFF_PROMPT = {
@@ -129,6 +167,12 @@ class MessageBuilder:
         "de": QUERY_REWRITING_PROMPT_DE,
         "fr": QUERY_REWRITING_PROMPT_FR,
         "it": QUERY_REWRITING_PROMPT_IT,
+    }
+
+    _QUERY_STATEMENT_REWRITING_PROMPT = {
+        "de": QUERY_STATEMENT_REWRITING_PROMPT_DE,
+        "fr": QUERY_STATEMENT_REWRITING_PROMPT_FR,
+        "it": QUERY_STATEMENT_REWRITING_PROMPT_IT,
     }
 
     _CONTEXTUAL_COMPRESSION_PROMPT = {
@@ -326,6 +370,49 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
+    def build_source_description_prompt(
+        self,
+        language: str,
+        llm_model: str,
+        source_name: str,
+        docs: str,
+    ) -> List[Dict]:
+        """
+        Format the CreateSourceDescription message to send to the appropriate LLM API.
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+            source_description_system_prompt = (
+                self._SOURCE_DESCRIPTION_PROMPT.get(
+                    language,
+                    self._SOURCE_DESCRIPTION_PROMPT.get(
+                        self._DEFAULT_LANGUAGE
+                    ),
+                )
+            )
+            source_description_system_prompt = (
+                source_description_system_prompt.format(
+                    source_name=source_name,
+                    docs=docs,
+                )
+            )
+            return [
+                {
+                    "role": "system",
+                    "content": source_description_system_prompt,
+                },
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
     @observe(name="MessageBuilder_build_topic_check_prompt")
     def build_topic_check_prompt(
         self, language: str, llm_model: str, query: str
@@ -397,9 +484,106 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
+    @observe(name="MessageBuilder_build_intent_detection_prompt")
+    async def build_intent_detection_prompt(
+        self,
+        language: str,
+        llm_model: str,
+        query: str,
+        conversational_memory: str,
+        documents: str,
+        db: Session = Depends(get_db),
+    ) -> Union[List[Dict], str]:
+        """
+        Format the Intent Detection message to send to the appropriate LLM API.
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+
+            tags = await get_tags_descriptions(db, language)
+            formatted_tags = "\n".join([f"{tag[0]}: {tag[1]}" for tag in tags])
+            # TO DO: check duplicates
+            # better formatting and prompt instruction
+            intent_detection_system_prompt = self._INTENT_DETECTION_PROMPT.get(
+                language,
+                self._INTENT_DETECTION_PROMPT.get(self._DEFAULT_LANGUAGE),
+            )
+            intent_detection_system_prompt = (
+                intent_detection_system_prompt.format(
+                    conversational_memory=conversational_memory,
+                    documents=documents,
+                    tags=formatted_tags,
+                    query=query,
+                )
+            )
+            return [
+                {"role": "system", "content": intent_detection_system_prompt},
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
+    @observe(name="MessageBuilder_build_source_selection_prompt")
+    async def build_source_selection_prompt(
+        self,
+        language: str,
+        llm_model: str,
+        query: str,
+        intent: str,
+        tags: List[str],
+        conversational_memory: str,
+        db: Session = Depends(get_db),
+    ) -> Union[List[Dict], str]:
+        """
+        Format the Source Selection message to send to the appropriate LLM API.
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+
+            sources = await get_source_descriptions(db)
+            source_selection_system_prompt = self._SOURCE_SELECTION_PROMPT.get(
+                language,
+                self._SOURCE_SELECTION_PROMPT.get(self._DEFAULT_LANGUAGE),
+            )
+            source_selection_system_prompt = (
+                source_selection_system_prompt.format(
+                    query=query,
+                    intent=intent,
+                    tags=tags,
+                    conversational_memory=conversational_memory,
+                    sources=sources,
+                )
+            )
+            return [
+                {"role": "system", "content": source_selection_system_prompt},
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
     @observe(name="MessageBuilder_build_agent_handoff_prompt")
-    def build_agent_handoff_prompt(
-        self, language: str, llm_model: str, query: str
+    async def build_agent_handoff_prompt(
+        self,
+        language: str,
+        llm_model: str,
+        query: str,
+        intent: str,
+        tags: List[str],
+        conversational_memory: str,
     ) -> Union[List[Dict], str]:
         """
         Format the Agent Handoff message to send to the appropriate LLM API.
@@ -421,6 +605,9 @@ class MessageBuilder:
             )
             agent_handoff_system_prompt = agent_handoff_system_prompt.format(
                 query=query,
+                intent=intent,
+                tags=tags,
+                conversational_memory=conversational_memory,
             )
             return [
                 {"role": "system", "content": agent_handoff_system_prompt},
@@ -496,6 +683,45 @@ class MessageBuilder:
             )
             return [
                 {"role": "system", "content": query_rewriting_system_prompt},
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
+    @observe(name="MessageBuilder_build_query_statement_rewriting_prompt")
+    def build_query_statement_rewriting_prompt(
+        self, language: str, llm_model: str, n_alt_queries: int, query: str
+    ) -> List[Dict]:
+        """
+        Format the Query Statement Rewriting message to send to the appropriate LLM API.
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+            query_statement_rewriting_system_prompt = (
+                self._QUERY_STATEMENT_REWRITING_PROMPT.get(
+                    language,
+                    self._QUERY_STATEMENT_REWRITING_PROMPT.get(
+                        self._DEFAULT_LANGUAGE
+                    ),
+                )
+            )
+            query_statement_rewriting_system_prompt = (
+                query_statement_rewriting_system_prompt.format(
+                    n_alt_queries=n_alt_queries, query=query
+                )
+            )
+            return [
+                {
+                    "role": "system",
+                    "content": query_statement_rewriting_system_prompt,
+                },
             ]
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")

@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 import logging
-from typing import List
+from typing import List, Dict
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from config.project_config import ProjectConfig
 from config.network_config import CORS_ALLOWED_ORIGINS
 from database.database import get_db
-from database.models import Source, Document
+from database.models import Source, Document, Tag
 from config.llm_config import (
     SUPPORTED_OPENAI_LLM_MODELS,
     SUPPORTED_AZUREOPENAI_LLM_MODELS,
@@ -43,6 +43,19 @@ app.add_middleware(
 
 
 @app.get(
+    "/organization",
+    summary="Get organizations list",
+    response_description="Return a list of organizations",
+    status_code=200,
+)
+async def get_organizations(db: Session = Depends(get_db)) -> List[str]:
+    """
+    Endpoint to get all organizations.
+    """
+    return ["ZAS", "EAK"]
+
+
+@app.get(
     "/sources",
     summary="Get sources from postgres 'source' table",
     response_description="Return a list of sources",
@@ -52,8 +65,27 @@ async def get_sources(db: Session = Depends(get_db)) -> List:
     """
     Endpoint to get all sources from 'source' table in postgres.
     """
-    unique_urls = db.query(Source.url).distinct().all()
-    return [url[0] for url in unique_urls]
+    unique_sources = db.query(Source.url, Source.description).distinct().all()
+    return [source.url for source in unique_sources]
+
+
+@app.get(
+    "/source_descriptions",
+    summary="Get source descriptions from postgres 'source' table",
+    response_description="Return a list of source descriptions",
+    status_code=200,
+)
+async def get_source_descriptions(db: Session = Depends(get_db)) -> List[Dict]:
+    """
+    Endpoint to get all sources descriptions from 'source' table in postgres.
+    """
+    source_descriptions = (
+        db.query(Source.url, Source.description).distinct().all()
+    )
+    return [
+        {"url": source.url, "description": source.description}
+        for source in source_descriptions
+    ]
 
 
 @app.get("/tags")
@@ -70,6 +102,26 @@ async def get_tags(db: Session = Depends(get_db)) -> List:
         if tags[0]:
             all_tags.update(tags[0])
     return sorted(all_tags)
+
+
+async def get_tags_descriptions(
+    db: Session = Depends(get_db), language: str = None
+) -> Dict:
+    """
+    Endpoint to get all tags descriptions from 'tags' table in postgres based on language.
+    """
+    # TO DO: semantic search on tag description embeddings by language (embed all language descriptions of description col)
+
+    tags_descriptions = db.query(Tag).filter(Tag.language == language).all()
+
+    # tags_descriptions = {
+    #     "AKIS": "Les documents AKIS contient toute l'information sur l'outil d'aide en ligne AKIS.",
+    #     "Familienzulagen": "Les documents Familienzulagen contiennent toute l'information sur les allocations familiales.",
+    #     "Firmen": "Les documents Firmen contiennent toute l'information sur l'AVS/AI des entreprises.",
+    #     "Private": "Les documents Private contiennent toute l'information sur l'AVS/AI des personnes privées.",
+    #     "Documentation": "Les documents Documentation contiennent toute l'information sur l'AVS/AI des personnes privées.",
+    # }
+    return [(tag.tag_en, tag.description) for tag in tags_descriptions]
 
 
 @app.get(

@@ -17,7 +17,7 @@ autocomplete:
 rag:
   enabled: true
   embedding:
-    model: text-embedding-ada-002
+    model: text-embedding-3-small
   retrieval:
     retrieval_method:
       - top_k_retriever

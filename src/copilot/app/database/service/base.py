@@ -1,6 +1,6 @@
-from sqlalchemy import select
+from sqlalchemy import select, or_
 from sqlalchemy.orm import Session
-from ..models import Base, EmbeddedMixin
+from ..models import Base, TextEmbeddingMixin, EmbeddableField
 from pydantic import BaseModel
 
 from utils.embedding import get_embedding
@@ -176,14 +176,40 @@ class EmbeddingService(BaseService):
     Base class for embedding services
     """
 
-    async def _embedding(self, db_obj: EmbeddedMixin, text: str):
-        db_obj.embedding = await get_embedding(text)
+    async def _embed_field(
+        self, db_obj: TextEmbeddingMixin, field: EmbeddableField
+    ) -> bool:
+        """
+        Embed a single field if it exists and has content.
+        Returns True if embedding was performed, False otherwise.
+        """
+        content = getattr(db_obj, field.content_field, None)
+        if content:
+            if isinstance(content, list):
+                # For fields like tags, hyq that are lists, join them
+                content = " ".join(content)
+            if isinstance(content, str) and content.strip():
+                embedding = await get_embedding(content)
+                setattr(db_obj, field.embedding_field, embedding)
+                return True
+        return False
+
+    async def _embed(self, db_obj: TextEmbeddingMixin) -> TextEmbeddingMixin:
+        """Embed all available fields in the object"""
+        embedded_count = 0
+        for field in db_obj.embeddable_fields.values():
+            if await self._embed_field(db_obj, field):
+                embedded_count += 1
+                logger.info(
+                    f"Embedded field {field.content_field} for {db_obj}"
+                )
+
+        if embedded_count == 0:
+            logger.warning(f"No fields were embedded for {db_obj}")
+
         return db_obj
 
-    async def _embed(self, db_obj: EmbeddedMixin):
-        return await self._embedding(db_obj, db_obj.text)
-
-    async def embed_one(self, db: Session, db_obj: EmbeddedMixin):
+    async def embed_one(self, db: Session, db_obj: TextEmbeddingMixin):
         """
         Embed a single object in the database
 
@@ -191,12 +217,12 @@ class EmbeddingService(BaseService):
         ----------
         db : Session
             Database session
-        db_obj : EmbeddedMixin
+        db_obj : TextEmbeddingMixin
             Database object
 
         Returns
         -------
-        EmbeddedMixin
+        TextEmbeddingMixin
             Embedded database object
         """
         db_obj = await self._embed(db_obj)
@@ -220,21 +246,26 @@ class EmbeddingService(BaseService):
 
         Returns
         -------
-        list[EmbeddedMixin]
+        list[TextEmbeddingMixin]
             List of embedded database objects
         """
         stmt = select(self.model)
         if embed_empty_only:
-            stmt = stmt.filter(self.model.embedding.is_(None))
+            # Create a filter that checks if any embedding field is null
+            null_conditions = [
+                getattr(self.model, field.embedding_field).is_(None)
+                for field in self.model.embeddable_fields.values()
+            ]
+            stmt = stmt.filter(or_(*null_conditions))
+
         db_objs = db.scalars(stmt).all()
         logger.info(f"Embedding {len(db_objs)} objects")
-        i = 0
-        for db_obj in db_objs:
-            i += 1
+
+        for i, db_obj in enumerate(db_objs, 1):
             await self._embed(db_obj)
-            logger.info(f"Embedded: {db_obj}")
-            if i == k:
+            if k > 0 and i >= k:
                 break
+
         db.commit()
         return db_objs
 
@@ -289,6 +320,25 @@ class EmbeddingService(BaseService):
         """
         return db.query(self.model).filter(self.model.text == text).first()
 
+    # TO DO: update this
+    def get_by_tag(self, db: Session, tag: str):
+        """
+        Get object by tag
+
+        Parameters
+        ----------
+        db : Session
+            Database session
+        tag : str
+            Object text
+
+        Returns
+        -------
+        Base
+            Database object
+        """
+        return db.query(self.model).filter(self.model.tag_en == tag).first()
+
     async def _update(self, db: Session, db_obj, obj_in, embed=False):
         exclude = await self._update_embed_exclude(db_obj, obj_in, embed=embed)
         obj_data = obj_in.model_dump(exclude_unset=True, exclude=exclude)
@@ -315,19 +365,28 @@ class EmbeddingService(BaseService):
             fields to exclude
         """
         exclude = {"source"}
-        # prevent from replacing existing embedding by None, check if obj_in has an embedding
-        if obj_in.embedding is None:
-            exclude.add("embedding")
 
-            # specified embedding from obj_in has priority on requesting a new one
-            # embed only if the text has changed
-            if embed and (
-                (db_obj.text != obj_in.text) or (db_obj.embedding is None)
-            ):
-                logger.info("Embedding updated")
-                await self._embedding(db_obj, obj_in.text)
-            else:
-                logger.info("Embedding not updated")
+        if embed:
+            changed_fields = []
+            for field_name, field in db_obj.embeddable_fields.items():
+                old_content = getattr(db_obj, field.content_field, None)
+                new_content = getattr(obj_in, field.content_field, None)
+                new_embedding = getattr(obj_in, field.embedding_field, None)
+
+                if new_embedding is None:
+                    exclude.add(field.embedding_field)
+                    if (
+                        new_content != old_content
+                        or getattr(db_obj, field.embedding_field, None) is None
+                    ):
+                        changed_fields.append(field)
+
+            if changed_fields:
+                logger.info(
+                    f"Fields to be embedded: {[f.content_field for f in changed_fields]}"
+                )
+                for field in changed_fields:
+                    await self._embed_field(db_obj, field)
 
         logger.info(f"Excluded fields: {exclude}")
         return exclude
@@ -364,10 +423,21 @@ class EmbeddingService(BaseService):
             logger.error(f"Update failed due to {e}")
             raise
 
+    # TO DO: update this
     async def upsert(self, db: Session, obj_in: BaseModel, embed=False):
-        db_obj = self.get_by_text(db, obj_in.text)
-        if db_obj:
-            db_obj = await self._update(db, db_obj, obj_in, embed=embed)
+        if hasattr(obj_in, "text"):
+            db_obj = self.get_by_text(db, obj_in.text)
+        elif hasattr(obj_in, "tag_en"):
+            db_obj = self.get_by_tag(db, obj_in.tag_en)
+
+        if db_obj and hasattr(obj_in, "text"):
+            db_obj = await self._update(
+                db, db_obj, obj_in, embed=embed
+            )  # update for duplicate docs
+        elif db_obj and hasattr(obj_in, "tag_en"):
+            db_obj = await self._create(
+                db, obj_in, embed=embed
+            )  # create for duplicate tags (normal)
         else:
             db_obj = await self._create(db, obj_in, embed=embed)
 

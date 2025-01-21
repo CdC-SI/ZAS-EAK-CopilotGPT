@@ -1,4 +1,352 @@
+INTENT_DETECTION_PROMPT_DE = """# Aufgabe
+Ihre Aufgabe besteht darin:
+- die Absicht des Nutzers auf der Grundlage der gestellten Frage und des Gesprächsverlaufs zu ermitteln
+- auf der Grundlage der Fragestellung und der verfügbaren Themen zu bestimmen, welche Themen für die Suche nach Dokumenten ausgewählt werden sollen.
+- den geeigneten Agenten auf der Grundlage der Absicht und des Themas (der Themen) auswählen.
+- entscheiden, ob zusätzliche Informationen oder Klarstellungen erforderlich sind, um die Absicht des Nutzers genau zu identifizieren. WICHTIG: Sehen Sie sich die verfügbaren Dokumente UND die verfügbaren Themen an, um festzustellen, ob eine Klärung erforderlich ist oder nicht. Wenn ein Dokument oder ein Thema die Frage beantworten kann, stellen Sie keine Folgefrage.
+
+# Wichtige Anmerkungen
+Die Absicht des Nutzers kann allgemein oder spezifisch sein.
+Zum Beispiel eine Frage zu Themen im Zusammenhang mit AHV/IV, Kindergeld, Erwerbsausfallentschädigung, Mutterschaftsgeld usw. stellen.
+Zum Beispiel eine sehr spezifische Frage zu einer Berechnung stellen, die sich auf die persönliche Situation des Nutzers bezieht (Alter, Einkommen usw.).
+Wenn Sie eine Folgefrage stellen müssen, stellen Sie sie AUF DEUTSCH!!!
+WICHTIG: Stellen Sie nur eine Anschlussfrage, wenn die Frage sehr vage formuliert ist ODER wenn die Frage mithilfe der verfügbaren Dokumente/Themen nicht (oder nur teilweise) beantwortet werden kann. Wenn sich die Frage auf das Thema AHV/IV im Allgemeinen bezieht, stellen Sie keine Anschlussfrage.
+
+## Agenten
+- RAG_AGENT: Beantwortet allgemeine Fragen zu:
+    - Alters- und Hinterlassenenversicherung (AHV)
+    - Invalidenversicherung (IV)
+    - Ergänzungsleistungen (EL)
+    - Überbrückungsleistungen (ÜL)
+    - Leistungen aus dem System der Erwerbsausfallentschädigungen (EO), Mutterschaftsentschädigung (MSE), Entschädigung des andern Elternteils (Vater oder Ehefrau der Mutter) (EAE), Betreuungsentschädigung (BUE), Adoptionsentschädigung (AdopE)
+    - Familienzulagen (FZ)
+    - Weitere Sozialversicherungen
+    - Internationales
+    - Beiträge, Leistungen, Anspruch usw.
+- PENSION_AGENT: Beantwortet nur die spezifischen mathematischen Berechnungen für den Ruhestand, insbesondere:
+    - die Berechnung des Kürzungssatzes und des Rentenzuschlags für Frauen der Übergangsgeneration (1961-1969)
+    - die Berechnung der geschätzten Altersrente
+    - Berechnung des Referenzalters (Alter, in dem eine Person ihre Altersrente erhält).
+- FAK_EAK_AGENT: Beantwortet Fragen zu Kindergeld, insbesondere:
+    - die Bestimmung (Berechnung), welcher Elternteil das Kindergeld erhält.
+- APG_AGENT: Beantwortet Fragen zur Erwerbsausfallentschädigung.
+    - die Bestimmung (Berechnung) des EO-Taggeldes aufgrund des Dienstes (Militärdienst, Zivildienst usw.)
+    - die Bestimmung (Berechnung) des Taggelds der MSE (Mutterschaftsentschädigung)
+
+# Format der Antwort
+IntentDetection(
+    intent: str, # die Absicht des Nutzers in einem verständlichen Satz
+    tags: List[str] = None, # das/die identifizierte(n) Thema(e) der Frage
+    agent: str = None, # der Name des entsprechenden Agenten, der die Frage beantwortet.
+    followup_required: bool = False, # True, wenn zusätzliche Informationen erforderlich sind, um die Absicht des Nutzers genau zu identifizieren, False andernfalls.
+    followup_question: str = None, # Folgefrage, um zusätzliche Informationen zu erhalten, wenn followup_required True ist.
+)
+Wenn die Absicht, die Themen, der passende Agent nicht bestimmt werden können, können Sie für diese Werte „None“ angeben und „followup_required“ und „followup_question“ ausfüllen.
+
+# Beispiele für die Auswahl des Agenten
+Für allgemeine Fragen zur AHV/IV -> RAG_AGENT
+Wie bestimme ich meinen Anspruch auf Ergänzungsleistungen? -> RAG_AGENT
+Welche Voraussetzungen muss ich erfüllen, um eine IV-Rente zu erhalten? -> RAG_AGENT
+Wann werden Ergänzungsleistungen gezahlt? -> RAG_AGENT
+Wann entsteht der Anspruch auf eine Altersrente? -> RAG_AGENT
+Was ändert sich mit AHV 21? -> RAG_AGENT
+Was bedeutet das flexible Rentenalter? -> RAG_AGENT
+
+Für sehr spezifische (individualisierte) Fragen zu Berechnungen von Kürzungssätzen und Rentenzuschlägen im Zusammenhang mit dem Eintritt in den Ruhestand und dem Bezug von Altersrenten -> PENSION_AGENT
+Ich bin am 1962.31.12 geboren, möchte am 01.01.2025 in Rente gehen und mein Jahreseinkommen beträgt ca. 55'000 CHF. Wie hoch ist mein Kürzungssatz? -> PENSION_AGENT
+Wie hoch ist mein Kürzungssatz, wenn ich am 1965-11-07 geboren bin, am 2026-04-15 in Rente gehen möchte und mein Jahreseinkommen 76200 beträgt? -> PENSION_AGENT
+Hier sind meine Informationen: Geburtsdatum 03.01.1968 und ich gehe 2027 in Rente. Ich verdiene etwa 90000 CHF pro Jahr. Kann ich einen Zuschlag oder einen Kürzungssatz erhalten? -> PENSION_AGENT
+Für sehr spezifische (individualisierte) Fragen zur Berechnung des Referenzalters für Frauen der Übergangsgeneration (1961-1969) -> PENSION_AGENT
+Wenn ich eine Frau bin, die 1960 geboren wurde, wie hoch ist mein Referenzalter? -> PENSION_AGENT
+Ich bin eine 1961 geborene Frau, was ist mein Referenzalter? -> PENSION_AGENT
+Ich bin am 01.01.1962 geboren, wie hoch ist mein Referenzalter? -> PENSION_AGENT
+
+Bei Fragen zum Kindergeld -> FAK_EAK_AGENT
+Welche Arten von Kindergeld werden gezahlt? -> FAK_EAK_AGENT
+Wie hoch ist das Kindergeld? -> FAK_EAK_AGENT
+Werden die Zulagen nach dem Wohnkanton oder dem Arbeitskanton bestimmt? -> FAK_EAK_AGENT
+Wer hat Anspruch auf Kinderzulagen? -> FAK_EAK_AGENT
+Welcher Elternteil erhält die Kinderzulagen? -> FAK_EAK_AGENT
+Wie können Sie Ihren Anspruch auf Kindergeld bei der Familienausgleichskasse der Eidgenössischen Ausgleichskasse (FAK-EAK) geltend machen? -> FAK_EAK_AGENT
+Wie können Sie einen bestehenden Anspruch auf Ausbildungszulagen verlängern? -> FAK_EAK_AGENT
+Wie werden die Familienzulagen der Familienausgleichskasse der Eidgenössischen Ausgleichskasse ausbezahlt? -> FAK_EAK_AGENT
+
+# Gesprächsverlaufs
+{conversational_memory}
+
+#Dokumente zur Verfügung
+{Dokumente}
+
+# Themen zur Verfügung
+{tags}
+
+# Frage
+{query}"""
+
+
+INTENT_DETECTION_PROMPT_FR = """# Tâche
+Votre tâche consiste à:
+- déterminer l'intention de l'utilisateur en fonction de la question posée et de l'historique de conversation
+- déterminer quel(s) thème(s) sélectionner pour la recherche de documents basé sur la question posée et sur les thèmes à disposition
+- déterminer si des clarifications ou des informations supplémentaires sont nécessaires pour identifier l'intention de l'utilisateur de manière précise. IMPORTANT: regardez les documents à disposition ET les thèmes à disposition pour déterminer si des clarifications sont nécessaires ou non. Si un document ou un thème peut répondre à la question, ne posez pas de question de suivi.
+
+# Notes importantes
+L'intention de l'utilisateur peut être générale ou spécifique.
+Par exemple, poser une question sur les thèmes liés à l'AVS/AI, aux allocations familiales, aux allocations pour perte de gain, aux allocations de maternité, etc.
+Par exemple, poser une question très spécifique à un calcul lié à la situation personnelle de l'utilisateur (âge, revenu, etc.).
+Si vous devez poser une question de suivi, posez la EN FRANCAIS !!!
+IMPORTANT: Posez seulement une question de suivi si la question est formulée de manière très vague OU si les documents/thèmes à disposition ne permettent pas de répondre à la question (ou seulement de manière partielle). Si la question porte sur le thème de l'AVS/AI de manière générale, ne posez pas de question de suivi.
+
+# Format de réponse
+IntentDetection(
+    intent: str, # l'intention de l'utilisateur en une phrase couerte
+    tags: List[str] = None, # le(s) thème(s) identifié de la question
+    followup_required: bool = False, # True si des informations supplémentaires sont nécessaires pour identifier l'intention de l'utilisateur de manière précise, False sinon.
+    followup_question: str = None, # Question de suivi pour obtenir des informations supplémentaires si followup_required est True.
+)
+Si l'intention ou les thèmes appropriés ne peuvent être déterminés, vous pouvez spécifier "None" pour ces valeurs et remplir "followup_required" et "followup_question".
+
+# Historique de conversation
+{conversational_memory}
+
+# Documents à disposition
+{documents}
+
+# Thèmes à disposition
+{tags}
+
+# Question
+{query}"""
+
+
+INTENT_DETECTION_PROMPT_IT = """# Compito
+Il vostro compito è quello di:
+- determinare l'intenzione dell'utente in base alla domanda posta e alla cronologia della conversazione
+- determinare quale/i tema/i selezionare per la ricerca di documenti in base alla domanda posta e ai temi disponibili
+- selezionare l'agente appropriato in base all'intenzione e ai temi disponibili
+- determinare se sono necessari chiarimenti o informazioni aggiuntive per identificare con precisione l'intenzione dell'utente. IMPORTANTE: esaminare i documenti disponibili E i temi disponibili per determinare se sono necessari o meno chiarimenti. Se un documento o un tema è in grado di rispondere alla domanda, non porre una domanda successiva.
+
+# Note importanti
+L'intenzione dell'utente può essere generale o specifica.
+Ad esempio, porre una domanda su argomenti relativi all'AVS/AI, agli assegni familiari, alle indennità di perdita di guadagno, agli assegni di maternità, ecc. potrebbe essere molto specifico.
+Ad esempio, porre una domanda molto specifica su un calcolo legato alla situazione personale dell'utente (età, reddito, ecc.).
+Se dovete fare una domanda di approfondimento, fatela IN ITALIANO!
+IMPORTANTE: porre una domanda di follow-up solo se la domanda è formulata in modo molto vago O se i documenti/temi disponibili non consentono di rispondere alla domanda (o solo parzialmente). Se la domanda riguarda l'AVS/AI in generale, non porre una domanda di approfondimento.
+
+- RAG_AGENT: risponde a domande generali su:
+    - Assicurazione vecchiaia e superstiti (AVS)
+    - Assicurazione per l'invalidità (AI)
+    - Prestazioni complementari (PC)
+    - Prestazioni transitorie per i disoccupati anziani (PT)
+    - Prestazioni dell'IPG (IPG): Indennità per chi presta servizio, Indennità in caso di maternità, Indennità per l'altro genitore (per il padre o la moglie della madre), Indennità di assistenza, Indennità di adozione
+    - Assegni familiari (AF)
+    - Altri tipi di assicurazione sociale
+    - Internazionale
+    - Contributi, prestazioni, diritti, ecc.
+- PENSION_AGENT: risponde solo ai calcoli matematici specifici per la pensione, in particolare:
+    - calcolo del tasso di riduzione e del supplemento di pensione per le donne della generazione di transizione (1961-1969)
+    - calcolo della pensione stimata
+    - calcolo dell'età di riferimento (l'età in cui una persona riceve la pensione di vecchiaia).
+- FAK_EAK_AGENT: risponde a domande sugli assegni familiari, in particolare:
+    - determinare (calcolare) quale genitore riceve gli assegni familiari
+- APG_AGENT: risponde alle domande sulle indennità di perdita di guadagno
+    - determinazione (calcolo) delle prestazioni giornaliere APG in base al servizio (servizio militare, servizio civile, ecc.)
+    - determinare (calcolare) le indennità giornaliere (indennità di maternità)
+
+# Formato della risposta
+IntentDetection(
+    intent: str, # l'intento dell'utente in una frase
+    tags: List[str] = None, # i temi identificati della domanda
+    agent: str = None, # il nome dell'agente appropriato per rispondere alla domanda.
+    followup_required: bool = False, # True se sono necessarie informazioni aggiuntive per identificare con precisione l'intento dell'utente, False altrimenti.
+    followup_question: str = None, # domanda successiva per ottenere informazioni aggiuntive se followup_required è True.
+)
+Se non è possibile determinare l'intenzione, i temi e l'agente appropriato, è possibile specificare None per questi valori e compilare “followup_required” e “followup_question”.
+
+# Esempi di selezione degli agenti
+Per domande generali sull'AVS/AI -> RAG_AGENT
+Come si determina il diritto alle prestazioni complementari? -> RAG_AGENT
+Quali sono le condizioni per ricevere una rendita AI? -> RAG_AGENT
+Quando vengono versate le prestazioni complementari? -> RAG_AGENT
+Quando nasce il diritto alla pensione di vecchiaia? -> RAG_AGENT
+Cosa cambia con l'AVS 21? -> RAG_AGENT
+Cosa significa l'età pensionabile flessibile? -> RAG_AGENT
+
+Per domande molto specifiche (personalizzate) relative al calcolo dei tassi di riduzione e dei supplementi di pensione legati al pensionamento e al percepimento di pensioni di vecchiaia -> PENSION_AGENT
+Sono nato il 31.12.1962, voglio andare in pensione il 01.01.2025 e il mio reddito annuo è di circa 55.000 franchi. Qual è il mio tasso di riduzione? -> PENSION_AGENT
+Qual è il mio tasso di riduzione se sono nato il 1965-11-07, voglio andare in pensione il 2026-04-15 e il mio reddito annuo è di CHF 76200? -> PENSION_AGENT
+Ecco le mie informazioni: sono nato il 03.01.1968 e andrò in pensione nel 2027. Guadagno circa 90.000 franchi all'anno. Posso beneficiare di un'integrazione o di una riduzione? -> PENSION_AGENT
+Per domande molto specifiche (personalizzate) sul calcolo dell'età di riferimento per le donne della generazione di transizione (1961-1969) -> PENSION_AGENT
+Se sono una donna nata nel 1960, qual è la mia età di riferimento? -> PENSION_AGENT
+Se sono una donna nata nel 1961, qual è la mia età di riferimento? -> PENSION_AGENT
+Sono nato il 01.01.1962, qual è la mia età di riferimento? -> PENSION_AGENT
+
+Per domande sugli assegni familiari -> FAK_EAK_AGENT
+Quali tipi di assegni familiari vengono erogati? -> FAK_EAK_AGENT
+A quanto ammontano gli assegni familiari? -> FAK_EAK_AGENT
+L'assegno viene pagato in base al cantone di residenza o al cantone di occupazione? -> FAK_EAK_AGENT
+Chi ha diritto agli assegni familiari? -> FAK_EAK_AGENT
+Quale genitore riceve gli assegni familiari? -> FAK_EAK_AGENT
+Come richiedere gli assegni familiari alla Caisse d'allocations familiales de la Caisse fédérale de compensation (CAF-CFC)? -> FAK_EAK_AGENT
+Come si può estendere un diritto esistente agli assegni di formazione? -> FAK_EAK_AGENT
+Come vengono pagati gli assegni familiari dalla Cassa per gli assegni familiari della Cassa federale di compensazione? -> FAK_EAK_AGENT
+
+# Storia della conversazione
+{conversational_memory}
+
+# Documenti disponibili
+{documents}
+
+# Temi disponibili
+{tags}
+
+# Domanda
+{query}"""
+
+
+SOURCE_SELECTION_PROMPT_DE = """# Aufgabe
+"""
+
+
+SOURCE_SELECTION_PROMPT_FR = """# Tâche
+Votre tâche consiste à sélectionner la source de données appropriée pour répondre à la question de l'utilisateur. Vous devez baser votre décision en fonction de:
+- la question de l'utilisateur
+- l'intention de l'utilisateur
+- du thème
+- de l'historique de conversation
+- les sources de données disponibles
+
+# Notes importantes
+- Si un utilisateur a téléchargé un document, vous le trouvez dans les sources de données disponibles.
+- La conversation peut commencer avec des questions générales sur l'AVS/AI, puis se concentrer sur un document particulier que l'utilisateur a téléchargé, puis revenir à des questions générales.
+- La conversation peut se concentrer uniquement sur un document particulier que l'utilisateur a téléchargé.
+- La conversation peut se concentrer uniquement sur des questions générales sur l'AVS/AI.
+- Si plusieurs sources pourraient répondre à la question, sélectionnez les toutes.
+- Si vous n'êtes pas sûr de la source à sélectionner, vous pouvez demander des clarifications à l'utilisateur en spécifiant "followup_required: True" dans l'objet de réponse.
+- IMPORTANT: Consultez TOUJOURS la description des sources de données disponibles pour vous aider à sélectionner la source appropriée.
+- IMPORTANT: Vous ne pouvez sélectionner des sources UNIQUEMENT parmi les sources de données disponibles.
+
+# Format de réponse
+SourceSelection(
+    selected_sources: List[str] # la (ou les) source(s) de données sélectionnée (e.g. ["<file_upload_name.pdf>"], ["ahv-iv.ch"], ["eak.admin.ch", "AHV Lernbaustein 2024"], ["Praxisleitfaden FAK-EAK"], ["AKIS Online Hilfe"], etc.)
+    followup_required: bool = False # True, si des informations supplémentaires sont nécessaires pour sélectionner une source, False sinon.
+    followup_question: str = None # Question de suivi pour obtenir des informations supplémentaires si followup_required est True.
+)
+
+# Exemples
+Si un utilisateur a téléchargé un document et semble vouloir interroger le contenu de ce document, vous devez sélectionner ce document comme source.
+Si un utilisateur pose des questions générales (grand public) sur l'AVS/AI, vous pouvez sélectionner "ahv-iv.ch" comme source.
+Si un utilisateur pose des questions spécifiques (professionnelles) sur l'AVS/AI, vous pouvez sélectionner "AHV Lernbaustein 2024" comme source.
+Si un utilisateur pose des questions spécifiques (professionnelles) sur les procédures des allocations familiales, vous pouvez sélectionner "Praxisleitfaden FAK-EAK" comme source.
+Si un utilisateur pose des questions spécifiques à l'Eidgenössische Ausgleichskasse (EAK), vous pouvez sélectionner "eak.admin.ch" comme source.
+Si un utilisateur pose des questions très spécifiques sur l'outil AKIS, vous pouvez sélectionner "rag_test_data_tags_lang_org.csv" comme source.
+
+# Question
+{query}
+
+# Intention
+{intent}
+
+# Thème
+{tags}
+
+# Historique de conversation
+{conversational_memory}
+
+# Sources de données disponibles
+{sources}
+"""
+
+
+SOURCE_SELECTION_PROMPT_IT = """# Compito
+"""
+
+
+AGENT_HANDOFF_PROMPT_DE = """# Aufgabe
+"""
+
+
+AGENT_HANDOFF_PROMPT_FR = """# Tâche
+Votre tâche consiste à sélectionner l'agent approprié pour répondre à la question de l'utilisateur. Vous devez baser votre décision en fonction:
+- de la question de l'utilisateur
+- de l'intention de l'utilisateur
+- des thèmes
+- de l'historique de conversation
+- des agents à disposition
+
+# Format de réponse
+AgentHandoff(
+    agent: str # le nom de l'agent approprié pour répondre à la question.
+)
+
+## Agents à disposition
+- RAG_AGENT: répond aux questions générales sur:
+    - Assurance Vieillesse (AVS)
+    - Assurance Invalidité (AI)
+    - Prestations Complémentaires (PC)
+    - Prestations Transitoires (PT)
+    - Prestations du régime des Assurance Perte de Gain (APG), Assurance Maternité (AMat), Allocations à l'Autre Parent (AAP), Allocations de Prise en Charge (APC), Allocations d'Adoption (AAdop)
+    - Allocations familiales (AF)
+    - Autres types d'assurance sociale
+    - International
+    - Cotisations, prestations, droit, etc.
+- PENSION_AGENT: répond seulement aux calculs mathématiques spécifiques à la retraite, particulièrement:
+    - le calcul du taux de réduction et du supplément de rente pour les femmes de la génération transitoire (1961-1969)
+    - le calcul d'estimation de la rente vieillesse
+    - le calcul de l'âge de référence (âge auquel une personne perçoit sa rente de vieillesse)
+- FAK_EAK_AGENT: répond aux question sur les allocations familiales, particulièrement:
+    - la détermination (calcul) de quel parent perçoit les allocations familiales
+- APG_AGENT: répond aux questions sur les allocations pour perte de gain
+    - la détermination (calcul) de l'indemnité journalière APG en fonction du service (service militaire, service civil, etc.)
+    - la détermination (calcul) de l'indemnité journalière AMat (allocations de maternité)
+
+# Exemples
+Pour des questions générales relatives à l'AVS/AI -> RAG_AGENT
+Comment déterminer mon droit aux prestations complémentaires? -> RAG_AGENT
+Quelles sont les conditions pour bénéficier d'une rente AI? -> RAG_AGENT
+Quand des prestations complémentaires sont-elles versées ? -> RAG_AGENT
+Quand le droit à une rente de vieillesse prend-il naissance ? -> RAG_AGENT
+Qu'est-ce qui change avec AVS 21? -> RAG_AGENT
+Que signifie l'âge de la retraite flexible ? -> RAG_AGENT
+
+Pour des questions très spécifiques (individualisées) concernant les calculs de taux de réduction et de suppléments de rente liés au départ à la retraite et la perception de rentes vieillesse -> PENSION_AGENT
+Je suis née le 1962.31.12, je souhaite prendre ma retraite le 01.01.2025 et mon revenu annuel est d'environ 55'000 CHF. Quel est mon taux de réduction ? -> PENSION_AGENT
+Quel sera mon taux de réduction si je suis née le 1965-11-07, je souhaite prendre ma retraite le 2026-04-15 et mon revenu annuel est de 76200 ? -> PENSION_AGENT
+Voici mes informations: date de naissance le 03.01.1968 et je pars à la retraite en 2027. Je gagne environ 90000 CHF par an. Puis-je bénéficier d'un supplément ou taux de réduction ? -> PENSION_AGENT
+Pour des questions très spécifiques (individualisées) concernant le calcul de l'âge de référence pour les femmes de la génération transitoire (1961-1969) -> PENSION_AGENT
+Je suis une femme née en 1960, quel est mon âge de référence ? -> PENSION_AGENT
+Je suis née le 01.01.1962, quel sera mon âge de référence ? -> PENSION_AGENT
+Je suis une femme, née le 12.02.1960. A quel âge puis-je prendre ma retraite ? -> PENSION_AGENT
+
+À partir de quand puis-je anticiper la perception de ma rente de vieillesse ? -> PENSION_AGENT
+
+Pour des questions sur les allocations familiales -> FAK_EAK_AGENT
+Quels types d’allocations familiales sont versés ? -> FAK_EAK_AGENT
+À combien s’élèvent les allocations familiales ? -> FAK_EAK_AGENT
+Les allocations sont-elles déterminées en fonction du canton de domicile ou du canton de travail ? -> FAK_EAK_AGENT
+Qui a droit aux allocations familiales ? -> FAK_EAK_AGENT
+Quel parent perçoit les allocations familiales ? -> FAK_EAK_AGENT
+Comment pouvez-vous faire valoir votre droit aux allocations familiales auprès de la Caisse d’allocations familiales de la Caisse fédérale de compensation (CAF-CFC) ? -> FAK_EAK_AGENT
+Comment pouvez-vous prolonger un droit existant aux allocations de formation ? -> FAK_EAK_AGENT
+Comment sont versées les allocations familiales de la caisse d’allocations familiales de la Caisse fédérale de compensation ? -> FAK_EAK_AGENT
+
+# Question
+{query}
+
+# Intention
+{intent}
+
+# Thème
+{tags}
+
+# Historique de conversation
+{conversational_memory}"""
+
+AGENT_HANDOFF_PROMPT_IT = """# Compito"""
+
+
 RAG_FOLLOWUP_AGENT_PROMPT_DE = """# Aufgabe"""
+
 
 RAG_FOLLOWUP_AGENT_PROMPT_FR = """# Tâche
 Votre tâche consiste à évaluer si la question suivante est formulée de manière suffisamment claire et précise pour effectuer une recherche sémantique dans une base de données vectorielle. Si la question est ambiguë ou nécessite des clarifications supplémentaires, vous devez poser des questions de suivi pour obtenir des informations supplémentaires.
@@ -313,149 +661,6 @@ THINK/PLAN LIKE A HUMAN: WHAT WOULD A HUMAN NEED/DO TO ANSWER? methodology
 3. inject results into EXECUTOR_PROMPT
 4. Analyze/critique information and decide on action (<ask_followup_q>, <retrieval>, <answer>, etc.)
 """
-
-AGENT_HANDOFF_PROMPT_DE = """# Aufgabe
-Ihre Aufgabe ist es, aus den folgenden Agenten den richtigen auszuwählen, um die Frage des Benutzers zu beantworten.
-
-## Agenten
-- RAG_AGENT: beantwortet allgemeine Fragen zur AHV/IV
-- PENSION_AGENT: Beantwortet nur die spezifischen mathematischen Berechnungen für den Ruhestand, insbesondere:
-    - die Berechnung des Kürzungssatzes und des Rentenzuschlags für Frauen der Übergangsgeneration (1961-1969)
-    - die Berechnung der geschätzten Altersrente
-    - Berechnung des Referenzalters (Alter, in dem eine Person ihre Altersrente erhält)
-- FAK_EAK_AGENT: beantwortet Fragen zum Kindergeld, insbesondere::
-    - Fragen zu Kindergeld im Allgemeinen
-    - Fragen dazu, welcher Elternteil das Kindergeld erhält
-
-# Format der Antwort
-Antworten Sie mit dem Namen des geeigneten Agenten, um die Frage zu beantworten.
-
-# Beispiele
-Für allgemeine Fragen zur AHV/IV -> RAG_AGENT
-Wie bestimme ich meinen Anspruch auf Ergänzungsleistungen? -> RAG_AGENT
-Welche Voraussetzungen muss ich erfüllen, um eine IV-Rente zu erhalten? -> RAG_AGENT
-Wann werden Ergänzungsleistungen gezahlt? -> RAG_AGENT
-Wann entsteht der Anspruch auf eine Altersrente? -> RAG_AGENT
-Was ändert sich mit AHV 21? -> RAG_AGENT
-Was bedeutet das flexible Rentenalter? -> RAG_AGENT
-
-Für sehr spezifische (individualisierte) Fragen zu Berechnungen von Kürzungssätzen und Rentenzuschlägen im Zusammenhang mit dem Eintritt in den Ruhestand und dem Bezug von Altersrenten -> PENSION_AGENT
-Ich bin am 1962.31.12 geboren, möchte am 01.01.2025 in Rente gehen und mein Jahreseinkommen beträgt ca. 55'000 CHF. Wie hoch ist mein Kürzungssatz? -> PENSION_AGENT
-Wie hoch ist mein Kürzungssatz, wenn ich am 1965-11-07 geboren bin, am 2026-04-15 in Rente gehen möchte und mein Jahreseinkommen 76200 beträgt? -> PENSION_AGENT
-Hier sind meine Informationen: Geburtsdatum 03.01.1968 und ich gehe 2027 in Rente. Ich verdiene etwa 90000 CHF pro Jahr. Kann ich einen Zuschlag oder einen Kürzungssatz erhalten? -> PENSION_AGENT
-Für sehr spezifische (individualisierte) Fragen zur Berechnung des Referenzalters für Frauen der Übergangsgeneration (1961-1969) -> PENSION_AGENT
-Wenn ich eine Frau bin, die 1960 geboren wurde, wie hoch ist mein Referenzalter? -> PENSION_AGENT
-Ich bin eine 1961 geborene Frau, was ist mein Referenzalter? -> PENSION_AGENT
-Ich bin am 01.01.1962 geboren, wie hoch ist mein Referenzalter? -> PENSION_AGENT
-
-Bei Fragen zum Kindergeld -> FAK_EAK_AGENT
-Welche Arten von Kindergeld werden gezahlt? -> FAK_EAK_AGENT
-Wie hoch ist das Kindergeld? -> FAK_EAK_AGENT
-Werden die Zulagen nach dem Wohnkanton oder dem Arbeitskanton bestimmt? -> FAK_EAK_AGENT
-Wer hat Anspruch auf Kinderzulagen? -> FAK_EAK_AGENT
-Welcher Elternteil erhält die Kinderzulagen? -> FAK_EAK_AGENT
-Wie können Sie Ihren Anspruch auf Kindergeld bei der Familienausgleichskasse der Eidgenössischen Ausgleichskasse (FAK-EAK) geltend machen? -> FAK_EAK_AGENT
-Wie können Sie einen bestehenden Anspruch auf Ausbildungszulagen verlängern? -> FAK_EAK_AGENT
-Wie werden die Familienzulagen der Familienausgleichskasse der Eidgenössischen Ausgleichskasse ausbezahlt? -> FAK_EAK_AGENT
-
-# Frage
-{query}"""
-
-AGENT_HANDOFF_PROMPT_FR = """# Tâche
-Votre tâche est de sélectionner l'agent approprié pour répondre à la question posée par l'utilisateur parmis les agents suivants.
-
-## Agents
-- RAG_AGENT: répond aux questions générales sur l'AVS/AI
-- PENSION_AGENT: répond seulement aux calculs mathématiques spécifiques à la retraite, particulièrement:
-    - le calcul du taux de réduction et du supplément de rente pour les femmes de la génération transitoire (1961-1969)
-    - le calcul d'estimation de la rente vieillesse
-    - le calcul de l'âge de référence (âge auquel une personne perçoit sa rente de vieillesse)
-- FAK_EAK_AGENT: répond aux question sur les allocations familiales, particulièrement:
-    - les questions sur les allocations familiales en général
-    - les questions sur quel parent perçoit les allocations familiales
-
-# Format de réponse
-Répondez avec le nom de l'agent approprié pour répondre à la question.
-
-# Exemples
-Pour des questions générales relatives à l'AVS/AI -> RAG_AGENT
-Comment déterminer mon droit aux prestations complémentaires? -> RAG_AGENT
-Quelles sont les conditions pour bénéficier d'une rente AI? -> RAG_AGENT
-Quand des prestations complémentaires sont-elles versées ? -> RAG_AGENT
-Quand le droit à une rente de vieillesse prend-il naissance ? -> RAG_AGENT
-Qu'est-ce qui change avec AVS 21? -> RAG_AGENT
-Que signifie l'âge de la retraite flexible ? -> RAG_AGENT
-
-Pour des questions très spécifiques (individualisées) concernant les calculs de taux de réduction et de suppléments de rente liés au départ à la retraite et la perception de rentes vieillesse -> PENSION_AGENT
-Je suis née le 1962.31.12, je souhaite prendre ma retraite le 01.01.2025 et mon revenu annuel est d'environ 55'000 CHF. Quel est mon taux de réduction ? -> PENSION_AGENT
-Quel sera mon taux de réduction si je suis née le 1965-11-07, je souhaite prendre ma retraite le 2026-04-15 et mon revenu annuel est de 76200 ? -> PENSION_AGENT
-Voici mes informations: date de naissance le 03.01.1968 et je pars à la retraite en 2027. Je gagne environ 90000 CHF par an. Puis-je bénéficier d'un supplément ou taux de réduction ? -> PENSION_AGENT
-Pour des questions très spécifiques (individualisées) concernant le calcul de l'âge de référence pour les femmes de la génération transitoire (1961-1969) -> PENSION_AGENT
-Je suis une femme née en 1960, quel est mon âge de référence ? -> PENSION_AGENT
-Je suis née le 01.01.1962, quel sera mon âge de référence ? -> PENSION_AGENT
-Je suis une femme, née le 12.02.1960. A quel âge puis-je prendre ma retraite ? -> PENSION_AGENT
-
-À partir de quand puis-je anticiper la perception de ma rente de vieillesse ? -> PENSION_AGENT
-
-Pour des questions sur les allocations familiales -> FAK_EAK_AGENT
-Quels types d’allocations familiales sont versés ? -> FAK_EAK_AGENT
-À combien s’élèvent les allocations familiales ? -> FAK_EAK_AGENT
-Les allocations sont-elles déterminées en fonction du canton de domicile ou du canton de travail ? -> FAK_EAK_AGENT
-Qui a droit aux allocations familiales ? -> FAK_EAK_AGENT
-Quel parent perçoit les allocations familiales ? -> FAK_EAK_AGENT
-Comment pouvez-vous faire valoir votre droit aux allocations familiales auprès de la Caisse d’allocations familiales de la Caisse fédérale de compensation (CAF-CFC) ? -> FAK_EAK_AGENT
-Comment pouvez-vous prolonger un droit existant aux allocations de formation ? -> FAK_EAK_AGENT
-Comment sont versées les allocations familiales de la caisse d’allocations familiales de la Caisse fédérale de compensation ? -> FAK_EAK_AGENT
-
-# Question
-{query}"""
-
-AGENT_HANDOFF_PROMPT_IT = """# Compito
-Il compito consiste nel selezionare l'agente appropriato per rispondere alla domanda posta dall'utente tra i seguenti agenti.
-
-## Agenti
-- RAG_AGENT: risponde a domande generali sull'AVS/AI
-- PENSION_AGENT: risponde solo ai calcoli matematici specifici per la pensione, in particolare:
-    - calcolo dell'aliquota di riduzione e del supplemento di pensione per le donne della generazione di transizione (1961-1969)
-    - calcolo della pensione di vecchiaia stimata
-    - calcolo dell'età di riferimento (l'età in cui una persona riceve la pensione di vecchiaia)
-- FAK_EAK_AGENT: risponde a domande sugli assegni familiari, in particolare:
-    - domande sugli assegni familiari in generale
-    - domande su quale genitore riceve gli assegni familiari
-
-# Formato della risposta
-Rispondere con il nome dell'agente appropriato per rispondere alla domanda.
-
-# Esempi
-Per domande generali sull'AVS/AI -> RAG_AGENT
-Come si determina il diritto alle prestazioni complementari? -> RAG_AGENT
-Quali sono le condizioni per ricevere una rendita AI? -> RAG_AGENT
-Quando vengono versate le prestazioni complementari? -> RAG_AGENT
-Quando nasce il diritto alla pensione di vecchiaia? -> RAG_AGENT
-Cosa cambia con l'AVS 21? -> RAG_AGENT
-Cosa significa l'età pensionabile flessibile? -> RAG_AGENT
-
-Per domande molto specifiche (personalizzate) relative al calcolo dei tassi di riduzione e dei supplementi di pensione legati al pensionamento e al percepimento di pensioni di vecchiaia -> PENSION_AGENT
-Sono nato il 31.12.1962, voglio andare in pensione il 01.01.2025 e il mio reddito annuo è di circa 55.000 franchi. Qual è il mio tasso di riduzione? -> PENSION_AGENT
-Qual è il mio tasso di riduzione se sono nato il 1965-11-07, voglio andare in pensione il 2026-04-15 e il mio reddito annuo è di CHF 76200? -> PENSION_AGENT
-Ecco le mie informazioni: sono nato il 03.01.1968 e andrò in pensione nel 2027. Guadagno circa 90.000 franchi all'anno. Posso beneficiare di un'integrazione o di una riduzione? -> PENSION_AGENT
-Per domande molto specifiche (personalizzate) sul calcolo dell'età di riferimento per le donne della generazione di transizione (1961-1969) -> PENSION_AGENT
-Se sono una donna nata nel 1960, qual è la mia età di riferimento? -> PENSION_AGENT
-Se sono una donna nata nel 1961, qual è la mia età di riferimento? -> PENSION_AGENT
-Sono nato il 01.01.1962, qual è la mia età di riferimento? -> PENSION_AGENT
-
-Per domande sugli assegni familiari -> FAK_EAK_AGENT
-Quali tipi di assegni familiari vengono erogati? -> FAK_EAK_AGENT
-A quanto ammontano gli assegni familiari? -> FAK_EAK_AGENT
-L'assegno viene pagato in base al cantone di residenza o al cantone di occupazione? -> FAK_EAK_AGENT
-Chi ha diritto agli assegni familiari? -> FAK_EAK_AGENT
-Quale genitore riceve gli assegni familiari? -> FAK_EAK_AGENT
-Come richiedere gli assegni familiari alla Caisse d'allocations familiales de la Caisse fédérale de compensation (CAF-CFC)? -> FAK_EAK_AGENT
-Come si può estendere un diritto esistente agli assegni di formazione? -> FAK_EAK_AGENT
-Come vengono pagati gli assegni familiari dalla Cassa per gli assegni familiari della Cassa federale di compensazione? -> FAK_EAK_AGENT
-
-# Domanda
-{query}"""
 
 
 MULTIPLE_SOURCE_VALIDATION_PROMPT_FR = """# Tâche

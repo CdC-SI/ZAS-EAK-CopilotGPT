@@ -1,20 +1,14 @@
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel, ConfigDict
 
 from .document import DocumentBase
 
 
-class QuestionBase(BaseModel):
+class FaqQuestionBase(BaseModel):
     """
     Base class for Question
     """
-
-    language: Optional[str] = None
-    """Language of the question and answer text"""
-
-    tags: Optional[str] = None
-    """Tags of the document text"""
 
     text: str
     """Content of the question"""
@@ -22,10 +16,34 @@ class QuestionBase(BaseModel):
     url: str
     """URL where the question-answer was found"""
 
+    language: Optional[str] = None
+    """Language of the question and answer text"""
+
+    tags: Optional[List[str]] = None
+    """Tags of the document text"""
+
+    subtopics: Optional[List[str]] = None
+    """Subtopics of the document text"""
+
+    summary: Optional[str] = None
+    """Summary of the document text"""
+
+    hyq: Optional[List[str]] = None
+    """Hypothetical queries associated to the document text"""
+
+    hyq_declarative: Optional[List[str]] = None
+    """Declarative hypothetical queries associated to the document text"""
+
+    doctype: Optional[str] = None
+    """Type of the document"""
+
+    organizations: Optional[List[str]] = None
+    """Organizations to which the question belongs"""
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
-class QuestionCreate(QuestionBase):
+class FaqQuestionCreate(FaqQuestionBase):
     """
     Create class for Question
     """
@@ -33,22 +51,28 @@ class QuestionCreate(QuestionBase):
     answer: str
     """Text of the answer to the question"""
 
-    embedding: Optional[list[float]] = None
+    text_embedding: Optional[list[float]] = None
+    answer_embedding: Optional[list[float]] = None
+    subtopics_embedding: Optional[list[float]] = None
+    tags_embedding: Optional[list[float]] = None
+    summary_embedding: Optional[list[float]] = None
+    hyq_embedding: Optional[list[float]] = None
+    hyq_declarative_embedding: Optional[list[float]] = None
 
     source: str
     """How the question-answer was found, can be a URL or a file path for example"""
 
 
-class QuestionsCreate(BaseModel):
+class FaqQuestionsCreate(BaseModel):
     """
     Create class for Question
     """
 
-    objects: list[QuestionCreate]
+    objects: list[FaqQuestionCreate]
     """A list of questions to add to the database"""
 
 
-class QuestionItem(QuestionCreate):
+class FaqQuestionItem(FaqQuestionCreate):
     """
     Upsert class for Question in Survey Pipeline
     """
@@ -57,16 +81,22 @@ class QuestionItem(QuestionCreate):
     source: Optional[str] = None
 
 
-class QuestionUpdate(QuestionBase):
+class FaqQuestionUpdate(FaqQuestionBase):
     """
     Update class for Question
     """
 
     source_id: Optional[int] = None
-    embedding: Optional[list[float]] = None
+    text_embedding: Optional[list[float]] = None
+    subtopics_embedding: Optional[list[float]] = None
+    tags_embedding: Optional[list[float]] = None
+    text_embedding: Optional[list[float]] = None
+    summary_embedding: Optional[list[float]] = None
+    hyq_embedding: Optional[list[float]] = None
+    hyq_declarative_embedding: Optional[list[float]] = None
 
 
-class Question(QuestionBase):
+class FaqQuestion(FaqQuestionBase):
     id: int
 
     answer: DocumentBase

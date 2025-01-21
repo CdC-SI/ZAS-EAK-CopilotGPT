@@ -7,6 +7,10 @@ from .base import EmbeddingService
 from database.models import Source
 from utils.embedding import get_embedding
 
+from utils.logging import get_logger
+
+logger = get_logger(__name__)
+
 
 class MatchingService(EmbeddingService):
     """
@@ -145,6 +149,8 @@ class MatchingService(EmbeddingService):
         symbol: str = "<=>",
         tags: List[str] = None,
         source: List[str] = None,
+        organizations: List[str] = None,
+        user_uuid: str = None,
     ):
         """
         Get semantic similarity match from database
@@ -164,6 +170,10 @@ class MatchingService(EmbeddingService):
             Filter by tags
         source : List[str], optional
             Filter by source
+        organizations : List[str], optional
+            Filter by organizations
+        user_uuid : str, optional
+            Filter by user_uuid
 
         Returns
         -------
@@ -172,20 +182,45 @@ class MatchingService(EmbeddingService):
         q_embedding = await get_embedding(user_input)
 
         # Start building the query
-        stmt = select(self.model).filter(self.model.embedding.isnot(None))
+        stmt = select(self.model).filter(self.model.text_embedding.isnot(None))
+
+        if user_uuid:
+            docs_with_uuid = select(self.model.id).where(
+                self.model.user_uuid == user_uuid
+            )
+            docs_without_uuid = select(self.model.id).where(
+                self.model.user_uuid.is_(None)
+            )
+            stmt = stmt.filter(
+                self.model.id.in_(docs_with_uuid.union(docs_without_uuid))
+            )
 
         if language:
             stmt = stmt.filter(self.model.language == language)
-        if tags:
-            stmt = stmt.filter(self.model.tags.op("&&")(tags))
 
         if source:
             stmt = stmt.join(self.model.source).filter(Source.url.in_(source))
             stmt = stmt.options(joinedload(self.model.source))
 
+        if tags:
+            stmt = stmt.filter(self.model.tags.op("&&")(tags))
+
+        if organizations:
+            docs_with_org = select(self.model.id).where(
+                self.model.organizations.op("&&")(organizations)
+            )
+            docs_without_org = select(self.model.id).where(
+                self.model.organizations.is_(None)
+            )
+            stmt = stmt.filter(
+                self.model.id.in_(docs_with_org.union(docs_without_org))
+            )
+        else:
+            stmt = stmt.filter(self.model.organizations.is_(None))
+
         # Order by similarity
         stmt = stmt.order_by(
-            self.model.embedding.op(symbol)(q_embedding).asc()
+            self.model.text_embedding.op(symbol)(q_embedding).asc()
         )
 
         if k > 0:
