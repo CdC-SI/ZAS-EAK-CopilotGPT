@@ -1,28 +1,21 @@
-import os
-from dotenv import load_dotenv
 from typing import List, Tuple, Dict, Any
 
+from config.clients_config import clientDeepl
 from schemas.chat import ChatRequest
 from llm.base import BaseLLM
 from utils.streaming import StreamingHandler, Token
 from chat.memory import ConversationalMemory
 
-import deepl
-
 from langfuse.decorators import observe
-
-load_dotenv()
-
-DEEPL_API_KEY = os.environ.get("DEEPL_API_KEY", None)
 
 
 class TranslationService:
     def __init__(self):
-        self.translator = deepl.Translator(DEEPL_API_KEY)
+        self.deepl_client = clientDeepl
 
     async def translate(self, input_text: str, target_lang: str) -> str:
 
-        translation = self.translator.translate_text(
+        translation = self.deepl_client.translate_text(
             input_text, target_lang=target_lang.upper()
         )
 

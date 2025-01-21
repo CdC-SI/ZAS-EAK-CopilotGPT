@@ -19,7 +19,7 @@ tiktoken==0.8.0
 #git+https://github.com/K-Schubert/swarm.git#egg=swarm
 
 # commands
-deepl==1.19.1
+deepl==1.21.0
 
 # indexing
 requests==2.31.0

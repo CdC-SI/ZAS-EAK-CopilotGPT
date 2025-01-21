@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 
 import openai
 import cohere
+import deepl
 
 import logging
 
@@ -33,6 +34,7 @@ AZUREOPENAI_ENDPOINT = os.environ.get("AZUREOPENAI_ENDPOINT", None)
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", None)
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", None)
 COHERE_API_KEY = os.environ.get("COHERE_API_KEY", None)
+DEEPL_API_KEY = os.environ.get("DEEPL_API_KEY", None)
 LLM_GENERATION_ENDPOINT = os.environ.get("LLM_GENERATION_ENDPOINT", None)
 
 # Load Proxy settings
@@ -124,3 +126,10 @@ if COHERE_API_KEY:
     )
 else:
     clientRerank = None
+
+if DEEPL_API_KEY:
+    clientDeepl = deepl.DeepLClient(
+        auth_key=DEEPL_API_KEY, proxy=HTTP_PROXY, verify_ssl=REQUESTS_CA_BUNDLE
+    )
+else:
+    clientDeepl = None
