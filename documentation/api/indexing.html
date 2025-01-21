@@ -7,7 +7,7 @@
 
     <link rel="shortcut icon" href="../../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
         <title>Indexing API - ZAS/EAK CopilotGPT documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=4c969af8" />
@@ -345,6 +345,13 @@ The function acknowledges the following columns:</p>
 <li><p><em>language (optional):</em> Language of the document</p></li>
 <li><p><em>embedding (optional):</em> Embedding of the document</p></li>
 <li><p><em>tags (optional):</em> Tags of the document</p></li>
+<li><p><em>organizations (optional):</em> Organizations access of the document</p></li>
+<li><p><em>subtopics (optional):</em> Subtopics of the document</p></li>
+<li><p><em>summary (optional):</em> Summary of the document</p></li>
+<li><p><em>hyq (optional):</em> Hypothetical queries associated to the document</p></li>
+<li><p><em>hyq_declarative (optional):</em> Declarative hypothetical queries associated to the document</p></li>
+<li><p><em>doctype (optional):</em> Type of the document</p></li>
+<li><p><em>user_uuid (optional):</em> UUID of the user who uploaded the file</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -373,7 +380,7 @@ The function acknowledges the following columns:</p>
 <li><p><em>text:</em> Text content of the question</p></li>
 <li><p><em>answer:</em> Text content of the answer</p></li>
 <li><p><em>language (optional):</em> Language of the question and answer</p></li>
-<li><p><em>embedding (optional):</em> Embedding of the question</p></li>
+<li><p><em>text_embedding (optional):</em> Embedding of the question text</p></li>
 <li><p><em>tags (optional):</em> Tags of the document</p></li>
 </ul>
 <dl class="field-list simple">
@@ -394,14 +401,44 @@ The function acknowledges the following columns:</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="indexing_api.upload_csv_tags">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">upload_csv_tags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">fastapi.UploadFile</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.upload_csv_tags" title="Link to this definition">¶</a></dt>
+<dd><p>Upload a CSV file containing tags data to the database with optional embeddings.
+The function acknowledges the following columns:</p>
+<ul class="simple">
+<li><p><em>tags_en:</em> Tag name in english</p></li>
+<li><p><em>description_en:</em> English description of the tag</p></li>
+<li><p><em>description:</em> Description of the tag</p></li>
+<li><p><em>language:</em> Language of the tag</p></li>
+<li><p><em>embedding (optional):</em> Embedding of the description</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>UploadFile</em>) – The CSV file sent by the user</p></li>
+<li><p><strong>embed</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to embed the data or not. Defaults to False.</p></li>
+<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A response body containing a confirmation message upon successful completion of the process.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ResponseBody</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="indexing_api.upload_pdf_rag">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">upload_pdf_rag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">fastapi.UploadFile</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.upload_pdf_rag" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">upload_pdf_rag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">fastapi.UploadFile</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'de'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.upload_pdf_rag" title="Link to this definition">¶</a></dt>
 <dd><p>Upload a CSV file containing RAG data to the database.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>files</strong> (<em>List</em><em>[</em><em>UploadFile</em><em>]</em>) – The PDF file sent by the user</p></li>
 <li><p><strong>embed</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to embed the data or not. Defaults to False.</p></li>
+<li><p><strong>user_uuid</strong> (<em>str</em><em>, </em><em>optional</em>) – UUID of the user who uploaded the file</p></li>
 <li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
 </ul>
 </dd>
@@ -584,12 +621,12 @@ embedding database. This function is specifically designed for the site “<a cl
 
 <dl class="py function">
 <dt class="sig sig-object py" id="indexing_api.index_data">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">index_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../schemas/question.html#schemas.question.QuestionItem" title="schemas.question.QuestionItem"><span class="pre">QuestionItem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.index_data" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">index_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../schemas/question.html#schemas.question.FaqQuestionItem" title="schemas.question.FaqQuestionItem"><span class="pre">FaqQuestionItem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.index_data" title="Link to this definition">¶</a></dt>
 <dd><p>Upsert a single entry to the FAQ dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>item</strong> (<a class="reference internal" href="../schemas/question.html#schemas.question.QuestionItem" title="schemas.question.QuestionItem"><em>QuestionItem</em></a>) – <dl class="simple">
+<li><p><strong>item</strong> (<a class="reference internal" href="../schemas/question.html#schemas.question.FaqQuestionItem" title="schemas.question.FaqQuestionItem"><em>FaqQuestionItem</em></a>) – <dl class="simple">
 <dt>The Question item to insert or update :</dt><dd><dl class="simple">
 <dt>id<span class="classifier">int, optional</span></dt><dd><p>The item if update is wanted</p>
 </dd>
@@ -677,6 +714,7 @@ embedding database. This function is specifically designed for the site “<a cl
 <li><a class="reference internal" href="#indexing_api.init_indexing"><code class="docutils literal notranslate"><span class="pre">init_indexing()</span></code></a></li>
 <li><a class="reference internal" href="#indexing_api.upload_csv_rag"><code class="docutils literal notranslate"><span class="pre">upload_csv_rag()</span></code></a></li>
 <li><a class="reference internal" href="#indexing_api.upload_csv_faq"><code class="docutils literal notranslate"><span class="pre">upload_csv_faq()</span></code></a></li>
+<li><a class="reference internal" href="#indexing_api.upload_csv_tags"><code class="docutils literal notranslate"><span class="pre">upload_csv_tags()</span></code></a></li>
 <li><a class="reference internal" href="#indexing_api.upload_pdf_rag"><code class="docutils literal notranslate"><span class="pre">upload_pdf_rag()</span></code></a></li>
 <li><a class="reference internal" href="#indexing_api.add_rag_data_from_csv"><code class="docutils literal notranslate"><span class="pre">add_rag_data_from_csv()</span></code></a></li>
 <li><a class="reference internal" href="#indexing_api.add_faq_data_from_csv"><code class="docutils literal notranslate"><span class="pre">add_faq_data_from_csv()</span></code></a></li>

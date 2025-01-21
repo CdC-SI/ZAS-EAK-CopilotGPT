@@ -7,7 +7,7 @@
 
     <link rel="shortcut icon" href="../../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
         <title>Tables - ZAS/EAK CopilotGPT documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=4c969af8" />
@@ -332,37 +332,73 @@
 <section id="document">
 <h2>Document<a class="headerlink" href="#document" title="Link to this heading">¶</a></h2>
 <dl class="simple sqla">
-<dt>database.models.Document (<em>document</em>)</dt><dd><p>Documents used for the RAG</p>
+<dt>database.models.Document (<em>document</em>)</dt><dd><p>Documents used for RAG system.</p>
 <p class="rubric">Columns:</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-left">
 <tbody>
-<tr class="row-odd"><td><p><em>id*</em></p></td>
-<td><p>INTEGER</p></td>
+<tr class="row-odd"><td><p>user_uuid</p></td>
+<td><p>VARCHAR?</p></td>
 </tr>
-<tr class="row-even"><td><p>→ source_id</p></td>
+<tr class="row-even"><td><p><em>id*</em></p></td>
 <td><p>INTEGER</p></td>
 </tr>
 <tr class="row-odd"><td><p>text</p></td>
 <td><p>TEXT</p></td>
 </tr>
-<tr class="row-even"><td><p>embedding</p></td>
-<td><p>VECTOR(1536)?</p></td>
-</tr>
-<tr class="row-odd"><td><p>language</p></td>
+<tr class="row-even"><td><p>language</p></td>
 <td><p>VARCHAR(3)?</p></td>
+</tr>
+<tr class="row-odd"><td><p>url</p></td>
+<td><p>TEXT</p></td>
 </tr>
 <tr class="row-even"><td><p>tags</p></td>
 <td><p>ARRAY?</p></td>
 </tr>
-<tr class="row-odd"><td><p>url</p></td>
-<td><p>TEXT</p></td>
+<tr class="row-odd"><td><p>subtopics</p></td>
+<td><p>ARRAY?</p></td>
+</tr>
+<tr class="row-even"><td><p>hyq</p></td>
+<td><p>ARRAY?</p></td>
+</tr>
+<tr class="row-odd"><td><p>hyq_declarative</p></td>
+<td><p>ARRAY?</p></td>
+</tr>
+<tr class="row-even"><td><p>summary</p></td>
+<td><p>TEXT?</p></td>
+</tr>
+<tr class="row-odd"><td><p>organizations</p></td>
+<td><p>ARRAY?</p></td>
+</tr>
+<tr class="row-even"><td><p>doctype</p></td>
+<td><p>VARCHAR?</p></td>
+</tr>
+<tr class="row-odd"><td><p>→ source_id</p></td>
+<td><p>INTEGER</p></td>
 </tr>
 <tr class="row-even"><td><p>created_at</p></td>
 <td><p>DATETIME</p></td>
 </tr>
 <tr class="row-odd"><td><p>modified_at</p></td>
 <td><p>DATETIME</p></td>
+</tr>
+<tr class="row-even"><td><p>tags_embedding</p></td>
+<td><p>VECTOR(1536)?</p></td>
+</tr>
+<tr class="row-odd"><td><p>subtopics_embedding</p></td>
+<td><p>VECTOR(1536)?</p></td>
+</tr>
+<tr class="row-even"><td><p>summary_embedding</p></td>
+<td><p>VECTOR(1536)?</p></td>
+</tr>
+<tr class="row-odd"><td><p>hyq_embedding</p></td>
+<td><p>VECTOR(1536)?</p></td>
+</tr>
+<tr class="row-even"><td><p>hyq_declarative_embedding</p></td>
+<td><p>VECTOR(1536)?</p></td>
+</tr>
+<tr class="row-odd"><td><p>text_embedding</p></td>
+<td><p>VECTOR(1536)?</p></td>
 </tr>
 </tbody>
 </table>
@@ -374,11 +410,14 @@
 </ul>
 <p class="rubric">Indexes:</p>
 <ul class="simple">
-<li><p>idx_document_embedding (embedding)</p></li>
 <li><p>idx_document_language (language)</p></li>
-<li><p>idx_document_language_source_id (language, source_id)</p></li>
-<li><p>idx_document_language_tag (language, tags)</p></li>
-<li><p>idx_document_text_tsv (text)</p></li>
+<li><p>idx_document_language_user (language, user_uuid)</p></li>
+<li><p>idx_document_organizations (organizations)</p></li>
+<li><p>idx_document_subtopics_embedding (subtopics_embedding)</p></li>
+<li><p>idx_document_tags (tags)</p></li>
+<li><p>idx_document_tags_embedding (tags_embedding)</p></li>
+<li><p>idx_document_text_embedding (text_embedding)</p></li>
+<li><p>idx_document_text_gin (text)</p></li>
 </ul>
 </dd>
 </dl>
@@ -386,40 +425,73 @@
 <section id="question">
 <h2>Question<a class="headerlink" href="#question" title="Link to this heading">¶</a></h2>
 <dl class="simple sqla">
-<dt>database.models.Question (<em>question</em>)</dt><dd><p>Question used for Autocomplete, answers are stored in the Document table.</p>
+<dt>database.models.Question (<em>question</em>)</dt><dd><p>Questions for FAQ system, with answers stored in Document table.</p>
 <p class="rubric">Columns:</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-left">
 <tbody>
-<tr class="row-odd"><td><p><em>id*</em></p></td>
+<tr class="row-odd"><td><p>→ answer_id</p></td>
 <td><p>INTEGER</p></td>
 </tr>
-<tr class="row-even"><td><p>→ answer_id</p></td>
+<tr class="row-even"><td><p><em>id*</em></p></td>
 <td><p>INTEGER</p></td>
 </tr>
-<tr class="row-odd"><td><p>→ source_id</p></td>
-<td><p>INTEGER?</p></td>
-</tr>
-<tr class="row-even"><td><p>text</p></td>
+<tr class="row-odd"><td><p>text</p></td>
 <td><p>TEXT</p></td>
-</tr>
-<tr class="row-odd"><td><p>embedding</p></td>
-<td><p>VECTOR(1536)?</p></td>
 </tr>
 <tr class="row-even"><td><p>language</p></td>
 <td><p>VARCHAR(3)?</p></td>
 </tr>
-<tr class="row-odd"><td><p>tags</p></td>
-<td><p>ARRAY?</p></td>
-</tr>
-<tr class="row-even"><td><p>url</p></td>
+<tr class="row-odd"><td><p>url</p></td>
 <td><p>TEXT</p></td>
 </tr>
-<tr class="row-odd"><td><p>created_at</p></td>
+<tr class="row-even"><td><p>tags</p></td>
+<td><p>ARRAY?</p></td>
+</tr>
+<tr class="row-odd"><td><p>subtopics</p></td>
+<td><p>ARRAY?</p></td>
+</tr>
+<tr class="row-even"><td><p>hyq</p></td>
+<td><p>ARRAY?</p></td>
+</tr>
+<tr class="row-odd"><td><p>hyq_declarative</p></td>
+<td><p>ARRAY?</p></td>
+</tr>
+<tr class="row-even"><td><p>summary</p></td>
+<td><p>TEXT?</p></td>
+</tr>
+<tr class="row-odd"><td><p>organizations</p></td>
+<td><p>ARRAY?</p></td>
+</tr>
+<tr class="row-even"><td><p>doctype</p></td>
+<td><p>VARCHAR?</p></td>
+</tr>
+<tr class="row-odd"><td><p>→ source_id</p></td>
+<td><p>INTEGER</p></td>
+</tr>
+<tr class="row-even"><td><p>created_at</p></td>
 <td><p>DATETIME</p></td>
 </tr>
-<tr class="row-even"><td><p>modified_at</p></td>
+<tr class="row-odd"><td><p>modified_at</p></td>
 <td><p>DATETIME</p></td>
+</tr>
+<tr class="row-even"><td><p>tags_embedding</p></td>
+<td><p>VECTOR(1536)?</p></td>
+</tr>
+<tr class="row-odd"><td><p>subtopics_embedding</p></td>
+<td><p>VECTOR(1536)?</p></td>
+</tr>
+<tr class="row-even"><td><p>summary_embedding</p></td>
+<td><p>VECTOR(1536)?</p></td>
+</tr>
+<tr class="row-odd"><td><p>hyq_embedding</p></td>
+<td><p>VECTOR(1536)?</p></td>
+</tr>
+<tr class="row-even"><td><p>hyq_declarative_embedding</p></td>
+<td><p>VECTOR(1536)?</p></td>
+</tr>
+<tr class="row-odd"><td><p>text_embedding</p></td>
+<td><p>VECTOR(1536)?</p></td>
 </tr>
 </tbody>
 </table>
@@ -432,9 +504,11 @@
 </ul>
 <p class="rubric">Indexes:</p>
 <ul class="simple">
+<li><p>idx_question_answer (answer_id)</p></li>
 <li><p>idx_question_language (language)</p></li>
-<li><p>idx_question_tag (language, tags)</p></li>
-<li><p>idx_text_gin (text)</p></li>
+<li><p>idx_question_tags (tags)</p></li>
+<li><p>idx_question_text_embedding (text_embedding)</p></li>
+<li><p>idx_question_text_gin (text)</p></li>
 </ul>
 </dd>
 </dl>
@@ -452,6 +526,15 @@
 </tr>
 <tr class="row-even"><td><p>url*</p></td>
 <td><p>TEXT</p></td>
+</tr>
+<tr class="row-odd"><td><p>description</p></td>
+<td><p>TEXT?</p></td>
+</tr>
+<tr class="row-even"><td><p>created_at</p></td>
+<td><p>DATETIME</p></td>
+</tr>
+<tr class="row-odd"><td><p>modified_at</p></td>
+<td><p>DATETIME</p></td>
 </tr>
 </tbody>
 </table>

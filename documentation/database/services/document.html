@@ -7,7 +7,7 @@
 
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
         <title>Document - ZAS/EAK CopilotGPT documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css?v=4c969af8" />
@@ -376,6 +376,17 @@
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="database.service.document.DocumentService.delete_expired_documents">
+<span class="sig-name descname"><span class="pre">delete_expired_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#database.service.document.DocumentService.delete_expired_documents" title="Link to this definition">¶</a></dt>
+<dd><p>Delete all documents over 24 hours old that have a user_uuid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>db</strong> (<em>Session</em>) – Database session</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -440,6 +451,7 @@
 <li><a class="reference internal" href="#database.service.document.DocumentService.get_by_url"><code class="docutils literal notranslate"><span class="pre">DocumentService.get_by_url()</span></code></a></li>
 <li><a class="reference internal" href="#database.service.document.DocumentService.get_count"><code class="docutils literal notranslate"><span class="pre">DocumentService.get_count()</span></code></a></li>
 <li><a class="reference internal" href="#database.service.document.DocumentService.get_all_documents"><code class="docutils literal notranslate"><span class="pre">DocumentService.get_all_documents()</span></code></a></li>
+<li><a class="reference internal" href="#database.service.document.DocumentService.delete_expired_documents"><code class="docutils literal notranslate"><span class="pre">DocumentService.delete_expired_documents()</span></code></a></li>
 </ul>
 </li>
 </ul>

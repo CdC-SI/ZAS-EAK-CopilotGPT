@@ -7,7 +7,7 @@
 
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
         <title>Embedding - ZAS/EAK CopilotGPT documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css?v=4c969af8" />
@@ -334,20 +334,20 @@
 <dd><p>Base class for embedding services</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="database.service.base.EmbeddingService.embed_one">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">embed_one</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">EmbeddedMixin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#database.service.base.EmbeddingService.embed_one" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">embed_one</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TextEmbeddingMixin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#database.service.base.EmbeddingService.embed_one" title="Link to this definition">¶</a></dt>
 <dd><p>Embed a single object in the database</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
-<li><p><strong>db_obj</strong> (<em>EmbeddedMixin</em>) – Database object</p></li>
+<li><p><strong>db_obj</strong> (<em>TextEmbeddingMixin</em>) – Database object</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Embedded database object</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>EmbeddedMixin</p>
+<dd class="field-odd"><p>TextEmbeddingMixin</p>
 </dd>
 </dl>
 </dd></dl>
@@ -368,7 +368,7 @@
 <dd class="field-even"><p>List of embedded database objects</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list[EmbeddedMixin]</p>
+<dd class="field-odd"><p>list[TextEmbeddingMixin]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -423,6 +423,26 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
 <li><p><strong>text</strong> (<em>str</em>) – Object text</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Database object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Base</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="database.service.base.EmbeddingService.get_by_tag">
+<span class="sig-name descname"><span class="pre">get_by_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#database.service.base.EmbeddingService.get_by_tag" title="Link to this definition">¶</a></dt>
+<dd><p>Get object by tag</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
+<li><p><strong>tag</strong> (<em>str</em>) – Object text</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -522,6 +542,7 @@
 <li><a class="reference internal" href="#database.service.base.EmbeddingService.create"><code class="docutils literal notranslate"><span class="pre">EmbeddingService.create()</span></code></a></li>
 <li><a class="reference internal" href="#database.service.base.EmbeddingService.create_all"><code class="docutils literal notranslate"><span class="pre">EmbeddingService.create_all()</span></code></a></li>
 <li><a class="reference internal" href="#database.service.base.EmbeddingService.get_by_text"><code class="docutils literal notranslate"><span class="pre">EmbeddingService.get_by_text()</span></code></a></li>
+<li><a class="reference internal" href="#database.service.base.EmbeddingService.get_by_tag"><code class="docutils literal notranslate"><span class="pre">EmbeddingService.get_by_tag()</span></code></a></li>
 <li><a class="reference internal" href="#database.service.base.EmbeddingService.update"><code class="docutils literal notranslate"><span class="pre">EmbeddingService.update()</span></code></a></li>
 </ul>
 </li>

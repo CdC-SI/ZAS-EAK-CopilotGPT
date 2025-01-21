@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#" /><link rel="search" title="Search" href="search.html" />
 
     <link rel="shortcut icon" href="_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 --><title>Index - ZAS/EAK CopilotGPT documentation</title>
-<link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+<link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/tabs.css?v=4c969af8" />
@@ -317,7 +317,7 @@
           
 <section class="genindex-section">
   <h1 id="index">Index</h1>
-  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#Q"><strong>Q</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#W"><strong>W</strong></a></div>
+  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#Q"><strong>Q</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a></div>
 </section>
 <section id="A" class="genindex-section">
   <h2>A</h2>
@@ -335,16 +335,22 @@
 </li>
         <li><a href="documentation/indexing/pipelines/ahv.html#indexing.pipelines.ahv.AHVIndexer">AHVIndexer (class in indexing.pipelines.ahv)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="documentation/indexing/pipelines/ahv.html#indexing.pipelines.ahv.AHVParser">AHVParser (class in indexing.pipelines.ahv)</a>
 </li>
-        <li><a href="documentation/schemas/question.html#schemas.question.Question.answer">answer (schemas.question.Question attribute)</a>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestion.answer">answer (schemas.question.FaqQuestion attribute)</a>
 
         <ul>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionCreate.answer">(schemas.question.QuestionCreate attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionCreate.answer">(schemas.question.FaqQuestionCreate attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionItem.answer">(schemas.question.QuestionItem attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionItem.answer">(schemas.question.FaqQuestionItem attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionCreate.answer_embedding">answer_embedding (schemas.question.FaqQuestionCreate attribute)</a>
+
+        <ul>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionItem.answer_embedding">(schemas.question.FaqQuestionItem attribute)</a>
 </li>
         </ul></li>
         <li><a href="documentation/api/autocomplete.html#autocomplete_api.autocomplete">autocomplete() (in module autocomplete_api)</a>
@@ -431,8 +437,6 @@
         <ul>
           <li><a href="documentation/database/services/embedding.html#database.service.base.EmbeddingService.create">(database.service.base.EmbeddingService method)</a>
 </li>
-          <li><a href="documentation/database/services/question.html#database.service.question.QuestionService.create">(database.service.question.QuestionService method)</a>
-</li>
         </ul></li>
         <li><a href="documentation/database/services/base.html#database.service.base.BaseService.create_all">create_all() (database.service.base.BaseService method)</a>
 
@@ -457,12 +461,36 @@
         </ul></li>
         <li><a href="documentation/database/services/base.html#database.service.base.BaseService.delete">delete() (database.service.base.BaseService method)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="documentation/database/services/base.html#database.service.base.BaseService.delete_all">delete_all() (database.service.base.BaseService method)</a>
+</li>
+        <li><a href="documentation/database/services/document.html#database.service.document.DocumentService.delete_expired_documents">delete_expired_documents() (database.service.document.DocumentService method)</a>
+</li>
+        <li><a href="documentation/database/services/source.html#database.service.source.SourceService.delete_expired_sources">delete_expired_sources() (database.service.source.SourceService method)</a>
 </li>
         <li><a href="documentation/api/rag.html#rag_api.docs">docs() (in module rag_api)</a>
 </li>
+        <li><a href="documentation/schemas/document.html#schemas.document.Document.doctype">doctype (schemas.document.Document attribute)</a>
+
+        <ul>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentBase.doctype">(schemas.document.DocumentBase attribute)</a>
+</li>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentCreate.doctype">(schemas.document.DocumentCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentUpdate.doctype">(schemas.document.DocumentUpdate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestion.doctype">(schemas.question.FaqQuestion attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionBase.doctype">(schemas.question.FaqQuestionBase attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionCreate.doctype">(schemas.question.FaqQuestionCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionItem.doctype">(schemas.question.FaqQuestionItem attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionUpdate.doctype">(schemas.question.FaqQuestionUpdate attribute)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="documentation/schemas/source.html#schemas.source.Source.documents">documents (schemas.source.Source attribute)</a>
 </li>
         <li><a href="documentation/database/services/document.html#database.service.document.DocumentService">DocumentService (class in database.service.document)</a>
@@ -481,22 +509,10 @@
 </li>
         <li><a href="documentation/database/services/embedding.html#database.service.base.EmbeddingService.embed_one">embed_one() (database.service.base.EmbeddingService method)</a>
 </li>
-        <li><a href="documentation/api/indexing.html#indexing_api.embed_rag_data">embed_rag_data() (in module indexing_api)</a>
-</li>
-        <li><a href="documentation/schemas/document.html#schemas.document.DocumentCreate.embedding">embedding (schemas.document.DocumentCreate attribute)</a>
-
-        <ul>
-          <li><a href="documentation/schemas/document.html#schemas.document.DocumentUpdate.embedding">(schemas.document.DocumentUpdate attribute)</a>
-</li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionCreate.embedding">(schemas.question.QuestionCreate attribute)</a>
-</li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionItem.embedding">(schemas.question.QuestionItem attribute)</a>
-</li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionUpdate.embedding">(schemas.question.QuestionUpdate attribute)</a>
-</li>
-        </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="documentation/api/indexing.html#indexing_api.embed_rag_data">embed_rag_data() (in module indexing_api)</a>
+</li>
         <li><a href="documentation/database/services/embedding.html#database.service.base.EmbeddingService">EmbeddingService (class in database.service.base)</a>
 </li>
         <li><a href="documentation/api/autocomplete.html#autocomplete_api.exact_match">exact_match() (in module autocomplete_api)</a>
@@ -539,6 +555,8 @@
 </li>
         <li><a href="documentation/database/services/document.html#database.service.document.DocumentService.get_all_documents">get_all_documents() (database.service.document.DocumentService method)</a>
 </li>
+        <li><a href="documentation/database/services/embedding.html#database.service.base.EmbeddingService.get_by_tag">get_by_tag() (database.service.base.EmbeddingService method)</a>
+</li>
         <li><a href="documentation/database/services/embedding.html#database.service.base.EmbeddingService.get_by_text">get_by_text() (database.service.base.EmbeddingService method)</a>
 </li>
         <li><a href="documentation/database/services/document.html#database.service.document.DocumentService.get_by_url">get_by_url() (database.service.document.DocumentService method)</a>
@@ -551,10 +569,10 @@
 </li>
         <li><a href="documentation/database/index.html#database.database.get_db">get_db() (in module database.database)</a>
 </li>
-        <li><a href="documentation/database/index.html#database.database.get_engine">get_engine() (in module database.database)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="documentation/database/index.html#database.database.get_engine">get_engine() (in module database.database)</a>
+</li>
         <li><a href="documentation/database/services/matching.html#database.service.matching.MatchingService.get_exact_match">get_exact_match() (database.service.matching.MatchingService method)</a>
 </li>
         <li><a href="documentation/database/services/matching.html#database.service.matching.MatchingService.get_fuzzy_match">get_fuzzy_match() (database.service.matching.MatchingService method)</a>
@@ -583,10 +601,74 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="documentation/indexing/scraper.html#indexing.base.BaseScraper.html_content_from_sitemap">html_content_from_sitemap() (indexing.base.BaseScraper method)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="documentation/indexing/pipelines/eak.html#indexing.pipelines.admin.AdminParser.html_converter">html_converter (indexing.pipelines.admin.AdminParser attribute)</a>
 </li>
+        <li><a href="documentation/schemas/document.html#schemas.document.Document.hyq">hyq (schemas.document.Document attribute)</a>
+
+        <ul>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentBase.hyq">(schemas.document.DocumentBase attribute)</a>
+</li>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentCreate.hyq">(schemas.document.DocumentCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentUpdate.hyq">(schemas.document.DocumentUpdate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestion.hyq">(schemas.question.FaqQuestion attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionBase.hyq">(schemas.question.FaqQuestionBase attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionCreate.hyq">(schemas.question.FaqQuestionCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionItem.hyq">(schemas.question.FaqQuestionItem attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionUpdate.hyq">(schemas.question.FaqQuestionUpdate attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="documentation/schemas/document.html#schemas.document.Document.hyq_declarative">hyq_declarative (schemas.document.Document attribute)</a>
+
+        <ul>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentBase.hyq_declarative">(schemas.document.DocumentBase attribute)</a>
+</li>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentCreate.hyq_declarative">(schemas.document.DocumentCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentUpdate.hyq_declarative">(schemas.document.DocumentUpdate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestion.hyq_declarative">(schemas.question.FaqQuestion attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionBase.hyq_declarative">(schemas.question.FaqQuestionBase attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionCreate.hyq_declarative">(schemas.question.FaqQuestionCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionItem.hyq_declarative">(schemas.question.FaqQuestionItem attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionUpdate.hyq_declarative">(schemas.question.FaqQuestionUpdate attribute)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="documentation/schemas/document.html#schemas.document.DocumentCreate.hyq_declarative_embedding">hyq_declarative_embedding (schemas.document.DocumentCreate attribute)</a>
+
+        <ul>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentUpdate.hyq_declarative_embedding">(schemas.document.DocumentUpdate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionCreate.hyq_declarative_embedding">(schemas.question.FaqQuestionCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionItem.hyq_declarative_embedding">(schemas.question.FaqQuestionItem attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionUpdate.hyq_declarative_embedding">(schemas.question.FaqQuestionUpdate attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="documentation/schemas/document.html#schemas.document.DocumentCreate.hyq_embedding">hyq_embedding (schemas.document.DocumentCreate attribute)</a>
+
+        <ul>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentUpdate.hyq_embedding">(schemas.document.DocumentUpdate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionCreate.hyq_embedding">(schemas.question.FaqQuestionCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionItem.hyq_embedding">(schemas.question.FaqQuestionItem attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionUpdate.hyq_embedding">(schemas.question.FaqQuestionUpdate attribute)</a>
+</li>
+        </ul></li>
     </ul></td>
   </tr></table>
 </section>
@@ -598,9 +680,9 @@
         <li><a href="documentation/schemas/document.html#schemas.document.Document.id">id (schemas.document.Document attribute)</a>
 
         <ul>
-          <li><a href="documentation/schemas/question.html#schemas.question.Question.id">(schemas.question.Question attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestion.id">(schemas.question.FaqQuestion attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionItem.id">(schemas.question.QuestionItem attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionItem.id">(schemas.question.FaqQuestionItem attribute)</a>
 </li>
           <li><a href="documentation/schemas/source.html#schemas.source.Source.id">(schemas.source.Source attribute)</a>
 </li>
@@ -670,15 +752,15 @@
 </li>
           <li><a href="documentation/schemas/document.html#schemas.document.DocumentUpdate.language">(schemas.document.DocumentUpdate attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.Question.language">(schemas.question.Question attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestion.language">(schemas.question.FaqQuestion attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionBase.language">(schemas.question.QuestionBase attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionBase.language">(schemas.question.FaqQuestionBase attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionCreate.language">(schemas.question.QuestionCreate attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionCreate.language">(schemas.question.FaqQuestionCreate attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionItem.language">(schemas.question.QuestionItem attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionItem.language">(schemas.question.FaqQuestionItem attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionUpdate.language">(schemas.question.QuestionUpdate attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionUpdate.language">(schemas.question.FaqQuestionUpdate attribute)</a>
 </li>
         </ul></li>
     </ul></td>
@@ -689,13 +771,6 @@
   <h2>M</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li>
-    main
-
-        <ul>
-          <li><a href="documentation/api/index.html#module-main">module</a>
-</li>
-        </ul></li>
         <li><a href="documentation/database/services/matching.html#database.service.matching.MatchingService">MatchingService (class in database.service.matching)</a>
 </li>
         <li>
@@ -713,8 +788,6 @@
           <li><a href="documentation/indexing/pipelines/bsv.html#module-indexing.pipelines.bsv">indexing.pipelines.bsv</a>
 </li>
           <li><a href="documentation/api/indexing.html#module-indexing_api">indexing_api</a>
-</li>
-          <li><a href="documentation/api/index.html#module-main">main</a>
 </li>
           <li><a href="documentation/api/rag.html#module-rag_api">rag_api</a>
 </li>
@@ -736,7 +809,27 @@
         <li><a href="documentation/schemas/document.html#schemas.document.DocumentsCreate.objects">objects (schemas.document.DocumentsCreate attribute)</a>
 
         <ul>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionsCreate.objects">(schemas.question.QuestionsCreate attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionsCreate.objects">(schemas.question.FaqQuestionsCreate attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="documentation/schemas/document.html#schemas.document.Document.organizations">organizations (schemas.document.Document attribute)</a>
+
+        <ul>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentBase.organizations">(schemas.document.DocumentBase attribute)</a>
+</li>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentCreate.organizations">(schemas.document.DocumentCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentUpdate.organizations">(schemas.document.DocumentUpdate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestion.organizations">(schemas.question.FaqQuestion attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionBase.organizations">(schemas.question.FaqQuestionBase attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionCreate.organizations">(schemas.question.FaqQuestionCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionItem.organizations">(schemas.question.FaqQuestionItem attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionUpdate.organizations">(schemas.question.FaqQuestionUpdate attribute)</a>
 </li>
         </ul></li>
     </ul></td>
@@ -790,10 +883,6 @@
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="documentation/schemas/source.html#schemas.source.Source.questions">questions (schemas.source.Source attribute)</a>
-</li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="documentation/database/services/question.html#database.service.question.QuestionService">QuestionService (class in database.service.question)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -867,8 +956,6 @@
 </li>
         <li><a href="documentation/database/services/matching.html#database.service.matching.MatchingService.semantic_similarity_match_inner_prod">semantic_similarity_match_inner_prod() (database.service.matching.MatchingService method)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="documentation/database/services/matching.html#database.service.matching.MatchingService.semantic_similarity_match_l1">semantic_similarity_match_l1() (database.service.matching.MatchingService method)</a>
 </li>
         <li><a href="documentation/database/services/matching.html#database.service.matching.MatchingService.semantic_similarity_match_l2">semantic_similarity_match_l2() (database.service.matching.MatchingService method)</a>
@@ -876,15 +963,15 @@
         <li><a href="documentation/schemas/document.html#schemas.document.DocumentCreate.source">source (schemas.document.DocumentCreate attribute)</a>
 
         <ul>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionCreate.source">(schemas.question.QuestionCreate attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionCreate.source">(schemas.question.FaqQuestionCreate attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionItem.source">(schemas.question.QuestionItem attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionItem.source">(schemas.question.FaqQuestionItem attribute)</a>
 </li>
         </ul></li>
         <li><a href="documentation/schemas/document.html#schemas.document.DocumentUpdate.source_id">source_id (schemas.document.DocumentUpdate attribute)</a>
 
         <ul>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionUpdate.source_id">(schemas.question.QuestionUpdate attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionUpdate.source_id">(schemas.question.FaqQuestionUpdate attribute)</a>
 </li>
         </ul></li>
         <li><a href="documentation/database/services/source.html#database.service.source.SourceService">SourceService (class in database.service.source)</a>
@@ -901,6 +988,72 @@
 
         <ul>
           <li><a href="documentation/indexing/pipelines/ahv.html#indexing.pipelines.ahv.AHVParser.splitter">(indexing.pipelines.ahv.AHVParser attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="documentation/schemas/document.html#schemas.document.Document.subtopics">subtopics (schemas.document.Document attribute)</a>
+
+        <ul>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentBase.subtopics">(schemas.document.DocumentBase attribute)</a>
+</li>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentCreate.subtopics">(schemas.document.DocumentCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentUpdate.subtopics">(schemas.document.DocumentUpdate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestion.subtopics">(schemas.question.FaqQuestion attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionBase.subtopics">(schemas.question.FaqQuestionBase attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionCreate.subtopics">(schemas.question.FaqQuestionCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionItem.subtopics">(schemas.question.FaqQuestionItem attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionUpdate.subtopics">(schemas.question.FaqQuestionUpdate attribute)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="documentation/schemas/document.html#schemas.document.DocumentCreate.subtopics_embedding">subtopics_embedding (schemas.document.DocumentCreate attribute)</a>
+
+        <ul>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentUpdate.subtopics_embedding">(schemas.document.DocumentUpdate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionCreate.subtopics_embedding">(schemas.question.FaqQuestionCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionItem.subtopics_embedding">(schemas.question.FaqQuestionItem attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionUpdate.subtopics_embedding">(schemas.question.FaqQuestionUpdate attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="documentation/schemas/document.html#schemas.document.Document.summary">summary (schemas.document.Document attribute)</a>
+
+        <ul>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentBase.summary">(schemas.document.DocumentBase attribute)</a>
+</li>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentCreate.summary">(schemas.document.DocumentCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentUpdate.summary">(schemas.document.DocumentUpdate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestion.summary">(schemas.question.FaqQuestion attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionBase.summary">(schemas.question.FaqQuestionBase attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionCreate.summary">(schemas.question.FaqQuestionCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionItem.summary">(schemas.question.FaqQuestionItem attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionUpdate.summary">(schemas.question.FaqQuestionUpdate attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="documentation/schemas/document.html#schemas.document.DocumentCreate.summary_embedding">summary_embedding (schemas.document.DocumentCreate attribute)</a>
+
+        <ul>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentUpdate.summary_embedding">(schemas.document.DocumentUpdate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionCreate.summary_embedding">(schemas.question.FaqQuestionCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionItem.summary_embedding">(schemas.question.FaqQuestionItem attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionUpdate.summary_embedding">(schemas.question.FaqQuestionUpdate attribute)</a>
 </li>
         </ul></li>
     </ul></td>
@@ -920,15 +1073,27 @@
 </li>
           <li><a href="documentation/schemas/document.html#schemas.document.DocumentUpdate.tags">(schemas.document.DocumentUpdate attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.Question.tags">(schemas.question.Question attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestion.tags">(schemas.question.FaqQuestion attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionBase.tags">(schemas.question.QuestionBase attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionBase.tags">(schemas.question.FaqQuestionBase attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionCreate.tags">(schemas.question.QuestionCreate attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionCreate.tags">(schemas.question.FaqQuestionCreate attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionItem.tags">(schemas.question.QuestionItem attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionItem.tags">(schemas.question.FaqQuestionItem attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionUpdate.tags">(schemas.question.QuestionUpdate attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionUpdate.tags">(schemas.question.FaqQuestionUpdate attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="documentation/schemas/document.html#schemas.document.DocumentCreate.tags_embedding">tags_embedding (schemas.document.DocumentCreate attribute)</a>
+
+        <ul>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentUpdate.tags_embedding">(schemas.document.DocumentUpdate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionCreate.tags_embedding">(schemas.question.FaqQuestionCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionItem.tags_embedding">(schemas.question.FaqQuestionItem attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionUpdate.tags_embedding">(schemas.question.FaqQuestionUpdate attribute)</a>
 </li>
         </ul></li>
     </ul></td>
@@ -942,15 +1107,27 @@
 </li>
           <li><a href="documentation/schemas/document.html#schemas.document.DocumentUpdate.text">(schemas.document.DocumentUpdate attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.Question.text">(schemas.question.Question attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestion.text">(schemas.question.FaqQuestion attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionBase.text">(schemas.question.QuestionBase attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionBase.text">(schemas.question.FaqQuestionBase attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionCreate.text">(schemas.question.QuestionCreate attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionCreate.text">(schemas.question.FaqQuestionCreate attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionItem.text">(schemas.question.QuestionItem attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionItem.text">(schemas.question.FaqQuestionItem attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionUpdate.text">(schemas.question.QuestionUpdate attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionUpdate.text">(schemas.question.FaqQuestionUpdate attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="documentation/schemas/document.html#schemas.document.DocumentCreate.text_embedding">text_embedding (schemas.document.DocumentCreate attribute)</a>
+
+        <ul>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentUpdate.text_embedding">(schemas.document.DocumentUpdate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionCreate.text_embedding">(schemas.question.FaqQuestionCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionItem.text_embedding">(schemas.question.FaqQuestionItem attribute)</a>
+</li>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionUpdate.text_embedding">(schemas.question.FaqQuestionUpdate attribute)</a>
 </li>
         </ul></li>
         <li><a href="documentation/api/autocomplete.html#autocomplete_api.trigram_match">trigram_match() (in module autocomplete_api)</a>
@@ -973,6 +1150,8 @@
 </li>
         <li><a href="documentation/api/indexing.html#indexing_api.upload_csv_rag">upload_csv_rag() (in module indexing_api)</a>
 </li>
+        <li><a href="documentation/api/indexing.html#indexing_api.upload_csv_tags">upload_csv_tags() (in module indexing_api)</a>
+</li>
         <li><a href="documentation/api/indexing.html#indexing_api.upload_pdf_rag">upload_pdf_rag() (in module indexing_api)</a>
 </li>
         <li><a href="documentation/schemas/document.html#schemas.document.Document.url">url (schemas.document.Document attribute)</a>
@@ -984,15 +1163,15 @@
 </li>
           <li><a href="documentation/schemas/document.html#schemas.document.DocumentUpdate.url">(schemas.document.DocumentUpdate attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.Question.url">(schemas.question.Question attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestion.url">(schemas.question.FaqQuestion attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionBase.url">(schemas.question.QuestionBase attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionBase.url">(schemas.question.FaqQuestionBase attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionCreate.url">(schemas.question.QuestionCreate attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionCreate.url">(schemas.question.FaqQuestionCreate attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionItem.url">(schemas.question.QuestionItem attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionItem.url">(schemas.question.FaqQuestionItem attribute)</a>
 </li>
-          <li><a href="documentation/schemas/question.html#schemas.question.QuestionUpdate.url">(schemas.question.QuestionUpdate attribute)</a>
+          <li><a href="documentation/schemas/question.html#schemas.question.FaqQuestionUpdate.url">(schemas.question.FaqQuestionUpdate attribute)</a>
 </li>
           <li><a href="documentation/schemas/source.html#schemas.source.Source.url">(schemas.source.Source attribute)</a>
 </li>
@@ -1002,15 +1181,17 @@
 </li>
         </ul></li>
     </ul></td>
-  </tr></table>
-</section>
-
-<section id="W" class="genindex-section">
-  <h2>W</h2>
-  <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="documentation/api/index.html#main.welcome">welcome() (in module main)</a>
+        <li><a href="documentation/schemas/document.html#schemas.document.Document.user_uuid">user_uuid (schemas.document.Document attribute)</a>
+
+        <ul>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentBase.user_uuid">(schemas.document.DocumentBase attribute)</a>
 </li>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentCreate.user_uuid">(schemas.document.DocumentCreate attribute)</a>
+</li>
+          <li><a href="documentation/schemas/document.html#schemas.document.DocumentUpdate.user_uuid">(schemas.document.DocumentUpdate attribute)</a>
+</li>
+        </ul></li>
     </ul></td>
   </tr></table>
 </section>
