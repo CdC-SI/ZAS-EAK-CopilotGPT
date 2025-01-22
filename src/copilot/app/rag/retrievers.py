@@ -154,6 +154,7 @@ class TopKRetriever(BaseRetriever):
             organizations=organizations,
             user_uuid=user_uuid,
             k=k,
+            embedding_field="text_embedding",
         )
         return docs[: self.top_k]
 
@@ -232,6 +233,7 @@ class QueryRewritingRetriever(BaseRetriever):
                 organizations=organizations,
                 user_uuid=user_uuid,
                 k=k,
+                embedding_field="text_embedding",
             )
             for query in rewritten_queries
         ]
@@ -314,6 +316,7 @@ class ContextualCompressionRetriever(BaseRetriever):
             organizations=organizations,
             user_uuid=user_uuid,
             k=k,
+            embedding_field="text_embedding",
         )
 
         # Compress the documents asynchronously
@@ -403,6 +406,7 @@ class RAGFusionRetriever(QueryRewritingRetriever):
                 organizations=organizations,
                 user_uuid=user_uuid,
                 k=k,
+                embedding_field="text_embedding",
             )
             docs.append(query_docs)
 
@@ -480,6 +484,10 @@ class BM25Retriever(BaseRetriever):
         return docs
 
 
+class TrigramRetriever(BaseRetriever):
+    pass
+
+
 class MetadataRetriever(BaseRetriever):
     """
     A class used to retrieve documents using text content and metadata embeddings (summary, hyq, declarative_hyq).
@@ -490,8 +498,16 @@ class MetadataRetriever(BaseRetriever):
 
 class SemanticMetadataRetriever(TopKRetriever):
     """
-    A subclass of TopKRetriever that adds additional logic for retrieving documents through semantic match of additional metadata.
+    A subclass of TopKRetriever that matches the embedded query against multiple embeddings fields.
     """
+
+    EMBEDDING_FIELDS = [
+        "summary_embedding",
+        "tags_embedding",
+        "subtopics_embedding",
+        "hyq_embedding",
+        "hyq_declarative_embedding",
+    ]
 
     def __init__(self, top_k):
         super().__init__(top_k)
@@ -510,21 +526,9 @@ class SemanticMetadataRetriever(TopKRetriever):
         **kwargs
     ) -> List[Document]:
         """
-        Extends the get_documents method of TopKRetriever to add semantic matching of additional metadata.
+        Retrieves documents by matching against multiple embedding fields concurrently.
         """
-        docs_from_text = await super().get_documents(
-            db,
-            query,
-            k,
-            language=language,
-            tags=tags,
-            source=source,
-            organizations=organizations,
-            user_uuid=user_uuid,
-            **kwargs,
-        )
-
-        docs_from_metadata = await document_service.get_semantic_match(
+        docs = await document_service.get_semantic_match(
             db,
             query,
             language=language,
@@ -533,9 +537,8 @@ class SemanticMetadataRetriever(TopKRetriever):
             organizations=organizations,
             user_uuid=user_uuid,
             k=k,
+            embedding_field=self.EMBEDDING_FIELDS,
         )
-
-        docs = docs_from_text + docs_from_metadata
 
         return docs[: self.top_k]
 

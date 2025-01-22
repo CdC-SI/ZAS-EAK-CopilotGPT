@@ -230,5 +230,10 @@ def semantic_similarity_match(
     list of dict
     """
     return faq_question_service.get_semantic_match(
-        db, question, language=language, k=k, tags=tags
+        db,
+        question,
+        language=language,
+        k=k,
+        tags=tags,
+        embedding_field="text_embedding",
     )

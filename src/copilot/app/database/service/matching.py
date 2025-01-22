@@ -1,7 +1,8 @@
-from typing import List
+from typing import List, Union
 
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, select
+import asyncio
 
 from .base import EmbeddingService
 from database.models import Source
@@ -151,6 +152,7 @@ class MatchingService(EmbeddingService):
         source: List[str] = None,
         organizations: List[str] = None,
         user_uuid: str = None,
+        embedding_field: Union[str, List[str]] = "text_embedding",
     ):
         """
         Get semantic similarity match from database
@@ -174,62 +176,96 @@ class MatchingService(EmbeddingService):
             Filter by organizations
         user_uuid : str, optional
             Filter by user_uuid
+        embedding_field : Union[str, List[str]], optional
+            Single field name or list of field names to match against
 
         Returns
         -------
         list of dict
         """
-        q_embedding = await get_embedding(user_input)
-
-        # Start building the query
-        stmt = select(self.model).filter(self.model.text_embedding.isnot(None))
-
-        if user_uuid:
-            docs_with_uuid = select(self.model.id).where(
-                self.model.user_uuid == user_uuid
-            )
-            docs_without_uuid = select(self.model.id).where(
-                self.model.user_uuid.is_(None)
-            )
-            stmt = stmt.filter(
-                self.model.id.in_(docs_with_uuid.union(docs_without_uuid))
-            )
-
-        if language:
-            stmt = stmt.filter(self.model.language == language)
-
-        if source:
-            stmt = stmt.join(self.model.source).filter(Source.url.in_(source))
-            stmt = stmt.options(joinedload(self.model.source))
-
-        if tags:
-            stmt = stmt.filter(self.model.tags.op("&&")(tags))
-
-        if organizations:
-            docs_with_org = select(self.model.id).where(
-                self.model.organizations.op("&&")(organizations)
-            )
-            docs_without_org = select(self.model.id).where(
-                self.model.organizations.is_(None)
-            )
-            stmt = stmt.filter(
-                self.model.id.in_(docs_with_org.union(docs_without_org))
-            )
-        else:
-            stmt = stmt.filter(self.model.organizations.is_(None))
-
-        # Order by similarity
-        stmt = stmt.order_by(
-            self.model.text_embedding.op(symbol)(q_embedding).asc()
+        # Handle both single field and multiple fields
+        embedding_fields = (
+            [embedding_field]
+            if isinstance(embedding_field, str)
+            else embedding_field
         )
 
-        if k > 0:
-            stmt = stmt.limit(k)
+        # Validate all fields exist
+        for field in embedding_fields:
+            if not hasattr(self.model, field):
+                raise ValueError(
+                    f"Model does not have embedding field: {field}"
+                )
 
-        # Execute the query
-        rows = db.scalars(stmt).all()
+        q_embedding = await get_embedding(user_input)
 
-        return [row.to_dict() for row in rows]
+        # Execute semantic match for each field concurrently
+        async def get_matches_for_field(field):
+            embedding_attr = getattr(self.model, field)
+            stmt = select(self.model).filter(embedding_attr.isnot(None))
+
+            # Start building the query
+            if user_uuid:
+                docs_with_uuid = select(self.model.id).where(
+                    self.model.user_uuid == user_uuid
+                )
+                docs_without_uuid = select(self.model.id).where(
+                    self.model.user_uuid.is_(None)
+                )
+                stmt = stmt.filter(
+                    self.model.id.in_(docs_with_uuid.union(docs_without_uuid))
+                )
+
+            if language:
+                stmt = stmt.filter(self.model.language == language)
+
+            if source:
+                stmt = stmt.join(self.model.source).filter(
+                    Source.url.in_(source)
+                )
+                stmt = stmt.options(joinedload(self.model.source))
+
+            if tags:
+                stmt = stmt.filter(self.model.tags.op("&&")(tags))
+
+            if organizations:
+                docs_with_org = select(self.model.id).where(
+                    self.model.organizations.op("&&")(organizations)
+                )
+                docs_without_org = select(self.model.id).where(
+                    self.model.organizations.is_(None)
+                )
+                stmt = stmt.filter(
+                    self.model.id.in_(docs_with_org.union(docs_without_org))
+                )
+            else:
+                stmt = stmt.filter(self.model.organizations.is_(None))
+
+            # Order by similarity
+            stmt = stmt.order_by(embedding_attr.op(symbol)(q_embedding).asc())
+
+            if k > 0:
+                stmt = stmt.limit(k)
+
+            rows = db.scalars(stmt).all()
+            return [row.to_dict() for row in rows]
+
+        # Get results for all fields concurrently
+        results = await asyncio.gather(
+            *[get_matches_for_field(field) for field in embedding_fields]
+        )
+
+        # Merge results and remove duplicates based on id
+        seen = set()
+        merged_results = []
+        for result_set in results:
+            for doc in result_set:
+                if doc["id"] not in seen:
+                    seen.add(doc["id"])
+                    merged_results.append(doc)
+
+        # Sort combined results by relevance
+        return merged_results
 
     async def semantic_similarity_match_l1(
         self,
@@ -243,7 +279,13 @@ class MatchingService(EmbeddingService):
         Get semantic similarity match from database using L1 distance
         """
         return self.get_semantic_match(
-            db, user_input, language=language, k=k, symbol="<+>", tags=tags
+            db,
+            user_input,
+            language=language,
+            k=k,
+            symbol="<+>",
+            tags=tags,
+            embedding_field="text_embedding",
         )
 
     async def semantic_similarity_match_l2(
@@ -258,7 +300,13 @@ class MatchingService(EmbeddingService):
         Get semantic similarity match from database using L2 distance
         """
         return self.get_semantic_match(
-            db, user_input, language=language, k=k, symbol="<->", tags=tags
+            db,
+            user_input,
+            language=language,
+            k=k,
+            symbol="<->",
+            tags=tags,
+            embedding_field="text_embedding",
         )
 
     async def semantic_similarity_match_inner_prod(
@@ -273,5 +321,11 @@ class MatchingService(EmbeddingService):
         Get semantic similarity match from database using inner product
         """
         return self.get_semantic_match(
-            db, user_input, language=language, k=k, symbol="<#>", tags=tags
+            db,
+            user_input,
+            language=language,
+            k=k,
+            symbol="<#>",
+            tags=tags,
+            embedding_field="text_embedding",
         )

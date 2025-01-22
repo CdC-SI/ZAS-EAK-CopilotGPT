@@ -107,7 +107,12 @@ class Autocompleter:
                 semantic_match = self.semantic_matches_cache[cache_key]
             else:
                 semantic_match = await faq_question_service.get_semantic_match(
-                    db, question, language, k=self.limit, tags=tags
+                    db,
+                    question,
+                    language,
+                    k=self.limit,
+                    tags=tags,
+                    embedding_field="text_embedding",
                 )
                 self.semantic_matches_cache[cache_key] = semantic_match
 
