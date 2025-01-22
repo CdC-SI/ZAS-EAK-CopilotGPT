@@ -535,7 +535,7 @@ class SemanticMetadataRetriever(TopKRetriever):
         return docs[: self.top_k]
 
 
-class FedlexRetriever(SemanticMetadataRetriever):
+class FedlexRetriever(TopKRetriever):
     """
     A class used to retrieve documents with "fedlex" source.
     Also checks the art.1 (application/applicability) of the law upon which each document is based.
@@ -567,7 +567,7 @@ class FedlexRetriever(SemanticMetadataRetriever):
             k=k,
             language=language,
             tags=tags,
-            source=["fedlex"],  # Override source parameter
+            source=["fedlex"],
             organizations=organizations,
             user_uuid=user_uuid,
             **kwargs,
