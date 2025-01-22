@@ -18,6 +18,10 @@ async def get_embedding(text: Union[List[str], str]):
             input=text,
             model=rag_config["embedding"]["model"],
         )
+        logger.info(
+            "Embedding successfull with model: %s",
+            rag_config["embedding"]["model"],
+        )
         return response.data[0].embedding
     except openai.BadRequestError as e:
         logger.error(e.message)
