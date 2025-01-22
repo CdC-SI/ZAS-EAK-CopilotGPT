@@ -2,7 +2,7 @@ import logging
 import os
 from typing import List
 
-from fastapi import FastAPI, Depends, File, UploadFile
+from fastapi import FastAPI, Depends, File, UploadFile, Response
 from fastapi.middleware.cors import CORSMiddleware
 from config.network_config import CORS_ALLOWED_ORIGINS
 
@@ -31,7 +31,6 @@ from utils.logging import get_logger
 from schemas.indexing import ResponseBody
 
 import tempfile
-import shutil
 import ast
 import csv
 import codecs
@@ -562,16 +561,14 @@ async def upload_csv_tags(
 @app.post(
     "/upload_pdf_rag",
     summary="Upload a PDF files for RAG data",
-    status_code=200,
-    response_model=ResponseBody,
 )
 async def upload_pdf_rag(
     files: List[UploadFile] = File(..., description="PDF files only"),
-    embed: bool = False,
+    embed: bool = True,
     user_uuid: str = None,
     language: str = "de",
     db: Session = Depends(get_db),
-):
+) -> Response:
     """
     Upload a CSV file containing RAG data to the database.
 
@@ -579,52 +576,68 @@ async def upload_pdf_rag(
     ----------
     files : List[UploadFile]
         The PDF file sent by the user
-    embed : bool, optional
-        Whether to embed the data or not. Defaults to False.
-    user_uuid : str, optional
+    embed : bool
+        Whether to embed the data or not. Defaults to True
+    user_uuid : str
         UUID of the user who uploaded the file
+    language: str
+        Language of the document
     db : Session
         Database session
 
     Returns
     -------
-    ResponseBody
+    Response
         A response body containing a confirmation message upon successful completion of the process.
     """
     logger.info("Starting PDF upload")
     uploaded_files = []
     for file in files:
-        logger.info(f"Processing file: {file.filename}")
-        if file.content_type != "application/pdf":
-            logger.error(f"{file.filename} is not a valid PDF file.")
-            return {"content": f"{file.filename} is not a valid PDF file."}
+        try:
+            # Get original filename from the client's upload
+            original_filename = file.filename.split("/")[
+                -1
+            ]  # Handle potential path separators
+            logger.info(f"Processing file: {original_filename}")
 
-        # Handle temporary file creation and processing
-        with tempfile.NamedTemporaryFile(
-            delete=False, suffix=".pdf"
-        ) as temp_file:
-            temp_filename = temp_file.name
-            shutil.copyfileobj(file.file, temp_file)
+            if file.content_type != "application/pdf":
+                logger.error(f"{original_filename} is not a valid PDF file.")
+                return {
+                    "content": f"{original_filename} is not a valid PDF file."
+                }
 
-        # Index data in vectorDB
-        await ahv_indexer.add_content_to_db(
-            db,
-            content=[Path(temp_filename)],
-            source=file.filename,
-            user_uuid=user_uuid,
-            language=language,
-            embed=embed,
-        )
-        uploaded_files.append(file.filename)
-        logger.info(f"File {file.filename} processed successfully")
+            # Create temporary file
+            with tempfile.NamedTemporaryFile(
+                delete=False, suffix=".pdf"
+            ) as temp_file:
+                await file.seek(0)
+                content = await file.read()
+                temp_file.write(content)
+                temp_file.flush()
 
-        os.remove(temp_filename)  # Clean up temp file after use
+            try:
+                await ahv_indexer.add_content_to_db(
+                    db,
+                    content=[Path(temp_file.name)],
+                    source=f"user_pdf_upload:{original_filename}",  # Use original filename
+                    user_uuid=user_uuid,
+                    language=language,
+                    embed=embed,
+                )
+                uploaded_files.append(original_filename)
+                logger.info(f"File {original_filename} processed successfully")
+            finally:
+                os.remove(temp_file.name)
+
+        except Exception as e:
+            logger.error(f"Error processing {original_filename}: {str(e)}")
+            continue
 
     logger.info(f"Finished uploading {len(uploaded_files)} files")
-    return {
-        "content": f"{len(uploaded_files)} files indexed successfully",
-        "files": uploaded_files,
-    }
+    return Response(
+        content=f"{len(uploaded_files)} files indexed successfully ({uploaded_files})",
+        status_code=200,
+    )
 
 
 @app.post(
