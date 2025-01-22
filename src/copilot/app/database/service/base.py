@@ -429,6 +429,8 @@ class EmbeddingService(BaseService):
             db_obj = self.get_by_text(db, obj_in.text)
         elif hasattr(obj_in, "tag_en"):
             db_obj = self.get_by_tag(db, obj_in.tag_en)
+        else:
+            db_obj = None
 
         if db_obj and hasattr(obj_in, "text"):
             db_obj = await self._update(
