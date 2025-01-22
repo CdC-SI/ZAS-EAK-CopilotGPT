@@ -39,9 +39,7 @@ class FaqQuestionService(MatchingService):
         db_document = await document_service.upsert(
             db,
             DocumentCreate(
-                **obj_in.model_dump(
-                    exclude={"text", "answer", "text_embedding"}
-                ),
+                **obj_in.model_dump(exclude={"text", "answer"}),
                 text=obj_in.answer,
             ),
             embed=embed[1],
