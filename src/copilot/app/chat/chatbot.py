@@ -65,8 +65,10 @@ class ChatBot:
         )
         message_builder = MessageBuilder()
         if request.response_style == "legal":
+            retrieval_method = request.retrieval_method
+            retrieval_method.append("fedlex_retriever")
             retriever_client = RetrieverFactory.get_retriever_client(
-                retrieval_method=["top_k_retriever", "fedlex_retriever"],
+                retrieval_method=retrieval_method,
                 llm_client=llm_client,
                 message_builder=message_builder,
             )
