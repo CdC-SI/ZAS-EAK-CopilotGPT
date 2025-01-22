@@ -7,6 +7,7 @@ from rag.retrievers import (
     ContextualCompressionRetriever,
     RAGFusionRetriever,
     BM25Retriever,
+    SemanticMetadataRetriever,
     Reranker,
 )
 from config.clients_config import clientRerank
@@ -61,6 +62,14 @@ class RetrieverFactory:
                 case "top_k_retriever":
                     retrievers.append(
                         TopKRetriever(
+                            top_k=rag_config["retrieval"][
+                                "top_k_retriever_params"
+                            ]["top_k"],
+                        )
+                    )
+                case "semantic_metadata_retriever":
+                    retrievers.append(
+                        SemanticMetadataRetriever(
                             top_k=rag_config["retrieval"][
                                 "top_k_retriever_params"
                             ]["top_k"],
