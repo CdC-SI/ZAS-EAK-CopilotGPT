@@ -418,28 +418,46 @@ Osservate le seguenti regole per un linguaggio di facile lettura (A2):
 {rules}"""
 
 
-PROMPT_TEMPLATE_LEGAL_DE = """Bitte formulieren Sie die Antwort an den Benutzer in juristischer Sprache.
+PROMPT_TEMPLATE_LEGAL_DE = """<anweisungen>
+Bitte formulieren Sie die Antwort an den Nutzer in juristischer Sprache.
+Verwenden Sie alle verfügbaren Rechtsverweise und antworten Sie mit genauen Verweisen auf Gesetze/Verordnungen/Rechtsprechung (Artikel etc.).
+</answeisungen>
 
-# Regeln
-Antwort in Rechtssprache formuliert
-
-{completeness}
-{rules}"""
-
-
-PROMPT_TEMPLATE_LEGAL_FR = """Veuillez formuler la réponse à l'utilisateur en langage juridique.
-
-# Règles
-Réponse formulée en langage juridique
+<antwortformat>.
+Bewahren Sie das Format der Rechtsdokumente im Kontext (Artikel, Absätze, Fußnoten usw.).
+Formatieren Sie das gesetzliche Dokument, das als Grundlage für die Antwort dient, in Markdown.
+Zitieren Sie relevante Fußnoten, die auf andere Gesetze/Verordnungen/Rechtsprechung verweisen.
+</antwortformat>
 
 {completeness}
 {rules}"""
 
 
-PROMPT_TEMPLATE_LEGAL_IT = """Formulare la risposta all'utente in linguaggio legale.
+PROMPT_TEMPLATE_LEGAL_FR = """<instructions>
+Veuillez formuler la réponse à l'utilisateur en langage juridique.
+Utiliez toutes les références légales à disposition et répondez avec des références précises aux lois/ordonnances/jurisprudences (articles, etc.).
+</instructions>
 
-# Regole
-Risposta formulata in linguaggio legale
+<format_de_réponse>
+Préservez le format des documents légaux dans le contexte (articles, alinéas, notes de bas de page, etc.).
+Formattez le document légale servant de base à la réponse en markdown.
+Citez les notes de bas de page pertinentes faisant référence à d'autres lois/ordonnances/jurisprudence.
+</format de réponse>
+
+{completeness}
+{rules}"""
+
+
+PROMPT_TEMPLATE_LEGAL_IT = """<istruzioni>
+Formulare la risposta all'utente in linguaggio giuridico.
+Utilizzate tutti i riferimenti giuridici disponibili e rispondete con riferimenti precisi a leggi/ordinanze/casi (articoli, ecc.).
+</istruzioni>
+
+<risposta_formato>
+Conservare il formato dei documenti legali nel contesto (articoli, paragrafi, note a piè di pagina, ecc.).
+Formattare in markdown il documento legale su cui si basa la risposta.
+Citare le note a piè di pagina pertinenti che fanno riferimento ad altre leggi/ordinanze/casi.
+</risposta_formato>
 
 {completeness}
 {rules}"""

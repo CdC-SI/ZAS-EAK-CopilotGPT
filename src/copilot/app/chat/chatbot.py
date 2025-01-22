@@ -64,11 +64,18 @@ class ChatBot:
             max_tokens=request.max_output_tokens,
         )
         message_builder = MessageBuilder()
-        retriever_client = RetrieverFactory.get_retriever_client(
-            retrieval_method=request.retrieval_method,
-            llm_client=llm_client,
-            message_builder=message_builder,
-        )
+        if request.response_style == "legal":
+            retriever_client = RetrieverFactory.get_retriever_client(
+                retrieval_method=["top_k_retriever", "fedlex_retriever"],
+                llm_client=llm_client,
+                message_builder=message_builder,
+            )
+        else:
+            retriever_client = RetrieverFactory.get_retriever_client(
+                retrieval_method=request.retrieval_method,
+                llm_client=llm_client,
+                message_builder=message_builder,
+            )
         streaming_handler = StreamingHandlerFactory.get_streaming_strategy(
             llm_model=request.llm_model
         )
