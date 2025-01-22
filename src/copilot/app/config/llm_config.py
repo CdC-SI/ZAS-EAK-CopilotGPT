@@ -56,7 +56,11 @@ SUPPORTED_LLAMACPP_LLM_MODELS = ["llama-cpp/Qwen/Qwen1.5-0.5B-Chat-GGUF"]
 DEFAULT_LLAMACPP_LLM_MODEL = "llama-cpp/Qwen/Qwen1.5-0.5B-Chat-GGUF"
 
 # Ollama
-SUPPORTED_OLLAMA_LLM_MODELS = ["ollama/llama3.2:1b", "ollama/llama3.2:3b"]
+SUPPORTED_OLLAMA_LLM_MODELS = [
+    "ollama/llama3.2:1b",
+    "ollama/llama3.2:3b",
+    "ollama/deepseek-r1:8b",
+]
 DEFAULT_OLLAMA_LLM_MODEL = "ollama/llama3.2:1b"
 
 # Embedding models
