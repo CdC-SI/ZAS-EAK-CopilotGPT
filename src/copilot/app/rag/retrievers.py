@@ -488,14 +488,6 @@ class TrigramRetriever(BaseRetriever):
     pass
 
 
-class MetadataRetriever(BaseRetriever):
-    """
-    A class used to retrieve documents using text content and metadata embeddings (summary, hyq, declarative_hyq).
-    """
-
-    pass
-
-
 class SemanticMetadataRetriever(TopKRetriever):
     """
     A subclass of TopKRetriever that matches the embedded query against multiple embeddings fields.
@@ -543,13 +535,43 @@ class SemanticMetadataRetriever(TopKRetriever):
         return docs[: self.top_k]
 
 
-class FedlexRetriever(BaseRetriever):
+class FedlexRetriever(SemanticMetadataRetriever):
     """
-    A class used to retrieve documents with "fedlex" tag.
+    A class used to retrieve documents with "fedlex" source.
     Also checks the art.1 (application/applicability) of the law upon which each document is based.
     """
 
-    pass
+    def __init__(self, top_k):
+        super().__init__(top_k)
+
+    @observe(name="FedlexRetriever_get_documents")
+    async def get_documents(
+        self,
+        db,
+        query,
+        k,
+        language=None,
+        tags=None,
+        source=None,
+        organizations=None,
+        user_uuid=None,
+        **kwargs
+    ) -> List[Document]:
+        """
+        Retrieves documents by matching against multiple embedding fields concurrently,
+        but only from fedlex source.
+        """
+        return await super().get_documents(
+            db=db,
+            query=query,
+            k=k,
+            language=language,
+            tags=tags,
+            source=["fedlex"],  # Override source parameter
+            organizations=organizations,
+            user_uuid=user_uuid,
+            **kwargs,
+        )
 
 
 class ContextualRagRetriever(BaseRetriever):

@@ -8,6 +8,7 @@ from rag.retrievers import (
     RAGFusionRetriever,
     BM25Retriever,
     SemanticMetadataRetriever,
+    FedlexRetriever,
     Reranker,
 )
 from config.clients_config import clientRerank
@@ -126,6 +127,14 @@ class RetrieverFactory:
                             ]["top_k"],
                             llm_client=llm_client,
                             message_builder=message_builder,
+                        )
+                    )
+                case "fedlex_retriever":
+                    retrievers.append(
+                        FedlexRetriever(
+                            top_k=rag_config["retrieval"][
+                                "top_k_retriever_params"
+                            ]["top_k"],
                         )
                     )
                 case "reranking":
