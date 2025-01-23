@@ -187,7 +187,7 @@ class RAGService:
 
         formatted_context_docs = "\n\n".join(
             [
-                f"DOC [{i}]: {doc['text']}"
+                f"<doc_{i}>{doc['text']}</doc_{i}>"
                 for i, doc in enumerate(validated_docs, start=1)
             ]
         )
