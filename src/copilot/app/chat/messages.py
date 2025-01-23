@@ -6,6 +6,9 @@ from prompts.rag import (
     RAG_SYSTEM_PROMPT_DE,
     RAG_SYSTEM_PROMPT_FR,
     RAG_SYSTEM_PROMPT_IT,
+    RAG_REASONING_SYSTEM_PROMPT_DE,
+    RAG_REASONING_SYSTEM_PROMPT_FR,
+    RAG_REASONING_SYSTEM_PROMPT_IT,
 )
 from prompts.retrieval import (
     QUERY_REWRITING_PROMPT_DE,
@@ -113,6 +116,12 @@ class MessageBuilder:
         "de": RAG_SYSTEM_PROMPT_DE,
         "fr": RAG_SYSTEM_PROMPT_FR,
         "it": RAG_SYSTEM_PROMPT_IT,
+    }
+
+    _RAG_REASONING_SYSTEM_PROMPT = {
+        "de": RAG_REASONING_SYSTEM_PROMPT_DE,
+        "fr": RAG_REASONING_SYSTEM_PROMPT_FR,
+        "it": RAG_REASONING_SYSTEM_PROMPT_IT,
     }
 
     _CHAT_TITLE_PROMPT = {
@@ -279,9 +288,15 @@ class MessageBuilder:
         Format the RAG message to send to the appropriate LLM API.
         """
 
-        rag_system_prompt = self._RAG_SYSTEM_PROMPT.get(
-            language, self._RAG_SYSTEM_PROMPT.get(self._DEFAULT_LANGUAGE)
-        )
+        if llm_model == "ollama/deepseek-r1:8b":
+            rag_system_prompt = self._RAG_REASONING_SYSTEM_PROMPT.get(
+                language,
+                self._RAG_REASONING_SYSTEM_PROMPT.get(self._DEFAULT_LANGUAGE),
+            )
+        else:
+            rag_system_prompt = self._RAG_SYSTEM_PROMPT.get(
+                language, self._RAG_SYSTEM_PROMPT.get(self._DEFAULT_LANGUAGE)
+            )
 
         completeness = self._COMPLETENESS.get(
             response_format,
