@@ -1,7 +1,7 @@
 from typing import List, Union
 
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import func, select
+from sqlalchemy import func, select, or_
 import asyncio
 
 from .base import EmbeddingService
@@ -202,53 +202,70 @@ class MatchingService(EmbeddingService):
         # Execute semantic match for each field concurrently
         async def get_matches_for_field(field):
             embedding_attr = getattr(self.model, field)
-            stmt = select(self.model).filter(embedding_attr.isnot(None))
 
-            # Start building the query
+            # 1. Get ALL user's documents first (no filters)
+            user_docs = []
             if user_uuid:
-                docs_with_uuid = select(self.model.id).where(
-                    self.model.user_uuid == user_uuid
+                user_stmt = (
+                    select(self.model)
+                    .filter(
+                        self.model.user_uuid == user_uuid,
+                        embedding_attr.isnot(None),
+                    )
+                    .order_by(embedding_attr.op(symbol)(q_embedding).asc())
                 )
-                docs_without_uuid = select(self.model.id).where(
-                    self.model.user_uuid.is_(None)
-                )
-                stmt = stmt.filter(
-                    self.model.id.in_(docs_with_uuid.union(docs_without_uuid))
-                )
+                user_docs = db.scalars(user_stmt).all()
 
+            # 2. Get filtered public/org documents
+            public_stmt = select(self.model).filter(
+                self.model.user_uuid.is_(None),  # Only non-user docs
+                embedding_attr.isnot(None),
+            )
+
+            # Apply all filters to public/org documents
             if language:
-                stmt = stmt.filter(self.model.language == language)
-
+                public_stmt = public_stmt.filter(
+                    self.model.language == language
+                )
             if source:
-                stmt = stmt.join(self.model.source).filter(
+                public_stmt = public_stmt.join(self.model.source).filter(
                     Source.url.in_(source)
                 )
-                stmt = stmt.options(joinedload(self.model.source))
-
+                public_stmt = public_stmt.options(
+                    joinedload(self.model.source)
+                )
             if tags:
-                stmt = stmt.filter(self.model.tags.op("&&")(tags))
-
+                public_stmt = public_stmt.filter(
+                    self.model.tags.op("&&")(tags)
+                )
             if organizations:
-                docs_with_org = select(self.model.id).where(
-                    self.model.organizations.op("&&")(organizations)
-                )
-                docs_without_org = select(self.model.id).where(
-                    self.model.organizations.is_(None)
-                )
-                stmt = stmt.filter(
-                    self.model.id.in_(docs_with_org.union(docs_without_org))
+                public_stmt = public_stmt.filter(
+                    or_(
+                        self.model.organizations.op("&&")(organizations),
+                        self.model.organizations.is_(None),
+                    )
                 )
             else:
-                stmt = stmt.filter(self.model.organizations.is_(None))
+                public_stmt = public_stmt.filter(
+                    self.model.organizations.is_(None)
+                )
 
-            # Order by similarity
-            stmt = stmt.order_by(embedding_attr.op(symbol)(q_embedding).asc())
+            # Order public docs by similarity
+            public_stmt = public_stmt.order_by(
+                embedding_attr.op(symbol)(q_embedding).asc()
+            )
+            public_docs = db.scalars(public_stmt).all()
 
+            # Combine results maintaining similarity order
+            all_docs = []
+            all_docs.extend([doc.to_dict() for doc in user_docs])
+            all_docs.extend([doc.to_dict() for doc in public_docs])
+
+            # Apply limit to final combined results if specified
             if k > 0:
-                stmt = stmt.limit(k)
+                all_docs = all_docs[:k]
 
-            rows = db.scalars(stmt).all()
-            return [row.to_dict() for row in rows]
+            return all_docs
 
         # Get results for all fields concurrently
         results = await asyncio.gather(
