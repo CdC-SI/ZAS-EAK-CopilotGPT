@@ -133,18 +133,68 @@ async def get_source_descriptions(db: Session = Depends(get_db)) -> List[Dict]:
 
 
 @app.get("/tags")
-async def get_tags(db: Session = Depends(get_db)) -> List:
-    """Get all unique tags from document table."""
-    unique_tags = (
-        db.query(Document.tags)
-        .filter(Document.tags.isnot(None))
-        .distinct()
-        .all()
+async def get_tags(
+    db: Session = Depends(get_db),
+    user_uuid: str = None,
+    organizations: str = None,
+) -> List:
+    """
+    Get all unique tags from document table with access control.
+    Access rules:
+    - Include tags from documents owned by the user (user_uuid match)
+    - Include tags from organization documents (user_uuid is NULL and organization matches)
+    - Include tags from public documents (user_uuid is NULL and organizations is NULL)
+    """
+
+    # Parse organizations
+    org_list = (
+        [org.strip() for org in organizations.split(",")]
+        if organizations
+        else None
     )
+
+    # Base query for documents with tags
+    query = db.query(Document.tags, Document.organizations).filter(
+        Document.tags.isnot(None)
+    )
+
+    filters = []
+
+    # User's personal documents
+    if user_uuid:
+        filters.append(Document.user_uuid == user_uuid)
+
+    # Organizational/public documents (must have NULL user_uuid)
+    if org_list:
+        # Only get documents where:
+        # - user_uuid is NULL AND
+        # - (organizations array contains ANY of our org_list OR organizations is NULL)
+        org_filter = and_(
+            Document.user_uuid.is_(None),
+            or_(
+                *[Document.organizations.any(org) for org in org_list],
+                Document.organizations.is_(None),
+            ),
+        )
+        filters.append(org_filter)
+    else:
+        # If no organizations specified, only get public documents
+        filters.append(
+            and_(
+                Document.user_uuid.is_(None), Document.organizations.is_(None)
+            )
+        )
+
+    # Apply filters with OR logic
+    query = query.filter(or_(*filters))
+    results = query.distinct().all()
+
+    # Remove duplicates
     all_tags = set()
-    for tags in unique_tags:
-        if tags[0]:
-            all_tags.update(tags[0])
+    for tags, _ in results:
+        if tags:
+            all_tags.update(tags)
+
     return sorted(all_tags)
 
 
