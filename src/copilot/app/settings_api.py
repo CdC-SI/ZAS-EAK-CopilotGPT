@@ -4,6 +4,7 @@ import logging
 from typing import List, Dict
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
+from sqlalchemy import or_, and_
 from fastapi.middleware.cors import CORSMiddleware
 
 from config.project_config import ProjectConfig
@@ -55,18 +56,61 @@ async def get_organizations(db: Session = Depends(get_db)) -> List[str]:
     return ["ZAS", "EAK"]
 
 
-@app.get(
-    "/sources",
-    summary="Get sources from postgres 'source' table",
-    response_description="Return a list of sources",
-    status_code=200,
-)
-async def get_sources(db: Session = Depends(get_db)) -> List:
+@app.get("/sources")
+async def get_sources(
+    db: Session = Depends(get_db),
+    user_uuid: str = None,
+    organizations: str = None,
+) -> List:
     """
-    Endpoint to get all sources from 'source' table in postgres.
+    Endpoint to get all sources from 'source' table in postgres filtered by user's documents and organizations.
+    Access rules:
+    - Include documents owned by the user (user_uuid match)
+    - Include organization documents (user_uuid is NULL and organization matches)
+    - Include public documents (user_uuid is NULL and organizations is NULL)
     """
-    unique_sources = db.query(Source.url, Source.description).distinct().all()
-    return [source.url for source in unique_sources]
+
+    org_list = (
+        [org.strip() for org in organizations.split(",")]
+        if organizations
+        else None
+    )
+
+    # Base query for document source_id
+    query = db.query(Document.source_id).distinct()
+
+    filters = []
+
+    # User's personal documents
+    if user_uuid:
+        filters.append(Document.user_uuid == user_uuid)
+
+    # Organizational/public documents (must have NULL user_uuid)
+    org_filters = [Document.user_uuid.is_(None)]
+    if org_list:
+        org_filters.append(
+            Document.organizations.op("&&")(org_list)
+            | Document.organizations.is_(None)
+        )
+    else:
+        org_filters.append(Document.organizations.is_(None))
+
+    filters.append(and_(*org_filters))
+
+    # Combine all filters with OR
+    query = query.filter(or_(*filters))
+
+    source_ids = query.all()
+
+    # Get matching sources
+    sources = (
+        db.query(Source)
+        .filter(Source.id.in_([sid[0] for sid in source_ids]))
+        .distinct()
+        .all()
+    )
+
+    return [source.url for source in sources]
 
 
 @app.get(
