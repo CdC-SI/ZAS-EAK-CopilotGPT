@@ -120,6 +120,9 @@ class BaseContentModel(Base):
     subtopics: Mapped[Optional[List[str]]] = mapped_column(
         ARRAY(String), nullable=True
     )
+    keywords: Mapped[Optional[List[str]]] = mapped_column(
+        ARRAY(String), nullable=True
+    )
     hyq: Mapped[Optional[List[str]]] = mapped_column(
         ARRAY(String), nullable=True
     )
