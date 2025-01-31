@@ -247,7 +247,7 @@ class ChatBot:
                 message_builder=message_builder,
             ):
                 yield token.content
-                if not token.is_source or token.is_status:
+                if not token.is_source and not token.is_status:
                     assistant_response.append(token.content.decode("utf-8"))
                 is_on_topic = False
 
@@ -265,7 +265,7 @@ class ChatBot:
                     sources=sources,
                 ):
                     yield token.content
-                    if not token.is_source or token.is_status:
+                    if not token.is_source and not token.is_status:
                         assistant_response.append(
                             token.content.decode("utf-8")
                         )
@@ -282,7 +282,7 @@ class ChatBot:
                     sources=sources,
                 ):
                     yield token.content
-                    if not token.is_source or token.is_status:
+                    if not token.is_source and not token.is_status:
                         assistant_response.append(
                             token.content.decode("utf-8")
                         )
@@ -295,7 +295,7 @@ class ChatBot:
                     memory_client=self.chat_memory,
                 ):
                     yield token.content
-                    if not token.is_source or token.is_status:
+                    if not token.is_source and not token.is_status:
                         assistant_response.append(
                             token.content.decode("utf-8")
                         )
@@ -307,7 +307,7 @@ class ChatBot:
                     llm_client=llm_client,
                 ):
                     yield token.content
-                    if not token.is_source or token.is_status:
+                    if not token.is_source and not token.is_status:
                         assistant_response.append(
                             token.content.decode("utf-8")
                         )
