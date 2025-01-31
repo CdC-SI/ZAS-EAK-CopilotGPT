@@ -102,7 +102,10 @@ class RedisMemoryHandler:
         current_turn = []
 
         for message in conversation:
-            current_turn.append({message["role"]: message["message"]})
+            # Insert the timestamp in a markdown header
+            current_turn.append(
+                {message["role"]: f"# Timestamp: {message['timestamp']}\n\n{message['message']}"}
+            )
             if message["role"] == "assistant":
                 turns.append(current_turn)
                 current_turn = []
