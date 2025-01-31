@@ -41,10 +41,12 @@ class RedisMemoryHandler:
         Method to clean the Redis cache
         """
         key = f"user:{user_uuid}:conversation:{conversation_uuid}:*"
-        self.redis_client.expire(key, 60 * 60 * 24)  # 24 hours expiration -> load from postgres after 24 hours
+        self.redis_client.expire(
+            key, 60 * 60 * 24
+        )  # 24 hours expiration -> load from postgres after 24 hours
         self.redis_client.flushdb()
 
-    # TO DO: run this method in a separate thread
+    # TO DO: run this method in a separate thread or async
     def store_message(
         self,
         user_uuid: str,
@@ -52,17 +54,20 @@ class RedisMemoryHandler:
         message_uuid: str,
         role: str,
         message: str,
+        retrieved_doc_ids: List[int],
     ):
         """
         Method to store a message in Redis
         """
-        # Create a hash for the message
         message_data = {
             "user_uuid": user_uuid,
             "conversation_uuid": conversation_uuid,
             "message_uuid": message_uuid,
             "role": role,
             "message": message,
+            "retrieved_doc_ids": (
+                str(retrieved_doc_ids) if role == "assistant" else ""
+            ),
             "timestamp": datetime.now().isoformat(),
         }
 
@@ -72,15 +77,8 @@ class RedisMemoryHandler:
         )
         self.redis_client.hset(key, mapping=message_data)
 
-        # Index message to postgres in the background
-        # future = executor.submit(self.save_chat_history, db=db, user_uuid=user_uuid, conversation_uuid=conversation_uuid, role=role, message=message)
-        # try:
-        #     result = future.result()  # This will raise any exceptions that occurred
-        # except Exception as e:
-        #     logging.error(f"Exception in thread: {e}")
-
     # TO DO: Retrieve conversation from Postgres if cache cleared
-    def conversation(
+    def get_conversation(
         self, user_uuid: str, conversation_uuid: str, k_memory: int
     ) -> List[dict]:
         """
@@ -102,10 +100,7 @@ class RedisMemoryHandler:
         current_turn = []
 
         for message in conversation:
-            # Insert the timestamp in a markdown header
-            current_turn.append(
-                {message["role"]: f"# Timestamp: {message['timestamp']}\n\n{message['message']}"}
-            )
+            current_turn.append(message)
             if message["role"] == "assistant":
                 turns.append(current_turn)
                 current_turn = []
@@ -217,7 +212,12 @@ class BaseMemory(RedisMemoryHandler, PostgresMemoryHandler):
         Method to store a message in Redis and index it in Postgres.
         """
         self.store_message(
-            user_uuid, conversation_uuid, message_uuid, role, message
+            user_uuid,
+            conversation_uuid,
+            message_uuid,
+            role,
+            message,
+            retrieved_doc_ids,
         )
 
         # Note: make this async with AsyncSession db
@@ -232,14 +232,6 @@ class BaseMemory(RedisMemoryHandler, PostgresMemoryHandler):
             url=url,
             faq_id=faq_id,
             retrieved_doc_ids=retrieved_doc_ids,
-        )
-
-    def fetch(self, user_uuid: str, conversation_uuid: str, k_memory: int):
-        """
-        Method to fetch the conversation from Redis.
-        """
-        return self.retrieve_conversation(
-            user_uuid, conversation_uuid, k_memory
         )
 
 
@@ -280,14 +272,6 @@ class ConversationalMemoryBuffer(BaseMemory):
             retrieved_doc_ids=retrieved_doc_ids,
         )
 
-    def fetch_from_memory(
-        self, user_uuid: str, conversation_uuid: str, k_memory: int
-    ):
-        """
-        Method to fetch the conversation from the memory buffer.
-        """
-        return self.fetch(user_uuid, conversation_uuid, k_memory)
-
     def format_conversational_memory(
         self, user_uuid: str, conversation_uuid: str, k_memory: int
     ) -> str:
@@ -295,25 +279,21 @@ class ConversationalMemoryBuffer(BaseMemory):
         Fetch and format conversational memory.
         """
         if user_uuid:
-            conversational_memory = self.fetch_from_memory(
+            conversational_memory = self.get_conversation(
                 user_uuid, conversation_uuid, k_memory
             )
-            return "\n".join(
-                [
-                    f"{role}: {message}"
-                    for msg in conversational_memory
-                    for role, message in msg.items()
-                ]
+            return "\n\n".join(
+                f"{msg['timestamp']} - {msg['role']}\n{msg['message']}"
+                + (
+                    f"\nSource docs: {msg.get('retrieved_doc_ids', '')}"
+                    if msg["role"] == "assistant"
+                    and msg.get("retrieved_doc_ids")
+                    else ""
+                )
+                for msg in conversational_memory
             )
         else:
-            conversational_memory = [{"user": "", "assistant": ""}]
-            return "\n".join(
-                [
-                    f"{role}: {message}"
-                    for msg in conversational_memory
-                    for role, message in msg.items()
-                ]
-            )
+            return ""
 
 
 class ConversationalMemorySummary(BaseMemory):
