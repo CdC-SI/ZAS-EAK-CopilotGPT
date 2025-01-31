@@ -41,7 +41,7 @@ class RedisMemoryHandler:
         Method to clean the Redis cache
         """
         key = f"user:{user_uuid}:conversation:{conversation_uuid}:*"
-        self.redis_client.expire(key, 60 * 60 * 24)  # 24 hours expiration
+        self.redis_client.expire(key, 60 * 60 * 24)  # 24 hours expiration -> load from postgres after 24 hours
         self.redis_client.flushdb()
 
     # TO DO: run this method in a separate thread
@@ -80,7 +80,7 @@ class RedisMemoryHandler:
         #     logging.error(f"Exception in thread: {e}")
 
     # TO DO: Retrieve conversation from Postgres if cache cleared
-    def retrieve_conversation(
+    def conversation(
         self, user_uuid: str, conversation_uuid: str, k_memory: int
     ) -> List[dict]:
         """
