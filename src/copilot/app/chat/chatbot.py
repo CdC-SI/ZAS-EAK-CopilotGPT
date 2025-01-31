@@ -3,6 +3,7 @@ from typing import Dict, List
 import uuid
 
 from chat.memory import ConversationalMemory
+from chat.memory.models import MessageData
 from chat.status_service import (
     status_service,
     StatusType,
@@ -29,6 +30,8 @@ from sqlalchemy.orm import Session
 
 from langfuse.decorators import observe
 
+from chat.memory.config import MemoryConfig
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
@@ -47,9 +50,11 @@ class ChatBot:
         self.temperature = rag_config["llm"]["temperature"]
         self.top_p = rag_config["llm"]["top_p"]
         self.top_k = rag_config["retrieval"]["top_k"]
+        memory_config = MemoryConfig.from_dict(chat_config["memory"])
         self.chat_memory = ConversationalMemory(
-            memory_type=chat_config["memory"]["memory_type"],
-            k_memory=chat_config["memory"]["k_memory"],
+            memory_type=memory_config.memory_type,
+            k_memory=memory_config.k_memory,
+            config=memory_config.storage,
         )
 
     def _initialize_components(self, request: ChatRequest):
@@ -118,8 +123,7 @@ class ChatBot:
             user_message = request.query
             retrieved_doc_ids = None
 
-        self.chat_memory.memory_instance.add_message_to_memory(
-            db,
+        user_message = MessageData(
             user_uuid=request.user_uuid,
             conversation_uuid=request.conversation_uuid,
             message_uuid=user_message_uuid,
@@ -130,6 +134,10 @@ class ChatBot:
 
         self.chat_memory.memory_instance.add_message_to_memory(
             db,
+            user_message,
+        )
+
+        assistant_message = MessageData(
             user_uuid=request.user_uuid,
             conversation_uuid=request.conversation_uuid,
             message_uuid=assistant_message_uuid,
@@ -138,6 +146,9 @@ class ChatBot:
             language=request.language,
             url=source_url,
             retrieved_doc_ids=retrieved_doc_ids,
+        )
+        self.chat_memory.memory_instance.add_message_to_memory(
+            db, assistant_message
         )
 
     async def _index_chat_title(
