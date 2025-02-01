@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 from datetime import datetime
 from pydantic import BaseModel, Field
 from .enums import MessageRole
@@ -18,7 +18,7 @@ class MessageData(BaseModel):
     message: str
     language: str
     timestamp: datetime = Field(default_factory=datetime.now)
-    url: str = None
+    url: Union[str, None] = None
     faq_id: Optional[int] = None
     retrieved_doc_ids: Optional[List[int]] = None
 
@@ -53,7 +53,7 @@ class ConversationData(BaseModel):
             # Format assistant message if it exists
             assistant_msg = f"{turn.assistant_message.timestamp} - {turn.assistant_message.role.value}\n{turn.assistant_message.message}"
             if turn.assistant_message.retrieved_doc_ids:
-                assistant_msg += f"\nSource docs: {turn.assistant_message.retrieved_doc_ids}"
+                assistant_msg += f"\nSource doc IDs: {turn.assistant_message.retrieved_doc_ids}"
             formatted_messages.append(assistant_msg)
 
         return "\n\n".join(formatted_messages)
