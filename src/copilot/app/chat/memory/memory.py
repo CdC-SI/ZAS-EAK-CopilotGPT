@@ -54,9 +54,9 @@ class ConversationalMemory:
         self.memory_instance.add_message_to_memory(db, message)
 
     def get_conversation(
-        self, user_uuid: str, conversation_uuid: str
+        self, db: Session, user_uuid: str, conversation_uuid: str
     ) -> ConversationData:
         """Get the conversation using the current memory strategy."""
         return self.memory_instance.get_conversational_memory(
-            user_uuid, conversation_uuid, self.k_memory
+            db, user_uuid, conversation_uuid, self.k_memory
         )
