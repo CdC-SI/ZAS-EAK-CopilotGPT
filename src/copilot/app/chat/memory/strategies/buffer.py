@@ -19,8 +19,12 @@ class ConversationalMemoryBuffer(BaseMemoryStrategy):
     def add_message_to_memory(self, db: Session, message: MessageData):
         self.store(db, message)
 
-    def get_conversational_memory(
-        self, user_uuid: str, conversation_uuid: str, k_memory: int
+    async def get_conversational_memory(
+        self,
+        db: Session,
+        user_uuid: str,
+        conversation_uuid: str,
+        k_memory: int,
     ) -> ConversationData:
         if not (user_uuid and conversation_uuid):
             return ConversationData(
@@ -28,5 +32,22 @@ class ConversationalMemoryBuffer(BaseMemoryStrategy):
             )
 
         return self.cache.get_conversation(
-            user_uuid, conversation_uuid, k_memory
+            db, user_uuid, conversation_uuid, k_memory
         )
+
+    async def get_formatted_conversation(
+        self,
+        db: Session,
+        user_uuid: str,
+        conversation_uuid: str,
+        k_memory: int,
+    ) -> str:
+        """
+        Get formatted conversation from memory.
+        """
+
+        conversational_memory = await self.get_conversational_memory(
+            db, user_uuid, conversation_uuid, k_memory
+        )
+
+        return conversational_memory.format()
