@@ -10,7 +10,7 @@ from .interfaces.storage import BaseStorage, DatabaseStorage
 from .exceptions import MemoryStrategyError
 
 
-class ConversationalMemory:
+class MemoryService:
     """
     Class implementing the selected Conversational Memory.
     Creates and manages memory strategies with their required storage handlers.
@@ -25,7 +25,7 @@ class ConversationalMemory:
         db_storage: Optional[DatabaseStorage] = None,
     ):
         """
-        Initialize ConversationalMemory with optional configuration and storage handlers.
+        Initialize ConversationService with optional configuration and storage handlers.
 
         Args:
             memory_type: Type of memory strategy to use
@@ -37,7 +37,7 @@ class ConversationalMemory:
         self.k_memory = k_memory
 
         try:
-            self.memory_instance = MemoryStrategyFactory.create_strategy(
+            self.chat_memory = MemoryStrategyFactory.create_strategy(
                 memory_type=memory_type,
                 k_memory=k_memory,
                 cache_storage=cache_storage,

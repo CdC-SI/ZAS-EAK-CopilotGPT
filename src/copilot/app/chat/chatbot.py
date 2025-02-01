@@ -2,8 +2,10 @@ import logging
 from typing import Dict, List
 import uuid
 
-from chat.memory import ConversationalMemory
-from chat.memory.models import MessageData
+from memory import MemoryService
+from memory.models import MessageData
+from memory.config import MemoryConfig
+
 from chat.status_service import (
     status_service,
     StatusType,
@@ -30,8 +32,6 @@ from sqlalchemy.orm import Session
 
 from langfuse.decorators import observe
 
-from chat.memory.config import MemoryConfig
-
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
@@ -46,16 +46,16 @@ class ChatBot:
         self.stream = rag_config["llm"]["stream"]
         self.rag_service = rag_service
         self.autocomplete_service = autocomplete_service
-        self.max_tokens = rag_config["llm"]["max_output_tokens"]
-        self.temperature = rag_config["llm"]["temperature"]
-        self.top_p = rag_config["llm"]["top_p"]
-        self.top_k = rag_config["retrieval"]["top_k"]
         memory_config = MemoryConfig.from_dict(chat_config["memory"])
-        self.chat_memory = ConversationalMemory(
+        self.memory_service = MemoryService(
             memory_type=memory_config.memory_type,
             k_memory=memory_config.k_memory,
             config=memory_config.storage,
         )
+        self.max_tokens = rag_config["llm"]["max_output_tokens"]
+        self.temperature = rag_config["llm"]["temperature"]
+        self.top_p = rag_config["llm"]["top_p"]
+        self.top_k = rag_config["retrieval"]["top_k"]
 
     def _initialize_components(self, request: ChatRequest):
         """
@@ -132,7 +132,7 @@ class ChatBot:
             language=request.language,
         )
 
-        self.chat_memory.memory_instance.add_message_to_memory(
+        self.memory_service.chat_memory.add_message_to_memory(
             db,
             user_message,
         )
@@ -147,7 +147,7 @@ class ChatBot:
             url=source_url,
             retrieved_doc_ids=retrieved_doc_ids,
         )
-        self.chat_memory.memory_instance.add_message_to_memory(
+        self.memory_service.chat_memory.add_message_to_memory(
             db, assistant_message
         )
 
@@ -162,7 +162,7 @@ class ChatBot:
         """
         Index the chat title if it does not already exist.
         """
-        if not self.chat_memory.memory_instance.conversation_uuid_exists(
+        if not self.memory_service.chat_memory.conversation_uuid_exists(
             db, request.conversation_uuid
         ):
             create_title_message = message_builder.build_chat_title_prompt(
@@ -172,7 +172,7 @@ class ChatBot:
                 assistant_response=assistant_response,
             )
             chat_title = await llm_client.agenerate(create_title_message)
-            self.chat_memory.memory_instance.index_chat_title(
+            self.memory_service.chat_memory.index_chat_title(
                 db,
                 request.user_uuid,
                 request.conversation_uuid,
@@ -272,7 +272,7 @@ class ChatBot:
                     streaming_handler=streaming_handler,
                     retriever_client=retriever_client,
                     message_builder=message_builder,
-                    memory_client=self.chat_memory,
+                    memory_service=self.memory_service,
                     sources=sources,
                 ):
                     yield token.content
@@ -289,7 +289,7 @@ class ChatBot:
                     streaming_handler=streaming_handler,
                     retriever_client=retriever_client,
                     message_builder=message_builder,
-                    memory_client=self.chat_memory,
+                    memory_service=self.memory_service,
                     sources=sources,
                 ):
                     yield token.content
@@ -300,10 +300,11 @@ class ChatBot:
 
             elif request.command:
                 async for token in command_service.process_command(
+                    db=db,
                     request=request,
                     llm_client=llm_client,
                     streaming_handler=streaming_handler,
-                    memory_client=self.chat_memory,
+                    memory_service=self.memory_service,
                 ):
                     yield token.content
                     if not token.is_source and not token.is_status:

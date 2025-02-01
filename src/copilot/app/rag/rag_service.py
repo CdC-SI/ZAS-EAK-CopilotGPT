@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 from llm.base import BaseLLM
 from rag.retrievers import RetrieverClient
-from chat.memory import ConversationalMemory
+from memory import MemoryService
 from chat.status_service import status_service, StatusType
 
 from schemas.chat import ChatRequest
@@ -146,7 +146,7 @@ class RAGService:
         streaming_handler: StreamingHandler,
         retriever_client: RetrieverClient,
         message_builder: MessageBuilder,
-        memory_client: ConversationalMemory,
+        memory_service: MemoryService,
         sources: Dict,
     ):
         """
@@ -194,7 +194,7 @@ class RAGService:
 
         conversational_memory = (
             await (
-                memory_client.memory_instance.get_formatted_conversation(
+                memory_service.chat_memory.get_formatted_conversation(
                     db,
                     request.user_uuid,
                     request.conversation_uuid,
@@ -233,7 +233,7 @@ class RAGService:
         streaming_handler: StreamingHandler,
         retriever_client: RetrieverClient,
         message_builder: MessageBuilder,
-        memory_client: ConversationalMemory,
+        memory_service: MemoryService,
         sources: Dict,
     ):
         # Routing status update
@@ -244,7 +244,7 @@ class RAGService:
         # TO DO: refactor based on rag/agentic_rag usage requirements
         conversational_memory = (
             await (
-                memory_client.memory_instance.get_formatted_conversation(
+                memory_service.chat_memory.get_formatted_conversation(
                     db,
                     request.user_uuid,
                     request.conversation_uuid,
@@ -372,7 +372,7 @@ class RAGService:
                 streaming_handler,
                 retriever_client,
                 message_builder,
-                memory_client,
+                memory_service,
                 sources,
             ):
                 yield token

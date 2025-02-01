@@ -3,7 +3,7 @@ from typing import List, Tuple, Dict, Any
 from config.clients_config import clientDeepl
 from schemas.chat import ChatRequest
 from llm.base import BaseLLM
-from chat.memory import ConversationalMemory
+from memory import MemoryService
 from utils.streaming import StreamingHandler, Token
 from utils.logging import get_logger
 
@@ -162,24 +162,17 @@ class CommandService:
         )
 
     async def execute_command(
-        self, request: ChatRequest, memory_client: ConversationalMemory
+        self, db, request: ChatRequest, memory_service: MemoryService
     ) -> Dict[str, Any]:
         args = self.parse_args(request.command_args)
         if request.command == "/summarize":
             summary_mode, n_msg, summary_style = self.get_summarize_args(args)
-            input_text = ""
-            if request.user_uuid:
-                conversation_turns = (
-                    memory_client.memory_instance.retrieve_conversation(
-                        request.user_uuid, request.conversation_uuid, n_msg
-                    )
+            conversational_memory = (
+                await memory_service.chat_memory.get_formatted_conversation(
+                    db, request.user_uuid, request.conversation_uuid, n_msg
                 )
-                input_text = "\n\n".join(
-                    message
-                    for turn in conversation_turns
-                    for role, message in turn.items()
-                    if role == "assistant"
-                )
+            )
+
             summary_style = self.map_summary_style_to_language(
                 request.language, summary_style
             )
@@ -190,27 +183,20 @@ class CommandService:
                 request.language,
                 request.llm_model,
                 request.command,
-                input_text,
+                conversational_memory,
                 mode=summary_mode,
                 style=summary_style,
             )
             return {"messages": messages}
         elif request.command == "/translate":
             n_msg, target_lang = self.get_translate_args(args)
-            input_text = ""
-            if request.user_uuid:
-                conversation_turns = (
-                    memory_client.memory_instance.retrieve_conversation(
-                        request.user_uuid, request.conversation_uuid, n_msg
-                    )
+            if request.user_uuid and request.conversation_uuid:
+                conversational_memory = await memory_service.chat_memory.get_formatted_conversation(
+                    db, request.user_uuid, request.conversation_uuid, n_msg
                 )
-                input_text = "\n\n".join(
-                    message
-                    for turn in conversation_turns
-                    for role, message in turn.items()
-                    if role == "assistant"
-                )
-            translated_text = await self.translate(input_text, target_lang)
+            translated_text = await self.translate(
+                conversational_memory, target_lang
+            )
             return {"translated_text": translated_text}
         else:
             return f"Unknown command: {request.command}"
@@ -218,13 +204,14 @@ class CommandService:
     @observe()
     async def process_command(
         self,
+        db,
         request: ChatRequest,
         llm_client: BaseLLM,
         streaming_handler: StreamingHandler,
-        memory_client: ConversationalMemory,
+        memory_service: MemoryService,
     ):
 
-        result = await self.execute_command(request, memory_client)
+        result = await self.execute_command(db, request, memory_service)
         messages = result.get("messages")
         translated_text = result.get("translated_text")
 
