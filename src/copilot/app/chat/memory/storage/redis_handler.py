@@ -114,9 +114,9 @@ class RedisMemoryHandler(BaseStorage):
         current_turn = None
 
         for message in messages:
-            if message.role == MessageRole.USER.value:
+            if message.role == MessageRole.USER:
                 current_turn = ConversationTurn(user_message=message)
-            elif message.role == MessageRole.ASSISTANT.value and current_turn:
+            elif message.role == MessageRole.ASSISTANT and current_turn:
                 current_turn.assistant_message = message
                 turns.append(current_turn)
                 current_turn = None
