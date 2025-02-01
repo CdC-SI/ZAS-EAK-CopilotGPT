@@ -14,14 +14,13 @@ class BaseStorage(ABC):
 
     @abstractmethod
     def get_conversation(
-        self, user_uuid: str, conversation_uuid: str, k_memory: int
+        self,
+        db: Session,
+        user_uuid: str,
+        conversation_uuid: str,
+        k_memory: int,
     ) -> ConversationData:
         """Retrieve conversation history from storage."""
-        pass
-
-    @abstractmethod
-    def clean_cache(self, user_uuid: str, conversation_uuid: str) -> None:
-        """Clean cached data for a specific conversation."""
         pass
 
 
