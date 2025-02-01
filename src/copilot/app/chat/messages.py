@@ -2,6 +2,11 @@ from typing import List, Dict, Union
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
+from prompts.memory import (
+    SUMMARY_MEMORY_PROMPT_DE,
+    SUMMARY_MEMORY_PROMPT_FR,
+    SUMMARY_MEMORY_PROMPT_IT,
+)
 from prompts.rag import (
     RAG_SYSTEM_PROMPT_DE,
     RAG_SYSTEM_PROMPT_FR,
@@ -111,6 +116,12 @@ from langfuse.decorators import observe
 
 
 class MessageBuilder:
+
+    _SUMMARY_MEMORY_PROMPT = {
+        "de": SUMMARY_MEMORY_PROMPT_DE,
+        "fr": SUMMARY_MEMORY_PROMPT_FR,
+        "it": SUMMARY_MEMORY_PROMPT_IT,
+    }
 
     _RAG_SYSTEM_PROMPT = {
         "de": RAG_SYSTEM_PROMPT_DE,
@@ -272,6 +283,35 @@ class MessageBuilder:
     }
 
     _DEFAULT_RULE = "detailed"
+
+    @observe(name="MessageBuilder_build_summary_memory_prompt")
+    def build_conversation_summary_prompt(
+        self, llm_model: str, language: str, conversational_memory: str
+    ) -> str:
+        """
+        Format the Summary Memory message to send to the appropriate LLM API.
+        """
+
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+            conversation_summary_prompt = self._SUMMARY_MEMORY_PROMPT.get(
+                language,
+                self._SUMMARY_MEMORY_PROMPT.get(self._DEFAULT_LANGUAGE),
+            ).format(conversational_memory=conversational_memory)
+
+            return [
+                {"role": "system", "content": conversation_summary_prompt},
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
 
     @observe(name="MessageBuilder_build_chat_prompt")
     def build_chat_prompt(
