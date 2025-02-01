@@ -28,8 +28,12 @@ class BaseMemoryStrategy(ABC):
         pass
 
     @abstractmethod
-    def get_conversational_memory(
-        self, user_uuid: str, conversation_uuid: str, k_memory: int
+    async def get_conversational_memory(
+        self,
+        db: Session,
+        user_uuid: str,
+        conversation_uuid: str,
+        k_memory: int,
     ) -> ConversationData:
         """Get the conversational memory for the user and conversation."""
         pass
