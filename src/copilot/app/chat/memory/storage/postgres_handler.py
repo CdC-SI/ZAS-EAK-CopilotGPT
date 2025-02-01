@@ -59,3 +59,34 @@ class PostgresMemoryHandler(DatabaseStorage):
         except SQLAlchemyError as e:
             db.rollback()
             raise PostgresStorageError(f"Failed to index chat title: {e}")
+
+    def get_conversation_history(
+        self, db: Session, user_uuid: str, conversation_uuid: str
+    ) -> list[MessageData]:
+        try:
+            result = db.execute(
+                select(ChatHistory)
+                .filter_by(
+                    user_uuid=user_uuid, conversation_uuid=conversation_uuid
+                )
+                .order_by(ChatHistory.timestamp)
+            )
+            chat_history = result.scalars().all()
+
+            return [
+                MessageData(
+                    user_uuid=msg.user_uuid,
+                    conversation_uuid=msg.conversation_uuid,
+                    message_uuid=msg.message_uuid,
+                    role=msg.role,
+                    message=msg.message,
+                    url=msg.url,
+                    language=msg.language,
+                    faq_id=msg.faq_id,
+                    retrieved_doc_ids=msg.retrieved_docs,
+                    timestamp=msg.timestamp,
+                )
+                for msg in chat_history
+            ]
+        except SQLAlchemyError as e:
+            raise PostgresStorageError(f"Failed to retrieve chat history: {e}")
