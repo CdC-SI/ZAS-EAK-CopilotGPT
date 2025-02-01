@@ -193,8 +193,13 @@ class RAGService:
         )
 
         conversational_memory = (
-            memory_client.memory_instance.format_conversational_memory(
-                request.user_uuid, request.conversation_uuid, request.k_memory
+            await (
+                memory_client.memory_instance.get_formatted_conversation(
+                    db,
+                    request.user_uuid,
+                    request.conversation_uuid,
+                    request.k_memory,
+                )
             )
         )
 
@@ -203,7 +208,7 @@ class RAGService:
             llm_model=request.llm_model,
             context_docs=formatted_context_docs,
             query=request.query,
-            conversational_memory=conversational_memory,
+            conversational_memory=conversational_memory.format(),
             response_style=request.response_style,
             response_format=request.response_format,
         )
@@ -238,8 +243,13 @@ class RAGService:
 
         # TO DO: refactor based on rag/agentic_rag usage requirements
         conversational_memory = (
-            memory_client.memory_instance.format_conversational_memory(
-                request.user_uuid, request.conversation_uuid, request.k_memory
+            await (
+                memory_client.memory_instance.get_formatted_conversation(
+                    db,
+                    request.user_uuid,
+                    request.conversation_uuid,
+                    request.k_memory,
+                )
             )
         )
 
