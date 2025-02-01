@@ -17,6 +17,11 @@ class RedisConfig:
     password: Optional[str] = os.getenv("REDIS_PASSWORD")
     db: int = 0
     decode_responses: bool = True
+    cache_ttl_hours: int = int(os.getenv("REDIS_CACHE_TTL_HOURS", "72"))
+
+    @property
+    def cache_ttl_seconds(self) -> int:
+        return self.cache_ttl_hours * 60 * 60
 
     def __post_init__(self):
         masked_config = self.__dict__.copy()
