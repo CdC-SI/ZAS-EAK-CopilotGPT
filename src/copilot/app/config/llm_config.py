@@ -37,31 +37,33 @@ DEFAULT_GEMINI_LLM_MODEL = "gemini-1.5-flash"
 
 # Groq
 SUPPORTED_GROQ_LLM_MODELS = [
-    "llama-3.1-70b-versatile",
-    "llama-3.1-8b-instant",
-    "mixtral-8x7b-32768",
-    "gemma-7b-it",
-    "gemma2-9b-it",
+    "groq:llama-3.3-70b-versatile",
+    "groq:llama-3.1-8b-instant",
+    "groq:mixtral-8x7b-32768",
+    "groq:gemma2-9b-it",
+    "groq:deepseek-r1-distill-llama-70b",
+    "groq:llama-3.2-1b-preview",
+    "groq:llama-3.2-3b-preview",
 ]
-DEFAULT_GROQ_LLM_MODEL = "llama-3.1-8b-instant"
+DEFAULT_GROQ_LLM_MODEL = "groq:llama-3.1-8b-instant"
 
 # mlx
 SUPPORTED_MLX_LLM_MODELS = [
-    "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX"
+    "mlx-community:Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX"
 ]
-DEFAULT_MLX_LLM_MODEL = "mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX"
+DEFAULT_MLX_LLM_MODEL = "mlx-community:Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX"
 
 # Llama-cpp
-SUPPORTED_LLAMACPP_LLM_MODELS = ["llama-cpp/Qwen/Qwen1.5-0.5B-Chat-GGUF"]
-DEFAULT_LLAMACPP_LLM_MODEL = "llama-cpp/Qwen/Qwen1.5-0.5B-Chat-GGUF"
+SUPPORTED_LLAMACPP_LLM_MODELS = ["llama-cpp:Qwen/Qwen1.5-0.5B-Chat-GGUF"]
+DEFAULT_LLAMACPP_LLM_MODEL = "llama-cpp:Qwen/Qwen1.5-0.5B-Chat-GGUF"
 
 # Ollama
 SUPPORTED_OLLAMA_LLM_MODELS = [
-    "ollama/llama3.2:1b",
-    "ollama/llama3.2:3b",
-    "ollama/deepseek-r1:8b",
+    "ollama:llama3.2:1b",
+    "ollama:llama3.2:3b",
+    "ollama:deepseek-r1:8b",
 ]
-DEFAULT_OLLAMA_LLM_MODEL = "ollama/llama3.2:1b"
+DEFAULT_OLLAMA_LLM_MODEL = "ollama:llama3.2:1b"
 
 # Embedding models
 # OpenAI
