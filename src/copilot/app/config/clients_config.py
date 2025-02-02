@@ -1,17 +1,16 @@
 import os
+from dataclasses import dataclass
+from typing import Optional
+import httpx
 from dotenv import load_dotenv
 
 import openai
 import cohere
 import deepl
 
-import logging
+from utils.logging import get_logger
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 from config.base_config import rag_config
 from config.llm_config import (
@@ -24,112 +23,161 @@ from config.llm_config import (
     SUPPORTED_OLLAMA_LLM_MODELS,
 )
 
-load_dotenv()
 
-# API keys
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", None)
-AZUREOPENAI_API_KEY = os.environ.get("AZUREOPENAI_API_KEY", None)
-AZUREOPENAI_API_VERSION = os.environ.get("AZUREOPENAI_API_VERSION", None)
-AZUREOPENAI_ENDPOINT = os.environ.get("AZUREOPENAI_ENDPOINT", None)
-ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", None)
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY", None)
-COHERE_API_KEY = os.environ.get("COHERE_API_KEY", None)
-DEEPL_API_KEY = os.environ.get("DEEPL_API_KEY", None)
-LLM_GENERATION_ENDPOINT = os.environ.get("LLM_GENERATION_ENDPOINT", None)
-
-# Load Proxy settings
-HTTP_PROXY = os.environ.get("HTTP_PROXY", None)
-REQUESTS_CA_BUNDLE = os.environ.get("REQUESTS_CA_BUNDLE", None)
-logger.info(
-    f"HTTP_PROXY: {HTTP_PROXY}, REQUESTS_CA_BUNDLE: {REQUESTS_CA_BUNDLE}"
-)
+@dataclass
+class EnvironmentConfig:
+    openai_api_key: Optional[str] = None
+    azure_openai_api_key: Optional[str] = None
+    azure_openai_api_version: Optional[str] = None
+    azure_openai_endpoint: Optional[str] = None
+    anthropic_api_key: Optional[str] = None
+    groq_api_key: Optional[str] = None
+    cohere_api_key: Optional[str] = None
+    deepl_api_key: Optional[str] = None
+    llm_generation_endpoint: Optional[str] = None
 
 
-def setup_httpx_client():
-    """Initialize httpx client with proxy settings once at boot."""
-    if HTTP_PROXY and REQUESTS_CA_BUNDLE:
-        import httpx
+class ProxyConfig:
+    def __init__(self):
+        self.http_proxy = os.environ.get("HTTP_PROXY")
+        self.ca_bundle = os.environ.get("REQUESTS_CA_BUNDLE")
 
-        logger.info(f"Setting up HTTP_PROXY: {HTTP_PROXY}")
-        logger.info(f"Setting up REQUESTS_CA_BUNDLE: {REQUESTS_CA_BUNDLE}")
-        return httpx.AsyncClient(proxy=HTTP_PROXY, verify=REQUESTS_CA_BUNDLE)
-    return None
-
-
-# Initialize proxy client at boot time
-httpx_client = setup_httpx_client()
+    def setup_httpx_client(self) -> Optional[httpx.AsyncClient]:
+        if self.http_proxy and self.ca_bundle:
+            return httpx.AsyncClient(
+                proxy=self.http_proxy, verify=self.ca_bundle
+            )
+        return None
 
 
-def create_llm_client(llm_model: str):
-    """Factory function to create LLM client instances."""
-    if llm_model in SUPPORTED_OPENAI_LLM_MODELS and OPENAI_API_KEY:
-        return openai.AsyncOpenAI(
-            api_key=OPENAI_API_KEY, http_client=httpx_client
+class ClientFactory:
+    def __init__(
+        self, env_config: EnvironmentConfig, proxy_config: ProxyConfig
+    ):
+        self.env_config = env_config
+        self.proxy_config = proxy_config
+        self.httpx_client = proxy_config.setup_httpx_client()
+
+    def create_llm_client(self, model: str):
+        if (
+            model in SUPPORTED_OPENAI_LLM_MODELS
+            and self.env_config.openai_api_key
+        ):
+            return openai.AsyncOpenAI(
+                api_key=self.env_config.openai_api_key,
+                http_client=self.httpx_client,
+            )
+        elif (
+            model in SUPPORTED_AZUREOPENAI_LLM_MODELS
+            and self.env_config.azure_openai_api_key
+        ):
+            return openai.AsyncAzureOpenAI(
+                api_key=self.env_config.azure_openai_api_key,
+                api_version=self.env_config.azure_openai_api_version,
+                azure_endpoint=self.env_config.azure_openai_endpoint,
+                http_client=self.httpx_client,
+            )
+        elif (
+            model in SUPPORTED_ANTHROPIC_LLM_MODELS
+            and self.env_config.anthropic_api_key
+        ):
+            from anthropic import AsyncAnthropic
+
+            return AsyncAnthropic(
+                api_key=self.env_config.anthropic_api_key,
+                http_client=self.httpx_client,
+            )
+        elif (
+            model in SUPPORTED_GROQ_LLM_MODELS and self.env_config.groq_api_key
+        ):
+            from groq import AsyncGroq
+
+            return AsyncGroq(
+                api_key=self.env_config.groq_api_key,
+                http_client=self.httpx_client,
+            )
+        elif model in SUPPORTED_OLLAMA_LLM_MODELS:
+            from ollama import AsyncClient
+
+            return AsyncClient(
+                host=self.env_config.llm_generation_endpoint,
+                proxy=self.proxy_config.http_proxy,
+                verify=self.proxy_config.ca_bundle,
+            )
+        return None
+
+    def create_embedding_client(self, model: str):
+        if (
+            model in SUPPORTED_OPENAI_EMBEDDING_MODELS
+            and self.env_config.openai_api_key
+        ):
+            return openai.AsyncOpenAI(
+                api_key=self.env_config.openai_api_key,
+                http_client=self.httpx_client,
+            )
+        elif (
+            model in SUPPORTED_AZUREOPENAI_EMBEDDING_MODELS
+            and self.env_config.azure_openai_api_key
+        ):
+            return openai.AsyncAzureOpenAI(
+                api_key=self.env_config.azure_openai_api_key,
+                api_version=self.env_config.azure_openai_api_version,
+                azure_endpoint=self.env_config.azure_openai_endpoint,
+                http_client=self.httpx_client,
+            )
+        return None
+
+    def create_rerank_client(self):
+        if self.env_config.cohere_api_key:
+            return cohere.AsyncClient(
+                api_key=self.env_config.cohere_api_key,
+                httpx_client=self.httpx_client,
+            )
+        return None
+
+    def create_translation_client(self):
+        if self.env_config.deepl_api_key:
+            return deepl.DeepLClient(
+                auth_key=self.env_config.deepl_api_key,
+                proxy=self.proxy_config.http_proxy,
+                verify_ssl=self.proxy_config.ca_bundle,
+            )
+        return None
+
+
+class ClientConfig:
+    def __init__(self):
+        load_dotenv()
+        self.env_config = EnvironmentConfig(
+            openai_api_key=os.environ.get("OPENAI_API_KEY"),
+            azure_openai_api_key=os.environ.get("AZUREOPENAI_API_KEY"),
+            azure_openai_api_version=os.environ.get("AZUREOPENAI_API_VERSION"),
+            azure_openai_endpoint=os.environ.get("AZUREOPENAI_ENDPOINT"),
+            anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY"),
+            groq_api_key=os.environ.get("GROQ_API_KEY"),
+            cohere_api_key=os.environ.get("COHERE_API_KEY"),
+            deepl_api_key=os.environ.get("DEEPL_API_KEY"),
+            llm_generation_endpoint=os.environ.get("LLM_GENERATION_ENDPOINT"),
         )
-    elif llm_model in SUPPORTED_AZUREOPENAI_LLM_MODELS and AZUREOPENAI_API_KEY:
-        return openai.AsyncAzureOpenAI(
-            api_key=AZUREOPENAI_API_KEY,
-            api_version=AZUREOPENAI_API_VERSION,
-            azure_endpoint=AZUREOPENAI_ENDPOINT,
-            http_client=httpx_client,
+        self.proxy_config = ProxyConfig()
+        self.factory = ClientFactory(self.env_config, self.proxy_config)
+
+        # Initialize clients
+        self.client_llm = self.factory.create_llm_client(
+            rag_config["llm"]["model"]
         )
-    elif llm_model in SUPPORTED_ANTHROPIC_LLM_MODELS and ANTHROPIC_API_KEY:
-        from anthropic import AsyncAnthropic
-
-        return AsyncAnthropic(
-            api_key=ANTHROPIC_API_KEY, http_client=httpx_client
+        self.client_embed = self.factory.create_embedding_client(
+            rag_config["embedding"]["model"]
         )
-    elif llm_model in SUPPORTED_GROQ_LLM_MODELS and GROQ_API_KEY:
-        from groq import AsyncGroq
-
-        return AsyncGroq(api_key=GROQ_API_KEY, http_client=httpx_client)
-    elif llm_model in SUPPORTED_OLLAMA_LLM_MODELS:
-        from ollama import AsyncClient
-
-        return AsyncClient(
-            host=LLM_GENERATION_ENDPOINT,
-            proxy=HTTP_PROXY,
-            verify=REQUESTS_CA_BUNDLE,
-        )
-    return None
+        self.client_rerank = self.factory.create_rerank_client()
+        self.client_deepl = self.factory.create_translation_client()
 
 
-# Initialize default client at boot time
-default_llm_model = rag_config["llm"]["model"]
-clientLLM = create_llm_client(default_llm_model)
+# Initialize the configuration
+config = ClientConfig()
 
-clientEmbed = None
-default_embedding_model = rag_config["embedding"]["model"]
-
-# Initialize Embedding client
-if (
-    default_embedding_model in SUPPORTED_OPENAI_EMBEDDING_MODELS
-    and OPENAI_API_KEY
-):
-    clientEmbed = openai.AsyncOpenAI(
-        api_key=OPENAI_API_KEY, http_client=httpx_client
-    )
-elif (
-    default_embedding_model in SUPPORTED_AZUREOPENAI_EMBEDDING_MODELS
-    and AZUREOPENAI_API_KEY
-):
-    clientEmbed = openai.AsyncAzureOpenAI(
-        api_key=AZUREOPENAI_API_KEY,
-        api_version=AZUREOPENAI_API_VERSION,
-        azure_endpoint=AZUREOPENAI_ENDPOINT,
-        http_client=httpx_client,
-    )
-
-if COHERE_API_KEY:
-    clientRerank = cohere.AsyncClient(
-        api_key=COHERE_API_KEY, httpx_client=httpx_client
-    )
-else:
-    clientRerank = None
-
-if DEEPL_API_KEY:
-    clientDeepl = deepl.DeepLClient(
-        auth_key=DEEPL_API_KEY, proxy=HTTP_PROXY, verify_ssl=REQUESTS_CA_BUNDLE
-    )
-else:
-    clientDeepl = None
+# Export client instances for backward compatibility
+clientLLM = config.client_llm
+clientEmbed = config.client_embed
+clientRerank = config.client_rerank
+clientDeepl = config.client_deepl
