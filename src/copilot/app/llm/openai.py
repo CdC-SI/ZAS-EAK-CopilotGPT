@@ -1,24 +1,11 @@
-"""
-This module provides an implementation of the OpenAI LLM model.
-
-Classes:
-    OpenAILLM: A class that encapsulates methods to interact with OpenAI's language model APIs.
-"""
-
-import logging
-
 from typing import List, Any
 from llm.base import BaseLLM
 from config.llm_config import DEFAULT_OPENAI_LLM_MODEL
+from config.clients_config import config
 
-from config.clients_config import create_llm_client
+from utils.logging import get_logger
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class OpenAILLM(BaseLLM):
@@ -27,7 +14,7 @@ class OpenAILLM(BaseLLM):
 
     Attributes
     ----------
-    model_name : str
+    model : str
         The name of the LLM model to use for response generation.
     stream : bool
         Whether to stream the response generation.
@@ -41,17 +28,17 @@ class OpenAILLM(BaseLLM):
 
     def __init__(
         self,
-        model_name: str = DEFAULT_OPENAI_LLM_MODEL,
+        model: str = DEFAULT_OPENAI_LLM_MODEL,
         stream: bool = True,
         temperature: float = 0.0,
         top_p: float = 0.95,
         max_tokens: int = 2048,
     ):
-        self.model_name = model_name
+        self.model = model.replace("groq:", "")
         self.temperature = temperature
         self.top_p = top_p
         self.max_tokens = max_tokens
-        self.llm_client = create_llm_client(model_name)
+        self.llm_client = config.factory.create_llm_client(model)
         super().__init__(stream)
 
     async def agenerate(self, messages: List[dict]) -> str:
@@ -75,7 +62,7 @@ class OpenAILLM(BaseLLM):
         """
         try:
             return await self.llm_client.chat.completions.create(
-                model=self.model_name,
+                model=self.model,
                 stream=False,
                 temperature=self.temperature,
                 top_p=self.top_p,
@@ -88,7 +75,7 @@ class OpenAILLM(BaseLLM):
     async def _astream(self, messages: List[Any]):
         try:
             return await self.llm_client.chat.completions.create(
-                model=self.model_name,
+                model=self.model,
                 stream=True,
                 temperature=self.temperature,
                 top_p=self.top_p,

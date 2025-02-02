@@ -1,5 +1,4 @@
 import os
-import logging
 from typing import List, Dict
 from llm.base import BaseLLM
 from config.llm_config import DEFAULT_LLAMACPP_LLM_MODEL
@@ -8,11 +7,9 @@ import aiohttp
 import json
 
 # Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger(__name__)
+from utils.logging import get_logger
+
+logger = get_logger(__name__)
 
 LLM_GENERATION_ENDPOINT = os.environ.get("LLM_GENERATION_ENDPOINT", None)
 ASYNC_GENERATE_ENDPOINT = os.path.join(LLM_GENERATION_ENDPOINT, "completion")
@@ -24,8 +21,8 @@ class LlamaCppLLM(BaseLLM):
 
     Attributes
     ----------
-    model_name : str
-        The name of the OpenAI mlx-community LLM model to use for response generation (starts with mlx-community/<model_name>)
+    model : str
+        The name of the OpenAI mlx-community LLM model to use for response generation (starts with llama-cpp:<model>)
     stream : bool
         Whether to stream the response generation.
     temperature : float
@@ -45,13 +42,13 @@ class LlamaCppLLM(BaseLLM):
 
     def __init__(
         self,
-        model_name: str = DEFAULT_LLAMACPP_LLM_MODEL,
+        model: str = DEFAULT_LLAMACPP_LLM_MODEL,
         stream: bool = True,
         temperature: float = 0.0,
         top_p: float = 0.95,
         max_tokens: int = 512,
     ):
-        self.model_name = model_name
+        self.model = model
         self.temperature = temperature
         self.top_p = top_p
         self.max_tokens = max_tokens

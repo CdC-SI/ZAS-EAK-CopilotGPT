@@ -62,7 +62,7 @@ class ChatBot:
         Initialize LLM client, MessageBuilder, Retriever client, StreamingHandler and CommandService.
         """
         llm_client = LLMFactory.get_llm_client(
-            llm_model=request.llm_model,
+            model=request.llm_model,
             stream=self.stream,
             temperature=request.temperature,
             top_p=request.top_p,

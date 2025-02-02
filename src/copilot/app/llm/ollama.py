@@ -1,17 +1,14 @@
-import logging
 from typing import List, Any
-from config.clients_config import create_llm_client
+from config.clients_config import config
 from llm.base import BaseLLM
 from config.llm_config import DEFAULT_OLLAMA_LLM_MODEL
 from schemas.llm import ResponseModel, Choice, Delta, Message
 
 
 # Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger(__name__)
+from utils.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 class OllamaLLM(BaseLLM):
@@ -20,8 +17,8 @@ class OllamaLLM(BaseLLM):
 
     Attributes
     ----------
-    model_name : str
-        The name of the Ollama LLM model to use for response generation (starts with ollama/<model_name>)
+    model : str
+        The name of the Ollama LLM model to use for response generation (starts with ollama:<model>)
     stream : bool
         Whether to stream the response generation.
     temperature : float
@@ -41,17 +38,17 @@ class OllamaLLM(BaseLLM):
 
     def __init__(
         self,
-        model_name: str = DEFAULT_OLLAMA_LLM_MODEL,
+        model: str = DEFAULT_OLLAMA_LLM_MODEL,
         stream: bool = True,
         temperature: float = 0.0,
         top_p: float = 0.95,
         max_tokens: int = 512,
     ):
-        self.model_name = model_name.replace("ollama/", "")
+        self.model = model.replace("ollama:", "")
         self.temperature = temperature
         self.top_p = top_p
         self.max_tokens = max_tokens
-        self.llm_client = create_llm_client(model_name)
+        self.llm_client = config.factory.create_llm_client(model)
         super().__init__(stream)
 
     async def agenerate(self, messages: List[Any]) -> str:
@@ -75,7 +72,7 @@ class OllamaLLM(BaseLLM):
         """
         try:
             response = await self.llm_client.chat(
-                model=self.model_name,
+                model=self.model,
                 messages=messages,
                 options={
                     "temperature": self.temperature,
@@ -99,7 +96,7 @@ class OllamaLLM(BaseLLM):
     async def _astream(self, messages: List[Any]):
         try:
             async for event in await self.llm_client.chat(
-                model=self.model_name,
+                model=self.model,
                 messages=messages,
                 options={
                     "temperature": self.temperature,

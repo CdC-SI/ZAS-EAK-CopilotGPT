@@ -1,22 +1,11 @@
-"""
-This module provides an implementation of the Anthropic LLM model.
-"""
-
-import logging
-
 from typing import List, Any
 from llm.base import BaseLLM
+from config.clients_config import config
 from config.llm_config import DEFAULT_ANTHROPIC_LLM_MODEL
 from schemas.llm import ResponseModel, Choice, Message
+from utils.logging import get_logger
 
-from config.clients_config import create_llm_client
-
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class AnthropicLLM(BaseLLM):
@@ -25,7 +14,7 @@ class AnthropicLLM(BaseLLM):
 
     Attributes
     ----------
-    model_name : str
+    model : str
         The name of the LLM model to use for response generation.
     stream : bool
         Whether to stream the response generation.
@@ -39,17 +28,17 @@ class AnthropicLLM(BaseLLM):
 
     def __init__(
         self,
-        model_name: str = DEFAULT_ANTHROPIC_LLM_MODEL,
+        model: str = DEFAULT_ANTHROPIC_LLM_MODEL,
         stream: bool = True,
         temperature: float = 0.0,
         top_p: float = 0.95,
         max_tokens: int = 2048,
     ):
-        self.model_name = model_name
+        self.model = model
         self.temperature = temperature
         self.top_p = top_p
         self.max_tokens = max_tokens
-        self.llm_client = create_llm_client(model_name)
+        self.llm_client = config.factory.create_llm_client(model)
         super().__init__(stream)
 
     def _extract_system_prompt(self, messages: List[dict]) -> str:
@@ -81,7 +70,7 @@ class AnthropicLLM(BaseLLM):
         try:
             system_prompt = self._extract_system_prompt(messages)
             response = await self.llm_client.messages.create(
-                model=self.model_name,
+                model=self.model,
                 stream=False,
                 temperature=self.temperature,
                 top_p=self.top_p,
@@ -101,7 +90,7 @@ class AnthropicLLM(BaseLLM):
         try:
             system_prompt = self._extract_system_prompt(messages)
             return await self.llm_client.messages.create(
-                model=self.model_name,
+                model=self.model,
                 stream=True,
                 temperature=self.temperature,
                 top_p=self.top_p,

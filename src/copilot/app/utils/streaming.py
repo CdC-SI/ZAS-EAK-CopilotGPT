@@ -137,11 +137,11 @@ class StreamingHandlerFactory:
             return AzureOpenAIStreaming()
         elif llm_model in SUPPORTED_ANTHROPIC_LLM_MODELS:
             return AnthropicStreaming()
-        elif llm_model.startswith("mlx-community/"):
+        elif llm_model.startswith("mlx-community:"):
             return MLXStreaming()
-        elif llm_model.startswith("llama-cpp/"):
+        elif llm_model.startswith("llama-cpp:"):
             return LlamaCppStreaming()
-        elif llm_model.startswith("ollama/"):
+        elif llm_model.startswith("ollama:"):
             return OllamaStreaming()
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
