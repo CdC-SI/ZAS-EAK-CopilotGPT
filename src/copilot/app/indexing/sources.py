@@ -3,7 +3,7 @@ import tiktoken
 from database.database import SessionLocal
 from chat.messages import MessageBuilder
 from config.base_config import rag_config
-from config.clients_config import create_llm_client
+from config.clients_config import config
 from database.models import Source
 from database.service import document_service
 from utils.logging import get_logger
@@ -23,7 +23,7 @@ async def create_source_descriptions() -> None:
 
     db = SessionLocal()
     message_builder = MessageBuilder()
-    llm_client = create_llm_client(rag_config["llm"]["model"])
+    llm_client = config.factory.create_llm_client(rag_config["llm"]["model"])
     tokenizer = tiktoken.encoding_for_model(rag_config["llm"]["model"])
 
     try:
