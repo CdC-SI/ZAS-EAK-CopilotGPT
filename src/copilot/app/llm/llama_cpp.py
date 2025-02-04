@@ -11,7 +11,7 @@ from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-LLM_GENERATION_ENDPOINT = os.environ.get("LLM_GENERATION_ENDPOINT", None)
+LLM_GENERATION_ENDPOINT = os.environ.get("LOCAL_LLM_GENERATION_ENDPOINT", None)
 ASYNC_GENERATE_ENDPOINT = os.path.join(LLM_GENERATION_ENDPOINT, "completion")
 
 
