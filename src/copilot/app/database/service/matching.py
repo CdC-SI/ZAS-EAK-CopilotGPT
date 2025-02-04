@@ -154,134 +154,179 @@ class MatchingService(EmbeddingService):
         user_uuid: str = None,
         embedding_field: Union[str, List[str]] = "text_embedding",
     ):
-        """
-        Get semantic similarity match from database
+        """Get semantic similarity match from database"""
+        embedding_fields = self._validate_and_get_embedding_fields(
+            embedding_field
+        )
+        q_embedding = await get_embedding(user_input)
 
-        Parameters
-        ----------
-        db : Session
-        user_input : str
-            User input to match database entries
-        symbol : str, optional
-            distance function symbol, default to `<=>` (cosine distance). For other options, see https://github.com/pgvector/pgvector
-        language : str, optional
-            Question and results language
-        k : int, optional
-            Number of results to return, default to 0 (return all results)
-        tags : List[str], optional
-            Filter by tags
-        source : List[str], optional
-            Filter by source
-        organizations : List[str], optional
-            Filter by organizations
-        user_uuid : str, optional
-            Filter by user_uuid
-        embedding_field : Union[str, List[str]], optional
-            Single field name or list of field names to match against
+        # Get results for all fields concurrently
+        results = await asyncio.gather(
+            *[
+                self._get_matches_for_field(
+                    db,
+                    q_embedding,
+                    field,
+                    language,
+                    k,
+                    symbol,
+                    tags,
+                    source,
+                    organizations,
+                    user_uuid,
+                )
+                for field in embedding_fields
+            ]
+        )
 
-        Returns
-        -------
-        list of dict
-        """
-        # Handle both single field and multiple fields
+        merged_results = self._merge_and_sort_results(results, k)
+        return merged_results
+
+    def _validate_and_get_embedding_fields(
+        self, embedding_field: Union[str, List[str]]
+    ) -> List[str]:
+        """Validate and return list of embedding fields"""
         embedding_fields = (
             [embedding_field]
             if isinstance(embedding_field, str)
             else embedding_field
         )
 
-        # Validate all fields exist
         for field in embedding_fields:
             if not hasattr(self.model, field):
                 raise ValueError(
                     f"Model does not have embedding field: {field}"
                 )
 
-        q_embedding = await get_embedding(user_input)
+        return embedding_fields
 
-        # Execute semantic match for each field concurrently
-        async def get_matches_for_field(field):
-            embedding_attr = getattr(self.model, field)
+    async def _get_matches_for_field(
+        self,
+        db: Session,
+        q_embedding: List[float],
+        field: str,
+        language: str,
+        k: int,
+        symbol: str,
+        tags: List[str],
+        source: List[str],
+        organizations: List[str],
+        user_uuid: str,
+    ) -> List[dict]:
+        """Get matches for a specific embedding field"""
+        embedding_attr = getattr(self.model, field)
 
-            # 1. Get ALL user's documents first (no filters)
-            user_docs = []
-            if user_uuid:
-                user_stmt = (
-                    select(self.model)
-                    .filter(
-                        self.model.user_uuid == user_uuid,
-                        embedding_attr.isnot(None),
-                    )
-                    .order_by(embedding_attr.op(symbol)(q_embedding).asc())
-                )
-                user_docs = db.scalars(user_stmt).all()
-
-            # 2. Get filtered public/org documents
-            public_stmt = select(self.model).filter(
-                self.model.user_uuid.is_(None),  # Only non-user docs
-                embedding_attr.isnot(None),
-            )
-
-            # Apply all filters to public/org documents
-            if language:
-                public_stmt = public_stmt.filter(
-                    self.model.language == language
-                )
-            if source:
-                public_stmt = public_stmt.join(self.model.source).filter(
-                    Source.url.in_(source)
-                )
-                public_stmt = public_stmt.options(
-                    joinedload(self.model.source)
-                )
-            if tags:
-                public_stmt = public_stmt.filter(
-                    self.model.tags.op("&&")(tags)
-                )
-            if organizations:
-                public_stmt = public_stmt.filter(
-                    or_(
-                        self.model.organizations.op("&&")(organizations),
-                        self.model.organizations.is_(None),
-                    )
-                )
-            else:
-                public_stmt = public_stmt.filter(
-                    self.model.organizations.is_(None)
-                )
-
-            # Order public docs by similarity
-            public_stmt = public_stmt.order_by(
-                embedding_attr.op(symbol)(q_embedding).asc()
-            )
-            public_docs = db.scalars(public_stmt).all()
-
-            # Combine results maintaining similarity order
-            all_docs = []
-            all_docs.extend([doc.to_dict() for doc in user_docs])
-            all_docs.extend([doc.to_dict() for doc in public_docs])
-
-            # Apply limit to final combined results if specified
-            if k > 0:
-                all_docs = all_docs[:k]
-
-            return all_docs
-
-        # Get results for all fields concurrently
-        results = await asyncio.gather(
-            *[get_matches_for_field(field) for field in embedding_fields]
+        user_docs = await self._get_user_documents(
+            db, user_uuid, embedding_attr, q_embedding, symbol
+        )
+        public_docs = await self._get_public_documents(
+            db,
+            embedding_attr,
+            q_embedding,
+            symbol,
+            language,
+            tags,
+            source,
+            organizations,
         )
 
-        # Merge results and remove duplicates based on id
+        all_docs = [doc.to_dict() for doc in user_docs]
+        all_docs.extend([doc.to_dict() for doc in public_docs])
+
+        return all_docs[:k] if k > 0 else all_docs
+
+    async def _get_user_documents(
+        self,
+        db: Session,
+        user_uuid: str,
+        embedding_attr,
+        q_embedding: List[float],
+        symbol: str,
+    ) -> List[dict]:
+        """Get user-specific documents"""
+        if not user_uuid:
+            return []
+
+        user_stmt = (
+            select(self.model)
+            .filter(
+                self.model.user_uuid == user_uuid,
+                embedding_attr.isnot(None),
+            )
+            .order_by(embedding_attr.op(symbol)(q_embedding).asc())
+        )
+        return db.scalars(user_stmt).all()
+
+    async def _get_public_documents(
+        self,
+        db: Session,
+        embedding_attr,
+        q_embedding: List[float],
+        symbol: str,
+        language: str,
+        tags: List[str],
+        source: List[str],
+        organizations: List[str],
+    ) -> List[dict]:
+        """Get public documents with applied filters"""
+        public_stmt = self._build_public_query(
+            embedding_attr, language, tags, source, organizations
+        )
+
+        public_stmt = public_stmt.order_by(
+            embedding_attr.op(symbol)(q_embedding).asc()
+        )
+        return db.scalars(public_stmt).all()
+
+    def _build_public_query(
+        self,
+        embedding_attr,
+        language: str,
+        tags: List[str],
+        source: List[str],
+        organizations: List[str],
+    ):
+        """Build query for public documents with filters"""
+        stmt = select(self.model).filter(
+            self.model.user_uuid.is_(None),
+            embedding_attr.isnot(None),
+        )
+
+        if language:
+            stmt = stmt.filter(self.model.language == language)
+        if source:
+            stmt = (
+                stmt.join(self.model.source)
+                .filter(Source.url.in_(source))
+                .options(joinedload(self.model.source))
+            )
+        if tags:
+            stmt = stmt.filter(self.model.tags.op("&&")(tags))
+        if organizations:
+            stmt = stmt.filter(
+                or_(
+                    self.model.organizations.op("&&")(organizations),
+                    self.model.organizations.is_(None),
+                )
+            )
+        else:
+            stmt = stmt.filter(self.model.organizations.is_(None))
+
+        return stmt
+
+    def _merge_and_sort_results(
+        self, results: List[List[dict]], k: int
+    ) -> List[dict]:
+        """Merge and sort results, removing duplicates"""
         seen = set()
         merged_results = []
+
         for result_set in results:
             for doc in result_set:
                 if doc["id"] not in seen:
                     seen.add(doc["id"])
                     merged_results.append(doc)
 
-        # Sort combined results by relevance
         return merged_results
 
     async def semantic_similarity_match_l1(
