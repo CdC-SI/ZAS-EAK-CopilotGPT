@@ -112,7 +112,8 @@ class RetrieverClient(BaseRetriever):
         # Rerank the documents and get the top-k
         if unique_docs and self.reranker:
             unique_docs, _ = await self.reranker.rerank(
-                query, unique_docs, k_retrieve
+                query,
+                unique_docs,
             )
 
         logger.info("Retrieved %d documents", len(unique_docs[:k_retrieve]))
