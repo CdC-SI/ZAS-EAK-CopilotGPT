@@ -23,6 +23,10 @@ class AgentHandoff(BaseModel):
     agent: str
 
 
+class FollowupQuestion(BaseModel):
+    question: str
+
+
 class FunctionCall(BaseModel):
     function_call: str
 

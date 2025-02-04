@@ -43,12 +43,25 @@ rag:
       top_k: 5
     top_k: 5
     metric: cosine_similarity
-  llm:
-    model: gpt-4o-mini
-    temperature: 0
-    max_output_tokens: 4096
+llm:
+  rag:
+    model: gpt-4o
+    temperature: 0.0
+    max_tokens: 8192
     top_p: 0.95
     stream: true
+  source_validation:
+    model: gpt-4o-mini
+    temperature: 0.0
+    max_tokens: 2056
+    top_p: 0.95
+    stream: false
+  pension_agent:
+    model: gpt-4o-mini
+    temperature: 0.0
+    max_tokens: 1024
+    top_p: 0.95
+    stream: false
 chat:
   topic_check: true
   source_validation: false

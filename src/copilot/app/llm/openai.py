@@ -1,5 +1,5 @@
-from typing import List, Any
-from llm.base import BaseLLM
+from typing import List, Dict, Any
+from llm.base import BaseLLM, LLMResponse, ConfigurationError, GenerationError
 from config.llm_config import DEFAULT_OPENAI_LLM_MODEL
 from config.clients_config import config
 
@@ -61,7 +61,8 @@ class OpenAILLM(BaseLLM):
             If an error occurs during generation.
         """
         try:
-            return await self.llm_client.chat.completions.create(
+            await self._validate_messages(messages)
+            raw_response = await self.llm_client.chat.completions.create(
                 model=self.model,
                 stream=False,
                 temperature=self.temperature,
@@ -69,12 +70,14 @@ class OpenAILLM(BaseLLM):
                 max_tokens=self.max_tokens,
                 messages=messages,
             )
+            return await self._format_response(raw_response)
         except Exception as e:
-            raise e
+            await self._handle_error(e)
 
     async def _astream(self, messages: List[Any]):
         try:
-            return await self.llm_client.chat.completions.create(
+            await self._validate_messages(messages)
+            raw_response = await self.llm_client.chat.completions.create(
                 model=self.model,
                 stream=True,
                 temperature=self.temperature,
@@ -82,5 +85,55 @@ class OpenAILLM(BaseLLM):
                 max_tokens=self.max_tokens,
                 messages=messages,
             )
+            return await self._format_response(raw_response)
         except Exception as e:
-            raise e
+            await self._handle_error(e)
+
+    async def _validate_messages(self, messages: List[Dict[str, Any]]) -> bool:
+        """Validate OpenAI message format"""
+        try:
+            for message in messages:
+                if not isinstance(message, dict):
+                    raise ConfigurationError("Message must be a dictionary")
+                if "role" not in message or "content" not in message:
+                    raise ConfigurationError(
+                        "Message must contain 'role' and 'content'"
+                    )
+                if message["role"] not in ["user", "assistant", "system"]:
+                    raise ConfigurationError(
+                        "Message role must be 'user', 'assistant', or 'system'"
+                    )
+            return True
+        except Exception as e:
+            raise ConfigurationError(f"Message validation failed: {str(e)}")
+
+    async def _format_response(self, raw_response: Any) -> LLMResponse:
+        """Format OpenAI response"""
+        try:
+            return LLMResponse(
+                content=raw_response.choices[0].message.content,
+                usage=(
+                    raw_response.usage.dict() if raw_response.usage else None
+                ),
+                model=raw_response.model,
+                finish_reason=raw_response.choices[0].finish_reason,
+            )
+        except Exception as e:
+            raise GenerationError(f"Failed to format response: {str(e)}")
+
+    async def _handle_error(self, error: Exception) -> None:
+        """Handle OpenAI-specific errors"""
+        import openai
+
+        if isinstance(error, openai.APIError):
+            logger.error(f"OpenAI API error: {str(error)}")
+            raise GenerationError(f"OpenAI API error: {str(error)}")
+        elif isinstance(error, openai.APIConnectionError):
+            logger.error(f"OpenAI connection error: {str(error)}")
+            raise GenerationError(f"Connection error: {str(error)}")
+        elif isinstance(error, openai.RateLimitError):
+            logger.error(f"OpenAI rate limit error: {str(error)}")
+            raise GenerationError(f"Rate limit exceeded: {str(error)}")
+        else:
+            logger.error(f"Unexpected error: {str(error)}")
+            raise

@@ -5,14 +5,12 @@ import httpx
 from dotenv import load_dotenv
 
 import openai
-import cohere
-import deepl
 
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-from config.base_config import rag_config
+from config.base_config import llm_config, rag_config
 from config.llm_config import (
     SUPPORTED_OPENAI_LLM_MODELS,
     SUPPORTED_AZUREOPENAI_LLM_MODELS,
@@ -34,13 +32,13 @@ class EnvironmentConfig:
     groq_api_key: Optional[str] = None
     cohere_api_key: Optional[str] = None
     deepl_api_key: Optional[str] = None
-    llm_generation_endpoint: Optional[str] = None
+    local_llm_generation_endpoint: Optional[str] = None
 
 
 class ProxyConfig:
     def __init__(self):
-        self.http_proxy = os.environ.get("HTTP_PROXY")
-        self.ca_bundle = os.environ.get("REQUESTS_CA_BUNDLE")
+        self.http_proxy = os.environ.get("HTTP_PROXY", None)
+        self.ca_bundle = os.environ.get("REQUESTS_CA_BUNDLE", None)
 
     def setup_httpx_client(self) -> Optional[httpx.AsyncClient]:
         if self.http_proxy and self.ca_bundle:
@@ -100,7 +98,7 @@ class ClientFactory:
             from ollama import AsyncClient
 
             return AsyncClient(
-                host=self.env_config.llm_generation_endpoint,
+                host=self.env_config.local_llm_generation_endpoint,
                 proxy=self.proxy_config.http_proxy,
                 verify=self.proxy_config.ca_bundle,
             )
@@ -129,6 +127,8 @@ class ClientFactory:
 
     def create_rerank_client(self):
         if self.env_config.cohere_api_key:
+            import cohere
+
             return cohere.AsyncClient(
                 api_key=self.env_config.cohere_api_key,
                 httpx_client=self.httpx_client,
@@ -137,7 +137,9 @@ class ClientFactory:
 
     def create_translation_client(self):
         if self.env_config.deepl_api_key:
-            return deepl.DeepLClient(
+            from deepl import DeepLClient
+
+            return DeepLClient(
                 auth_key=self.env_config.deepl_api_key,
                 proxy=self.proxy_config.http_proxy,
                 verify_ssl=self.proxy_config.ca_bundle,
@@ -149,22 +151,27 @@ class ClientConfig:
     def __init__(self):
         load_dotenv()
         self.env_config = EnvironmentConfig(
-            openai_api_key=os.environ.get("OPENAI_API_KEY"),
-            azure_openai_api_key=os.environ.get("AZUREOPENAI_API_KEY"),
-            azure_openai_api_version=os.environ.get("AZUREOPENAI_API_VERSION"),
-            azure_openai_endpoint=os.environ.get("AZUREOPENAI_ENDPOINT"),
-            anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY"),
-            groq_api_key=os.environ.get("GROQ_API_KEY"),
-            cohere_api_key=os.environ.get("COHERE_API_KEY"),
-            deepl_api_key=os.environ.get("DEEPL_API_KEY"),
-            llm_generation_endpoint=os.environ.get("LLM_GENERATION_ENDPOINT"),
+            openai_api_key=os.environ.get("OPENAI_API_KEY", None),
+            azure_openai_api_key=os.environ.get("AZUREOPENAI_API_KEY", None),
+            azure_openai_api_version=os.environ.get(
+                "AZUREOPENAI_API_VERSION", None
+            ),
+            azure_openai_endpoint=os.environ.get("AZUREOPENAI_ENDPOINT", None),
+            anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY", None),
+            groq_api_key=os.environ.get("GROQ_API_KEY", None),
+            cohere_api_key=os.environ.get("COHERE_API_KEY", None),
+            deepl_api_key=os.environ.get("DEEPL_API_KEY", None),
+            local_llm_generation_endpoint=os.environ.get(
+                "LOCAL_LLM_GENERATION_ENDPOINT", None
+            ),
         )
         self.proxy_config = ProxyConfig()
         self.factory = ClientFactory(self.env_config, self.proxy_config)
 
         # Initialize clients
+        # for task, config in llm_config.items():
         self.client_llm = self.factory.create_llm_client(
-            rag_config["llm"]["model"]
+            llm_config["rag"]["model"]
         )
         self.client_embed = self.factory.create_embedding_client(
             rag_config["embedding"]["model"]

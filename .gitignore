@@ -167,3 +167,5 @@ out/
 
 *.ipynb
 delete_tables.sql
+.aider*
+examples/

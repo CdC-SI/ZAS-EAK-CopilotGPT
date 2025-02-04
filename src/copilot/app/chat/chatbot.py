@@ -1,4 +1,3 @@
-import logging
 from typing import Dict, List
 import uuid
 
@@ -13,7 +12,6 @@ from chat.status_service import (
     topic_check_service,
 )
 from rag.factory import RetrieverFactory
-from llm.factory import LLMFactory
 from llm.base import BaseLLM
 
 from utils.streaming import StreamingHandlerFactory, StreamingHandler, Token
@@ -22,6 +20,7 @@ from commands.command_service import CommandService, TranslationService
 
 from config.base_config import chat_config
 from config.base_config import rag_config
+from config.llm_config_schemas import StreamingConfiguration
 
 from autocomplete.autocomplete_service import autocomplete_service
 from rag.rag_service import rag_service
@@ -32,12 +31,11 @@ from sqlalchemy.orm import Session
 
 from langfuse.decorators import observe
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger(__name__)
+from clients.client_manager import client_manager
+
+from utils.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 class ChatBot:
@@ -52,23 +50,30 @@ class ChatBot:
             k_memory=memory_config.k_memory,
             config=memory_config.storage,
         )
-        self.max_tokens = rag_config["llm"]["max_output_tokens"]
-        self.temperature = rag_config["llm"]["temperature"]
-        self.top_p = rag_config["llm"]["top_p"]
-        self.top_k = rag_config["retrieval"]["top_k"]
+        self.streaming_config = StreamingConfiguration()
 
     def _initialize_components(self, request: ChatRequest):
         """
-        Initialize LLM client, MessageBuilder, Retriever client, StreamingHandler and CommandService.
+        Initialize components using the new ClientManager.
         """
-        llm_client = LLMFactory.get_llm_client(
+
+        # Create runtime overrides from request parameters
+        runtime_overrides = {
+            "temperature": request.temperature,
+            "top_p": request.top_p,
+            "max_tokens": request.max_output_tokens,
+            "stream": self.stream,
+        }
+
+        # Get LLM client through ClientManager
+        llm_client = client_manager.get_llm_client(
             model=request.llm_model,
-            stream=self.stream,
-            temperature=request.temperature,
-            top_p=request.top_p,
-            max_tokens=request.max_output_tokens,
+            runtime_overrides=runtime_overrides,
         )
+
         message_builder = MessageBuilder()
+
+        # Initialize retriever client
         if request.response_style == "legal":
             retrieval_method = request.retrieval_method
             retrieval_method.append("fedlex_retriever")
@@ -83,11 +88,16 @@ class ChatBot:
                 llm_client=llm_client,
                 message_builder=message_builder,
             )
+
+        # Get streaming handler with configuration
         streaming_handler = StreamingHandlerFactory.get_streaming_strategy(
-            llm_model=request.llm_model
+            model=request.llm_model,
+            config=self.streaming_config,
         )
+
         translation_service = TranslationService()
         command_service = CommandService(translation_service, message_builder)
+
         return (
             llm_client,
             message_builder,

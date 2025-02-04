@@ -1,18 +1,14 @@
 from abc import ABC, abstractmethod
 from langfuse.decorators import observe
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, AsyncGenerator, Dict
+import asyncio
 
-from config.llm_config import (
-    SUPPORTED_OPENAI_LLM_MODELS,
-    SUPPORTED_AZUREOPENAI_LLM_MODELS,
-    SUPPORTED_ANTHROPIC_LLM_MODELS,
-    SUPPORTED_GROQ_LLM_MODELS,
-)
+from config.llm_config_schemas import LLMStreamingConfiguration
+from config.model_provider_registry import model_provider_registry
+from utils.logging import get_logger
 
-import logging
-
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -43,9 +39,38 @@ class Token:
 
 
 class StreamingHandler(ABC):
+    """Base class for streaming handlers"""
+
+    def __init__(self, config: LLMStreamingConfiguration):
+        self.config = config
+
     @abstractmethod
-    async def generate_stream(self, stream):
+    async def generate_stream(
+        self, events: AsyncGenerator
+    ) -> AsyncGenerator[Token, None]:
         pass
+
+    async def handle_error(self, error: Exception) -> Token:
+        """Handle streaming errors gracefully"""
+        logger.error(f"Streaming error: {str(error)}")
+        return Token.from_status(f"Error: {str(error)}")
+
+    async def process_stream(
+        self, events: AsyncGenerator
+    ) -> AsyncGenerator[Token, None]:
+        """Common stream processing with error handling and retries"""
+        retry_count = 0
+        while retry_count < self.config.max_retries:
+            try:
+                async for token in self.generate_stream(events):
+                    yield token
+                return
+            except Exception as e:
+                retry_count += 1
+                if retry_count >= self.config.max_retries:
+                    yield await self.handle_error(e)
+                    return
+                await asyncio.sleep(self.config.retry_interval)
 
 
 class OpenAIStreaming(StreamingHandler):
@@ -59,21 +84,6 @@ class OpenAIStreaming(StreamingHandler):
                 yield Token.from_text(event.choices[0].delta.content)
             elif event.choices[0].delta.content is None and content_received:
                 return
-
-
-class AzureOpenAIStreaming(StreamingHandler):
-    @observe(as_type="generation", name="azureopenai_output_stream")
-    async def generate_stream(self, events):
-        events = await events
-        content_received = False
-        async for event in events:
-            if event.choices[0].delta.content is not None:
-                content_received = True
-                yield Token.from_text(event.choices[0].delta.content)
-            elif event.choices[0].delta.content is None and content_received:
-                return
-            elif not content_received:
-                continue  # Skip initial None token
 
 
 class AnthropicStreaming(StreamingHandler):
@@ -90,58 +100,71 @@ class AnthropicStreaming(StreamingHandler):
 class MLXStreaming(StreamingHandler):
     @observe(as_type="generation", name="mlx_output_stream")
     async def generate_stream(self, events):
-        content_received = False
         async for event in events:
-            if event.choices[0].delta.content is not None:
-                content_received = True
-                yield Token.from_text(event.choices[0].delta.content)
-            elif event.choices[0].delta.content is None and content_received:
-                return
-            elif not content_received:
-                continue  # Skip initial None token
+            if event.text:
+                yield Token.from_text(event.text)
 
 
-class LlamaCppStreaming(StreamingHandler):
-    @observe(as_type="generation", name="llamacpp_output_stream")
+class LocalModelStreaming(StreamingHandler):
+    """Base handler for local model streaming (Llama.cpp, Ollama)"""
+
+    @observe(as_type="generation", name="local_model_output_stream")
     async def generate_stream(self, events):
-        content_received = False
         async for event in events:
             if event.choices[0].delta.content is not None:
-                content_received = True
                 yield Token.from_text(event.choices[0].delta.content)
-            elif event.choices[0].delta.content is None and content_received:
-                return
 
 
-class OllamaStreaming(StreamingHandler):
-    @observe(as_type="generation", name="ollama_output_stream")
-    async def generate_stream(self, events):
-        content_received = False
-        async for event in events:
-            if event.choices[0].delta.content is not None:
-                content_received = True
-                yield Token.from_text(event.choices[0].delta.content)
-            elif event.choices[0].delta.content is None and content_received:
-                return
+# Map providers to their streaming handlers
+STREAMING_HANDLERS = {
+    "openai": OpenAIStreaming,
+    "azure": OpenAIStreaming,
+    "anthropic": AnthropicStreaming,
+    "groq": OpenAIStreaming,  # Groq uses OpenAI-compatible streaming
+    "mlx": MLXStreaming,
+    "llama-cpp": LocalModelStreaming,
+    "ollama": LocalModelStreaming,
+}
 
 
 class StreamingHandlerFactory:
-    @staticmethod
-    def get_streaming_strategy(llm_model):
-        if (
-            llm_model in SUPPORTED_OPENAI_LLM_MODELS
-            or llm_model in SUPPORTED_GROQ_LLM_MODELS
-        ):
-            return OpenAIStreaming()
-        elif llm_model in SUPPORTED_AZUREOPENAI_LLM_MODELS:
-            return AzureOpenAIStreaming()
-        elif llm_model in SUPPORTED_ANTHROPIC_LLM_MODELS:
-            return AnthropicStreaming()
-        elif llm_model.startswith("mlx-community:"):
-            return MLXStreaming()
-        elif llm_model.startswith("llama-cpp:"):
-            return LlamaCppStreaming()
-        elif llm_model.startswith("ollama:"):
-            return OllamaStreaming()
-        else:
-            raise ValueError(f"Unsupported LLM model: {llm_model}")
+    _config_cache: Dict[str, LLMStreamingConfiguration] = {}
+
+    @classmethod
+    def get_streaming_strategy(
+        cls, model: str, config: Optional[LLMStreamingConfiguration] = None
+    ) -> StreamingHandler:
+        """
+        Get appropriate streaming handler for a model
+
+        Parameters
+        ----------
+        model : str
+            Model identifier
+        config : Optional[StreamingConfiguration]
+            Optional streaming configuration override
+
+        Returns
+        -------
+        StreamingHandler
+            Configured streaming handler for the model
+        """
+        try:
+            provider = model_provider_registry.get_provider(model)
+
+            if config is None:
+                if model not in cls._config_cache:
+                    cls._config_cache[model] = LLMStreamingConfiguration()
+                config = cls._config_cache[model]
+
+            handler_class = STREAMING_HANDLERS.get(provider)
+            if not handler_class:
+                raise ValueError(
+                    f"No streaming handler for provider: {provider}"
+                )
+
+            return handler_class(config)
+
+        except Exception as e:
+            logger.error(f"Error creating streaming handler: {str(e)}")
+            raise

@@ -1,0 +1,11 @@
+from .rag import (
+    RAG_SYSTEM_PROMPT_DE,
+    RAG_SYSTEM_PROMPT_FR,
+    RAG_SYSTEM_PROMPT_IT,
+)
+
+LANGUAGE_PROMPTS = {
+    "de": RAG_SYSTEM_PROMPT_DE,
+    "fr": RAG_SYSTEM_PROMPT_FR,
+    "it": RAG_SYSTEM_PROMPT_IT,
+}

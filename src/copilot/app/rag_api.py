@@ -3,7 +3,7 @@ import logging
 from typing import List
 from schemas.document import Document
 
-from fastapi import FastAPI, status, Depends
+from fastapi import FastAPI, status, Depends, HTTPException
 from fastapi.responses import Response, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from config.network_config import CORS_ALLOWED_ORIGINS
@@ -18,6 +18,9 @@ from schemas.chat import ChatRequest
 
 from sqlalchemy.orm import Session
 from database.database import get_db
+
+# Import client manager
+# from clients.client_manager import client_manager
 
 # Setup logging
 logging.basicConfig(
@@ -58,9 +61,15 @@ async def process_query(request: ChatRequest, db: Session = Depends(get_db)):
     StreamingResponse
         The response from the RAG service
     """
-    content = bot.process_request(db, request)
-
-    return StreamingResponse(content, media_type="text/event-stream")
+    try:
+        # Bot class now uses client_manager internally
+        content = bot.process_request(db, request)
+        return StreamingResponse(content, media_type="text/event-stream")
+    except Exception as e:
+        logger.error(f"Error processing query: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        )
 
 
 @app.get(

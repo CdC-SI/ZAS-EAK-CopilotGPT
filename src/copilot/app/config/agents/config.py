@@ -1,4 +1,12 @@
+from dataclasses import dataclass
+
 from config.clients_config import clientLLM
+
+
+@dataclass
+class AgentConfig:
+    retries = 5
+
 
 agent_config = {
     "llm_client": clientLLM,
