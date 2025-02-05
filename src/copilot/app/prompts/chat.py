@@ -70,57 +70,71 @@ Rispondere con True se la domanda è una delle precedenti, altrimenti rispondere
 ## Domanda
 {query}"""
 
-CHAT_TITLE_SYSTEM_PROMPT_DE = """# Aufgabe
-Ihre Aufgabe ist es, einen Titel für den Chatverlauf aus der Frage des Nutzers und der Antwort des Assistenten (Antwort des Assistenten) zu generieren. Generieren Sie aus Frage und Antwort des Assistenten einen hochrangigen Titel, der die Essenz des anschliessenden Gesprächs einfängt. Die Überschrift sollte äusserst prägnant und informativ sein (MAXIMAL 4 WÖRTER) und einen kurzen Überblick über das Thema geben, der NUR auf dem Inhalt von Frage und Antwort des Assistenten beruht.
+CHAT_TITLE_SYSTEM_PROMPT_DE = """<instruktionen>
+    <instruktion>Ihre Aufgabe ist es, einen Titel für den Chatverlauf aus der Frage des Nutzers und der <assistent_antwort> zu generieren</instruktion>
+    <instruktion>Generieren Sie aus Frage und <assistent_antwort> einen hochrangigen Titel, der die Essenz des anschliessenden Gesprächs einfängt</instruktion>
+    <instruktion>Die Überschrift sollte äusserst prägnant und informativ sein (MAXIMAL 4-6 WÖRTER) und einen kurzen Überblick über das Thema geben, der NUR auf dem Inhalt von Frage und <assistent_antwort> beruht</instruktion>
+</instruktionen>
 
-# Format der Antwort
-- Der Titel MUSS auf DEUTSCH sein!
-- Maximal 4 Wörter
-- Nur mit dem Titel antworten!!!
+<antwort_format>
+    - Der Titel MUSS auf DEUTSCH sein!
+    - Maximal 4-6 Wörter
+    - Nur mit dem Titel antworten!!!
+</antwort_format>
 
-# Beispiele
-AHV: Berechnung der Renten
-Rentenalter
-Invalidenversicherung: Bedingungen für den Anspruch
-Arbeitslosenversicherung: Administrative Schritte
+<beispiele>
+    <beispiel>AHV: Berechnung der Renten</beispiel>
+    <beispiel>Rentenalter</beispiel>
+    <beispiel>Invalidenversicherung: Bedingungen für den Anspruch</beispiel>
+    <beispiel>Arbeitslosenversicherung: Administrative Schritte</beispiel>
+</beispiele>
 
-# Antwort des Assistenten
+<assistent_antwort>
+{assistant_response}
+</assistent_antwort> """
 
-{assistant_response}"""
+CHAT_TITLE_SYSTEM_PROMPT_FR = """<instructions>
+    <instruction>Générez un titre décrivant le sujet de la question de l'utilisateur et de la réponse de l'assistant <réponse_assistant></instruction>
+    <instructions>Le titre doit être haut niveau à partir de la question ET de la <réponse_assistant> qui capturera l'essence de la conversation qui s'ensuit</instruction>
+    <instructions>Le titre doit être extrêmement concis et informatif (MAXIMUM 4-6 MOTS), et donner un bref aperçu du sujet en se basant UNIQUEMENT sur le contenu de la question et <réponse_assistant></instruction>
+</instructions>
 
-CHAT_TITLE_SYSTEM_PROMPT_FR = """# Tâche
-Votre tâche consiste à générer un titre pour l'historique du chat à partir de la question de l'utilisateur et de la réponse de l'assistant (Réponse de l'assistant). Générez un titre de haut niveau à partir de la Question ET Réponse de l'assistant qui capturera l'essence de la conversation qui s'ensuit. Le titre doit être extrêmement concis et informatif (MAXIMUM 4 MOTS), et donner un bref aperçu du sujet en se basant UNIQUEMENT sur le contenu de la Question et Réponse de l'assistant.
+<format_de_réponse>
+    - Le titre DOIT être en FRANCAIS !
+    - 4-6 mots maximum
+    - Répondre uniquement avec le titre !!!
+</format_de_réponse>
 
-# Format de réponse
-- Le titre DOIT être en FRANCAIS !
-- 4 mots maximum
-- Répondre uniquement avec le titre !!!
+<exemples>
+    <exemple>AVS: Calcul des rentes</exemple>
+    <exemple>Age de la retraite</exemple>
+    <exemple>Assurance invalidité: Conditions d'octroi</exemple>
+    <exemple>Assurance chômage: Démarches administratives</exemple>
+</exemples>
 
-# Exemples
-AVS: Calcul des rentes
-Age de la retraite
-Assurance invalidité: Conditions d'octroi
-Assurance chômage: Démarches administratives
+<réponse_assistant>
+{assistant_response}
+<réponse_assistant>"""
 
-# Réponse de l'assistant
+CHAT_TITLE_SYSTEM_PROMPT_IT = """<istruzioni>
+    <istruzione>Il vostro compito è generare un titolo per la cronologia della chat a partire dalla domanda dell'utente e dalla <risposta_assistente></istruzione>
+    <istruzione>Generare un titolo di alto livello dalla Domanda e dalla <risposta_assistente> che catturi l'essenza della conversazione che ne è seguita</istruzione>
+    <istruzione>Il titolo deve essere estremamente conciso e informativo (MASSIMO 4-6 PAROLE), fornendo una breve panoramica dell'argomento basata SOLO sul contenuto della Domanda e della <risposta_assistente></istruzione>
+</istruzioni>
 
-{assistant_response}"""
+<formato_risposta>
+    - Il titolo DEVE essere in italiano!
+    - 4-6 parole al massimo
+    - Rispondere solo con il titolo !!!
+</formato_risposta>
 
-CHAT_TITLE_SYSTEM_PROMPT_IT = """# Compito
-Il vostro compito è generare un titolo per la cronologia della chat a partire dalla domanda dell'utente e dalla risposta dell'assistente (Risposta dell'assistente
-). Generare un titolo di alto livello dalla Domanda e dalla Risposta dell'assistente che catturi l'essenza della conversazione che ne è seguita. Il titolo deve essere estremamente conciso e informativo (MASSIMO 4 PAROLE), fornendo una breve panoramica dell'argomento basata SOLO sul contenuto della Domanda e della Risposta dell'assistente.
+<esempi>
+    <esempio>AVS: Calcolo delle pensioni</esempio>
+    <esempio>Età pensionabile</esempio>
+    <esempio>Assicurazione d'invalidità: Condizioni di diritto</esempio>
+    <esempio>Assicurazione contro la disoccupazione: Procedure amministrative</esempio>
+<esempi>
 
-# Formato della risposta
-- Il titolo DEVE essere in italiano!
-- 4 parole al massimo
-- Rispondere solo con il titolo !!!
-
-# Esempi
-AVS: Calcolo delle pensioni
-Età pensionabile
-Assicurazione d'invalidità: Condizioni di diritto
-Assicurazione contro la disoccupazione: Procedure amministrative
-
-# Risposta dell'assistente
-
-{assistant_response}"""
+<risposta_assistente>
+{assistant_response}
+</risposta_assistente>"""
