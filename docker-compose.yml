@@ -19,10 +19,10 @@ services:
       - POSTGRES_PORT=${POSTGRES_PORT}
     volumes:
       - ./src/db/data:/var/lib/postgresql/data
+      - ./src/db/migrations:/docker-entrypoint-initdb.d/migrations
     networks:
       - copilot-network
     restart: "no"
-
 
   copilot:
     build:
@@ -53,7 +53,7 @@ services:
   # frontend
   zas-copilot:
     build:
-      context: https://github.com/CdC-SI/copilot-frontend.git#document-access
+      context: https://github.com/CdC-SI/copilot-frontend.git#frontend-updates
     image: zas-copilot:latest
     environment:
       - ENVIRONMENT=development
@@ -68,7 +68,7 @@ services:
   # security service
   zas-security:
     build:
-      context: https://github.com/CdC-SI/copilot-backend.git#document-access
+      context: https://github.com/CdC-SI/copilot-backend.git#frontend-updates
     image: zas-security:latest
     env_file:
       - .env
