@@ -115,6 +115,67 @@ async def get_conversation(
     return conversation
 
 
+@app.delete(
+    "/{conversation_uuid}",
+    summary="Delete a specific conversation by conversation_uuid",
+    response_description="Delete a specific conversation and return success status",
+    status_code=200,
+)
+async def delete_conversation(
+    conversation_uuid: str = None, db: Session = Depends(get_db)
+):
+    """
+    Endpoint to delete a specific conversation by conversation_uuid.
+    """
+    if not conversation_uuid:
+        raise HTTPException(
+            status_code=400,
+            detail="conversation_uuid parameter is required.",
+        )
+
+    try:
+        # Delete from ChatFeedback
+        db.query(ChatFeedback).filter(
+            ChatFeedback.conversation_uuid == conversation_uuid
+        ).delete()
+
+        # Delete from ChatTitle
+        result = (
+            db.query(ChatTitle)
+            .filter(ChatTitle.conversation_uuid == conversation_uuid)
+            .delete()
+        )
+
+        # Delete from ChatHistory
+        result = (
+            db.query(ChatHistory)
+            .filter(ChatHistory.conversation_uuid == conversation_uuid)
+            .delete()
+        )
+
+        db.commit()
+
+        if result > 0:
+            logger.info(
+                "Conversation %s deleted successfully", conversation_uuid
+            )
+            return {
+                "status": "success",
+                "message": "Conversation deleted successfully",
+            }
+        else:
+            raise HTTPException(
+                status_code=404, detail="Conversation not found"
+            )
+
+    except Exception as e:
+        db.rollback()
+        logger.error("Error deleting conversation: %s", e)
+        raise HTTPException(
+            status_code=500, detail="Error deleting conversation"
+        ) from e
+
+
 @app.put("/feedback/thumbs_up")
 def thumbs_up(
     user_uuid: str = None,
