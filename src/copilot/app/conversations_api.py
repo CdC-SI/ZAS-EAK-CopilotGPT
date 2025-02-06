@@ -139,17 +139,17 @@ async def delete_conversation(
             ChatFeedback.conversation_uuid == conversation_uuid
         ).delete()
 
-        # Delete from ChatTitle
-        result = (
-            db.query(ChatTitle)
-            .filter(ChatTitle.conversation_uuid == conversation_uuid)
-            .delete()
-        )
-
         # Delete from ChatHistory
         result = (
             db.query(ChatHistory)
             .filter(ChatHistory.conversation_uuid == conversation_uuid)
+            .delete()
+        )
+
+        # Delete from ChatTitle
+        result = (
+            db.query(ChatTitle)
+            .filter(ChatTitle.conversation_uuid == conversation_uuid)
             .delete()
         )
 
