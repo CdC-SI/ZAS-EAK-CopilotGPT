@@ -298,3 +298,56 @@ def thumbs_down(
             raise HTTPException(
                 status_code=500, detail="Error updating feedback."
             ) from e
+
+
+@app.put(
+    "/{conversation_uuid}/title",
+    summary="Update conversation title",
+    response_description="Update the title of a specific conversation",
+    status_code=200,
+)
+async def update_conversation_title(
+    conversation_uuid: str,
+    title: dict,
+    db: Session = Depends(get_db),
+):
+    """
+    Endpoint to update the title of a specific conversation by conversation_uuid.
+    """
+    logger.info(
+        f"Received title update request for {conversation_uuid}: {title}"
+    )
+
+    try:
+        chat_title = (
+            db.query(ChatTitle)
+            .filter(ChatTitle.conversation_uuid == conversation_uuid)
+            .first()
+        )
+
+        if not chat_title:
+            raise HTTPException(
+                status_code=404, detail="Conversation not found"
+            )
+
+        chat_title.chat_title = title["title"]
+        db.commit()
+        db.refresh(chat_title)
+
+        logger.info(f"Successfully updated title for {conversation_uuid}")
+        return {
+            "status": "success",
+            "message": "Conversation title updated successfully",
+            "title": {
+                "conversationId": chat_title.conversation_uuid,
+                "title": chat_title.chat_title,
+            },
+        }
+
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Error updating conversation title: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error updating conversation title: {str(e)}",
+        )
