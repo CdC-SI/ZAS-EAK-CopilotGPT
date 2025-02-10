@@ -198,9 +198,10 @@ async def get_tags(
     return sorted(all_tags)
 
 
+@app.get("/tags/description")
 async def get_tags_descriptions(
     db: Session = Depends(get_db), language: str = None
-) -> Dict:
+) -> List:
     """
     Endpoint to get all tags descriptions from 'tags' table in postgres based on language.
     """
