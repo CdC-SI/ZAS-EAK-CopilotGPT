@@ -114,7 +114,7 @@ async def get_sources(
 
 
 @app.get(
-    "/source_descriptions",
+    "/sources/descriptions",
     summary="Get source descriptions from postgres 'source' table",
     response_description="Return a list of source descriptions",
     status_code=200,
