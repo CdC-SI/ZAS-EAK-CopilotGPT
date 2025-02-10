@@ -195,7 +195,7 @@ async def get_tags(
         if tags:
             all_tags.update(tags)
 
-    return sorted(all_tags)
+    return all_tags
 
 
 @app.get("/tags/description")
