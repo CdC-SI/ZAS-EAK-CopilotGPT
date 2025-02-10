@@ -984,7 +984,7 @@ async def index_data(item: FaqQuestionItem, db: Session = Depends(get_db)):
     logger.info("Upserting data")
     logger.info(item)
 
-    item.source = "placeholder_user"
+    item.source = "user_edit"
 
     if item.id:
         db_question = faq_question_service.get(db, item.id)
