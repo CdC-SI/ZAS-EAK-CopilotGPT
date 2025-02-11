@@ -215,14 +215,10 @@ async def get_tags_descriptions(
 
     tags_descriptions = db.query(Tag).filter(Tag.language == language).all()
 
-    # tags_descriptions = {
-    #     "AKIS": "Les documents AKIS contient toute l'information sur l'outil d'aide en ligne AKIS.",
-    #     "Familienzulagen": "Les documents Familienzulagen contiennent toute l'information sur les allocations familiales.",
-    #     "Firmen": "Les documents Firmen contiennent toute l'information sur l'AVS/AI des entreprises.",
-    #     "Private": "Les documents Private contiennent toute l'information sur l'AVS/AI des personnes privées.",
-    #     "Documentation": "Les documents Documentation contiennent toute l'information sur l'AVS/AI des personnes privées.",
-    # }
-    return [(tag.tag_en, tag.description) for tag in tags_descriptions]
+    return [
+        {"name": tag.tag_en, "description": tag.description}
+        for tag in tags_descriptions
+    ]
 
 
 @app.get("/intentions/description")
@@ -243,7 +239,7 @@ async def get_intentions_descriptions(
     )
 
     return [
-        (intention.name, desc.description)
+        {"name": intention.name, "description": desc.description}
         for intention, desc in intentions_descriptions
     ]
 
