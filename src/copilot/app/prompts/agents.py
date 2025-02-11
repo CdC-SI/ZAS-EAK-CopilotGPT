@@ -87,8 +87,7 @@ Wie werden die Familienzulagen der Familienausgleichskasse der Eidgenössischen 
 INTENT_DETECTION_PROMPT_FR = """<instructions>
     <instruction>déterminez l'intention de l'utilisateur</instruction>
     <instruction>fondez votre décision en fonction de la <question> posée, des derniers tours de conversation dans l'<historique_de_conversation> et des <intentions> à disposition</instruction>
-    <instruction>élaborez une question de suivi SEULEMENT SI des informations supplémentaires sont nécessaires pour préciser l'intention de l'utilisateur</instruction>
-    <instruction>élaborez une question de suivi SEULEMENT SI la <question> + les derniers tours de l'<historique_de_conversation> sont ambigus</instruction>
+    <instruction>élaborez une question de suivi SEULEMENT SI la <question> ne peut être catégorisée dans les <intentions> à disposition</instruction>
 </instructions>
 
 <format_de_réponse>
