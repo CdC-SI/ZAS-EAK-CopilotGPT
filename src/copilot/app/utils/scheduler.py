@@ -41,7 +41,9 @@ async def start_scheduler():
         # Schedule source descriptions update with async wrapper
         scheduler.add_job(
             func=run_async_job(create_source_descriptions),
-            trigger=CronTrigger(hour="0,6,12,18", minute=0),
+            trigger=CronTrigger(
+                hour="0,7,8,9,19,11,12,13,14,15,16,17,18", minute=0
+            ),
             id="create_source_descriptions",
             replace_existing=True,
         )
