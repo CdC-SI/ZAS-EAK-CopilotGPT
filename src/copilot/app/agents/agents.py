@@ -323,8 +323,7 @@ class SourceValidatorAgent(BaseAgent):
         """
         tasks = [
             self._validate_single_source(
-                language=request.language,
-                query=request.query,
+                request=request,
                 document=doc,
                 llm_client=llm_client,
                 message_builder=message_builder,

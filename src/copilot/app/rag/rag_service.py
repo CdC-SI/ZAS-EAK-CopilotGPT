@@ -166,8 +166,7 @@ class RAGService:
         # Source validation
         if request.source_validation:
             async for doc in self.source_validator_agent.validate_sources(
-                request.language,
-                request.query,
+                request,
                 documents,
                 llm_client,
                 message_builder,
