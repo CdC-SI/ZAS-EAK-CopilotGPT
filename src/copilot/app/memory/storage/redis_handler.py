@@ -1,3 +1,4 @@
+import ast
 from typing import Optional
 import datetime
 from redis import Redis, RedisError
@@ -96,6 +97,16 @@ class RedisMemoryHandler(BaseStorage):
                     message_data["faq_id"] = None
                 elif message_data.get("faq_id"):
                     message_data["faq_id"] = int(message_data["faq_id"])
+
+                # Handle sources
+                if message_data.get("sources") == "":
+                    message_data["sources"] = []
+                elif message_data.get("sources"):
+                    try:
+                        sources_str = message_data["sources"].strip()
+                        message_data["sources"] = ast.literal_eval(sources_str)
+                    except (ValueError, AttributeError):
+                        message_data["sources"] = []
 
                 # Handle retrieved_doc_ids
                 if message_data.get("retrieved_doc_ids") == "":
