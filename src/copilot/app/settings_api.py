@@ -238,11 +238,8 @@ async def get_intentions_descriptions(
             IntentDescriptions,
             Intentions.id == IntentDescriptions.intention_id,
         )
+        .filter(IntentDescriptions.language == language)
         .all()
-    )
-
-    logger.info(
-        f"Found {len(intentions_descriptions)} intentions for language {language}"
     )
 
     return [
