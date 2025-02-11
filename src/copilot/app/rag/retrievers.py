@@ -170,7 +170,12 @@ class QueryRewritingRetriever(BaseRetriever):
 
     @observe(name="QueryRewritingRetriever_rewrite_queries")
     async def rewrite_queries(
-        self, language: str, llm_model: str, query: str, n_alt_queries: int = 3
+        self,
+        language: str,
+        llm_model: str,
+        query: str,
+        n_alt_queries: int = 3,
+        conversational_memory: str = None,
     ) -> List[str]:
         """
         Rewrite the input query into multiple query variations (variations, declarative).
@@ -179,7 +184,11 @@ class QueryRewritingRetriever(BaseRetriever):
         """
         # Query reformulations (variations)
         messages = self.message_builder.build_query_rewriting_prompt(
-            language, llm_model, n_alt_queries, query
+            language,
+            llm_model,
+            n_alt_queries,
+            query,
+            conversational_memory,
         )
         rewritten_queries = await self.llm_client.agenerate(messages)
         rewritten_queries = rewritten_queries.choices[0].message.content.split(
@@ -188,7 +197,11 @@ class QueryRewritingRetriever(BaseRetriever):
 
         # Query reformulations (declarative)
         messages = self.message_builder.build_query_statement_rewriting_prompt(
-            language, llm_model, n_alt_queries, query
+            language,
+            llm_model,
+            n_alt_queries,
+            query,
+            conversational_memory,
         )
         rewritten_declarative_queries = await self.llm_client.agenerate(
             messages
@@ -219,8 +232,14 @@ class QueryRewritingRetriever(BaseRetriever):
         Retrieves the top k documents that semantically match the given original + rewritten queries.
         """
         llm_model = kwargs.get("llm_model", "gpt-4o-mini")
+        conversational_memory = kwargs.get("conversational_memory", None)
+
         rewritten_queries = await self.rewrite_queries(
-            language, llm_model, query=query, n_alt_queries=self.n_alt_queries
+            language,
+            llm_model,
+            query=query,
+            n_alt_queries=self.n_alt_queries,
+            conversational_memory=conversational_memory,
         )
 
         # Execute all semantic matching operations concurrently
