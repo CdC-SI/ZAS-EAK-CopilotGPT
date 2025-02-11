@@ -308,14 +308,14 @@ def thumbs_down(
 )
 async def update_conversation_title(
     conversation_uuid: str,
-    title: dict,
+    title_update: dict,
     db: Session = Depends(get_db),
 ):
     """
     Endpoint to update the title of a specific conversation by conversation_uuid.
     """
     logger.info(
-        f"Received title update request for {conversation_uuid}: {title}"
+        f"Received title update request for {conversation_uuid}: {title_update}"
     )
 
     try:
@@ -330,7 +330,7 @@ async def update_conversation_title(
                 status_code=404, detail="Conversation not found"
             )
 
-        chat_title.chat_title = title["title"]
+        chat_title.chat_title = title_update["new_title"]
         db.commit()
         db.refresh(chat_title)
 

@@ -18,7 +18,7 @@ class MessageData(BaseModel):
     message: str
     language: str
     timestamp: datetime = Field(default_factory=datetime.now)
-    sources: Optional[List[str]]
+    sources: Optional[List[str]] = []
     faq_id: Optional[int] = None
     retrieved_doc_ids: Optional[List[int]] = None
 
