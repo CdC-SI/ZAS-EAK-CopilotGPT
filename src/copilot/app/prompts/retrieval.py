@@ -3,10 +3,15 @@ QUERY_REWRITING_PROMPT_DE = """Ihre Aufgabe ist es, {n_alt_queries} verschiedene
 
 QUERY_REWRITING_PROMPT_FR = """<instructions>
     <instruction>Générez {n_alt_queries} reformulations différentes de la <question> fournie par l'utilisateur</instruction>
+    <instruction>Prenez en compte tout l'<historique_de_conversation> récent et en rapport avec la <question> afin de produire des reformulations qui font sens dans le contexte de la conversation entre user-assistant</instruction>
     <instruction>L'objectif est de produire des variations capturant toutes les nuances possibles de la <question></instruction>
     <instruction>Proposez des perspectives variées afin d'aider l'utilisateur à contourner les limites des méthodes de recherche basées sur la distance de similarité</instruction>
     <instruction>Maintenez la même langue que celle de la <question> et séparez chaque reformulation par une nouvelle ligne ("\n")</instruction>
 </instructions>
+
+<historique_de_conversation>
+{conversational_memory}
+</historique_de_conversation>
 
 <question>
 {query}
@@ -33,6 +38,7 @@ Wie ist das Wetter? -> Sagen Sie mir, wie das Wetter ist, ich möchte wissen, wi
 
 QUERY_STATEMENT_REWRITING_PROMPT_FR = """<instructions>
     <instruction>Étant donné la <question> ci-dessous, reformulez-la en plusieurs énoncés alternatifs sur un ton déclaratif</instruction>
+    <instruction>Prenez en compte tout l'<historique_de_conversation> récent et en rapport avec la <question> afin de produire des reformulations qui font sens dans le contexte de la conversation entre user-assistant</instruction>
     <instruction>Chaque déclaration reformulée doit conserver le sens de la requête originale mais l'exprimer d'une manière légèrement différente</instruction>
     <instruction>Extrayez les principaux mots clefs/concepts de la <question></instruction>
     <instruction>Écrire {n_alt_queries} reformulations déclaratives dans la même langue que la <question>, séparés par de nouvelles lignes "\n"</instruction>
@@ -43,6 +49,10 @@ Comment obtenir un extrait du compte individuel ? -> Explique moi comment obteni
 Que signifie le splitting ? -> Le splitting expliqué
 Que signifie l'âge de la retraite flexible ? -> age de la retraite flexible
 </exemples>
+
+<historique_de_conversation>
+{conversational_memory}
+</historique_de_conversation>
 
 <question>
 {query}
