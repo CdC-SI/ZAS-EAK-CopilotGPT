@@ -120,7 +120,9 @@ async def rag_tool(
     sources,
 ) -> AsyncGenerator[str, None]:
 
-    from rag.rag_service import rag_service
+    from rag.rag_service import (
+        rag_service,
+    )  # TO DO: refactor to avoid circular import
 
     async for token in rag_service.process_rag(
         db,
