@@ -2,14 +2,25 @@ from typing import Any, Dict, Callable
 import re
 import ast
 
+from agents.tools import CommandFunctions
+
 
 class FunctionExecutor:
     def __init__(self):
         self._registered_functions: Dict[str, Callable] = {}
+        self._command_functions = None
 
     def register_function(self, func: Callable) -> None:
         """Register a function that can be called via string."""
         self._registered_functions[func.__name__] = func
+
+    def register_command_functions(
+        self, command_functions: CommandFunctions
+    ) -> None:
+        """Register CommandFunctions instance for command execution"""
+        self._command_functions = command_functions
+        self.register_function(command_functions.translate_conversation)
+        self.register_function(command_functions.summarize_conversation)
 
     def parse_function_call(self, function_string: str) -> tuple[str, list]:
         """
@@ -39,7 +50,7 @@ class FunctionExecutor:
 
         return func_name, params
 
-    def execute(self, function_string: str) -> Any:
+    async def execute(self, function_string: str) -> Any:
         """
         Execute a function from its string representation.
         Example: executor.execute('calculate_age("1990-01-01", 25)')
@@ -50,4 +61,4 @@ class FunctionExecutor:
             raise ValueError(f"Function '{func_name}' is not registered")
 
         func = self._registered_functions[func_name]
-        return func(*params)
+        return await func(*params)

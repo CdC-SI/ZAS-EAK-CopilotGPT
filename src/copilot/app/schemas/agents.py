@@ -8,15 +8,15 @@ class TopicCheck(BaseModel):
 
 class IntentDetection(BaseModel):
     intent: str
-    tags: List[str]
-    followup_required: bool
     followup_question: str
 
 
 class SourceSelection(BaseModel):
-    selected_sources: List[str]
-    followup_required: bool
-    followup_question: str
+    inferred_sources: List[str]
+
+
+class TagSelection(BaseModel):
+    inferred_tags: List[str]
 
 
 class AgentHandoff(BaseModel):

@@ -1,18 +1,142 @@
-import logging
-from typing import Dict
+from typing import Dict, AsyncGenerator
+from dataclasses import dataclass
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from langfuse.decorators import observe
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger(__name__)
+from commands.command_service import TranslationService
+from chat.messages import MessageBuilder
+from llm.base import BaseLLM
+from utils.logging import get_logger
+
+logger = get_logger(__name__)
+
+
+@dataclass
+class CommandResult:
+    success: bool
+    message: str
+    source: str = ""
+
+
+class CommandFunctions:
+    def __init__(
+        self,
+        translation_service: TranslationService,
+        message_builder: MessageBuilder,
+        llm_client: BaseLLM,
+    ):
+        self.translation_service = translation_service
+        self.message_builder = message_builder
+        self.llm_client = llm_client
+
+    @observe(name="translate_tool")
+    async def translate_conversation(
+        self, text: str, target_lang: str, mode: str = "all", n_msg: int = -1
+    ) -> CommandResult:
+        """
+        Translates conversation text to target language
+        Parameters:
+        - text: The text to translate
+        - target_lang: Target language code (e.g., 'de', 'fr', 'it')
+        - mode: Translation mode ('all' or 'last')
+        - n_msg: Number of messages to translate when mode is 'last'
+        Returns: CommandResult with translation or error message
+        """
+        try:
+            translated_text = await self.translation_service.translate(
+                text, target_lang
+            )
+            # return CommandResult(
+            #     success=True,
+            #     message=translated_text,
+            #     source="DeepL Translation Command Service"
+            # )
+            return {"translated_text": translated_text}
+        except Exception as e:
+            # return CommandResult(
+            #     success=False,
+            #     message="Sorry, an error occurred during translation. Please try again later.",
+            #     source=""
+            # )
+            logger.info(e)
+            return
+            # return f"Unknown command: {request.command}"
+
+    @observe(name="summarize_tool")
+    async def summarize_conversation(
+        self,
+        text: str,
+        mode: str = "all",
+        n_msg: int = -1,
+        style: str = "concise",
+    ) -> CommandResult:
+        """
+        Summarizes conversation text
+        Parameters:
+        - text: The conversation text to summarize
+        - mode: Summary mode ('all', 'last', or 'highlights')
+        - n_msg: Number of messages to summarize when mode is 'last'
+        - style: Summary style ('formal', 'concise', 'detailed')
+        Returns: CommandResult with summary or error message
+        """
+        try:
+            messages = self.message_builder.build_summarize_prompt(
+                language="de",
+                llm_model="gpt-4o-mini",
+                command="/summarize",
+                input_text=text,
+                mode=mode,
+                style=style,
+            )
+
+            response = await self.llm_client.call(messages)
+            summary = "".join([chunk.content for chunk in response])
+
+            return CommandResult(
+                success=True,
+                message=summary,
+                source="AI Summary Command Service",
+            )
+        except Exception as e:
+            logger.info(e)
+            return CommandResult(
+                success=False,
+                message="Sorry, an error occurred during summarization. Please try again later.",
+                source="",
+            )
+
+
+# RAG tool
+@observe(name="RAG_tool")
+async def rag_tool(
+    db,
+    request,
+    llm_client,
+    streaming_handler,
+    retriever_client,
+    message_builder,
+    memory_service,
+    sources,
+) -> AsyncGenerator[str, None]:
+
+    from rag.rag_service import rag_service
+
+    async for token in rag_service.process_rag(
+        db,
+        request,
+        llm_client,
+        streaming_handler,
+        retriever_client,
+        message_builder,
+        memory_service,
+        sources,
+    ):
+        yield token
 
 
 # Pension Agent tools
-@observe(name="FAK_EAK_calculate_reduction_rate_and_supplement")
+@observe(name="FAK_EAK_calculate_reduction_rate_and_supplement_tool")
 def determine_reduction_rate_and_supplement(
     date_of_birth: str, retirement_date: str, average_annual_income: float
 ) -> Dict:
@@ -136,7 +260,7 @@ def _format_reference_age(months: int) -> str:
     return f"{years} years and {remaining_months} months"
 
 
-@observe(name="PENSION_determine_reference_age")
+@observe(name="PENSION_determine_reference_age_tool")
 def determine_reference_age(date_of_birth: str) -> Dict:
     """
     Determine the reference age for women born between 1961-1969 (transitional generation).
@@ -179,12 +303,12 @@ def determine_reference_age(date_of_birth: str) -> Dict:
     return {"ReferenceAge": response}
 
 
-@observe(name="PENSION_estimate_pension")
+@observe(name="PENSION_estimate_pension_tool")
 def estimate_pension():
     pass
 
 
 # FAK-EAK tools
-@observe(name="FAK_EAK_determine_child_benefits_eligibility")
+@observe(name="FAK_EAK_determine_child_benefits_eligibility_tool")
 def determine_child_benefits_eligibility():
     pass

@@ -6,9 +6,10 @@ from asyncio import Semaphore
 from collections.abc import AsyncIterator
 
 from agents.function_metadata import extract_function_metadata
-from agents.tools import determine_reduction_rate_and_supplement
+from agents.tools import determine_reduction_rate_and_supplement, rag_tool
 from agents.function_executor import FunctionExecutor
 from chat.messages import MessageBuilder
+from schemas.chat import ChatRequest
 from llm.base import BaseLLM
 from prompts.agents import (
     RAG_FOLLOWUP_AGENT_PROMPT_DE,
@@ -17,6 +18,10 @@ from prompts.agents import (
 )
 from schemas.agents import FunctionCall, UniqueSourceValidation
 from agents.response_service import calculation_response_service
+from agents.tools import CommandFunctions
+from agents.base import BaseAgent
+from commands.command_service import TranslationService
+from llm.factory import LLMFactory
 from utils.streaming import Token
 from chat.status_service import status_service, StatusType
 
@@ -27,52 +32,20 @@ logger = logging.getLogger(__name__)
 executor = FunctionExecutor()
 executor.register_function(determine_reduction_rate_and_supplement)
 
+llm_client = LLMFactory.get_llm_client(
+    model="gpt-4o-mini",
+    stream=True,
+    temperature=0.0,
+    top_p=0.95,
+    max_tokens=2056,
+)
 
-class Agent:
-
-    # What should an agent do?
-    # What methods?
-    # Access to conversational memory, have memory (state), llm_client, message_builder, tools (eg. functions, rag)
-    # input: query, language
-    # output: (stream of) tokens
-
-    def __init__(
-        self,
-        model: BaseLLM,
-        system_prompt: str,
-        max_loops: int = 3,
-        tools=None,
-        output_type=None,
-        reason=None,
-        result_schema=None,
-    ):
-        self.model = model
-        self.system_prompt = system_prompt
-        self.max_loops = max_loops
-        self.tools = tools
-        self.output_type = output_type  # stream or single
-        self.reason = reason  # will setup plan itself
-        self.result_schema = result_schema  # structured schema -> you must return this schema and fill in the values
-        self.context_vars = {}
-        self.memory = None
-        self.llm_client = None
-        self.stream = True
-
-    async def run(self) -> str:
-        pass
-
-    async def run_stream(self):  # -> AsyncIterator[Token]:
-        pass
-
-    def _register_tool(self, tool) -> None:
-        pass
-
-    def _prepare_messages(self, query: str) -> str:
-        pass
-
-
-class Swarm:
-    pass
+command_functions = CommandFunctions(
+    translation_service=TranslationService(),
+    message_builder=MessageBuilder(),
+    llm_client=llm_client,
+)
+executor.register_command_functions(command_functions)
 
 
 class FollowUp(Enum):
@@ -81,7 +54,7 @@ class FollowUp(Enum):
     FAK_ELIGIBILITY = "eligibility"
 
 
-class FollowUpAgent:
+class FollowUpAgent(BaseAgent):
     """Agent for handling follow-up prompts based on different scenarios"""
 
     _PROMPTS = {
@@ -128,37 +101,36 @@ class FollowUpAgent:
         return prompts.get(language, prompts.get(cls.DEFAULT_LANGUAGE))
 
 
-class PensionAgent:
+class ChatAgent(BaseAgent):
 
-    def __init__(self):
-        pass
+    def __init__(self, name: str = None):
+        self.name = name if name else "CHAT_AGENT"
 
     async def process(
         self,
-        query: str,
-        language: str,
+        request: ChatRequest,
         message_builder: MessageBuilder,
         llm_client: BaseLLM,
+        **kwargs,
     ):
         """
-        Process the query with Pension agent.
+        Process the query with Chat agent.
         """
         yield Token.from_status(
-            f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, language, tool_name='determine_reduction_rate_and_supplement')}</tool_use>"
+            f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='translate_conversation')}</tool_use>"
         )
-        func_metadata = extract_function_metadata(
-            determine_reduction_rate_and_supplement
-        )
+        func_metadata = extract_function_metadata(TranslationService.translate)
 
+        # TO DO: add specific arg parsing prompt per function (eg. target lang)
         messages = message_builder.build_function_call_prompt(
-            language=language,
-            llm_model="gpt-4o-mini",
-            query=query,
+            language=request.language,
+            llm_model="gpt-4o",
+            query=request.query,
             func_metadata=func_metadata,
         )
 
         res = await llm_client.llm_client.beta.chat.completions.parse(
-            model="gpt-4o-mini",
+            model="gpt-4o",
             temperature=0,
             top_p=0.95,
             max_tokens=512,
@@ -169,10 +141,61 @@ class PensionAgent:
         function_call = res.choices[0].message.parsed.function_call
 
         try:
-            calculation_result = executor.execute(function_call)
+            function_call_result = await executor.execute(function_call)
+            for token in function_call_result.split(" "):
+                yield Token.from_text(token)
+        except ValueError as e:
+            logger.info("Error executing function %s", e)
+            message = "Sorry, an error occurred while processing your request. Please try again."
+            yield Token.from_text(message)
+
+
+class PensionAgent(BaseAgent):
+
+    def __init__(self, name: str = None):
+        self.name = name if name else "PENSION_AGENT"
+
+    async def process(
+        self,
+        request: ChatRequest,
+        message_builder: MessageBuilder,
+        llm_client: BaseLLM,
+        **kwargs,
+    ):
+        """
+        Process the query with Pension agent.
+        """
+        yield Token.from_status(
+            f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='determine_reduction_rate_and_supplement')}</tool_use>"
+        )
+        func_metadata = extract_function_metadata(
+            determine_reduction_rate_and_supplement
+        )
+
+        messages = message_builder.build_function_call_prompt(
+            language=request.language,
+            llm_model="gpt-4o",
+            query=request.query,
+            func_metadata=func_metadata,
+        )
+
+        res = await llm_client.llm_client.beta.chat.completions.parse(
+            model="gpt-4o",
+            temperature=0,
+            top_p=0.95,
+            max_tokens=512,
+            messages=messages,
+            response_format=FunctionCall,
+        )
+
+        function_call = res.choices[0].message.parsed.function_call
+
+        try:
+            calculation_result = await executor.execute(function_call)
             response, source = (
                 calculation_response_service.get_response_message(
-                    calculation_result=calculation_result, language=language
+                    calculation_result=calculation_result,
+                    language=request.language,
                 )
             )
             for token in response:
@@ -185,61 +208,54 @@ class PensionAgent:
             yield Token.from_source(source)
 
 
-class FAK_EAK_Agent:
+class RAGAgent(BaseAgent):
 
-    def __init__(self):
-        pass
-
-    async def process(self, query: str, message_builder: MessageBuilder):
-        """
-        Process the query with RAG agent.
-        """
-        pass
-
-
-class RAGAgent:
-
-    def __init__(self):
-        pass
-
-    async def process(self, query: str, message_builder: MessageBuilder):
-        """
-        Process the query with RAG agent.
-        """
-        pass
-
-
-class ResearchAgent:
-
-    def __init__(self):
-        pass
+    def __init__(self, name: str = None):
+        self.name = name if name else "RAG_AGENT"
 
     async def process(
         self,
-        query: str,
-        language: str,
+        request: ChatRequest,
         message_builder: MessageBuilder,
         llm_client: BaseLLM,
+        **kwargs,
     ):
         """
-        Process the query with Research agent.
+        Process the query with RAG agent.
         """
-        pass
+        db = kwargs.get("db")
+        streaming_handler = kwargs.get("streaming_handler")
+        retriever_client = kwargs.get("retriever_client")
+        memory_service = kwargs.get("memory_service")
+        sources = kwargs.get("sources")
+
+        async for token in rag_tool(
+            db=db,
+            request=request,
+            llm_client=llm_client,
+            streaming_handler=streaming_handler,
+            retriever_client=retriever_client,
+            message_builder=message_builder,
+            memory_service=memory_service,
+            sources=sources,
+        ):
+            yield token
 
 
-class SourceValidatorAgent:
+class SourceValidatorAgent(BaseAgent):
 
-    def __init__(self):
-        self.semaphore = Semaphore(5)  # Limit to 3 concurrent requests
+    def __init__(self, name: str = None):
+        self.name = name if name else "SOURCE_VALIDATOR_AGENT"
+        self.semaphore = Semaphore(5)  # Limit to 5 concurrent requests
         self.max_retries = 3
         self.retry_delay = 1
 
     async def process(
         self,
-        query: str,
-        language: str,
+        request: ChatRequest,
         message_builder: MessageBuilder,
         llm_client: BaseLLM,
+        **kwargs,
     ):
         """
         Process the query with Source Validator agent.
@@ -249,8 +265,7 @@ class SourceValidatorAgent:
     @observe(name="_validate_single_source")
     async def _validate_single_source(
         self,
-        language: str,
-        query: str,
+        request: ChatRequest,
         document: Dict,
         llm_client: BaseLLM,
         message_builder: MessageBuilder,
@@ -265,9 +280,9 @@ class SourceValidatorAgent:
                         top_p=0.95,
                         max_tokens=128,
                         messages=message_builder.build_unique_source_validation_prompt(
-                            language=language,
+                            language=request.language,
                             llm_model="gpt-4o-mini",
-                            query=query,
+                            query=request.query,
                             source=document,
                         ),
                         response_format=UniqueSourceValidation,
@@ -297,8 +312,7 @@ class SourceValidatorAgent:
     @observe(name="validate_sources")
     async def validate_sources(
         self,
-        language: str,
-        query: str,
+        request: ChatRequest,
         documents: List[Dict],
         llm_client: BaseLLM,
         message_builder: MessageBuilder,
@@ -309,8 +323,8 @@ class SourceValidatorAgent:
         """
         tasks = [
             self._validate_single_source(
-                language=language,
-                query=query,
+                language=request.language,
+                query=request.query,
                 document=doc,
                 llm_client=llm_client,
                 message_builder=message_builder,
@@ -326,3 +340,19 @@ class SourceValidatorAgent:
             except Exception as e:
                 logger.error("Error processing validation result: %s", e)
                 continue
+
+
+class AgentFactory:
+
+    @staticmethod
+    def get_agent(agent_name: str):
+        if agent_name == "RAG_AGENT":
+            return RAGAgent(name=agent_name)
+        elif agent_name == "PENSION_AGENT":
+            return PensionAgent(name=agent_name)
+        elif agent_name == "CHAT_AGENT":
+            return ChatAgent(name=agent_name)
+        elif agent_name == "SOURCE_VALIDATOR_AGENT":
+            return SourceValidatorAgent(name=agent_name)
+        else:
+            raise ValueError(f"Unsupported agent name: {agent_name}")

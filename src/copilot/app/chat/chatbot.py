@@ -77,6 +77,14 @@ class ChatBot:
                 llm_client=llm_client,
                 message_builder=message_builder,
             )
+        elif request.agentic_rag:
+            retrieval_method = request.retrieval_method
+            retrieval_method.append("query_rewriting_retriever")
+            retriever_client = RetrieverFactory.get_retriever_client(
+                retrieval_method=retrieval_method,
+                llm_client=llm_client,
+                message_builder=message_builder,
+            )
         else:
             retriever_client = RetrieverFactory.get_retriever_client(
                 retrieval_method=request.retrieval_method,

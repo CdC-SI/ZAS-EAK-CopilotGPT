@@ -1,6 +1,6 @@
 import os
 import logging
-from typing import Dict
+from typing import Dict, AsyncGenerator
 from dotenv import load_dotenv
 
 from llm.base import BaseLLM
@@ -10,17 +10,19 @@ from chat.status_service import status_service, StatusType
 
 from schemas.chat import ChatRequest
 from schemas.embedding import EmbeddingRequest
-from schemas.agents import IntentDetection, SourceSelection, AgentHandoff
+from agents.query_orchestrator import (
+    infer_intent,
+    infer_sources,
+    infer_tags,
+    select_agent,
+    run_agent,
+)
 
 from sqlalchemy.orm import Session
 from utils.embedding import get_embedding
 from utils.streaming import StreamingHandler, Token
 from chat.messages import MessageBuilder
 from agents import (
-    RAGAgent,
-    PensionAgent,
-    FAK_EAK_Agent,
-    FollowUpAgent,
     SourceValidatorAgent,
 )
 
@@ -97,10 +99,6 @@ class RAGService:
         self.temperature = temperature
         self.top_p = top_p
         self.k_retrieve = top_k
-        self.rag_agent = RAGAgent()
-        self.pension_agent = PensionAgent()
-        self.fak_eak_agent = FAK_EAK_Agent()
-        self.followup_agent = FollowUpAgent()
         self.source_validator_agent = SourceValidatorAgent()
 
     async def embed(self, text_input: EmbeddingRequest):
@@ -148,7 +146,7 @@ class RAGService:
         message_builder: MessageBuilder,
         memory_service: MemoryService,
         sources: Dict,
-    ):
+    ) -> AsyncGenerator[Token, None]:
         """
         Process a ChatRequest to retrieve relevant documents and generate a response.
 
@@ -235,13 +233,12 @@ class RAGService:
         message_builder: MessageBuilder,
         memory_service: MemoryService,
         sources: Dict,
-    ):
+    ) -> AsyncGenerator[Token, None]:
         # Routing status update
         yield Token.from_status(
             f"<routing>{status_service.get_status_message(StatusType.ROUTING, request.language)}</routing>"
         )
 
-        # TO DO: refactor based on rag/agentic_rag usage requirements
         conversational_memory = (
             await (
                 memory_service.chat_memory.get_formatted_conversation(
@@ -256,157 +253,71 @@ class RAGService:
         # Intent detection
         # TO DO: perform retrieval to get context docs
         # TO DO: format docs
-        documents = await self.retrieve(db, request, retriever_client)
+        # documents = await self.retrieve(db, request, retriever_client)
         # formatted_docs = "\n\n".join([doc["text"] for doc in documents])
 
-        messages = await message_builder.build_intent_detection_prompt(
-            language=request.language,
-            llm_model=request.llm_model,
-            query=request.query,
-            conversational_memory=conversational_memory,
-            documents=documents,
+        (inferred_intent, followup_question) = await infer_intent(
             db=db,
-        )
-        res = await llm_client.llm_client.beta.chat.completions.parse(
-            model="gpt-4o-mini",
-            temperature=0,
-            top_p=0.95,
-            max_tokens=2048,
-            messages=messages,
-            response_format=IntentDetection,
+            message_builder=message_builder,
+            llm_client=llm_client,
+            request=request,
+            conversational_memory=conversational_memory,
         )
 
-        # Follow-up question
-        # TO DO: while loop? (eg. while followup_required)
-        if res.choices[0].message.parsed.followup_required:
-            yield Token.from_text(
-                res.choices[0].message.parsed.followup_question
-            )
-            logger.info(
-                f"------Follow-up question asked for INTENT DETECTION: {res.choices[0].message.parsed}"
-            )
+        # TO DO: method to observe with langfuse for FollowUpQ --> FollowUpQ should be applied to all agentic workflows
+        if followup_question:
+            yield Token.from_text(followup_question)
             return
-        else:
-            inferred_intent = res.choices[0].message.parsed.intent
-            inferred_tags = res.choices[0].message.parsed.tags
-            logger.info(
-                f"------Intent detected: {res.choices[0].message.parsed}"
+
+        # Source detection
+        # Need user actions (eg pdf upload) added to chat history/conversational memory
+        if not request.source:
+            inferred_sources = await infer_sources(
+                db=db,
+                message_builder=message_builder,
+                llm_client=llm_client,
+                request=request,
+                inferred_intent=inferred_intent,
+                conversational_memory=conversational_memory,
             )
+            request.source = inferred_sources
+
+        # Tags detection
+        if not request.tags:
+            inferred_tags = await infer_tags(
+                db=db,
+                message_builder=message_builder,
+                llm_client=llm_client,
+                request=request,
+                inferred_intent=inferred_intent,
+                inferred_sources=inferred_sources,
+                conversational_memory=conversational_memory,
+            )
+            request.tags = inferred_tags
 
         # Agent handoff
-        messages = await message_builder.build_agent_handoff_prompt(
-            language=request.language,
-            llm_model=request.llm_model,
-            query=request.query,
-            intent=inferred_intent,
-            tags=inferred_tags,
-            conversational_memory=conversational_memory,
-        )
-        res = await llm_client.llm_client.beta.chat.completions.parse(
-            model="gpt-4o-mini",
-            temperature=0,
-            top_p=0.95,
-            max_tokens=2048,
-            messages=messages,
-            response_format=AgentHandoff,
+        agent = await select_agent(
+            request,
+            message_builder,
+            llm_client,
+            conversational_memory,
+            inferred_intent,
         )
 
-        agent_name = res.choices[0].message.parsed.agent
-        agent_name = agent_name if agent_name else "RAG_AGENT"
+        logger.info("Selected Agent: %s", agent)
 
-        yield Token.from_status(
-            f"<agent_handoff>{status_service.get_status_message(StatusType.AGENT_HANDOFF, request.language, agent_name=agent_name)}</agent_handoff>"
-        )
-
-        logger.info("Selected Agent: %s", agent_name)
-
-        if agent_name == "RAG_AGENT":
-            logger.info("Routing to RAG Agent")
-
-            # source selection based on source and intent
-            if not request.source:
-                messages = await message_builder.build_source_selection_prompt(
-                    language=request.language,
-                    llm_model=request.llm_model,
-                    query=request.query,
-                    intent=inferred_intent if inferred_intent else None,
-                    tags=inferred_tags if inferred_tags else None,
-                    conversational_memory=conversational_memory,
-                    db=db,
-                )
-
-                res = await llm_client.llm_client.beta.chat.completions.parse(
-                    model="gpt-4o-mini",
-                    temperature=0,
-                    top_p=0.95,
-                    max_tokens=2048,
-                    messages=messages,
-                    response_format=SourceSelection,
-                )
-
-                # Follow-up question
-                # TO DO: while loop? (eg. while followup_required)
-                if res.choices[0].message.parsed.followup_required:
-                    yield Token.from_text(
-                        res.choices[0].message.parsed.followup_question
-                    )
-                    logger.info(
-                        f"------Followup question asked for SOURCE DETECTION: {res.choices[0].message.parsed}"
-                    )
-                    return
-                else:
-                    inferred_sources = res.choices[
-                        0
-                    ].message.parsed.selected_sources
-                    request.source = (
-                        inferred_sources if inferred_sources else None
-                    )
-                    logger.info(
-                        f"------Source detected: {res.choices[0].message.parsed}"
-                    )
-
-            async for token in self.process_rag(
-                db,
-                request,
-                llm_client,
-                streaming_handler,
-                retriever_client,
-                message_builder,
-                memory_service,
-                sources,
-            ):
-                yield token
-
-        elif agent_name == "PENSION_AGENT":
-            logger.info("Routing to PENSION Agent")
-
-            async for token in self.pension_agent.process(
-                query=request.query,
-                language=request.language,
-                message_builder=message_builder,
-                llm_client=llm_client,
-            ):
-                yield token
-
-        elif agent_name == "FAK_EAK_AGENT":
-            logger.info("Routing to FAK_EAK Agent")
-            yield Token.from_status(
-                f"<agent_handoff>{status_service.get_status_message(StatusType.AGENT_HANDOFF, request.language, agent_name=agent_name)}</agent_handoff>"
-            )
-
-            async for token in self.fak_eak_agent.process(
-                query=request.query,
-                language=request.language,
-                message_builder=message_builder,
-                llm_client=llm_client,
-            ):
-                yield token
-
-        else:
-            logger.info("Agent handoff failed. Asking follow-up question.")
-            # LLM logic to clarify topic/ask for more information?
-            message = "Can you please provide more information?"
-            yield Token.from_text(message)
+        async for token in run_agent(
+            db=db,
+            llm_client=llm_client,
+            message_builder=message_builder,
+            streaming_handler=streaming_handler,
+            retriever_client=retriever_client,
+            memory_service=memory_service,
+            agent=agent,
+            request=request,
+            sources=sources,
+        ):
+            yield token
 
 
 rag_service = RAGService(

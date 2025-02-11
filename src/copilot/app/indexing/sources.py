@@ -73,7 +73,10 @@ async def create_source_descriptions() -> None:
             )
 
             # Update source description in database
-            source.description = source_description.choices[0].message.content
+            source.description = (
+                "**USER UPLOADED DOCUMENT:** "
+                + source_description.choices[0].message.content
+            )
             db.commit()
 
             logger.info(f"Updated source description for {source.url}")

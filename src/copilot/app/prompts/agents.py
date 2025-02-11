@@ -84,39 +84,31 @@ Wie werden die Familienzulagen der Familienausgleichskasse der Eidgenössischen 
 {query}"""
 
 
-INTENT_DETECTION_PROMPT_FR = """# Tâche
-Votre tâche consiste à:
-- déterminer l'intention de l'utilisateur en fonction de la question posée et de l'historique de conversation
-- déterminer quel(s) thème(s) sélectionner pour la recherche de documents basé sur la question posée et sur les thèmes à disposition
-- déterminer si des clarifications ou des informations supplémentaires sont nécessaires pour identifier l'intention de l'utilisateur de manière précise. IMPORTANT: regardez les documents à disposition ET les thèmes à disposition pour déterminer si des clarifications sont nécessaires ou non. Si un document ou un thème peut répondre à la question, ne posez pas de question de suivi.
+INTENT_DETECTION_PROMPT_FR = """<instructions>
+    <instruction>déterminez l'intention de l'utilisateur</instruction>
+    <instruction>fondez votre décision en fonction de la <question> posée, des derniers tours de conversation dans l'<historique_de_conversation> et des <intentions> à disposition</instruction>
+    <instruction>élaborez une question de suivi SEULEMENT SI des informations supplémentaires sont nécessaires pour préciser l'intention de l'utilisateur</instruction>
+    <instruction>élaborez une question de suivi SEULEMENT SI la <question> + les derniers tours de l'<historique_de_conversation> sont ambigus</instruction>
+</instructions>
 
-# Notes importantes
-L'intention de l'utilisateur peut être générale ou spécifique.
-Par exemple, poser une question sur les thèmes liés à l'AVS/AI, aux allocations familiales, aux allocations pour perte de gain, aux allocations de maternité, etc.
-Par exemple, poser une question très spécifique à un calcul lié à la situation personnelle de l'utilisateur (âge, revenu, etc.).
-Si vous devez poser une question de suivi, posez la EN FRANCAIS !!!
-IMPORTANT: Posez seulement une question de suivi si la question est formulée de manière très vague OU si les documents/thèmes à disposition ne permettent pas de répondre à la question (ou seulement de manière partielle). Si la question porte sur le thème de l'AVS/AI de manière générale, ne posez pas de question de suivi.
+<format_de_réponse>
+    IntentDetection(
+        intent: str, # l'intention de l'utilisateur basé sur les <intentions> disponibles
+        followup_question: str = None, # Question de suivi pour obtenir des informations supplémentaires
+    )
+</format_de_réponse>
 
-# Format de réponse
-IntentDetection(
-    intent: str, # l'intention de l'utilisateur en une phrase couerte
-    tags: List[str] = None, # le(s) thème(s) identifié de la question
-    followup_required: bool = False, # True si des informations supplémentaires sont nécessaires pour identifier l'intention de l'utilisateur de manière précise, False sinon.
-    followup_question: str = None, # Question de suivi pour obtenir des informations supplémentaires si followup_required est True.
-)
-Si l'intention ou les thèmes appropriés ne peuvent être déterminés, vous pouvez spécifier "None" pour ces valeurs et remplir "followup_required" et "followup_question".
-
-# Historique de conversation
+<historique_de_conversation>
 {conversational_memory}
+</historique_de_conversation>
 
-# Documents à disposition
-{documents}
+<intentions>
+{intentions}
+</intentions>
 
-# Thèmes à disposition
-{tags}
-
-# Question
-{query}"""
+<question>
+{query}
+</question>"""
 
 
 INTENT_DETECTION_PROMPT_IT = """# Compito
@@ -208,139 +200,140 @@ SOURCE_SELECTION_PROMPT_DE = """# Aufgabe
 """
 
 
-SOURCE_SELECTION_PROMPT_FR = """# Tâche
-Votre tâche consiste à sélectionner la source de données appropriée pour répondre à la question de l'utilisateur. Vous devez baser votre décision en fonction de:
-- la question de l'utilisateur
-- l'intention de l'utilisateur
-- du thème
-- de l'historique de conversation
-- les sources de données disponibles
+SOURCE_SELECTION_PROMPT_FR = """<instructions>
+    <instruction>Votre tâche consiste à sélectionner la source de données appropriée pour répondre à la question de l'utilisateur<instructions>
+    <instructions>Basez votre sélection en fonction de la <question>, l'<intention>, l'<historique_de_conversation> et la liste de <sources> et leur description</instruction>
+    <instruction>Basez votre sélection sur l'historique récent des actions de l'utilisateur</instruction>
+</instructions>
 
-# Notes importantes
-- Si un utilisateur a téléchargé un document, vous le trouvez dans les sources de données disponibles.
-- La conversation peut commencer avec des questions générales sur l'AVS/AI, puis se concentrer sur un document particulier que l'utilisateur a téléchargé, puis revenir à des questions générales.
-- La conversation peut se concentrer uniquement sur un document particulier que l'utilisateur a téléchargé.
-- La conversation peut se concentrer uniquement sur des questions générales sur l'AVS/AI.
-- Si plusieurs sources pourraient répondre à la question, sélectionnez les toutes.
-- Si vous n'êtes pas sûr de la source à sélectionner, vous pouvez demander des clarifications à l'utilisateur en spécifiant "followup_required: True" dans l'objet de réponse.
-- IMPORTANT: Consultez TOUJOURS la description des sources de données disponibles pour vous aider à sélectionner la source appropriée.
-- IMPORTANT: Vous ne pouvez sélectionner des sources UNIQUEMENT parmi les sources de données disponibles.
-
-# Format de réponse
+<format_de_réponse>
 SourceSelection(
-    selected_sources: List[str] # la (ou les) source(s) de données sélectionnée (e.g. ["<file_upload_name.pdf>"], ["ahv-iv.ch"], ["eak.admin.ch", "AHV Lernbaustein 2024"], ["Praxisleitfaden FAK-EAK"], ["AKIS Online Hilfe"], etc.)
-    followup_required: bool = False # True, si des informations supplémentaires sont nécessaires pour sélectionner une source, False sinon.
-    followup_question: str = None # Question de suivi pour obtenir des informations supplémentaires si followup_required est True.
+    inferred_sources: List[str] # la/les source(s) de données sélectionnées (e.g. ["<temp:file_upload_name.pdf>"], ["ahv_iv_mementos"], ["eak.admin.ch", "ahv_lernbaustein_2024", "fedlex"], ["akis"], etc.)
 )
+</format_de_réponse>
 
-# Exemples
-Si un utilisateur a téléchargé un document et semble vouloir interroger le contenu de ce document, vous devez sélectionner ce document comme source.
-Si un utilisateur pose des questions générales (grand public) sur l'AVS/AI, vous pouvez sélectionner "ahv-iv.ch" comme source.
-Si un utilisateur pose des questions spécifiques (professionnelles) sur l'AVS/AI, vous pouvez sélectionner "AHV Lernbaustein 2024" comme source.
-Si un utilisateur pose des questions spécifiques (professionnelles) sur les procédures des allocations familiales, vous pouvez sélectionner "Praxisleitfaden FAK-EAK" comme source.
-Si un utilisateur pose des questions spécifiques à l'Eidgenössische Ausgleichskasse (EAK), vous pouvez sélectionner "eak.admin.ch" comme source.
-Si un utilisateur pose des questions très spécifiques sur l'outil AKIS, vous pouvez sélectionner "rag_test_data_tags_lang_org.csv" comme source.
+<exemples>
+    <exemple>Si un utilisateur a récemment téléchargé un document dans <historique_de_conversation> et semble vouloir interroger le contenu de ce document, vous devez sélectionner ce document comme source.</exemple>
+<exemples>
 
-# Question
-{query}
-
-# Intention
-{intent}
-
-# Thème
-{tags}
-
-# Historique de conversation
-{conversational_memory}
-
-# Sources de données disponibles
+<sources>
 {sources}
-"""
+<sources>
+
+<intention>
+{intent}
+</intention>
+
+<historique_de_conversation>
+{conversational_memory}
+</historique_de_conversation>
+
+<question>
+{query}
+</question>"""
 
 
 SOURCE_SELECTION_PROMPT_IT = """# Compito
 """
 
 
+TAGS_SELECTION_PROMPT_DE = """"""
+
+
+TAGS_SELECTION_PROMPT_FR = """<instructions>
+    <instruction>Votre tâche consiste à sélectionner un ou plusieurs <tags> appropriés pour affiner la recherche de documents<instructions>
+    <instructions>Basez votre sélection en fonction de la <question>, l'<intention>, l'<historique_de_conversation>, les <sources> et la liste de <tags> et leur description</instruction>
+    <instruction>Basez votre sélection sur l'historique récent des actions de l'utilisateur</instruction>
+</instructions>
+
+<format_de_réponse>
+TagSelection(
+    inferred_tags: List[str] = None # le/les tags sélectionnés (e.g. ["actuarial bases", "actuary"], ["ability to work/inability to work"], ["ahv number (insurance number)", "allowance for working pensioners", "early retirement pension withdrawal"], None, etc.)
+)
+</format_de_réponse>
+
+<exemples>
+<exemples>
+
+<tags>
+{tags}
+<tags>
+
+<sources>
+{sources}
+<sources>
+
+<intention>
+{intent}
+</intention>
+
+<historique_de_conversation>
+{conversational_memory}
+</historique_de_conversation>
+
+<question>
+{query}
+</question>"""
+
+
+TAGS_SELECTION_PROMPT_IT = """"""
+
+
 AGENT_HANDOFF_PROMPT_DE = """# Aufgabe
 """
 
 
-AGENT_HANDOFF_PROMPT_FR = """# Tâche
-Votre tâche consiste à sélectionner l'agent approprié pour répondre à la question de l'utilisateur. Vous devez baser votre décision en fonction:
-- de la question de l'utilisateur
-- de l'intention de l'utilisateur
-- des thèmes
-- de l'historique de conversation
-- des agents à disposition
+AGENT_HANDOFF_PROMPT_FR = """<instructions>
+    <instruction>sélectionnez l'agent approprié pour répondre à la question de l'utilisateur en fonction des métadonnées ci-dessous et des <agents> à disposition</instruction>
+</instructions>
 
-# Format de réponse
-AgentHandoff(
-    agent: str # le nom de l'agent approprié pour répondre à la question.
-)
+<format_de_réponse>
+    AgentHandoff(
+        agent: str # le nom de l'agent approprié pour répondre à la question.
+    )
+</format_de_réponse>
 
-## Agents à disposition
-- RAG_AGENT: répond aux questions générales sur:
-    - Assurance Vieillesse (AVS)
-    - Assurance Invalidité (AI)
-    - Prestations Complémentaires (PC)
-    - Prestations Transitoires (PT)
-    - Prestations du régime des Assurance Perte de Gain (APG), Assurance Maternité (AMat), Allocations à l'Autre Parent (AAP), Allocations de Prise en Charge (APC), Allocations d'Adoption (AAdop)
-    - Allocations familiales (AF)
-    - Autres types d'assurance sociale
-    - International
-    - Cotisations, prestations, droit, etc.
-- PENSION_AGENT: répond seulement aux calculs mathématiques spécifiques à la retraite, particulièrement:
-    - le calcul du taux de réduction et du supplément de rente pour les femmes de la génération transitoire (1961-1969)
-    - le calcul d'estimation de la rente vieillesse
-    - le calcul de l'âge de référence (âge auquel une personne perçoit sa rente de vieillesse)
-- FAK_EAK_AGENT: répond aux question sur les allocations familiales, particulièrement:
-    - la détermination (calcul) de quel parent perçoit les allocations familiales
-- APG_AGENT: répond aux questions sur les allocations pour perte de gain
-    - la détermination (calcul) de l'indemnité journalière APG en fonction du service (service militaire, service civil, etc.)
-    - la détermination (calcul) de l'indemnité journalière AMat (allocations de maternité)
+<agents>
+    CHAT_AGENT: résumer une conversation
+    CHAT_AGENT: traduire une conversation
 
-# Exemples
-Pour des questions générales relatives à l'AVS/AI -> RAG_AGENT
-Comment déterminer mon droit aux prestations complémentaires? -> RAG_AGENT
-Quelles sont les conditions pour bénéficier d'une rente AI? -> RAG_AGENT
-Quand des prestations complémentaires sont-elles versées ? -> RAG_AGENT
-Quand le droit à une rente de vieillesse prend-il naissance ? -> RAG_AGENT
-Qu'est-ce qui change avec AVS 21? -> RAG_AGENT
-Que signifie l'âge de la retraite flexible ? -> RAG_AGENT
+    RAG_AGENT: questions factuelles simples
+    RAG_AGENT: questions multipartites (plusieurs sous questions)
+    RAG_AGENT: questions générales relatives à l'AVS/AI
 
-Pour des questions très spécifiques (individualisées) concernant les calculs de taux de réduction et de suppléments de rente liés au départ à la retraite et la perception de rentes vieillesse -> PENSION_AGENT
-Je suis née le 1962.31.12, je souhaite prendre ma retraite le 01.01.2025 et mon revenu annuel est d'environ 55'000 CHF. Quel est mon taux de réduction ? -> PENSION_AGENT
-Quel sera mon taux de réduction si je suis née le 1965-11-07, je souhaite prendre ma retraite le 2026-04-15 et mon revenu annuel est de 76200 ? -> PENSION_AGENT
-Voici mes informations: date de naissance le 03.01.1968 et je pars à la retraite en 2027. Je gagne environ 90000 CHF par an. Puis-je bénéficier d'un supplément ou taux de réduction ? -> PENSION_AGENT
-Pour des questions très spécifiques (individualisées) concernant le calcul de l'âge de référence pour les femmes de la génération transitoire (1961-1969) -> PENSION_AGENT
-Je suis une femme née en 1960, quel est mon âge de référence ? -> PENSION_AGENT
-Je suis née le 01.01.1962, quel sera mon âge de référence ? -> PENSION_AGENT
-Je suis une femme, née le 12.02.1960. A quel âge puis-je prendre ma retraite ? -> PENSION_AGENT
+    PENSION_AGENT: questions sur le calcul du taux de réduction lié au départ à la retraite
+    PENSION_AGENT: questions sur le calcul de supplément de rente lié au départ à la retraite
+</agents>
 
-À partir de quand puis-je anticiper la perception de ma rente de vieillesse ? -> PENSION_AGENT
+<exemples>
+    Résume moi la converation -> CHAT_AGENT
+    Résume moi le dernier message de notre discussion -> CHAT_AGENT
+    Traduis cette conversation en allemand -> CHAT_AGENT
+    Traduis ce message en italien -> CHAT_AGENT
+    Je suis née le 1962.31.12, je souhaite prendre ma retraite le 01.01.2025 et mon revenu annuel est d'environ 55'000 CHF. Quel est mon taux de réduction ? -> PENSION_AGENT
+    Quel sera mon taux de réduction si je suis née le 1965-11-07, je souhaite prendre ma retraite le 2026-04-15 et mon revenu annuel est de 76200 ? -> PENSION_AGENT
+    Voici mes informations: date de naissance le 03.01.1968 et je pars à la retraite en 2027. Je gagne environ 90000 CHF par an. Puis-je bénéficier d'un supplément ou taux de réduction ? -> PENSION_AGENT
+</exemples>
 
-Pour des questions sur les allocations familiales -> FAK_EAK_AGENT
-Quels types d’allocations familiales sont versés ? -> FAK_EAK_AGENT
-À combien s’élèvent les allocations familiales ? -> FAK_EAK_AGENT
-Les allocations sont-elles déterminées en fonction du canton de domicile ou du canton de travail ? -> FAK_EAK_AGENT
-Qui a droit aux allocations familiales ? -> FAK_EAK_AGENT
-Quel parent perçoit les allocations familiales ? -> FAK_EAK_AGENT
-Comment pouvez-vous faire valoir votre droit aux allocations familiales auprès de la Caisse d’allocations familiales de la Caisse fédérale de compensation (CAF-CFC) ? -> FAK_EAK_AGENT
-Comment pouvez-vous prolonger un droit existant aux allocations de formation ? -> FAK_EAK_AGENT
-Comment sont versées les allocations familiales de la caisse d’allocations familiales de la Caisse fédérale de compensation ? -> FAK_EAK_AGENT
-
-# Question
+<question>
 {query}
+</question>
 
-# Intention
+<intention>
 {intent}
+</intention>
 
-# Thème
+<tags>
 {tags}
+</tags>
 
-# Historique de conversation
-{conversational_memory}"""
+<source>
+{sources}
+</sources>
+
+<historique_de_conversation>
+{conversational_memory}
+</historique_de_conversation>"""
 
 AGENT_HANDOFF_PROMPT_IT = """# Compito"""
 
@@ -492,27 +485,47 @@ Hier sind meine Informationen: Geburtsdatum 03.01.1968 und ich werde 2027 in Ren
 # Frage
 {query}"""
 
-PENSION_FUNCTION_CALLING_PROMPT_FR = """# Tâche
-Votre tâche consiste à appeler la fonction appropriée pour répondre à la question posée par l'utilisateur. Vous devez analyser la question et extraire/formatter les paramètres nécessaires pour appeler la fonction choisie.
+PENSION_FUNCTION_CALLING_PROMPT_FR = """<instructions>
+    <instruction>Sélectionnez le <nom> de la fonction appropriée parmis les <fonctions_disponibles> pour répondre à la <question> posée par l'utilisateur</instruction>
+    <instruction>Vous devez analyser la question et extraire/formatter les paramètres nécessaires pour appeler correctement la fonction choisie</instruction>
+</instructions>
 
-# Fonctions disponibles
-- determine_reduction_rate_and_supplement: Calcule le taux de réduction et le supplément pour les femmes de la génération de transition
-- estimate_pension: Estime la rente de vieillesse
-- determine_reference_age: Détermine l'âge de référence (âge auquel une personne perçoit sa rente de vieillesse)
+<fonctions_disponibles>
+    <fonction>
+        <nom>determine_reduction_rate_and_supplement</nom>
+        <description>calcule le taux de réduction et le supplément pour les femmes de la génération transitoire</description>
+    </fonction>
+    <fonction>
+        <nom>summarize_conversation</nom>
+        <description>résume le texte d'une conversation</description>
+    </fonction>
+    <fonction>
+        <nom>translate_conversation</nom>
+        <description>traduit le texte d'une conversation dans une langue cible</description>
+    </fonction>
+</fonctions_disponibles>
 
-# Signature de la fonction
-{func_metadata}
+<function_signature>
+    {func_metadata}
+</function_signature>
 
-# Format de réponse
-function_name(param1, param2, ...)
+<response_format>
+    function_name(param1, param2, ...)
+<response_format>
 
-# Exemples
-Je suis née le 1962.31.12, je souhaite prendre ma retraite le 01.01.2025 et mon revenu annuel est d'environ 55'000 CHF. Quel est mon taux de réduction ? -> calculate_reduction_rate_and_supplement("1962-12-31", "2025-01-01", 55000.0)
-Quel sera mon taux de réduction si je suis née le 1965-11-07, je souhaite prendre ma retraite le 2026-04-15 et mon revenu annuel est de 76200 ? -> calculate_reduction_rate_and_supplement("1965-11-07", "2026-04-15", 76200.0)
-Voici mes informations: date de naissance le 03.01.1968 et je pars à la retraite en 2027. Je gagne environ 90000 CHF par an. Puis-je bénéficier d'un supplément ou taux de réduction ? -> calculate_reduction_rate_and_supplement("1968-01-03", "2027-01-01", 90000.0)
+<exemples>
+    <exemple>Je suis née le 1962.31.12, je souhaite prendre ma retraite le 01.01.2025 et mon revenu annuel est d'environ 55'000 CHF. Quel est mon taux de réduction ? -> calculate_reduction_rate_and_supplement("1962-12-31", "2025-01-01", 55000.0)</exemple>
+    <exemple>Quel sera mon taux de réduction si je suis née le 1965-11-07, je souhaite prendre ma retraite le 2026-04-15 et mon revenu annuel est de 76200 ? -> calculate_reduction_rate_and_supplement("1965-11-07", "2026-04-15", 76200.0)</exemple>
+    <exemple>Voici mes informations: date de naissance le 03.01.1968 et je pars à la retraite en 2027. Je gagne environ 90000 CHF par an. Puis-je bénéficier d'un supplément ou taux de réduction ? -> calculate_reduction_rate_and_supplement("1968-01-03", "2027-01-01", 90000.0)</exemple>
+    <exemple>Résume le dernier message -> summarize_conversation()</exemple>
+    <exemple>Résume la conversation -> summarize_conversation()</exemple>
+    <exemple>Traduis le dernier message en anglais -> translate_conversation()</exemple>
+    <exemple>Traduis la conversation en français -> translate_conversation()</exemple>
+</exemples>
 
-# Question
-{query}"""
+<question>
+    {query}
+</question>"""
 
 PENSION_FUNCTION_CALLING_PROMPT_IT = """# Compito
 Il compito consiste nel chiamare la funzione appropriata per rispondere alla domanda posta dall'utente. Dovete analizzare la domanda ed estrarre/formattare i parametri necessari per chiamare la funzione scelta.

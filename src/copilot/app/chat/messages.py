@@ -2,6 +2,10 @@ from typing import List, Dict, Union
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
+from utils.logging import get_logger
+
+logger = get_logger(__name__)
+
 from prompts.memory import (
     SUMMARY_MEMORY_PROMPT_DE,
     SUMMARY_MEMORY_PROMPT_FR,
@@ -51,6 +55,9 @@ from prompts.agents import (
     SOURCE_SELECTION_PROMPT_DE,
     SOURCE_SELECTION_PROMPT_FR,
     SOURCE_SELECTION_PROMPT_IT,
+    TAGS_SELECTION_PROMPT_DE,
+    TAGS_SELECTION_PROMPT_FR,
+    TAGS_SELECTION_PROMPT_IT,
     AGENT_HANDOFF_PROMPT_DE,
     AGENT_HANDOFF_PROMPT_FR,
     AGENT_HANDOFF_PROMPT_IT,
@@ -110,7 +117,11 @@ from config.llm_config import (
 )
 
 from database.database import get_db
-from settings_api import get_tags_descriptions, get_source_descriptions
+from settings_api import (
+    get_tags_descriptions,
+    get_source_descriptions,
+    get_intentions_descriptions,
+)
 
 from langfuse.decorators import observe
 
@@ -169,6 +180,12 @@ class MessageBuilder:
         "de": SOURCE_SELECTION_PROMPT_DE,
         "fr": SOURCE_SELECTION_PROMPT_FR,
         "it": SOURCE_SELECTION_PROMPT_IT,
+    }
+
+    _TAGS_SELECTION_PROMPT = {
+        "de": TAGS_SELECTION_PROMPT_DE,
+        "fr": TAGS_SELECTION_PROMPT_FR,
+        "it": TAGS_SELECTION_PROMPT_IT,
     }
 
     _AGENT_HANDOFF_PROMPT = {
@@ -546,7 +563,6 @@ class MessageBuilder:
         llm_model: str,
         query: str,
         conversational_memory: str,
-        documents: str,
         db: Session = Depends(get_db),
     ) -> Union[List[Dict], str]:
         """
@@ -563,10 +579,20 @@ class MessageBuilder:
             + SUPPORTED_LLAMACPP_LLM_MODELS
         ):
 
-            tags = await get_tags_descriptions(db, language)
-            formatted_tags = "\n".join([f"{tag[0]}: {tag[1]}" for tag in tags])
+            # tags = await get_tags_descriptions(db, language)
+            # formatted_tags = "\n".join([f"{tag[0]}: {tag[1]}" for tag in tags])
+
+            # sources = await get_source_descriptions(db)
+            # formatted_sources = "\n".join([f"{source['url']}: {source['description']}" for source in sources])
+
+            intentions = await get_intentions_descriptions(db, language)
+            formatted_intentions = "\n".join(
+                [f"{intent[0]}: {intent[1]}" for intent in intentions]
+            )
+
             # TO DO: check duplicates
             # better formatting and prompt instruction
+
             intent_detection_system_prompt = self._INTENT_DETECTION_PROMPT.get(
                 language,
                 self._INTENT_DETECTION_PROMPT.get(self._DEFAULT_LANGUAGE),
@@ -574,8 +600,7 @@ class MessageBuilder:
             intent_detection_system_prompt = (
                 intent_detection_system_prompt.format(
                     conversational_memory=conversational_memory,
-                    documents=documents,
-                    tags=formatted_tags,
+                    intentions=formatted_intentions,
                     query=query,
                 )
             )
@@ -592,7 +617,6 @@ class MessageBuilder:
         llm_model: str,
         query: str,
         intent: str,
-        tags: List[str],
         conversational_memory: str,
         db: Session = Depends(get_db),
     ) -> Union[List[Dict], str]:
@@ -619,13 +643,55 @@ class MessageBuilder:
                 source_selection_system_prompt.format(
                     query=query,
                     intent=intent,
-                    tags=tags,
                     conversational_memory=conversational_memory,
                     sources=sources,
                 )
             )
             return [
                 {"role": "system", "content": source_selection_system_prompt},
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
+    @observe(name="MessageBuilder_build_tag_selection_prompt")
+    async def build_tag_selection_prompt(
+        self,
+        language: str,
+        llm_model: str,
+        query: str,
+        intent: str,
+        sources: List[str],
+        conversational_memory: str,
+        db: Session = Depends(get_db),
+    ) -> Union[List[Dict], str]:
+        """
+        Format the Source Selection message to send to the appropriate LLM API.
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+
+            tags = await get_tags_descriptions(db)
+            tags_selection_system_prompt = self._TAGS_SELECTION_PROMPT.get(
+                language,
+                self._TAGS_SELECTION_PROMPT.get(self._DEFAULT_LANGUAGE),
+            )
+            tags_selection_system_prompt = tags_selection_system_prompt.format(
+                query=query,
+                intent=intent,
+                sources=sources,
+                tags=tags,
+                conversational_memory=conversational_memory,
+            )
+            return [
+                {"role": "system", "content": tags_selection_system_prompt},
             ]
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
@@ -638,6 +704,7 @@ class MessageBuilder:
         query: str,
         intent: str,
         tags: List[str],
+        sources: List[str],
         conversational_memory: str,
     ) -> Union[List[Dict], str]:
         """
@@ -662,6 +729,7 @@ class MessageBuilder:
                 query=query,
                 intent=intent,
                 tags=tags,
+                sources=sources,
                 conversational_memory=conversational_memory,
             )
             return [

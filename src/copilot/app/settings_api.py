@@ -10,7 +10,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from config.project_config import ProjectConfig
 from config.network_config import CORS_ALLOWED_ORIGINS
 from database.database import get_db
-from database.models import Source, Document, Tag
+from database.models import (
+    Source,
+    Document,
+    Tag,
+    IntentDescriptions,
+    Intentions,
+)
 from config.llm_config import (
     SUPPORTED_OPENAI_LLM_MODELS,
     SUPPORTED_AZUREOPENAI_LLM_MODELS,
@@ -219,6 +225,32 @@ async def get_tags_descriptions(
     return [(tag.tag_en, tag.description) for tag in tags_descriptions]
 
 
+@app.get("/intentions/description")
+async def get_intentions_descriptions(
+    db: Session = Depends(get_db), language: str = None
+) -> List:
+    """
+    Endpoint to get all intentions descriptions from 'intentions' table in postgres based on language.
+    """
+    intentions_descriptions = (
+        db.query(Intentions, IntentDescriptions)
+        .join(
+            IntentDescriptions,
+            Intentions.id == IntentDescriptions.intention_id,
+        )
+        .all()
+    )
+
+    logger.info(
+        f"Found {len(intentions_descriptions)} intentions for language {language}"
+    )
+
+    return [
+        (intention.name, desc.description)
+        for intention, desc in intentions_descriptions
+    ]
+
+
 @app.get(
     "/llm_models",
     summary="Get llm models list",
@@ -241,12 +273,13 @@ async def get_llm_models() -> List:
         llm_models.extend(SUPPORTED_GEMINI_LLM_MODELS)
     if os.environ.get("GROQ_API_KEY", None):
         llm_models.extend(SUPPORTED_GROQ_LLM_MODELS)
-    if os.environ.get("LLM_GENERATION_ENDPOINT", None):
+    if os.environ.get("LOCAL_LLM_GENERATION_ENDPOINT", None):
         llm_models.extend(SUPPORTED_MLX_LLM_MODELS)
         llm_models.extend(SUPPORTED_LLAMACPP_LLM_MODELS)
         llm_models.extend(SUPPORTED_OLLAMA_LLM_MODELS)
 
-    return llm_models
+    # Temporary fix
+    return SUPPORTED_OPENAI_LLM_MODELS
 
 
 @app.get(

@@ -293,6 +293,30 @@ class Tag(Base):
         return serialized_data
 
 
+class Intentions(Base):
+    __tablename__ = "intentions"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String, unique=False)
+
+
+class IntentDescriptions(Base):
+    __tablename__ = "intent_descriptions"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    intention_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("intentions.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    description: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    language: Mapped[str] = mapped_column(String)
+
+
+class Workflows(Base):
+    __tablename__ = "workflows"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    workflow: Mapped[List[str]] = mapped_column(ARRAY(String), nullable=True)
+
+
 class ChatHistory(Base):
     __tablename__ = "chat_history"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -329,7 +353,7 @@ class ChatFeedback(Base):
     user_uuid: Mapped[str] = mapped_column(String)
     conversation_uuid: Mapped[str] = mapped_column(String)
     message_uuid: Mapped[str] = mapped_column(
-        String, ForeignKey("chat_history.message_uuid")
+        String, ForeignKey("chat_history.message_uuid", ondelete="CASCADE")
     )
     score: Mapped[int] = mapped_column(Integer)
     comment: Mapped[Optional[List[str]]] = mapped_column(JSON, nullable=True)

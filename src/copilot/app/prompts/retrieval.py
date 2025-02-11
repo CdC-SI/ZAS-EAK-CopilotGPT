@@ -1,7 +1,16 @@
 QUERY_REWRITING_PROMPT_DE = """Ihre Aufgabe ist es, {n_alt_queries} verschiedene Versionen der gegebenen Benutzeranfrage zu generieren, um relevante Dokumente aus einer Vektordatenbank zu finden. Indem Sie mehrere Perspektiven auf die Benutzerfrage erzeugen, wollen Sie dem Benutzer helfen, einige der Einschränkungen der entfernungsbasierten Ähnlichkeitssuche zu überwinden. Geben Sie diese alternativen Fragen IN DER GLEICHEN SPRACHE wie die URSPRÜNGLICHE FRAGE an, getrennt durch Zeilenumbrüche "\n". URSPRÜNGLICHE FRAGE: {query}"""
 
 
-QUERY_REWRITING_PROMPT_FR = """Votre tâche consiste à générer {n_alt_queries} différentes versions de la requête utilisateur donnée pour extraire les documents pertinents d'une base de données vectorielle. En générant plusieurs perspectives sur la question de l'utilisateur, votre objectif est d'aider l'utilisateur à surmonter certaines des limites de la recherche de similarité basée sur la distance. Fournissez ces questions alternatives DANS LA MÊME LANGUE que la QUESTION ORIGINALE, en les séparant par des nouvelles lignes "\n". QUESTION ORIGINALE : {query}"""
+QUERY_REWRITING_PROMPT_FR = """<instructions>
+    <instruction>Générez {n_alt_queries} reformulations différentes de la <question> fournie par l'utilisateur</instruction>
+    <instruction>L'objectif est de produire des variations capturant toutes les nuances possibles de la <question></instruction>
+    <instruction>Proposez des perspectives variées afin d'aider l'utilisateur à contourner les limites des méthodes de recherche basées sur la distance de similarité</instruction>
+    <instruction>Maintenez la même langue que celle de la <question> et séparez chaque reformulation par une nouvelle ligne ("\n")</instruction>
+</instructions>
+
+<question>
+{query}
+</question>"""
 
 
 QUERY_REWRITING_PROMPT_IT = """Il vostro compito è quello di generare {n_alt_queries} diverse versioni della domanda data dall'utente per recuperare documenti rilevanti da un database vettoriale. Generando più prospettive sulla domanda dell'utente, il vostro obiettivo è quello di aiutarlo a superare alcune delle limitazioni della ricerca per similarità basata sulla distanza. Fornire queste domande alternative NELLO STESSO LINGUAGGIO DELLA DOMANDA ORIGINALE, separate da linee nuove "\n". DOMANDA ORIGINALE: {query}"""
@@ -25,11 +34,14 @@ Wie ist das Wetter? -> Sagen Sie mir, wie das Wetter ist, ich möchte wissen, wi
 QUERY_STATEMENT_REWRITING_PROMPT_FR = """<instructions>
     <instruction>Étant donné la <question> ci-dessous, reformulez-la en plusieurs énoncés alternatifs sur un ton déclaratif</instruction>
     <instruction>Chaque déclaration reformulée doit conserver le sens de la requête originale mais l'exprimer d'une manière légèrement différente</instruction>
+    <instruction>Extrayez les principaux mots clefs/concepts de la <question></instruction>
     <instruction>Écrire {n_alt_queries} reformulations déclaratives dans la même langue que la <question>, séparés par de nouvelles lignes "\n"</instruction>
 </instructions>
 
 <exemples>
-Quel temps fait-il ? -> Dites-moi quel temps il fait, j'aimerais connaître le temps qu'il fait.
+Comment obtenir un extrait du compte individuel ? -> Explique moi comment obtenir un extrait du compte individuel
+Que signifie le splitting ? -> Le splitting expliqué
+Que signifie l'âge de la retraite flexible ? -> age de la retraite flexible
 </exemples>
 
 <question>
