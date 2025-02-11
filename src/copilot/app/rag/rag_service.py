@@ -218,11 +218,8 @@ class RAGService:
         async for token in streaming_handler.generate_stream(event_stream):
             yield token
 
-        # TO DO: update this
         sources["documents"] = validated_docs
-        sources["source_url"] = (
-            validated_sources[0] if validated_sources else None
-        )
+        sources["source_urls"] = validated_sources
 
     @observe()
     async def process_agentic_rag(

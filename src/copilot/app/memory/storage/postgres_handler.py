@@ -24,7 +24,7 @@ class PostgresMemoryHandler(DatabaseStorage):
             message_uuid=message.message_uuid,
             role=role,
             message=message.message,
-            url=message.url,
+            sources=message.sources,
             language=message.language,
             faq_id=message.faq_id,
             retrieved_docs=message.retrieved_doc_ids,

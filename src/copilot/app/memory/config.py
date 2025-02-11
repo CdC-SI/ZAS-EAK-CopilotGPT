@@ -32,7 +32,7 @@ class RedisConfig:
 
 @dataclass
 class StorageConfig:
-    redis: RedisConfig = RedisConfig()
+    redis: RedisConfig = field(default_factory=RedisConfig)
 
 
 @dataclass

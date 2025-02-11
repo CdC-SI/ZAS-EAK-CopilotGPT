@@ -68,10 +68,10 @@ def get_engine(
             print("Database connection established.")
             return engine
 
-        except Exception:
+        except Exception as e:
             attempt += 1
             print(
-                f"Attempt {attempt} failed: Database is not ready. Retrying in {delay} seconds..."
+                f"Attempt {attempt} failed {e}. Database is not ready. Retrying in {delay} seconds..."
             )
             time.sleep(delay)
     raise Exception(
