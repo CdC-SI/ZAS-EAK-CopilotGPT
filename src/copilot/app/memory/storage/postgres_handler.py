@@ -80,7 +80,7 @@ class PostgresMemoryHandler(DatabaseStorage):
                     message_uuid=msg.message_uuid,
                     role=msg.role,
                     message=msg.message,
-                    url=msg.url,
+                    sources=msg.sources,
                     language=msg.language,
                     faq_id=msg.faq_id,
                     retrieved_doc_ids=msg.retrieved_docs,
