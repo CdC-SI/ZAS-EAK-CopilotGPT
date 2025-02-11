@@ -1,5 +1,5 @@
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional, Dict, Any
 
 from utils.logging import get_logger
@@ -32,7 +32,7 @@ class RedisConfig:
 
 @dataclass
 class StorageConfig:
-    redis: RedisConfig = RedisConfig()
+    redis: RedisConfig = field(default_factory=RedisConfig)
 
 
 @dataclass

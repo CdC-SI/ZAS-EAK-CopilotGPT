@@ -110,7 +110,7 @@ class ChatBot:
         request: ChatRequest,
         assistant_response: List[str],
         documents: List[Dict],
-        source_url: str,
+        source_urls: List[str],
         user_message_uuid: str = None,
         assistant_message_uuid: str = None,
     ):
@@ -152,7 +152,7 @@ class ChatBot:
             role="assistant",
             message=assistant_response,
             language=request.language,
-            url=source_url,
+            sources=source_urls,
             retrieved_doc_ids=retrieved_doc_ids,
         )
         self.memory_service.chat_memory.add_message_to_memory(
@@ -250,7 +250,7 @@ class ChatBot:
         ) = self._initialize_components(request)
 
         assistant_response = []
-        sources = {"documents": [], "source_url": None}
+        sources = {"documents": [], "source_urls": []}
 
         # Query validation
         is_on_topic = True
@@ -345,7 +345,7 @@ class ChatBot:
             request,
             assistant_response_text,
             sources["documents"],
-            sources["source_url"],
+            sources["source_urls"],
             user_message_uuid,
             assistant_message_uuid,
         )
