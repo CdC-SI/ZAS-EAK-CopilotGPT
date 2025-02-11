@@ -63,7 +63,7 @@ async def create_source_descriptions() -> None:
                 source_name=source.url,
                 docs=combined_text,
             )
-            source_description = await llm_client.chat.completions.create(
+            llm_description = await llm_client.chat.completions.create(
                 model=rag_config["llm"]["model"],
                 stream=False,
                 temperature=0,
@@ -73,10 +73,15 @@ async def create_source_descriptions() -> None:
             )
 
             # Update source description in database
-            source.description = (
-                "**USER UPLOADED DOCUMENT:** "
-                + source_description.choices[0].message.content
+            description = (
+                (
+                    "**USER UPLOADED DOCUMENT:** "
+                    + llm_description.choices[0].message.content
+                )
+                if source.url.startswith("user_pdf_upload")
+                else llm_description.choices[0].message.content
             )
+            source.description = description
             db.commit()
 
             logger.info(f"Updated source description for {source.url}")
