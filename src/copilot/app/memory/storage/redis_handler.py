@@ -144,11 +144,22 @@ class RedisMemoryHandler(BaseStorage):
 
         for message in messages:
             if message.role == MessageRole.USER:
+                # If there's an existing turn with only a user message, add it to turns
+                if (
+                    current_turn
+                    and current_turn.user_message
+                    and not current_turn.assistant_message
+                ):
+                    turns.append(current_turn)
                 current_turn = ConversationTurn(user_message=message)
             elif message.role == MessageRole.ASSISTANT and current_turn:
                 current_turn.assistant_message = message
                 turns.append(current_turn)
                 current_turn = None
+
+        # Add the last turn if it only contains a user message
+        if current_turn and current_turn.user_message:
+            turns.append(current_turn)
 
         # Apply k_memory limit
         if k_memory != -1:
