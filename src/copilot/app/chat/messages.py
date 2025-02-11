@@ -587,7 +587,10 @@ class MessageBuilder:
 
             intentions = await get_intentions_descriptions(db, language)
             formatted_intentions = "\n".join(
-                [f"{intent[0]}: {intent[1]}" for intent in intentions]
+                [
+                    f"{intent['name']}: {intent['description']}"
+                    for intent in intentions
+                ]
             )
 
             # TO DO: check duplicates
@@ -635,6 +638,12 @@ class MessageBuilder:
         ):
 
             sources = await get_source_descriptions(db)
+            formatted_sources = "\n\n".join(
+                [
+                    f"**{source['url']}**: {source['description']}"
+                    for source in sources
+                ]
+            )
             source_selection_system_prompt = self._SOURCE_SELECTION_PROMPT.get(
                 language,
                 self._SOURCE_SELECTION_PROMPT.get(self._DEFAULT_LANGUAGE),
@@ -644,7 +653,7 @@ class MessageBuilder:
                     query=query,
                     intent=intent,
                     conversational_memory=conversational_memory,
-                    sources=sources,
+                    sources=formatted_sources,
                 )
             )
             return [
@@ -678,7 +687,10 @@ class MessageBuilder:
             + SUPPORTED_LLAMACPP_LLM_MODELS
         ):
 
-            tags = await get_tags_descriptions(db)
+            tags = await get_tags_descriptions(db, language)
+            formatted_tags = "\n".join(
+                [f"**{tag['name']}**: {tag['description']}" for tag in tags]
+            )
             tags_selection_system_prompt = self._TAGS_SELECTION_PROMPT.get(
                 language,
                 self._TAGS_SELECTION_PROMPT.get(self._DEFAULT_LANGUAGE),
@@ -687,7 +699,7 @@ class MessageBuilder:
                 query=query,
                 intent=intent,
                 sources=sources,
-                tags=tags,
+                tags=formatted_tags,
                 conversational_memory=conversational_memory,
             )
             return [
@@ -780,7 +792,12 @@ class MessageBuilder:
 
     @observe(name="MessageBuilder_build_query_rewriting_prompt")
     def build_query_rewriting_prompt(
-        self, language: str, llm_model: str, n_alt_queries: int, query: str
+        self,
+        language: str,
+        llm_model: str,
+        n_alt_queries: int,
+        query: str,
+        conversational_memory: str,
     ) -> List[Dict]:
         """
         Format the Query Rewriting message to send to the appropriate LLM API.
@@ -801,7 +818,9 @@ class MessageBuilder:
             )
             query_rewriting_system_prompt = (
                 query_rewriting_system_prompt.format(
-                    n_alt_queries=n_alt_queries, query=query
+                    n_alt_queries=n_alt_queries,
+                    query=query,
+                    conversational_memory=conversational_memory,
                 )
             )
             return [
@@ -812,7 +831,12 @@ class MessageBuilder:
 
     @observe(name="MessageBuilder_build_query_statement_rewriting_prompt")
     def build_query_statement_rewriting_prompt(
-        self, language: str, llm_model: str, n_alt_queries: int, query: str
+        self,
+        language: str,
+        llm_model: str,
+        n_alt_queries: int,
+        query: str,
+        conversational_memory: str,
     ) -> List[Dict]:
         """
         Format the Query Statement Rewriting message to send to the appropriate LLM API.
@@ -837,7 +861,9 @@ class MessageBuilder:
             )
             query_statement_rewriting_system_prompt = (
                 query_statement_rewriting_system_prompt.format(
-                    n_alt_queries=n_alt_queries, query=query
+                    n_alt_queries=n_alt_queries,
+                    query=query,
+                    conversational_memory=conversational_memory,
                 )
             )
             return [
