@@ -1,6 +1,6 @@
 import logging
 from enum import Enum
-from typing import List, Dict
+from typing import List, Dict, AsyncGenerator
 import asyncio
 from asyncio import Semaphore
 from collections.abc import AsyncIterator
@@ -112,7 +112,7 @@ class ChatAgent(BaseAgent):
         message_builder: MessageBuilder,
         llm_client: BaseLLM,
         **kwargs,
-    ):
+    ) -> AsyncGenerator[Token, None]:
         """
         Process the query with Chat agent.
         """
@@ -161,7 +161,7 @@ class PensionAgent(BaseAgent):
         message_builder: MessageBuilder,
         llm_client: BaseLLM,
         **kwargs,
-    ):
+    ) -> AsyncGenerator[Token, None]:
         """
         Process the query with Pension agent.
         """
@@ -219,7 +219,7 @@ class RAGAgent(BaseAgent):
         message_builder: MessageBuilder,
         llm_client: BaseLLM,
         **kwargs,
-    ):
+    ) -> AsyncGenerator[Token, None]:
         """
         Process the query with RAG agent.
         """
@@ -256,7 +256,7 @@ class SourceValidatorAgent(BaseAgent):
         message_builder: MessageBuilder,
         llm_client: BaseLLM,
         **kwargs,
-    ):
+    ) -> AsyncGenerator[Token, None]:
         """
         Process the query with Source Validator agent.
         """
