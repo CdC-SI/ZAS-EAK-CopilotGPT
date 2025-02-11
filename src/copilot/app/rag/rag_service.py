@@ -13,7 +13,7 @@ from schemas.embedding import EmbeddingRequest
 from agents.query_orchestrator import (
     infer_intent,
     infer_sources,
-    infer_tags,
+    # infer_tags,
     select_agent,
     run_agent,
 )
@@ -108,12 +108,13 @@ class RAGService:
         embedding = await get_embedding(text_input.text)
         return {"data": embedding}
 
-    @observe()
+    @observe(name="RAG_service_retrieve")
     async def retrieve(
         self,
         db: Session,
         request: ChatRequest,
         retriever_client: RetrieverClient,
+        conversational_memory: str,
     ):
         """
         Retrieve context documents related to the user input question.
@@ -131,6 +132,7 @@ class RAGService:
             user_uuid=request.user_uuid,
             k_retrieve=request.k_retrieve,
             llm_model=request.llm_model,
+            conversational_memory=conversational_memory,
         )
 
         return rows if len(rows) > 0 else [{"id": "", "text": "", "url": ""}]
@@ -158,7 +160,20 @@ class RAGService:
             f"<retrieval>{status_service.get_status_message(StatusType.RETRIEVAL, request.language)}</retrieval>"
         )
 
-        documents = await self.retrieve(db, request, retriever_client)
+        conversational_memory = (
+            await (
+                memory_service.chat_memory.get_formatted_conversation(
+                    db,
+                    request.user_uuid,
+                    request.conversation_uuid,
+                    request.k_memory,
+                )
+            )
+        )
+
+        documents = await self.retrieve(
+            db, request, retriever_client, conversational_memory
+        )
 
         validated_docs = []
         validated_sources = []
@@ -187,17 +202,6 @@ class RAGService:
                 f"<doc_{i}>{doc['text']}</doc_{i}>"
                 for i, doc in enumerate(validated_docs, start=1)
             ]
-        )
-
-        conversational_memory = (
-            await (
-                memory_service.chat_memory.get_formatted_conversation(
-                    db,
-                    request.user_uuid,
-                    request.conversation_uuid,
-                    request.k_memory,
-                )
-            )
         )
 
         messages = message_builder.build_chat_prompt(
@@ -246,12 +250,15 @@ class RAGService:
             )
         )
 
+        logger.info("----- CONVERSATIONAL MEMORY: %s", conversational_memory)
+
         # Intent detection
         # TO DO: perform retrieval to get context docs
         # TO DO: format docs
         # documents = await self.retrieve(db, request, retriever_client)
         # formatted_docs = "\n\n".join([doc["text"] for doc in documents])
 
+        # TO DO: yield status message
         (inferred_intent, followup_question) = await infer_intent(
             db=db,
             message_builder=message_builder,
@@ -265,8 +272,15 @@ class RAGService:
             yield Token.from_text(followup_question)
             return
 
+        # Workflow selection
+        # TO DO: implement workflow steps
+        # if step is user_followup_q -> don't do retrieval, only lookup conv memory
+        # if step is factual_qa -> rag_agent
+        # if step is ...
+
         # Source detection
         # Need user actions (eg pdf upload) added to chat history/conversational memory
+        # TO DO: yield status message
         if not request.source:
             inferred_sources = await infer_sources(
                 db=db,
@@ -279,17 +293,19 @@ class RAGService:
             request.source = inferred_sources
 
         # Tags detection
+        # TO DO: yield status message
         if not request.tags:
-            inferred_tags = await infer_tags(
-                db=db,
-                message_builder=message_builder,
-                llm_client=llm_client,
-                request=request,
-                inferred_intent=inferred_intent,
-                inferred_sources=inferred_sources,
-                conversational_memory=conversational_memory,
-            )
-            request.tags = inferred_tags
+            # inferred_tags = await infer_tags(
+            #     db=db,
+            #     message_builder=message_builder,
+            #     llm_client=llm_client,
+            #     request=request,
+            #     inferred_intent=inferred_intent,
+            #     inferred_sources=inferred_sources,
+            #     conversational_memory=conversational_memory,
+            # )
+            # request.tags = inferred_tags
+            request.tags = None
 
         # Agent handoff
         agent = await select_agent(
@@ -300,7 +316,11 @@ class RAGService:
             inferred_intent,
         )
 
-        logger.info("Selected Agent: %s", agent)
+        yield Token.from_status(
+            f"<agent_handoff>{status_service.get_status_message(StatusType.AGENT_HANDOFF, request.language, agent_name=agent.name)}</agent_handoff>"
+        )
+
+        logger.info("Selected Agent: %s", agent.name)
 
         async for token in run_agent(
             db=db,
