@@ -1,4 +1,4 @@
-from typing import Tuple, List, Dict, Union, AsyncGenerator
+from typing import Tuple, List, Dict, AsyncGenerator
 from sqlalchemy.orm import Session
 
 from rag.retrievers import RetrieverClient
@@ -13,9 +13,8 @@ from schemas.agents import (
     TagSelection,
 )
 from utils.streaming import Token
-from chat.status_service import status_service, StatusType
 from utils.streaming import StreamingHandler
-from agents import AgentFactory
+from agents import AgentFactory, RAGAgent
 from agents.base import BaseAgent
 from utils.logging import get_logger
 
@@ -160,7 +159,7 @@ async def select_agent(
     llm_client: BaseLLM,
     conversational_memory: str,
     inferred_intent: str,
-) -> AsyncGenerator[Union[BaseAgent, Token], None]:
+) -> BaseAgent:
     """
     Select an agent to handle the user query.
     """
@@ -185,7 +184,7 @@ async def select_agent(
         )
     except Exception as e:
         logger.info("Exception occured when selecting agent: %s", e)
-        yield "An error occured, please try again later."
+        return RAGAgent()
 
     agent_name = (
         res.choices[0].message.parsed.agent
@@ -193,13 +192,9 @@ async def select_agent(
         else "RAG_AGENT"
     )
 
-    yield Token.from_status(
-        f"<agent_handoff>{status_service.get_status_message(StatusType.AGENT_HANDOFF, request.language, agent_name=agent_name)}</agent_handoff>"
-    )
-
     agent = AgentFactory.get_agent(agent_name)
 
-    yield agent
+    return agent
 
 
 @observe(name="run_agent")
