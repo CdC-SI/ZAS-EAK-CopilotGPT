@@ -1,87 +1,27 @@
-INTENT_DETECTION_PROMPT_DE = """# Aufgabe
-Ihre Aufgabe besteht darin:
-- die Absicht des Nutzers auf der Grundlage der gestellten Frage und des Gesprächsverlaufs zu ermitteln
-- auf der Grundlage der Fragestellung und der verfügbaren Themen zu bestimmen, welche Themen für die Suche nach Dokumenten ausgewählt werden sollen.
-- den geeigneten Agenten auf der Grundlage der Absicht und des Themas (der Themen) auswählen.
-- entscheiden, ob zusätzliche Informationen oder Klarstellungen erforderlich sind, um die Absicht des Nutzers genau zu identifizieren. WICHTIG: Sehen Sie sich die verfügbaren Dokumente UND die verfügbaren Themen an, um festzustellen, ob eine Klärung erforderlich ist oder nicht. Wenn ein Dokument oder ein Thema die Frage beantworten kann, stellen Sie keine Folgefrage.
+INTENT_DETECTION_PROMPT_DE = """<anweisungen>
+    <anweisung>bestimmen Sie die Absicht des Nutzers<anweisung>
+    <anweisung>begründen Sie Ihre Entscheidung anhand der gestellten <frage>, der letzten Gesprächsrunden in der <gesprächverlauf> und der zur Verfügung stehenden <intentionen></anweisung>
+    <anweisung>Entwerfen Sie NUR dann eine Anschlussfrage, wenn die <frage> nicht in den <intentionen> zur Verfügung kategorisiert werden kann</anweisung>
+<anweisungen>
 
-# Wichtige Anmerkungen
-Die Absicht des Nutzers kann allgemein oder spezifisch sein.
-Zum Beispiel eine Frage zu Themen im Zusammenhang mit AHV/IV, Kindergeld, Erwerbsausfallentschädigung, Mutterschaftsgeld usw. stellen.
-Zum Beispiel eine sehr spezifische Frage zu einer Berechnung stellen, die sich auf die persönliche Situation des Nutzers bezieht (Alter, Einkommen usw.).
-Wenn Sie eine Folgefrage stellen müssen, stellen Sie sie AUF DEUTSCH!!!
-WICHTIG: Stellen Sie nur eine Anschlussfrage, wenn die Frage sehr vage formuliert ist ODER wenn die Frage mithilfe der verfügbaren Dokumente/Themen nicht (oder nur teilweise) beantwortet werden kann. Wenn sich die Frage auf das Thema AHV/IV im Allgemeinen bezieht, stellen Sie keine Anschlussfrage.
-
-## Agenten
-- RAG_AGENT: Beantwortet allgemeine Fragen zu:
-    - Alters- und Hinterlassenenversicherung (AHV)
-    - Invalidenversicherung (IV)
-    - Ergänzungsleistungen (EL)
-    - Überbrückungsleistungen (ÜL)
-    - Leistungen aus dem System der Erwerbsausfallentschädigungen (EO), Mutterschaftsentschädigung (MSE), Entschädigung des andern Elternteils (Vater oder Ehefrau der Mutter) (EAE), Betreuungsentschädigung (BUE), Adoptionsentschädigung (AdopE)
-    - Familienzulagen (FZ)
-    - Weitere Sozialversicherungen
-    - Internationales
-    - Beiträge, Leistungen, Anspruch usw.
-- PENSION_AGENT: Beantwortet nur die spezifischen mathematischen Berechnungen für den Ruhestand, insbesondere:
-    - die Berechnung des Kürzungssatzes und des Rentenzuschlags für Frauen der Übergangsgeneration (1961-1969)
-    - die Berechnung der geschätzten Altersrente
-    - Berechnung des Referenzalters (Alter, in dem eine Person ihre Altersrente erhält).
-- FAK_EAK_AGENT: Beantwortet Fragen zu Kindergeld, insbesondere:
-    - die Bestimmung (Berechnung), welcher Elternteil das Kindergeld erhält.
-- APG_AGENT: Beantwortet Fragen zur Erwerbsausfallentschädigung.
-    - die Bestimmung (Berechnung) des EO-Taggeldes aufgrund des Dienstes (Militärdienst, Zivildienst usw.)
-    - die Bestimmung (Berechnung) des Taggelds der MSE (Mutterschaftsentschädigung)
-
-# Format der Antwort
+<format_der_antwort>
 IntentDetection(
-    intent: str, # die Absicht des Nutzers in einem verständlichen Satz
-    tags: List[str] = None, # das/die identifizierte(n) Thema(e) der Frage
-    agent: str = None, # der Name des entsprechenden Agenten, der die Frage beantwortet.
-    followup_required: bool = False, # True, wenn zusätzliche Informationen erforderlich sind, um die Absicht des Nutzers genau zu identifizieren, False andernfalls.
-    followup_question: str = None, # Folgefrage, um zusätzliche Informationen zu erhalten, wenn followup_required True ist.
+    intent: str, # die Absicht des Nutzers basierend auf den verfügbaren <intentionen>
+    followup_question: str = None, # Folgefrage, um zusätzliche Informationen zu erhalten
 )
-Wenn die Absicht, die Themen, der passende Agent nicht bestimmt werden können, können Sie für diese Werte „None“ angeben und „followup_required“ und „followup_question“ ausfüllen.
+</format_der_antwort>
 
-# Beispiele für die Auswahl des Agenten
-Für allgemeine Fragen zur AHV/IV -> RAG_AGENT
-Wie bestimme ich meinen Anspruch auf Ergänzungsleistungen? -> RAG_AGENT
-Welche Voraussetzungen muss ich erfüllen, um eine IV-Rente zu erhalten? -> RAG_AGENT
-Wann werden Ergänzungsleistungen gezahlt? -> RAG_AGENT
-Wann entsteht der Anspruch auf eine Altersrente? -> RAG_AGENT
-Was ändert sich mit AHV 21? -> RAG_AGENT
-Was bedeutet das flexible Rentenalter? -> RAG_AGENT
-
-Für sehr spezifische (individualisierte) Fragen zu Berechnungen von Kürzungssätzen und Rentenzuschlägen im Zusammenhang mit dem Eintritt in den Ruhestand und dem Bezug von Altersrenten -> PENSION_AGENT
-Ich bin am 1962.31.12 geboren, möchte am 01.01.2025 in Rente gehen und mein Jahreseinkommen beträgt ca. 55'000 CHF. Wie hoch ist mein Kürzungssatz? -> PENSION_AGENT
-Wie hoch ist mein Kürzungssatz, wenn ich am 1965-11-07 geboren bin, am 2026-04-15 in Rente gehen möchte und mein Jahreseinkommen 76200 beträgt? -> PENSION_AGENT
-Hier sind meine Informationen: Geburtsdatum 03.01.1968 und ich gehe 2027 in Rente. Ich verdiene etwa 90000 CHF pro Jahr. Kann ich einen Zuschlag oder einen Kürzungssatz erhalten? -> PENSION_AGENT
-Für sehr spezifische (individualisierte) Fragen zur Berechnung des Referenzalters für Frauen der Übergangsgeneration (1961-1969) -> PENSION_AGENT
-Wenn ich eine Frau bin, die 1960 geboren wurde, wie hoch ist mein Referenzalter? -> PENSION_AGENT
-Ich bin eine 1961 geborene Frau, was ist mein Referenzalter? -> PENSION_AGENT
-Ich bin am 01.01.1962 geboren, wie hoch ist mein Referenzalter? -> PENSION_AGENT
-
-Bei Fragen zum Kindergeld -> FAK_EAK_AGENT
-Welche Arten von Kindergeld werden gezahlt? -> FAK_EAK_AGENT
-Wie hoch ist das Kindergeld? -> FAK_EAK_AGENT
-Werden die Zulagen nach dem Wohnkanton oder dem Arbeitskanton bestimmt? -> FAK_EAK_AGENT
-Wer hat Anspruch auf Kinderzulagen? -> FAK_EAK_AGENT
-Welcher Elternteil erhält die Kinderzulagen? -> FAK_EAK_AGENT
-Wie können Sie Ihren Anspruch auf Kindergeld bei der Familienausgleichskasse der Eidgenössischen Ausgleichskasse (FAK-EAK) geltend machen? -> FAK_EAK_AGENT
-Wie können Sie einen bestehenden Anspruch auf Ausbildungszulagen verlängern? -> FAK_EAK_AGENT
-Wie werden die Familienzulagen der Familienausgleichskasse der Eidgenössischen Ausgleichskasse ausbezahlt? -> FAK_EAK_AGENT
-
-# Gesprächsverlaufs
+<gesprächverlauf>
 {conversational_memory}
+</gesprächverlauf>
 
-#Dokumente zur Verfügung
-{Dokumente}
+<intentionen>
+{intentions}
+</intentionen>
 
-# Themen zur Verfügung
-{tags}
-
-# Frage
-{query}"""
+<frage>
+{query}
+</frage>"""
 
 
 INTENT_DETECTION_PROMPT_FR = """<instructions>
@@ -91,10 +31,10 @@ INTENT_DETECTION_PROMPT_FR = """<instructions>
 </instructions>
 
 <format_de_réponse>
-    IntentDetection(
-        intent: str, # l'intention de l'utilisateur basé sur les <intentions> disponibles
-        followup_question: str = None, # Question de suivi pour obtenir des informations supplémentaires
-    )
+IntentDetection(
+    intent: str, # l'intention de l'utilisateur basé sur les <intentions> disponibles
+    followup_question: str = None, # Question de suivi pour obtenir des informations supplémentaires
+)
 </format_de_réponse>
 
 <historique_de_conversation>
@@ -110,93 +50,63 @@ INTENT_DETECTION_PROMPT_FR = """<instructions>
 </question>"""
 
 
-INTENT_DETECTION_PROMPT_IT = """# Compito
-Il vostro compito è quello di:
-- determinare l'intenzione dell'utente in base alla domanda posta e alla cronologia della conversazione
-- determinare quale/i tema/i selezionare per la ricerca di documenti in base alla domanda posta e ai temi disponibili
-- selezionare l'agente appropriato in base all'intenzione e ai temi disponibili
-- determinare se sono necessari chiarimenti o informazioni aggiuntive per identificare con precisione l'intenzione dell'utente. IMPORTANTE: esaminare i documenti disponibili E i temi disponibili per determinare se sono necessari o meno chiarimenti. Se un documento o un tema è in grado di rispondere alla domanda, non porre una domanda successiva.
+INTENT_DETECTION_PROMPT_IT = """<istruzioni>
+    <istruzione>determinare l'intento dell'utente</istruzione>
+    <istruzione>fondare la decisione in base alla <domanda> posta, agli ultimi cicli di conversazione nella <storia_della_conversazione> e alle <intenzioni> disponibili</istruzione>
+    <istruzione>sviluppare una domanda di follow-up SOLO SE la <domanda> non può essere categorizzata nelle <intenzioni> a disposizione</istruzione>
+</istruzioni>
 
-# Note importanti
-L'intenzione dell'utente può essere generale o specifica.
-Ad esempio, porre una domanda su argomenti relativi all'AVS/AI, agli assegni familiari, alle indennità di perdita di guadagno, agli assegni di maternità, ecc. potrebbe essere molto specifico.
-Ad esempio, porre una domanda molto specifica su un calcolo legato alla situazione personale dell'utente (età, reddito, ecc.).
-Se dovete fare una domanda di approfondimento, fatela IN ITALIANO!
-IMPORTANTE: porre una domanda di follow-up solo se la domanda è formulata in modo molto vago O se i documenti/temi disponibili non consentono di rispondere alla domanda (o solo parzialmente). Se la domanda riguarda l'AVS/AI in generale, non porre una domanda di approfondimento.
-
-- RAG_AGENT: risponde a domande generali su:
-    - Assicurazione vecchiaia e superstiti (AVS)
-    - Assicurazione per l'invalidità (AI)
-    - Prestazioni complementari (PC)
-    - Prestazioni transitorie per i disoccupati anziani (PT)
-    - Prestazioni dell'IPG (IPG): Indennità per chi presta servizio, Indennità in caso di maternità, Indennità per l'altro genitore (per il padre o la moglie della madre), Indennità di assistenza, Indennità di adozione
-    - Assegni familiari (AF)
-    - Altri tipi di assicurazione sociale
-    - Internazionale
-    - Contributi, prestazioni, diritti, ecc.
-- PENSION_AGENT: risponde solo ai calcoli matematici specifici per la pensione, in particolare:
-    - calcolo del tasso di riduzione e del supplemento di pensione per le donne della generazione di transizione (1961-1969)
-    - calcolo della pensione stimata
-    - calcolo dell'età di riferimento (l'età in cui una persona riceve la pensione di vecchiaia).
-- FAK_EAK_AGENT: risponde a domande sugli assegni familiari, in particolare:
-    - determinare (calcolare) quale genitore riceve gli assegni familiari
-- APG_AGENT: risponde alle domande sulle indennità di perdita di guadagno
-    - determinazione (calcolo) delle prestazioni giornaliere APG in base al servizio (servizio militare, servizio civile, ecc.)
-    - determinare (calcolare) le indennità giornaliere (indennità di maternità)
-
-# Formato della risposta
+<formato_risposta>
 IntentDetection(
-    intent: str, # l'intento dell'utente in una frase
-    tags: List[str] = None, # i temi identificati della domanda
-    agent: str = None, # il nome dell'agente appropriato per rispondere alla domanda.
-    followup_required: bool = False, # True se sono necessarie informazioni aggiuntive per identificare con precisione l'intento dell'utente, False altrimenti.
-    followup_question: str = None, # domanda successiva per ottenere informazioni aggiuntive se followup_required è True.
+    intent: str, # l'intento dell'utente in base alle <intenzioni> disponibili
+    followup_question: str = None, # domanda di followup per ottenere ulteriori informazioni
 )
-Se non è possibile determinare l'intenzione, i temi e l'agente appropriato, è possibile specificare None per questi valori e compilare “followup_required” e “followup_question”.
+</formato_risposta>
 
-# Esempi di selezione degli agenti
-Per domande generali sull'AVS/AI -> RAG_AGENT
-Come si determina il diritto alle prestazioni complementari? -> RAG_AGENT
-Quali sono le condizioni per ricevere una rendita AI? -> RAG_AGENT
-Quando vengono versate le prestazioni complementari? -> RAG_AGENT
-Quando nasce il diritto alla pensione di vecchiaia? -> RAG_AGENT
-Cosa cambia con l'AVS 21? -> RAG_AGENT
-Cosa significa l'età pensionabile flessibile? -> RAG_AGENT
-
-Per domande molto specifiche (personalizzate) relative al calcolo dei tassi di riduzione e dei supplementi di pensione legati al pensionamento e al percepimento di pensioni di vecchiaia -> PENSION_AGENT
-Sono nato il 31.12.1962, voglio andare in pensione il 01.01.2025 e il mio reddito annuo è di circa 55.000 franchi. Qual è il mio tasso di riduzione? -> PENSION_AGENT
-Qual è il mio tasso di riduzione se sono nato il 1965-11-07, voglio andare in pensione il 2026-04-15 e il mio reddito annuo è di CHF 76200? -> PENSION_AGENT
-Ecco le mie informazioni: sono nato il 03.01.1968 e andrò in pensione nel 2027. Guadagno circa 90.000 franchi all'anno. Posso beneficiare di un'integrazione o di una riduzione? -> PENSION_AGENT
-Per domande molto specifiche (personalizzate) sul calcolo dell'età di riferimento per le donne della generazione di transizione (1961-1969) -> PENSION_AGENT
-Se sono una donna nata nel 1960, qual è la mia età di riferimento? -> PENSION_AGENT
-Se sono una donna nata nel 1961, qual è la mia età di riferimento? -> PENSION_AGENT
-Sono nato il 01.01.1962, qual è la mia età di riferimento? -> PENSION_AGENT
-
-Per domande sugli assegni familiari -> FAK_EAK_AGENT
-Quali tipi di assegni familiari vengono erogati? -> FAK_EAK_AGENT
-A quanto ammontano gli assegni familiari? -> FAK_EAK_AGENT
-L'assegno viene pagato in base al cantone di residenza o al cantone di occupazione? -> FAK_EAK_AGENT
-Chi ha diritto agli assegni familiari? -> FAK_EAK_AGENT
-Quale genitore riceve gli assegni familiari? -> FAK_EAK_AGENT
-Come richiedere gli assegni familiari alla Caisse d'allocations familiales de la Caisse fédérale de compensation (CAF-CFC)? -> FAK_EAK_AGENT
-Come si può estendere un diritto esistente agli assegni di formazione? -> FAK_EAK_AGENT
-Come vengono pagati gli assegni familiari dalla Cassa per gli assegni familiari della Cassa federale di compensazione? -> FAK_EAK_AGENT
-
-# Storia della conversazione
+<storia_della_conversazione>
 {conversational_memory}
+</storia_della_conversazione>
 
-# Documenti disponibili
-{documents}
+<intenzioni>
+{intentions}
+</intenzioni>
 
-# Temi disponibili
-{tags}
-
-# Domanda
-{query}"""
+<domanda>
+{query}
+</domanda>"""
 
 
-SOURCE_SELECTION_PROMPT_DE = """# Aufgabe
-"""
+SOURCE_SELECTION_PROMPT_DE = """<anweisungen>
+    <anweisung>Ihre Aufgabe ist es, die geeignete Datenquelle auszuwählen, um die Frage des Nutzers zu beantworten</anweisung>
+    <anweisung>Basieren Sie Ihre Auswahl auf der <frage>, der <intention>, dem <gesprächsverlauf> und der Liste der <quellen> und ihrer Beschreibung</anweisung>
+    <anweisung>Basieren Sie Ihre Auswahl auf der jüngsten Geschichte der Aktionen des Benutzers</anweisung>
+</anweisungen>
+
+<format_der_antwort>
+SourceSelection(
+    inferred_sources: List[str] # die ausgewählte(n) Datenquelle(n) (z.B. ["<temp:file_upload_name.pdf>"], ["ahv_iv_mementos"], ["eak.admin.ch", "ahv_lernbaustein_2024", "fedlex"], ["akis"], usw.).
+)
+</format_der_antwort>
+
+<beispiele>
+    <beispiel>Wenn ein Benutzer kürzlich ein Dokument in <gesprächsverlauf> hochgeladen hat und anscheinend den Inhalt dieses Dokuments abfragen möchte, müssen Sie dieses Dokument als Quelle auswählen</beispiel>
+<beispiele>
+
+<quellen>
+{sources}
+</quellen>
+
+<intention>
+{intent}
+</intention>
+
+<gesprächsverlauf>
+{conversational_memory}
+</gesprächsverlauf>
+
+<frage>
+{query}
+</frage>"""
 
 
 SOURCE_SELECTION_PROMPT_FR = """<instructions>
@@ -232,8 +142,37 @@ SourceSelection(
 </question>"""
 
 
-SOURCE_SELECTION_PROMPT_IT = """# Compito
-"""
+SOURCE_SELECTION_PROMPT_IT = """<istruzioni>
+    <istruzione>Il vostro compito è selezionare la fonte di dati appropriata per rispondere alla domanda dell'utente<istruzione>
+    <istruzione>Basate la vostra selezione sulla <domanda>, l'<intento>, la <storia_della_conversazione> e l'elenco delle <fonti> e delle loro descrizioni</istruzioni>
+    <istruzione>Basare la selezione sulla storia recente delle azioni dell'utente</istruzione>
+</istruzioni>
+
+<formato_risposta>
+SourceSelection(
+    inferred_sources: List[str] # le fonti di dati selezionate (ad esempio ["<temp:file_upload_name.pdf>"], ["ahv_iv_mementos"], ["eak.admin.ch", "ahv_lernbaustein_2024", "fedlex"], ["akis"], ecc.
+)
+</formato_risposta>
+
+<esempi>
+    <esempio>Se un utente ha recentemente caricato un documento su <storia_della_conversazione> e sembra voler interrogare il contenuto di quel documento, si dovrebbe selezionare quel documento come fonte</esempio>
+<esempi>
+
+<fonti>
+{sources}
+</fonti>
+
+<intento>
+{intent}
+</intento>
+
+<storia_della_conversazione>
+{conversational_memory}
+</storia_della_conversazione>
+
+<domanda>
+{query}
+</domanda>"""
 
 
 TAGS_SELECTION_PROMPT_DE = """"""
@@ -278,8 +217,57 @@ TagSelection(
 TAGS_SELECTION_PROMPT_IT = """"""
 
 
-AGENT_HANDOFF_PROMPT_DE = """# Aufgabe
-"""
+AGENT_HANDOFF_PROMPT_DE = """<anweisungen>
+    <anweisung>wähle den geeigneten Agenten aus, um die Frage des Nutzers auf der Grundlage der unten stehenden Metadaten und der zur Verfügung stehenden <agents> zu beantworten</anweisung>
+</anweisungen>
+
+<format_der_antwort>
+AgentHandoff(
+    agent: str # der Name des entsprechenden Agenten, der die Frage beantwortet.
+)
+</format_der_antwort>
+
+<agents>
+CHAT_AGENT: eine Unterhaltung zusammenfassen
+CHAT_AGENT: Eine Unterhaltung übersetzen
+
+RAG_AGENT: einfache Sachfragen
+RAG_AGENT: Mehrteilige Fragen (mehrere Unterfragen)
+RAG_AGENT: Allgemeine Fragen zur AHV/IV
+
+PENSION_AGENT: Fragen zur Berechnung des Kürzungssatzes bei der Pensionierung
+PENSION_AGENT: Fragen zur Berechnung des Rentenzuschlags bei der Pensionierung
+</agents>
+
+<beispiele>
+Fasse die Konversion zusammen -> CHAT_AGENT
+Fasse die letzte Nachricht unserer Diskussion zusammen -> CHAT_AGENT
+Übersetze diese Unterhaltung ins Deutsche -> CHAT_AGENT
+Übersetze diese Nachricht ins Italienische -> CHAT_AGENT
+Ich bin am 1962.31.12 geboren, möchte am 01.01.2025 in Rente gehen und mein Jahreseinkommen beträgt ca. 55'000 CHF. Wie hoch ist mein Kürzungssatz? -> PENSION_AGENT
+Wie hoch ist mein Kürzungssatz, wenn ich am 1965-11-07 geboren bin, am 2026-04-15 in Rente gehen möchte und mein Jahreseinkommen 76200 beträgt? -> PENSION_AGENT
+Hier sind meine Informationen: Geburtsdatum 03.01.1968 und ich gehe 2027 in Rente. Ich verdiene etwa 90000 CHF pro Jahr. Kann ich einen Zuschlag oder einen Kürzungssatz erhalten? -> PENSION_AGENT
+</beispiele>
+
+<frage>
+{query}
+</frage>
+
+<intention>
+{intent}
+</intention>
+
+<tags>
+{tags}
+</tags>
+
+<source>
+{sources}
+</sources>
+
+<geschichte_der_konversation>
+{conversational_memory}
+<geschichte_der_konversation>"""
 
 
 AGENT_HANDOFF_PROMPT_FR = """<instructions>
@@ -287,31 +275,31 @@ AGENT_HANDOFF_PROMPT_FR = """<instructions>
 </instructions>
 
 <format_de_réponse>
-    AgentHandoff(
-        agent: str # le nom de l'agent approprié pour répondre à la question.
-    )
+AgentHandoff(
+    agent: str # le nom de l'agent approprié pour répondre à la question.
+)
 </format_de_réponse>
 
 <agents>
-    CHAT_AGENT: résumer une conversation
-    CHAT_AGENT: traduire une conversation
+CHAT_AGENT: résumer une conversation
+CHAT_AGENT: traduire une conversation
 
-    RAG_AGENT: questions factuelles simples
-    RAG_AGENT: questions multipartites (plusieurs sous questions)
-    RAG_AGENT: questions générales relatives à l'AVS/AI
+RAG_AGENT: questions factuelles simples
+RAG_AGENT: questions multipartites (plusieurs sous questions)
+RAG_AGENT: questions générales relatives à l'AVS/AI
 
-    PENSION_AGENT: questions sur le calcul du taux de réduction lié au départ à la retraite
-    PENSION_AGENT: questions sur le calcul de supplément de rente lié au départ à la retraite
+PENSION_AGENT: questions sur le calcul du taux de réduction lié au départ à la retraite
+PENSION_AGENT: questions sur le calcul de supplément de rente lié au départ à la retraite
 </agents>
 
 <exemples>
-    Résume moi la converation -> CHAT_AGENT
-    Résume moi le dernier message de notre discussion -> CHAT_AGENT
-    Traduis cette conversation en allemand -> CHAT_AGENT
-    Traduis ce message en italien -> CHAT_AGENT
-    Je suis née le 1962.31.12, je souhaite prendre ma retraite le 01.01.2025 et mon revenu annuel est d'environ 55'000 CHF. Quel est mon taux de réduction ? -> PENSION_AGENT
-    Quel sera mon taux de réduction si je suis née le 1965-11-07, je souhaite prendre ma retraite le 2026-04-15 et mon revenu annuel est de 76200 ? -> PENSION_AGENT
-    Voici mes informations: date de naissance le 03.01.1968 et je pars à la retraite en 2027. Je gagne environ 90000 CHF par an. Puis-je bénéficier d'un supplément ou taux de réduction ? -> PENSION_AGENT
+Résume moi la converation -> CHAT_AGENT
+Résume moi le dernier message de notre discussion -> CHAT_AGENT
+Traduis cette conversation en allemand -> CHAT_AGENT
+Traduis ce message en italien -> CHAT_AGENT
+Je suis née le 1962.31.12, je souhaite prendre ma retraite le 01.01.2025 et mon revenu annuel est d'environ 55'000 CHF. Quel est mon taux de réduction ? -> PENSION_AGENT
+Quel sera mon taux de réduction si je suis née le 1965-11-07, je souhaite prendre ma retraite le 2026-04-15 et mon revenu annuel est de 76200 ? -> PENSION_AGENT
+Voici mes informations: date de naissance le 03.01.1968 et je pars à la retraite en 2027. Je gagne environ 90000 CHF par an. Puis-je bénéficier d'un supplément ou taux de réduction ? -> PENSION_AGENT
 </exemples>
 
 <question>
@@ -334,7 +322,57 @@ AGENT_HANDOFF_PROMPT_FR = """<instructions>
 {conversational_memory}
 </historique_de_conversation>"""
 
-AGENT_HANDOFF_PROMPT_IT = """# Compito"""
+AGENT_HANDOFF_PROMPT_IT = """<istruzioni>
+    <istruzione>selezionare l'agente appropriato per rispondere alla domanda dell'utente in base ai metadati sottostanti e agli <agenti> disponibili</istruzione>
+</istruzioni>
+
+<risposta_formato>
+AgentHandoff(
+    agent: str # il nome dell'agente appropriato per rispondere alla domanda
+)
+</risposta_formato>
+
+<agenti>
+CHAT_AGENT: riassume una conversazione
+CHAT_AGENT: traduce una conversazione
+
+RAG_AGENT: domande semplici e concrete
+RAG_AGENT: domande in più parti (diverse sotto-domande)
+RAG_AGENT: domande generali sull'AVS/AI
+
+PENSION_AGENT: domande sul calcolo del tasso di riduzione al momento del pensionamento
+PENSION_AGENT: domande sul calcolo del supplemento di pensione al momento del pensionamento
+</agenti>
+
+<esempi>
+Riassumere la conversione -> CHAT_AGENT
+Riassumi per me l'ultimo messaggio della nostra discussione -> CHAT_AGENT
+Traduci questa conversazione in tedesco -> CHAT_AGENT
+Traduci questo messaggio in italiano -> CHAT_AGENT
+Sono nato il 31.12.1962, voglio andare in pensione il 01.01.2025 e il mio reddito annuo è di circa 55.000 franchi. Qual è il mio tasso di riduzione? -> AGENTE_PENSIONE
+Qual è il mio tasso di riduzione se sono nato il 1965-11-07, voglio andare in pensione il 2026-04-15 e il mio reddito annuo è di CHF 76200? -> AGENTE_PENSIONE
+Ecco le mie informazioni: sono nato il 03.01.1968 e andrò in pensione nel 2027. Guadagno circa 90.000 franchi all'anno. Posso beneficiare di un'integrazione o di una riduzione? -> AGENTE_PENSIONE
+</esempi>
+
+<domanda>
+{query}
+</domanda>
+
+<intento>
+{intent}
+</intento>
+
+<tags>
+{tags}
+</tags>
+
+<sources>
+{sources}
+<sources>
+
+<storia_conversazionale>
+{conversational_memory}
+<storia_conversazionale>"""
 
 
 RAG_FOLLOWUP_AGENT_PROMPT_DE = """# Aufgabe"""
@@ -389,7 +427,7 @@ Comment les bonifications sont-elles calculées si j'ai plusieurs enfants ? -> V
 Dois-je informer la caisse de compensation si ma situation familiale change ? -> Souhaitez-vous savoir si vous devez signaler les changements concernant les bonifications pour tâches éducatives ?
 Que se passe-t-il si je suis le seul à m'occuper des enfants ? -> Exercez-vous l'autorité parentale exclusive, et êtes-vous marié(e), divorcé(e) ou non marié(e) avec l'autre parent ?
 
-Thème: Cotisations salariales à l’AVS, à l’AI et aux APG:
+Thème: Cotisations salariales à l"AVS, à l"AI et aux APG:
 À partir de quel âge doit-on commencer à payer des cotisations ? -> Pouvez-vous me dire en quelle année vous êtes né(e) ?
 Quand est-ce que je peux arrêter de cotiser à l'AVS ? -> Êtes-vous un homme ou une femme, et quelle est votre année de naissance ?
 Je continue à travailler après ma retraite, dois-je encore payer des cotisations ? -> Avez-vous atteint l'âge de référence et exercez-vous toujours une activité lucrative ?
@@ -411,7 +449,7 @@ Les personnes qui travaillent dans une entreprise familiale paient-elles des cot
 Est-ce que les membres de la famille qui travaillent dans une exploitation agricole doivent cotiser ? -> Êtes-vous une personne seule, mariée, et avez-vous des enfants mineurs à charge ?
 Dois-je payer des cotisations sur les allocations pour perte de gain versées en cas de service militaire ? -> Recevez-vous ces allocations directement ou par l'intermédiaire de votre employeur ?
 
-Thème: Cotisations des indépendants à l’AVS, à l’AI et aux APG:
+Thème: Cotisations des indépendants à l"AVS, à l"AI et aux APG:
 Est-ce que je suis considéré comme indépendant ? -> Pouvez-vous décrire votre activité professionnelle et si vous assumez les risques économiques ?
 Dois-je payer des cotisations si je suis à mon compte ? -> Exercez-vous une activité lucrative en Suisse en tant qu'indépendant ?
 À partir de quand dois-je commencer à cotiser ? -> Pouvez-vous me dire en quelle année vous êtes né(e) ?
@@ -477,9 +515,9 @@ Ihre Aufgabe ist es, die richtige Funktion aufzurufen, um die vom Benutzer geste
 function_name(param1, param2, ...)
 
 # Beispiele
-Ich bin am 1962.31.12 geboren, möchte am 01.01.2025 in Rente gehen und mein Jahreseinkommen beträgt ca. 55'000 CHF. Wie hoch ist mein Kürzungssatz? -> calculate_reduction_rate_and_supplement("1962-12-31“, "2025-01-01", 55000.0)
+Ich bin am 1962.31.12 geboren, möchte am 01.01.2025 in Rente gehen und mein Jahreseinkommen beträgt ca. 55'000 CHF. Wie hoch ist mein Kürzungssatz? -> calculate_reduction_rate_and_supplement("1962-12-31", "2025-01-01", 55000.0)
 Wie hoch ist mein Kürzungssatz, wenn ich am 1965-11-07 geboren bin, am 2026-04-15 in Rente gehen möchte und mein Jahreseinkommen 76200 beträgt? -> calculate_reduction_rate_and_supplement("1965-11-07", "2026-04-15", 76200.0)
-Hier sind meine Informationen: Geburtsdatum 03.01.1968 und ich werde 2027 in Rente gehen. Ich verdiene etwa 90.000 CHF pro Jahr. Kann ich einen Zuschlag oder eine Ermäßigung erhalten? -> calculate_reduction_rate_and_supplement("1968-01-03", "2027-01-01", 90000.0)
+Hier sind meine Informationen: Geburtsdatum 03.01.1968 und ich werde 2027 in Rente gehen. Ich verdiene etwa 90.000 CHF pro Jahr. Kann ich einen Zuschlag oder eine Ermässigung erhalten? -> calculate_reduction_rate_and_supplement("1968-01-03", "2027-01-01", 90000.0)
 
 # Frage
 {query}"""
@@ -487,20 +525,29 @@ Hier sind meine Informationen: Geburtsdatum 03.01.1968 und ich werde 2027 in Ren
 PENSION_FUNCTION_CALLING_PROMPT_FR = """<instructions>
     <instruction>Sélectionnez le <nom> de la fonction appropriée parmis les <fonctions_disponibles> pour répondre à la <question> posée par l'utilisateur</instruction>
     <instruction>Vous devez analyser la question et extraire/formatter les paramètres nécessaires pour appeler correctement la fonction choisie</instruction>
+    <instruction>Utilisez l'information sur les <paramètres> de la <fonction> afin d'effectuer un appel à la <fonction> en lien avec la <question> utilisateur</instruction>
 </instructions>
 
 <fonctions_disponibles>
     <fonction>
         <nom>determine_reduction_rate_and_supplement</nom>
         <description>calcule le taux de réduction et le supplément pour les femmes de la génération transitoire</description>
+        <paramètres></paramètres>
     </fonction>
     <fonction>
         <nom>summarize_conversation</nom>
         <description>résume le texte d'une conversation</description>
+        <paramètres>
+            <param></param>
+        </paramètres>
     </fonction>
     <fonction>
         <nom>translate_conversation</nom>
         <description>traduit le texte d'une conversation dans une langue cible</description>
+        <paramètres>
+            <param>text: str (le texte à traduire)</param>
+            <param>target_lang: str (la langue cible de traduction choisie sur la base des instructions de la <question >parmis: ["ar", "bg", "cs", "da", "de", "el", "en-gb", "en-us", "es", "et", "fi", "fr", "hu", "id", "it", "ja", "ko", "lv", "nb", "nl", "pl", "pt-br", "pt-pt", "ro", "ru", "sk", "sl", "sv", "tr", "uk", "zh-hans", "zh-hant"])</param>
+        </paramètres>
     </fonction>
 </fonctions_disponibles>
 
@@ -547,6 +594,211 @@ Ecco i miei dati: sono nato il 03.01.1968 e andrò in pensione nel 2027. Guadagn
 
 # Domanda
 {query}"""
+
+
+PARSE_TRANSLATE_ARGS_PROMPT_DE = """<anweisungen>
+    <anweisung>Extrahieren Sie die erforderlichen <arguments> unten, um die Übersetzungsfunktion erfolgreich aufzurufen</anweisung>
+    <anweisung>Interpretieren Sie, welche <argumente> Sie setzen müssen, um die <argumente> so gut wie möglich mit der <frage> des Benutzers auszurichten, um seine Anfrage zu erfüllen</anweisung>
+    <anweisung>Wenn ein <arg> nicht aus der <frage> abgeleitet werden kann, verwenden Sie seinen Standardwert</anweisung>
+</anweisungen>
+
+<format_der_antwort>
+ParseTranslateArgs(
+    arg_values: List[str] # list of arg values
+</format_der_antwort>
+
+<funktion>
+    <name>translate_tool</name>
+    <arguments>
+        <arg>target_lang: str (die Zielsprache der Übersetzung, die auf der Grundlage der Anweisungen in der <frage> ausgewählt wurde, unter anderem: ["ar", "bg", "cs", "da", "de", "el", "en-gb", "en-us", "es", "et", "fi", "fr", "hu", "id", "it", "ja", "ko", "lv", "nb", "nl", "pl", "pt-br", "pt-pt", "ro", "ru", "sk", "sl", "sv", "tr", "uk", "zh-hans", "zh-hant"])</arg>
+        <arg>n_msg: int = -1 # die Anzahl der zu übersetzenden Gesprächsrunden</arg>
+        <arg>roles: List[MessageRole] = [MessageRole.ASSISTANT] # übersetze die Nachrichten des Benutzers (MessageRole.USER) und/oder des Assistenten (MessageRole.ASSISTANT) in jeder Gesprächsrunde</arg>
+    </arguments>
+<funktion>
+
+<beispiele>
+    <beispiel>
+        frage: Übersetze die letzte Nachricht ins Deutsche.
+        arg_values: ["de", 1, [MessageRole.ASSISTANT]]
+    </beispiel>
+    <beispiel>
+        frage: Übersetze das Gespräch ins Italienische.
+        arg_values: ["it", -1, [MessageRole.ASSISTANT]]
+    </beispiel>
+    <beispiel>
+        frage: Übersetze das gesamte Gespräch ins Englische.
+        arg_values: ["en-gb", -1, [MessageRole.USER, MessageRole.ASSISTANT]]
+    </beispiel>
+    <beispiel>
+        frage: Übersetze meine Fragen ins Deutsche.
+        arg_values: ["de", -1, [MessageRole.USER]]
+    </beispiel>
+    <beispiel>
+        frage: Übersetze die letzten drei Nachrichten ins Deutsche.
+        arg_values: ["de", 3, [MessageRole.ASSISTANT]]
+    </beispiel>
+</beispiele>
+
+<frage>
+{query}
+</frage>"""
+
+
+PARSE_TRANSLATE_ARGS_PROMPT_FR = """<instructions>
+    <instruction>Extrayez les <arguments> nécessaires ci-dessous afin d'appeler la fonction de traduction avec succès</instruction>
+    <instruction>Interprétez quels <arguments> définir pour aligner les <arguments> le mieux possible avec la <question> utilisateur afin de satisfaire sa requête</instruction>
+    <instruction>Si un <arg> ne peut être déduit à partir de la <question>, utilisez sa valeur par défaut</instruction>
+</instructions>
+
+<format_de_réponse>
+ParseTranslateArgs(
+    arg_values: List[str] # list of arg values
+</format_de_réponse>
+
+<fonction>
+    <nom>translate_tool</nom>
+    <arguments>
+        <arg>target_lang: str (la langue cible de traduction choisie sur la base des instructions de la <question> parmis: ["ar", "bg", "cs", "da", "de", "el", "en-gb", "en-us", "es", "et", "fi", "fr", "hu", "id", "it", "ja", "ko", "lv", "nb", "nl", "pl", "pt-br", "pt-pt", "ro", "ru", "sk", "sl", "sv", "tr", "uk", "zh-hans", "zh-hant"])</arg>
+        <arg>n_msg: int = -1 # le nombre de tours de conversation à traduire</arg>
+        <arg>roles: List[MessageRole] = [MessageRole.ASSISTANT] # traduire les messages de l'utilisateur (MessageRole.USER) et/ou de l'assistant (MessageRole.ASSISTANT) dans chaque tour de conversation</arg>
+    </arguments>
+<fonction>
+
+<exemples>
+    <exemple>
+        question: traduis le dernier message en allemand
+        arg_values: ["de", 1, [MessageRole.ASSISTANT]]
+    </exemple>
+    <exemple>
+        question: traduis la conversation en italien
+        arg_values: ["it", -1, [MessageRole.ASSISTANT]]
+    </exemple>
+    <exemple>
+        question: traduis la conversation entière en anglais
+        arg_values: ["en-gb", -1, [MessageRole.USER, MessageRole.ASSISTANT]]
+    </exemple>
+    <exemple>
+        question: traduis mes questions en allemand
+        arg_values: ["de", -1, [MessageRole.USER]]
+    </exemple>
+    <exemple>
+        question: traduis les trois derniers messages en allemand
+        arg_values: ["de", 3, [MessageRole.ASSISTANT]]
+    </exemple>
+</exemples>
+
+<question>
+{query}
+</question>"""
+
+
+PARSE_TRANSLATE_ARGS_PROMPT_IT = """<istruzioni>
+    <istruzione>Estrarre gli <argomenti> necessari di seguito per chiamare la funzione di traduzione con successo</istruzione>
+    <istruzione>Interpretare quali <argomenti> impostare per allineare i <argomenti> il più possibile alla <domanda> dell'utente, in modo da soddisfare la sua richiesta</istruzione>
+    <istruzione>Se un <arg> non può essere dedotto dalla <domanda>, utilizzare il suo valore predefinito</istruzione>
+</istruzioni>
+
+<formato_risposta>
+ParseTranslateArgs(
+    arg_values: List[str] # list dei valori degli arg
+</formato_risposta>
+
+<funzione>
+    <nome>translate_tool</nome>
+    <argumenti>
+        <arg>target_lang: str (la lingua di destinazione della traduzione scelta in base alle istruzioni di <question> tra: ["ar", "bg", "cs", "da", "de", "el", "en-gb", "en-us", "es", "et", "fi", "fr", "hu", "id", "it", "ja", "ko", "lv", "nb", "nl", "pl", "pt-br", "pt-pt", "ro", "ru", "sk", "sl", "sv", "tr", "uk", "zh-hans", "zh-hant"])</arg>
+        <arg>n_msg: int = -1 # il numero di turni di conversazione da tradurre</arg>
+        <arg>ruoli: List[MessageRole] = [MessageRole.ASSISTANT] # traducono i messaggi dell'utente (MessageRole.USER) e/o dell'assistente (MessageRole.ASSISTANT) in ogni turno di conversazione</arg>
+    </argumenti>
+<funzione>
+
+<esempi>
+    <esempio>
+        domanda: tradurre l'ultimo messaggio in tedesco
+        arg_values: ["de", 1, [MessageRole.ASSISTANT]]
+    </esempio>
+    <esempio>
+        domanda: traduci la conversazione in italiano
+        arg_values: ["it", -1, [MessageRole.ASSISTANT]]
+    </esempio>
+    <esempio>
+        domanda: tradurre l'intera conversazione in inglese
+        arg_values: ["en-gb", -1, [MessageRole.USER, MessageRole.ASSISTANT]]
+    </esempio>
+    <esempio>
+        domanda: traduci le mie domande in tedesco
+        arg_values: ["de", -1, [MessageRole.USER]]
+    </esempio>
+    <esempio>
+        domanda: tradurre gli ultimi tre messaggi in tedesco
+        arg_values: ["de", 3, [MessageRole.ASSISTANT]]
+    </esempio>
+</esempi>
+
+<domanda>
+{query}
+</domanda>"""
+
+
+AGENT_SUMMARIZE_PROMPT_DE = """<anweisungen>
+    <anweisung>Zusammenfassung der Nachrichten in der <geschichte_der_konversation> gemäss den Anweisungen in der <frage></anweisung>
+    <anweisung>Stellen Sie die Zusammenfassung OHNE Zeitstempel oder "Source doc IDs"</anweisung>
+    <anweisung>Befolgen Sie die Anweisungen in der <frage> bezüglich der Frage, welche Nachrichten zusammengefasst werden sollen (user/assistant/user und assistant)</anweisung>
+</anweisungen>
+
+<notes>>
+    <note>Wenn in der <question> von „einfacher Sprache“ die Rede ist, bezieht sich dies auf das Sprachniveau B1</note>
+    <note>Wenn die <frage> „leichte Sprache“ anspricht, bezieht sich dies auf das Sprachniveau A2</note>
+</notes>.
+
+<geschichte_der_konversation>
+{conversational_memory}
+</geschichte_der_konversation>
+
+<frage>
+{query}
+</frage>"""
+
+
+AGENT_SUMMARIZE_PROMPT_FR = """<instructions>
+    <instruction>Résumez les messages dans l'<historique_de_conversation> selon les instructions dans la <question></instruction>
+    <instruction>Fournissez le résumé SANS horodatage ou "Source doc IDs"</instruction>
+    <instruction>Suivez les instructions dans la <question> concernant quels messages résumer (user/assistant/user et assistant)</instruction>
+</instructions>
+
+<notes>
+    <note>Si la <question> évoque le "language simple", cela fait référence au niveau de language B1</note>
+    <note>Si la <question> évoque le "language facile", cela fait référence au niveau de language A2</note>
+</notes>
+
+<historique_de_conversation>
+{conversational_memory}
+</historique_de_conversation>
+
+<question>
+{query}
+</question>"""
+
+
+AGENT_SUMMARIZE_PROMPT_IT = """<istruzioni>
+    <istruzione>Riassumere i messaggi nella <memoria_conversazionale> secondo le istruzioni della <domanda></istruzione>
+    <istruzione>Fornire un riepilogo SENZA timestamp o "Source doc IDs"</istruzione>
+    <istruzione>Seguire le istruzioni della <domanda> per quanto riguarda i messaggi da riassumere (user/assistant/ser e assistant)</istruzione>
+</istruzioni>
+
+<nota>
+    <nota>Se la <domanda> si riferisce a "linguaggio semplice", ciò si riferisce al livello linguistico B1<nota>
+    <nota>Se la <domanda> si riferisce a "linguaggio facile", questo si riferisce al livello linguistico A2<note>
+</nota>
+
+<memoria_conversazionale>
+{conversational_memory}
+</memoria_conversazionale>
+
+<domanda>
+{query}
+</domanda>"""
+
 
 FAK_EAK_FUNCTION_CALLING_PROMPT_DE = """# Aufgabe"""
 
@@ -688,14 +940,14 @@ Il se peut également que une ou plusieurs sources soient valides. Dans ce cas, 
 # Exemples
 Question: Qu'est-ce qui change avec AVS 21?
 Sources:
-    0. Le 25 septembre 2022,le peuple et les cantons ont accepté la réforme AVS 21 et assuré ainsi un financement suffisant de l’AVS jusqu’à l’horizon 2030. La modification entrera en vigueur le 1er janvier 2024. La réforme comprenait deux objets : la modification de la loi sur l’assurance-vieillesse et survivants (LAVS) et l’arrêté fédéral sur le financement additionnel de l’AVS par le biais d’un relèvement de la TVA. Les deux objets étaient liés. Ainsi,le financement de l’AVS et le niveau des rentes seront garantis pour les prochaines années. L’âge de référence des femmes sera relevé à 65 ans,comme pour les hommes,le départ à la retraite sera flexibilisé et la TVA augmentera légèrement. La stabilisation de l’AVS comprend quatre mesures : \n\n• harmonisation de l’âge de la retraite (à l’avenir «âge de référence») des femmes et des hommes à 65 ans\n• mesures de compensation pour les femmes de la génération transitoire\n• retraite flexible dans l’AVS\n• financement additionnel par le relèvement de la TVA
-    1. Vous pouvez déterminer votre droit aux prestations de façon simple et rapide,grâce au calculateur de prestations complémentaires en ligne : www.ahv-iv.ch/r/calculateurpc\n\n Le calcul est effectué de façon tout à fait anonyme. Vos données ne sont pas enregistrées. Le résultat qui en ressort constitue une estimation provisoire fondée sur une méthode de calcul simplifiée. Il s’agit d’une estimation sans engagement,qui ne tient pas lieu de demande de prestation et n’implique aucun droit. Le calcul n’est valable que pour les personnes qui vivent à domicile. Si vous résidez dans un home,veuillez vous adresser à sa direction,qui vous fournira les renseignements appropriés au sujet des prestations complémentaires.
+    0. Le 25 septembre 2022,le peuple et les cantons ont accepté la réforme AVS 21 et assuré ainsi un financement suffisant de l"AVS jusqu"à l"horizon 2030. La modification entrera en vigueur le 1er janvier 2024. La réforme comprenait deux objets : la modification de la loi sur l"assurance-vieillesse et survivants (LAVS) et l"arrêté fédéral sur le financement additionnel de l"AVS par le biais d"un relèvement de la TVA. Les deux objets étaient liés. Ainsi,le financement de l"AVS et le niveau des rentes seront garantis pour les prochaines années. L"âge de référence des femmes sera relevé à 65 ans,comme pour les hommes,le départ à la retraite sera flexibilisé et la TVA augmentera légèrement. La stabilisation de l"AVS comprend quatre mesures : \n\n• harmonisation de l"âge de la retraite (à l"avenir «âge de référence») des femmes et des hommes à 65 ans\n• mesures de compensation pour les femmes de la génération transitoire\n• retraite flexible dans l"AVS\n• financement additionnel par le relèvement de la TVA
+    1. Vous pouvez déterminer votre droit aux prestations de façon simple et rapide,grâce au calculateur de prestations complémentaires en ligne : www.ahv-iv.ch/r/calculateurpc\n\n Le calcul est effectué de façon tout à fait anonyme. Vos données ne sont pas enregistrées. Le résultat qui en ressort constitue une estimation provisoire fondée sur une méthode de calcul simplifiée. Il s"agit d"une estimation sans engagement,qui ne tient pas lieu de demande de prestation et n"implique aucun droit. Le calcul n"est valable que pour les personnes qui vivent à domicile. Si vous résidez dans un home,veuillez vous adresser à sa direction,qui vous fournira les renseignements appropriés au sujet des prestations complémentaires.
 Sources validées: [0]
 
 Question: Quand des prestations complémentaires sont-elles versées ?
 Sources:
     0. Lorsque la rente AVS ne suffit pas. Les rentes AVS sont en principe destinées à couvrir les besoins vitaux d'un assuré. Lorsque ces ressources ne sont pas suffisantes pour assurer la subsistance des bénéficiaires de rentes AVS,ceux-ci peuvent prétendre à des prestations complémentaires (PC).\n\nLe versement d'une telle prestation dépend du revenu et de la fortune de chaque assuré. Les PC ne sont pas des prestations d'assistance mais constituent un droit que la personne assurée peut faire valoir en toute légitimité lorsque les conditions légales sont réunies.
-    1. La rente peut être anticipée ou ajournée. Anticipation de la rente : Femmes et hommes peuvent anticiper la perception de leur rente dès le premier jour du mois qui suit leur 63e anniversaire. Les femmes nées entre 1961 et 1969 pourront continuer à anticiper leur rente à 62 ans. Leur situation est régie par des dispositions transitoires spéciales. Pour plus d’informations à ce sujet,veuillez vous adresser à votre caisse de compensation. Durant la période d'anticipation,il n'existe pas de droit à une rente pour enfant. Ajournement de la rente : Les personnes qui ajournent leur retraite d'au moins un an et de cinq ans au maximum bénéficient d'une rente de vieilesse majorée d'une augmentation pendant toute la durée de leur retraite. Combinaison : Il est également possible de combiner l'anticipation et l'ajournement. Une partie de la rente de vieillesse peut être anticipée et une partie peut être ajournée une fois l'âge de référence atteint. Le montant de la réduction ou de la majoration de la rente est fixé selon le principe des calculs actuariels. Dans le cadre d'un couple,il est possible que l'un des conjoints anticipe son droit à la rente alors que l'autre l'ajourne.
+    1. La rente peut être anticipée ou ajournée. Anticipation de la rente : Femmes et hommes peuvent anticiper la perception de leur rente dès le premier jour du mois qui suit leur 63e anniversaire. Les femmes nées entre 1961 et 1969 pourront continuer à anticiper leur rente à 62 ans. Leur situation est régie par des dispositions transitoires spéciales. Pour plus d"informations à ce sujet,veuillez vous adresser à votre caisse de compensation. Durant la période d'anticipation,il n'existe pas de droit à une rente pour enfant. Ajournement de la rente : Les personnes qui ajournent leur retraite d'au moins un an et de cinq ans au maximum bénéficient d'une rente de vieilesse majorée d'une augmentation pendant toute la durée de leur retraite. Combinaison : Il est également possible de combiner l'anticipation et l'ajournement. Une partie de la rente de vieillesse peut être anticipée et une partie peut être ajournée une fois l'âge de référence atteint. Le montant de la réduction ou de la majoration de la rente est fixé selon le principe des calculs actuariels. Dans le cadre d'un couple,il est possible que l'un des conjoints anticipe son droit à la rente alors que l'autre l'ajourne.
     2. Quand des prestations complémentaires sont-elles versées ? Lorsque la rente AVS ne suffit pas. Les rentes AVS sont en principe destinées à couvrir les besoins vitaux d'un assuré. Lorsque ces ressources ne sont pas suffisantes pour assurer la subsistance des bénéficiaires de rentes AVS,ceux-ci peuvent prétendre à des prestations complémentaires (PC).\n\nLe versement d'une telle prestation dépend du revenu et de la fortune de chaque assuré. Les PC ne sont pas des prestations d'assistance mais constituent un droit que la personne assurée peut faire valoir en toute légitimité lorsque les conditions légales sont réunies.
     3. Si vous souhaitez vérifier que votre durée de cotisations ne présente pas de lacune ou que votre employeur a effectivement annoncé à la caisse de compensation les revenus sur lesquels vous avez cotisé, vous pouvez en tout temps demander par écrit un extrait de compte à une caisse de compensation ou sous www.avs-ai.ch. Il vous faut indiquer pour cela votre numéro AVS et votre adresse postale.
 Sources validées: [2]
@@ -713,7 +965,7 @@ Ihre Aufgabe ist es, die Informationsquelle zur Beantwortung der vom Nutzer gest
 - ob die Quelle teilweise (enthält nicht alle notwendigen Informationen) oder vollständig ist.
 - den Grund für die Validierung der Quelle.
 
-Seien Sie bei der Validierung äußerst streng. Validieren Sie eine Quelle nur, wenn Sie genaue Passagen aus der Quelle zitieren könnten, um die Frage zu beantworten.
+Seien Sie bei der Validierung äusserst streng. Validieren Sie eine Quelle nur, wenn Sie genaue Passagen aus der Quelle zitieren könnten, um die Frage zu beantworten.
 
 Sie können auch die mit der Quelle verbundenen Themen konsultieren, um bei der Validierung der Quelle zu helfen, aber Ihre Entscheidung sollte sich hauptsächlich auf den Inhalt der Quelle selbst stützen.
 
