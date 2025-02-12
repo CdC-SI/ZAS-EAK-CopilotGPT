@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from .base import BaseMemoryStrategy
 from ..interfaces.storage import BaseStorage, DatabaseStorage
 from ..models import MessageData, ConversationData
+from ..enums import MessageRole
 
 
 class ConversationalMemoryBuffer(BaseMemoryStrategy):
@@ -41,13 +42,16 @@ class ConversationalMemoryBuffer(BaseMemoryStrategy):
         user_uuid: str,
         conversation_uuid: str,
         k_memory: int,
+        **kwargs,
     ) -> str:
         """
         Get formatted conversation from memory.
         """
+        k_turns = kwargs.get("k_turns", -1)
+        roles = kwargs.get("roles", [MessageRole.USER, MessageRole.ASSISTANT])
 
         conversational_memory = await self.get_conversational_memory(
             db, user_uuid, conversation_uuid, k_memory
         )
 
-        return conversational_memory.format()
+        return conversational_memory.format(k_turns=k_turns, roles=roles)
