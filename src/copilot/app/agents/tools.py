@@ -1,128 +1,188 @@
+import ast
 from typing import Dict, AsyncGenerator
-from dataclasses import dataclass
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from langfuse.decorators import observe
 
-from commands.command_service import TranslationService
+from sqlalchemy.orm import Session
+from schemas.chat import ChatRequest
+from memory import MemoryService
+from rag.retrievers import RetrieverClient
+from utils.streaming import StreamingHandler
+from schemas.agents import ParseTranslateArgs
+
+from memory.enums import MessageRole
+from commands.command_service import translation_service
+
 from chat.messages import MessageBuilder
 from llm.base import BaseLLM
+from utils.streaming import Token
+from utils.parsing import clean_text
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
 
-@dataclass
-class CommandResult:
-    success: bool
-    message: str
-    source: str = ""
+@observe(name="parse_translation_args")
+async def parse_translation_args(
+    request: ChatRequest,
+    message_builder: MessageBuilder,
+    llm_client: BaseLLM,
+) -> Dict[str, str]:
+    """
+    Parse user query with LLM to extract args for translation.
+    """
+    messages = message_builder.build_parse_translate_args_prompt(
+        request.language,
+        request.llm_model,
+        request.query,
+    )
 
+    res = await llm_client.llm_client.beta.chat.completions.parse(
+        model="gpt-4o",
+        temperature=0,
+        top_p=0.95,
+        max_tokens=4096,
+        messages=messages,
+        response_format=ParseTranslateArgs,
+    )
 
-class CommandFunctions:
-    def __init__(
-        self,
-        translation_service: TranslationService,
-        message_builder: MessageBuilder,
-        llm_client: BaseLLM,
-    ):
-        self.translation_service = translation_service
-        self.message_builder = message_builder
-        self.llm_client = llm_client
+    arg_names = ["target_lang", "n_msg", "roles"]
+    arg_values = res.choices[0].message.parsed.arg_values
 
-    @observe(name="translate_tool")
-    async def translate_conversation(
-        self, text: str, target_lang: str, mode: str = "all", n_msg: int = -1
-    ) -> CommandResult:
-        """
-        Translates conversation text to target language
-        Parameters:
-        - text: The text to translate
-        - target_lang: Target language code (e.g., 'de', 'fr', 'it')
-        - mode: Translation mode ('all' or 'last')
-        - n_msg: Number of messages to translate when mode is 'last'
-        Returns: CommandResult with translation or error message
-        """
+    # TO DO: move parsing logic to utils.parsing
+    parsed_args = []
+    for arg in arg_values:
         try:
-            translated_text = await self.translation_service.translate(
-                text, target_lang
-            )
-            # return CommandResult(
-            #     success=True,
-            #     message=translated_text,
-            #     source="DeepL Translation Command Service"
-            # )
-            return {"translated_text": translated_text}
-        except Exception as e:
-            # return CommandResult(
-            #     success=False,
-            #     message="Sorry, an error occurred during translation. Please try again later.",
-            #     source=""
-            # )
-            logger.info(e)
-            return
-            # return f"Unknown command: {request.command}"
+            parsed_value = ast.literal_eval(arg)
+        except (ValueError, SyntaxError):
+            if arg.startswith("[MessageRole.") and arg.endswith("]"):
+                enum_values = arg.strip("[]").split(",")
+                parsed_value = [
+                    eval(enum_val.strip()) for enum_val in enum_values
+                ]
+            else:
+                parsed_value = arg
 
-    @observe(name="summarize_tool")
-    async def summarize_conversation(
-        self,
-        text: str,
-        mode: str = "all",
-        n_msg: int = -1,
-        style: str = "concise",
-    ) -> CommandResult:
-        """
-        Summarizes conversation text
-        Parameters:
-        - text: The conversation text to summarize
-        - mode: Summary mode ('all', 'last', or 'highlights')
-        - n_msg: Number of messages to summarize when mode is 'last'
-        - style: Summary style ('formal', 'concise', 'detailed')
-        Returns: CommandResult with summary or error message
-        """
-        try:
-            messages = self.message_builder.build_summarize_prompt(
-                language="de",
-                llm_model="gpt-4o-mini",
-                command="/summarize",
-                input_text=text,
-                mode=mode,
-                style=style,
-            )
+        parsed_args.append(parsed_value)
 
-            response = await self.llm_client.call(messages)
-            summary = "".join([chunk.content for chunk in response])
+    args = {name: value for name, value in zip(arg_names, parsed_args)}
 
-            return CommandResult(
-                success=True,
-                message=summary,
-                source="AI Summary Command Service",
-            )
-        except Exception as e:
-            logger.info(e)
-            return CommandResult(
-                success=False,
-                message="Sorry, an error occurred during summarization. Please try again later.",
-                source="",
-            )
+    return args
+
+
+# Translate tool
+@observe(name="translate_tool")
+async def translate_tool(
+    request: ChatRequest,
+    memory_service: MemoryService,
+    message_builder: MessageBuilder,
+    llm_client: BaseLLM,
+    db: Session,
+) -> AsyncGenerator[Token, None]:
+    """
+    Tool to translate text messages.
+    """
+
+    args = await parse_translation_args(request, message_builder, llm_client)
+    n_msg = args.get("n_msg", -1)
+    target_lang = args.get("target_lang", "de")
+    roles = args.get("roles", [MessageRole.USER, MessageRole.ASSISTANT])
+
+    text = await memory_service.chat_memory.get_formatted_conversation(
+        db,
+        request.user_uuid,
+        request.conversation_uuid,
+        k_memory=n_msg,
+        roles=roles,
+    )
+    cleaned_text = clean_text(text)
+
+    logger.info("------CLEANED TEXT: %s", cleaned_text)
+
+    translated_text = await translation_service.translate(
+        cleaned_text, target_lang
+    )
+
+    yield translated_text
+
+
+# Summarize tool
+@observe(name="summarize_tool")
+async def summarize_tool(
+    request: ChatRequest,
+    memory_service: MemoryService,
+    message_builder: MessageBuilder,
+    llm_client: BaseLLM,
+    streaming_handler: StreamingHandler,
+    db: Session,
+) -> AsyncGenerator[Token, None]:
+    """
+    Tool to summarize text messages.
+    """
+    conversational_memory = (
+        await memory_service.chat_memory.get_formatted_conversation(
+            db,
+            request.user_uuid,
+            request.conversation_uuid,
+            k_memory=-1,
+        )
+    )
+
+    messages = message_builder.build_agent_summarize_prompt(
+        request.language,
+        request.llm_model,
+        request.query,
+        conversational_memory,
+    )
+
+    event_stream = llm_client.call(
+        messages,
+        model="gpt-4o",
+        stream=True,
+        temperature=0.7,
+        max_tokens=8192,
+    )
+
+    async for token in streaming_handler.generate_stream(event_stream):
+        yield token
 
 
 # RAG tool
 @observe(name="RAG_tool")
 async def rag_tool(
-    db,
-    request,
-    llm_client,
-    streaming_handler,
-    retriever_client,
-    message_builder,
-    memory_service,
-    sources,
-) -> AsyncGenerator[str, None]:
+    db: Session,
+    request: ChatRequest,
+    llm_client: BaseLLM,
+    streaming_handler: StreamingHandler,
+    retriever_client: RetrieverClient,
+    message_builder: MessageBuilder,
+    memory_service: MemoryService,
+    sources: Dict,
+) -> AsyncGenerator[Token, None]:
 
     from rag.rag_service import (
         rag_service,
     )  # TO DO: refactor to avoid circular import
+
+    # conversational_memory = (
+    #         await (
+    #             memory_service.chat_memory.get_formatted_conversation(
+    #                 db,
+    #                 request.user_uuid,
+    #                 request.conversation_uuid,
+    #                 request.k_memory,
+    #             )
+    #         )
+    #     )
+
+    # documents = await rag_service.retrieve(
+    #         db, request, retriever_client, conversational_memory
+    #     )
+
+    # RetrievalEvaluatorAgent -> evaluates retrieval
+    # Multiple retrieval rounds based on evaluation
+    # Ask for user feedback to provide more precise answer or disambiguate information/sources of documents
 
     async for token in rag_service.process_rag(
         db,
