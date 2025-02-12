@@ -49,11 +49,11 @@ rag:
     top_p: 0.95
     stream: true
 chat:
-  topic_check: true
+  topic_check: false
   source_validation: false
   memory:
     memory_type: "buffer"
-    k_memory: 5
+    k_memory: 15
 indexing:
   enabled: true
   dev_mode: true
