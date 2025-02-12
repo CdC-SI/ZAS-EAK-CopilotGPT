@@ -208,10 +208,12 @@ async def run_agent(
     agent: BaseAgent,
     request: ChatRequest,
     sources: Dict,
+    **kwargs,
 ) -> AsyncGenerator[Token, None]:
     """
     Run the selected agent to handle the user query.
     """
+    intent = kwargs.get("intent", None)
 
     try:
         async for token in agent.process(
@@ -223,13 +225,12 @@ async def run_agent(
             memory_service=memory_service,
             sources=sources,
             db=db,
+            intent=intent,
         ):
             yield token
     except Exception as e:
         logger.info("Exception occured when running agent: %s", e)
 
         # LLM logic to clarify topic/ask for more information?
-        message = (
-            "An error occured while handling request with Agent, please retry."
-        )
+        message = " An error occured while handling request with Agent, please retry."
         yield Token.from_text(message)
