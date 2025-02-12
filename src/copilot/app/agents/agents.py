@@ -199,7 +199,7 @@ class PensionAgent(BaseAgent):
         function_call = res.choices[0].message.parsed.function_call
 
         try:
-            calculation_result = await executor.execute(function_call)
+            calculation_result = executor.execute(function_call)
             response, source = (
                 calculation_response_service.get_response_message(
                     calculation_result=calculation_result,

@@ -40,7 +40,7 @@ class FunctionExecutor:
 
         return func_name, params
 
-    async def execute(self, function_string: str) -> Any:
+    def execute(self, function_string: str) -> Any:
         """
         Execute a function from its string representation.
         Example: executor.execute('calculate_age("1990-01-01", 25)')
@@ -51,4 +51,4 @@ class FunctionExecutor:
             raise ValueError(f"Function '{func_name}' is not registered")
 
         func = self._registered_functions[func_name]
-        return await func(*params)
+        return func(*params)
