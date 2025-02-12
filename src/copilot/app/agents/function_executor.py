@@ -2,8 +2,6 @@ from typing import Any, Dict, Callable
 import re
 import ast
 
-from agents.tools import CommandFunctions
-
 
 class FunctionExecutor:
     def __init__(self):
@@ -13,14 +11,6 @@ class FunctionExecutor:
     def register_function(self, func: Callable) -> None:
         """Register a function that can be called via string."""
         self._registered_functions[func.__name__] = func
-
-    def register_command_functions(
-        self, command_functions: CommandFunctions
-    ) -> None:
-        """Register CommandFunctions instance for command execution"""
-        self._command_functions = command_functions
-        self.register_function(command_functions.translate_conversation)
-        self.register_function(command_functions.summarize_conversation)
 
     def parse_function_call(self, function_string: str) -> tuple[str, list]:
         """
