@@ -80,6 +80,7 @@ SOURCE_SELECTION_PROMPT_DE = """<anweisungen>
     <anweisung>Ihre Aufgabe ist es, die geeignete Datenquelle auszuwählen, um die Frage des Nutzers zu beantworten</anweisung>
     <anweisung>Basieren Sie Ihre Auswahl auf der <frage>, der <intention>, dem <gesprächsverlauf> und der Liste der <quellen> und ihrer Beschreibung</anweisung>
     <anweisung>Basieren Sie Ihre Auswahl auf der jüngsten Geschichte der Aktionen des Benutzers</anweisung>
+    <anweisung>Wenn Sie sich nicht sicher sind, welche Quelle Sie auswählen sollen, wählen Sie None</anweisung>
 </anweisungen>
 
 <format_der_antwort>
@@ -113,11 +114,12 @@ SOURCE_SELECTION_PROMPT_FR = """<instructions>
     <instruction>Votre tâche consiste à sélectionner la source de données appropriée pour répondre à la question de l'utilisateur<instructions>
     <instructions>Basez votre sélection en fonction de la <question>, l'<intention>, l'<historique_de_conversation> et la liste de <sources> et leur description</instruction>
     <instruction>Basez votre sélection sur l'historique récent des actions de l'utilisateur</instruction>
+    <instruction>En cas de doute sur la source à sélectionner, retournez None</instruction>
 </instructions>
 
 <format_de_réponse>
 SourceSelection(
-    inferred_sources: List[str] # la/les source(s) de données sélectionnées (e.g. ["<temp:file_upload_name.pdf>"], ["ahv_iv_mementos"], ["eak.admin.ch", "ahv_lernbaustein_2024", "fedlex"], ["akis"], etc.)
+    inferred_sources: List[str] = None # la/les source(s) de données sélectionnées (e.g. ["<temp:file_upload_name.pdf>"], ["ahv_iv_mementos"], ["eak.admin.ch", "ahv_lernbaustein_2024", "fedlex"], ["akis"], etc.)
 )
 </format_de_réponse>
 
@@ -146,6 +148,7 @@ SOURCE_SELECTION_PROMPT_IT = """<istruzioni>
     <istruzione>Il vostro compito è selezionare la fonte di dati appropriata per rispondere alla domanda dell'utente<istruzione>
     <istruzione>Basate la vostra selezione sulla <domanda>, l'<intento>, la <storia_della_conversazione> e l'elenco delle <fonti> e delle loro descrizioni</istruzioni>
     <istruzione>Basare la selezione sulla storia recente delle azioni dell'utente</istruzione>
+    <istruzione>In caso di dubbio su quale fonte selezionare, scegliere None</istruzione>
 </istruzioni>
 
 <formato_risposta>
