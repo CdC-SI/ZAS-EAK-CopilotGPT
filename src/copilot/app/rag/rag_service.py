@@ -250,8 +250,6 @@ class RAGService:
             )
         )
 
-        logger.info("----- CONVERSATIONAL MEMORY: %s", conversational_memory)
-
         # Intent detection
         # TO DO: perform retrieval to get context docs
         # TO DO: format docs
@@ -279,18 +277,19 @@ class RAGService:
         # if step is ...
 
         # Source detection
-        # Need user actions (eg pdf upload) added to chat history/conversational memory
         # TO DO: yield status message
-        if not request.source:
-            inferred_sources = await infer_sources(
-                db=db,
-                message_builder=message_builder,
-                llm_client=llm_client,
-                request=request,
-                inferred_intent=inferred_intent,
-                conversational_memory=conversational_memory,
-            )
-            request.source = inferred_sources
+        # TO DO: implement document translation and summarization (not only conversation)
+        if inferred_intent not in ["translate", "summarize"]:
+            if not request.source:
+                inferred_sources = await infer_sources(
+                    db=db,
+                    message_builder=message_builder,
+                    llm_client=llm_client,
+                    request=request,
+                    inferred_intent=inferred_intent,
+                    conversational_memory=conversational_memory,
+                )
+                request.source = inferred_sources
 
         # Tags detection
         # TO DO: yield status message
@@ -332,6 +331,7 @@ class RAGService:
             agent=agent,
             request=request,
             sources=sources,
+            intent=inferred_intent,
         ):
             yield token
 
