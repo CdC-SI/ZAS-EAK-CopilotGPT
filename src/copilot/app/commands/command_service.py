@@ -17,6 +17,32 @@ class TranslationService:
         self.deepl_client = clientDeepl
 
     async def translate(self, input_text: str, target_lang: str) -> str:
+        """
+        Translate text to a target language using DeepL API.
+
+        Parameters
+        ----------
+        input_text : str
+            The text to be translated.
+        target_lang : str
+            The target language code (e.g., "ar", "bg", "cs", "da", "de", "el", "en-gb", "en-us", "es", "et", "fi", "fr", "hu", "id", "it", "ja", "ko", "lv", "nb", "nl", "pl", "pt-br", "pt-pt", "ro", "ru", "sk", "sl", "sv", "tr", "uk", "zh-hans", "zh-hant").
+
+        Returns
+        -------
+        str
+            The translated text if successful, an error message otherwise.
+
+        Notes
+        -----
+        The target language code is automatically converted to uppercase.
+
+        Examples
+        --------
+        >>> await translate("Hello world", "de")
+        'Hallo Welt'
+        >>> await translate("Bonjour", "en-gb")
+        'Hello'
+        """
         if self.deepl_client:
             try:
                 translation = self.deepl_client.translate_text(
@@ -224,3 +250,6 @@ class CommandService:
         elif translated_text:
             for token in translated_text:
                 yield Token.from_text(token)
+
+
+translation_service = TranslationService()
