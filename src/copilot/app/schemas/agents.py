@@ -27,6 +27,10 @@ class FunctionCall(BaseModel):
     function_call: str
 
 
+class ParseTranslateArgs(BaseModel):
+    arg_values: List[str]
+
+
 class MultipleSourceValidation(BaseModel):
     sources: List[str]
     is_valid: bool
