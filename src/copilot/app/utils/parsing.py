@@ -23,3 +23,13 @@ def remove_file_extension(filename):
     return re.sub(
         r"\.(docx|pdf|xml|csv|xlsx)", "", filename, flags=re.IGNORECASE
     )
+
+
+def clean_text(text):
+    # Remove substrings starting with a timestamp (first digit) and ending with "- user" or "- assistant"
+    text = re.sub(r"(?<!\S)\d[^\n]*?-(?: user| assistant)\n", "", text)
+
+    # Remove substrings starting with "Source" and ending with "]"
+    text = re.sub(r"Source[^\]]*?\]", "", text)
+
+    return text
