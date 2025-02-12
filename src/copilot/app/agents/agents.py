@@ -6,7 +6,12 @@ from asyncio import Semaphore
 from collections.abc import AsyncIterator
 
 from agents.function_metadata import extract_function_metadata
-from agents.tools import determine_reduction_rate_and_supplement, rag_tool
+from agents.tools import (
+    determine_reduction_rate_and_supplement,
+    rag_tool,
+    translate_tool,
+    summarize_tool,
+)
 from agents.function_executor import FunctionExecutor
 from chat.messages import MessageBuilder
 from schemas.chat import ChatRequest
@@ -18,9 +23,7 @@ from prompts.agents import (
 )
 from schemas.agents import FunctionCall, UniqueSourceValidation
 from agents.response_service import calculation_response_service
-from agents.tools import CommandFunctions
 from agents.base import BaseAgent
-from commands.command_service import TranslationService
 from llm.factory import LLMFactory
 from utils.streaming import Token
 from chat.status_service import status_service, StatusType
@@ -39,13 +42,6 @@ llm_client = LLMFactory.get_llm_client(
     top_p=0.95,
     max_tokens=2056,
 )
-
-command_functions = CommandFunctions(
-    translation_service=TranslationService(),
-    message_builder=MessageBuilder(),
-    llm_client=llm_client,
-)
-executor.register_command_functions(command_functions)
 
 
 class FollowUp(Enum):
@@ -106,6 +102,7 @@ class ChatAgent(BaseAgent):
     def __init__(self, name: str = None):
         self.name = name if name else "CHAT_AGENT"
 
+    @observe(name="CHAT_agent_process")
     async def process(
         self,
         request: ChatRequest,
@@ -116,37 +113,47 @@ class ChatAgent(BaseAgent):
         """
         Process the query with Chat agent.
         """
-        yield Token.from_status(
-            f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='translate_conversation')}</tool_use>"
-        )
-        func_metadata = extract_function_metadata(TranslationService.translate)
+        intent = kwargs.get("intent")
+        db = kwargs.get("db")
+        memory_service = kwargs.get("memory_service")
+        streaming_handler = kwargs.get("streaming_handler")
 
-        # TO DO: add specific arg parsing prompt per function (eg. target lang)
-        messages = message_builder.build_function_call_prompt(
-            language=request.language,
-            llm_model="gpt-4o",
-            query=request.query,
-            func_metadata=func_metadata,
-        )
-
-        res = await llm_client.llm_client.beta.chat.completions.parse(
-            model="gpt-4o",
-            temperature=0,
-            top_p=0.95,
-            max_tokens=512,
-            messages=messages,
-            response_format=FunctionCall,
-        )
-
-        function_call = res.choices[0].message.parsed.function_call
-
-        try:
-            function_call_result = await executor.execute(function_call)
-            for token in function_call_result.split(" "):
-                yield Token.from_text(token)
-        except ValueError as e:
-            logger.info("Error executing function %s", e)
-            message = "Sorry, an error occurred while processing your request. Please try again."
+        logger.info("------ INTENT: %s", intent)
+        if intent == "translate":
+            yield Token.from_status(
+                f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='translate_conversation')}</tool_use>"
+            )
+            try:
+                async for token in translate_tool(
+                    request,
+                    memory_service,
+                    message_builder,
+                    llm_client,
+                    db,
+                ):
+                    yield Token.from_text(token)
+            except Exception as e:
+                logger.info("Error translating conversation: %s", e)
+                raise e
+        elif intent == "summarize":
+            yield Token.from_status(
+                f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='summarize_conversation')}</tool_use>"
+            )
+            try:
+                async for token in summarize_tool(
+                    request,
+                    memory_service,
+                    message_builder,
+                    llm_client,
+                    streaming_handler,
+                    db,
+                ):
+                    yield token
+            except Exception as e:
+                logger.info("Error summarizing conversation: %s", e)
+                raise e
+        else:
+            message = "Sorry, I do not understand your intent. Please try again with a more specific question."
             yield Token.from_text(message)
 
 
@@ -155,6 +162,7 @@ class PensionAgent(BaseAgent):
     def __init__(self, name: str = None):
         self.name = name if name else "PENSION_AGENT"
 
+    @observe(name="PENSION_agent_process")
     async def process(
         self,
         request: ChatRequest,
@@ -213,6 +221,7 @@ class RAGAgent(BaseAgent):
     def __init__(self, name: str = None):
         self.name = name if name else "RAG_AGENT"
 
+    @observe(name="RAG_agent_process")
     async def process(
         self,
         request: ChatRequest,
@@ -242,6 +251,25 @@ class RAGAgent(BaseAgent):
             yield token
 
 
+class RetrievalEvaluatorAgent(BaseAgent):
+
+    def __init__(self, name: str = None):
+        self.name = name if name else "RETRIEVAL_EVALUATOR_AGENT"
+
+    @observe(name="RETRIEVAL_EVALUATOR_agent_process")
+    async def process(
+        self,
+        request: ChatRequest,
+        message_builder: MessageBuilder,
+        llm_client: BaseLLM,
+        **kwargs,
+    ) -> AsyncGenerator[Token, None]:
+        """
+        Process the query with Retrieval Evaluator agent.
+        """
+        pass
+
+
 class SourceValidatorAgent(BaseAgent):
 
     def __init__(self, name: str = None):
@@ -250,6 +278,7 @@ class SourceValidatorAgent(BaseAgent):
         self.max_retries = 3
         self.retry_delay = 1
 
+    @observe(name="SOURCE_VALIDATOR_agent_process")
     async def process(
         self,
         request: ChatRequest,
