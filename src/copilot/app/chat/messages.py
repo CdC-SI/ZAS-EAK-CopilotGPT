@@ -61,6 +61,12 @@ from prompts.agents import (
     AGENT_HANDOFF_PROMPT_DE,
     AGENT_HANDOFF_PROMPT_FR,
     AGENT_HANDOFF_PROMPT_IT,
+    PARSE_TRANSLATE_ARGS_PROMPT_DE,
+    PARSE_TRANSLATE_ARGS_PROMPT_FR,
+    PARSE_TRANSLATE_ARGS_PROMPT_IT,
+    AGENT_SUMMARIZE_PROMPT_DE,
+    AGENT_SUMMARIZE_PROMPT_FR,
+    AGENT_SUMMARIZE_PROMPT_IT,
     PENSION_FUNCTION_CALLING_PROMPT_DE,
     PENSION_FUNCTION_CALLING_PROMPT_FR,
     PENSION_FUNCTION_CALLING_PROMPT_IT,
@@ -192,6 +198,18 @@ class MessageBuilder:
         "de": AGENT_HANDOFF_PROMPT_DE,
         "fr": AGENT_HANDOFF_PROMPT_FR,
         "it": AGENT_HANDOFF_PROMPT_IT,
+    }
+
+    _PARSE_TRANSLATE_ARGS_PROMPT = {
+        "de": PARSE_TRANSLATE_ARGS_PROMPT_DE,
+        "fr": PARSE_TRANSLATE_ARGS_PROMPT_FR,
+        "it": PARSE_TRANSLATE_ARGS_PROMPT_IT,
+    }
+
+    _AGENT_SUMMARIZE_PROMPT = {
+        "de": AGENT_SUMMARIZE_PROMPT_DE,
+        "fr": AGENT_SUMMARIZE_PROMPT_FR,
+        "it": AGENT_SUMMARIZE_PROMPT_IT,
     }
 
     _PENSION_FUNCTION_CALLING_PROMPT = {
@@ -785,6 +803,88 @@ class MessageBuilder:
                 {
                     "role": "system",
                     "content": pension_function_calling_system_prompt,
+                },
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
+    @observe(name="MessageBuilder_build_parse_translate_args_prompt")
+    def build_parse_translate_args_prompt(
+        self,
+        language: str,
+        llm_model: str,
+        query: str,
+    ) -> Union[List[Dict], str]:
+        """
+        Format the Parse translate args message to send to the appropriate LLM API.
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+            parse_translate_args_system_prompt = (
+                self._PARSE_TRANSLATE_ARGS_PROMPT.get(
+                    language,
+                    self._PARSE_TRANSLATE_ARGS_PROMPT.get(
+                        self._DEFAULT_LANGUAGE
+                    ),
+                )
+            )
+            parse_translate_args_system_prompt = (
+                parse_translate_args_system_prompt.format(
+                    query=query,
+                )
+            )
+            return [
+                {
+                    "role": "system",
+                    "content": parse_translate_args_system_prompt,
+                },
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
+    @observe(name="MessageBuilder_build_agent_summarize_prompt")
+    def build_agent_summarize_prompt(
+        self,
+        language: str,
+        llm_model: str,
+        query: str,
+        conversational_memory: str,
+    ) -> Union[List[Dict], str]:
+        """
+        Format the agent summarize message to send to the appropriate LLM API.
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+            agent_summarize_system_prompt = self._AGENT_SUMMARIZE_PROMPT.get(
+                language,
+                self._AGENT_SUMMARIZE_PROMPT.get(self._DEFAULT_LANGUAGE),
+            )
+            agent_summarize_system_prompt = (
+                agent_summarize_system_prompt.format(
+                    query=query,
+                    conversational_memory=conversational_memory,
+                )
+            )
+            return [
+                {
+                    "role": "system",
+                    "content": agent_summarize_system_prompt,
                 },
             ]
         else:
