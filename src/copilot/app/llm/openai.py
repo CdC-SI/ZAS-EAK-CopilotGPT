@@ -41,7 +41,7 @@ class OpenAILLM(BaseLLM):
         self.llm_client = config.factory.create_llm_client(model)
         super().__init__(stream)
 
-    async def agenerate(self, messages: List[dict]) -> str:
+    async def agenerate(self, messages: List[dict], **kwargs) -> str:
         """
         Generate a response using the LLM model.
 
@@ -61,26 +61,30 @@ class OpenAILLM(BaseLLM):
             If an error occurs during generation.
         """
         try:
-            return await self.llm_client.chat.completions.create(
-                model=self.model,
-                stream=False,
-                temperature=self.temperature,
-                top_p=self.top_p,
-                max_tokens=self.max_tokens,
-                messages=messages,
-            )
+            params = {
+                "model": self.model,
+                "stream": False,
+                "temperature": self.temperature,
+                "top_p": self.top_p,
+                "max_tokens": self.max_tokens,
+                "messages": messages,
+            }
+            params.update(kwargs)
+            return await self.llm_client.chat.completions.create(**params)
         except Exception as e:
             raise e
 
-    async def _astream(self, messages: List[Any]):
+    async def _astream(self, messages: List[Any], **kwargs):
         try:
-            return await self.llm_client.chat.completions.create(
-                model=self.model,
-                stream=True,
-                temperature=self.temperature,
-                top_p=self.top_p,
-                max_tokens=self.max_tokens,
-                messages=messages,
-            )
+            params = {
+                "model": self.model,
+                "stream": True,
+                "temperature": self.temperature,
+                "top_p": self.top_p,
+                "max_tokens": self.max_tokens,
+                "messages": messages,
+            }
+            params.update(kwargs)
+            return await self.llm_client.chat.completions.create(**params)
         except Exception as e:
             raise e
