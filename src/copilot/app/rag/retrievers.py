@@ -5,6 +5,7 @@ from typing import List, Any
 from rag.reranker import Reranker
 
 from schemas.document import Document
+from schemas.retrieval import QueryReformulation
 from database.service import document_service
 
 import asyncio
@@ -190,10 +191,16 @@ class QueryRewritingRetriever(BaseRetriever):
             query,
             conversational_memory,
         )
-        rewritten_queries = await self.llm_client.agenerate(messages)
-        rewritten_queries = rewritten_queries.choices[0].message.content.split(
-            "\n"
+
+        res = await self.llm_client.llm_client.beta.chat.completions.parse(
+            model="gpt-4o",
+            temperature=0,
+            top_p=0.95,
+            max_tokens=2048,
+            messages=messages,
+            response_format=QueryReformulation,
         )
+        rewritten_queries = res.choices[0].message.parsed.reformulations
 
         # Query reformulations (declarative)
         messages = self.message_builder.build_query_statement_rewriting_prompt(
@@ -203,12 +210,18 @@ class QueryRewritingRetriever(BaseRetriever):
             query,
             conversational_memory,
         )
-        rewritten_declarative_queries = await self.llm_client.agenerate(
-            messages
+
+        res = await self.llm_client.llm_client.beta.chat.completions.parse(
+            model="gpt-4o",
+            temperature=0,
+            top_p=0.95,
+            max_tokens=2048,
+            messages=messages,
+            response_format=QueryReformulation,
         )
-        rewritten_declarative_queries = rewritten_declarative_queries.choices[
+        rewritten_declarative_queries = res.choices[
             0
-        ].message.content.split("\n")
+        ].message.parsed.reformulations
 
         reformulated_queries = (
             rewritten_queries + rewritten_declarative_queries
