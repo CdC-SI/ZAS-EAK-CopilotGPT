@@ -1,6 +1,7 @@
 INTENT_DETECTION_PROMPT_DE = """<anweisungen>
     <anweisung>bestimmen Sie die Absicht des Nutzers<anweisung>
     <anweisung>begründen Sie Ihre Entscheidung anhand der gestellten <frage>, der letzten Gesprächsrunden in der <gesprächverlauf> und der zur Verfügung stehenden <intentionen></anweisung>
+    <anweisung>entwickeln Sie KEINE Anschlussfrage, wenn Sie die Absicht als "translate" oder "summarize" bestimmen</anweisung>
     <anweisung>Entwerfen Sie NUR dann eine Anschlussfrage, wenn die <frage> nicht in den <intentionen> zur Verfügung kategorisiert werden kann</anweisung>
 <anweisungen>
 
@@ -27,6 +28,7 @@ IntentDetection(
 INTENT_DETECTION_PROMPT_FR = """<instructions>
     <instruction>déterminez l'intention de l'utilisateur</instruction>
     <instruction>fondez votre décision en fonction de la <question> posée, des derniers tours de conversation dans l'<historique_de_conversation> et des <intentions> à disposition</instruction>
+    <instruction>n'élaborez PAS de question de suivi si vous déterminez l'intention comme "translate" ou "summarize"</instruction>
     <instruction>élaborez une question de suivi SEULEMENT SI la <question> ne peut être catégorisée dans les <intentions> à disposition</instruction>
 </instructions>
 
@@ -53,6 +55,7 @@ IntentDetection(
 INTENT_DETECTION_PROMPT_IT = """<istruzioni>
     <istruzione>determinare l'intento dell'utente</istruzione>
     <istruzione>fondare la decisione in base alla <domanda> posta, agli ultimi cicli di conversazione nella <storia_della_conversazione> e alle <intenzioni> disponibili</istruzione>
+    <istruzione>NON creare una domanda di follow-up se l'intenzione è "translate" o "summarize"</istruzione>
     <istruzione>sviluppare una domanda di follow-up SOLO SE la <domanda> non può essere categorizzata nelle <intenzioni> a disposizione</istruzione>
 </istruzioni>
 
