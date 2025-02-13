@@ -279,7 +279,7 @@ class RAGService:
         # Source detection
         # TO DO: yield status message
         # TO DO: implement document translation and summarization (not only conversation)
-        if inferred_intent not in ["translate", "summarize"]:
+        if inferred_intent in ["factual_qa", "multipart_qa"]:
             if not request.source:
                 inferred_sources = await infer_sources(
                     db=db,
