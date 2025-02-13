@@ -323,13 +323,11 @@ class SourceValidatorAgent(BaseAgent):
                         ),
                         response_format=UniqueSourceValidation,
                     )
-                    if result.choices[0].message.parsed.is_valid:
-                        logger.info(
-                            "---------Source validated: %s",
-                            result.choices[0].message.parsed,
-                        )
-                        return document
-                    return None
+                    logger.info(
+                        "---------Source validated: %s",
+                        result.choices[0].message.parsed,
+                    )
+                    return (document, result.choices[0].message.parsed)
             except Exception as e:
                 if attempt == self.max_retries - 1:
                     logger.error(
@@ -369,9 +367,9 @@ class SourceValidatorAgent(BaseAgent):
 
         for completed_task in asyncio.as_completed(tasks):
             try:
-                token = await completed_task
-                if token:
-                    yield token
+                doc, source_validation = await completed_task
+                if doc:
+                    yield doc, source_validation
             except Exception as e:
                 logger.error("Error processing validation result: %s", e)
                 continue
@@ -393,3 +391,6 @@ class AgentFactory:
             case _:
                 # TO DO: ask for user feedback to select agent
                 raise ValueError(f"Unsupported agent name: {agent_name}")
+
+
+source_validator_agent = SourceValidatorAgent()

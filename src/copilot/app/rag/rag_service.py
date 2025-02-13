@@ -180,15 +180,19 @@ class RAGService:
 
         # Source validation
         if request.source_validation:
-            async for doc in self.source_validator_agent.validate_sources(
+            async for (
+                doc,
+                llm_source_validation,
+            ) in self.source_validator_agent.validate_sources(
                 request,
                 documents,
                 llm_client,
                 message_builder,
             ):
-                yield Token.from_source(doc["url"])
-                validated_docs.append(doc)
-                validated_sources.append(doc["url"])
+                if llm_source_validation.is_valid:
+                    yield Token.from_source(doc["url"])
+                    validated_docs.append(doc)
+                    validated_sources.append(doc["url"])
 
         else:
             # Return top sources if no source validation
