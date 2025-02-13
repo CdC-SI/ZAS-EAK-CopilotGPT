@@ -119,42 +119,43 @@ class ChatAgent(BaseAgent):
         streaming_handler = kwargs.get("streaming_handler")
 
         logger.info("------ INTENT: %s", intent)
-        if intent == "translate":
-            yield Token.from_status(
-                f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='translate_conversation')}</tool_use>"
-            )
-            try:
-                async for token in translate_tool(
-                    request,
-                    memory_service,
-                    message_builder,
-                    llm_client,
-                    db,
-                ):
-                    yield Token.from_text(token)
-            except Exception as e:
-                logger.info("Error translating conversation: %s", e)
-                raise e
-        elif intent == "summarize":
-            yield Token.from_status(
-                f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='summarize_conversation')}</tool_use>"
-            )
-            try:
-                async for token in summarize_tool(
-                    request,
-                    memory_service,
-                    message_builder,
-                    llm_client,
-                    streaming_handler,
-                    db,
-                ):
-                    yield token
-            except Exception as e:
-                logger.info("Error summarizing conversation: %s", e)
-                raise e
-        else:
-            message = "Sorry, I do not understand your intent. Please try again with a more specific question."
-            yield Token.from_text(message)
+        match intent:
+            case "translate":
+                yield Token.from_status(
+                    f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='translate_conversation')}</tool_use>"
+                )
+                try:
+                    async for token in translate_tool(
+                        request,
+                        memory_service,
+                        message_builder,
+                        llm_client,
+                        db,
+                    ):
+                        yield Token.from_text(token)
+                except Exception as e:
+                    logger.info("Error translating conversation: %s", e)
+                    raise e
+            case "summarize":
+                yield Token.from_status(
+                    f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='summarize_conversation')}</tool_use>"
+                )
+                try:
+                    async for token in summarize_tool(
+                        request,
+                        memory_service,
+                        message_builder,
+                        llm_client,
+                        streaming_handler,
+                        db,
+                    ):
+                        yield token
+                except Exception as e:
+                    logger.info("Error summarizing conversation: %s", e)
+                    raise e
+            case _:
+                message = "Sorry, I do not understand your intent. Please try again with a more specific question."
+                yield Token.from_text(message)
 
 
 class PensionAgent(BaseAgent):
@@ -374,13 +375,15 @@ class AgentFactory:
 
     @staticmethod
     def get_agent(agent_name: str):
-        if agent_name == "RAG_AGENT":
-            return RAGAgent(name=agent_name)
-        elif agent_name == "PENSION_AGENT":
-            return PensionAgent(name=agent_name)
-        elif agent_name == "CHAT_AGENT":
-            return ChatAgent(name=agent_name)
-        elif agent_name == "SOURCE_VALIDATOR_AGENT":
-            return SourceValidatorAgent(name=agent_name)
-        else:
-            raise ValueError(f"Unsupported agent name: {agent_name}")
+        match agent_name:
+            case "RAG_AGENT":
+                return RAGAgent(name=agent_name)
+            case "PENSION_AGENT":
+                return PensionAgent(name=agent_name)
+            case "CHAT_AGENT":
+                return ChatAgent(name=agent_name)
+            case "SOURCE_VALIDATOR_AGENT":
+                return SourceValidatorAgent(name=agent_name)
+            case _:
+                # TO DO: ask for user feedback to select agent
+                raise ValueError(f"Unsupported agent name: {agent_name}")
