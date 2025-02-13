@@ -119,6 +119,7 @@ class ChatAgent(BaseAgent):
         streaming_handler = kwargs.get("streaming_handler")
 
         logger.info("------ INTENT: %s", intent)
+
         match intent:
             case "translate":
                 yield Token.from_status(
@@ -136,6 +137,7 @@ class ChatAgent(BaseAgent):
                 except Exception as e:
                     logger.info("Error translating conversation: %s", e)
                     raise e
+
             case "summarize":
                 yield Token.from_status(
                     f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='summarize_conversation')}</tool_use>"
@@ -153,6 +155,10 @@ class ChatAgent(BaseAgent):
                 except Exception as e:
                     logger.info("Error summarizing conversation: %s", e)
                     raise e
+
+            case "user_followup_q":
+                pass
+
             case _:
                 message = "Sorry, I do not understand your intent. Please try again with a more specific question."
                 yield Token.from_text(message)
