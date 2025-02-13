@@ -1,6 +1,7 @@
 QUERY_REWRITING_PROMPT_DE = """<anweisungen>
     <anweisung>Wenn die unten stehende <frage> gegeben ist, formuliere sie auf mehrere verschiedene Arten um</anweisung>
     <anweisung>Wenn die Frage in mehrere Unterfragen zerlegt werden kann, formuliere jede Unterfrage separat um</anweisung>
+    <anweisung>Jede Unterfrage darf nur eine Idee oder ein Konzept enthalten/anweisung>
     <anweisung>Berücksichtigen Sie die gesamte <gesprächsgeschichte>, die kürzlich stattgefunden hat und mit der <frage> in Zusammenhang steht, um die Neuformulierung zu verfeinern</anweisung>
     <anweisung>Schreiben Sie {n_alt_queries} umformulierte Fragen in der gleichen Sprache wie die <frage></anweisung>
 </anweisungen>
@@ -29,6 +30,7 @@ Wie bekomme ich einen Auszug aus dem individuellen Konto und wo finde ich Inform
 QUERY_REWRITING_PROMPT_FR = """<instructions>
     <instruction>Étant donné la <question> ci-dessous, reformulez-la de plusieurs manières distinctes</instruction>
     <instruction>Quand la question peut être décomposée en plusieurs sous-questions, reformulez chaque sous-question séparément</instruction>
+    <instruction>Chaque sous-question doit contenir une seule idée ou concept</instruction>
     <instruction>Prenez en compte tout l'<historique_de_conversation> récent et en rapport avec la <question> afin de raffiner la reformulation</instruction>
     <instruction>Écrire {n_alt_queries} questions reformulées dans la même langue que la <question></instruction>
 </instructions>
@@ -58,6 +60,7 @@ Comment obtenir un extrait du compte individuel et ou trouver des informations ?
 QUERY_REWRITING_PROMPT_IT = """<istruzioni>
     <istruzione> Data la <domanda> qui sotto, riformularla in diversi modi distinti</istruzione>
     <istruzione>Quando la domanda può essere scomposta in diverse sotto-domande, riformulare ogni sotto-domanda separatamente</istruzione>
+    <istruzione>Ogni sotto-domanda deve contenere una singola idea o concetto</istruzione>
     <istruzione>Tenere conto di tutte le <memoria_conversazionale> recenti e relative alla <domanda> per perfezionare la riformulazione</istruzione>
     <istruzione>Scrivere {n_alt_queries} domande riformulate nella stessa lingua della <domanda></istruzione>
 </istruzioni>
@@ -86,7 +89,8 @@ Come posso ottenere un estratto conto individuale e dove posso trovare informazi
 
 QUERY_STATEMENT_REWRITING_PROMPT_DE = """<anweisungen>
     <anweisung>Wenn die unten stehende <frage> gegeben ist, formuliere sie in mehrere Aussagen in Form einer Anweisung um</anweisung>
-    <anweisung>Wenn die Frage in mehrere Unterfragen zerlegt werden kann, formuliere jede Unterfrage einzeln um</anweisung>
+    <anweisung>Wenn die Frage in mehrere Aussagen zerlegt werden kann, formuliere jede Aussage einzeln um</anweisung>
+    <anweisung>Jede Unterfrage darf nur eine Idee oder ein Konzept enthalten</anweisung>
     <anweisung>Berücksichtigen Sie die gesamte <gesprächsgeschichte>, die kürzlich stattgefunden hat und mit der <frage> in Zusammenhang steht, um die Neuformulierung zu verfeinern</anweisung>
     <anweisung>Schreiben Sie {n_alt_queries} umformulierte Fragen als Anweisung in der gleichen Sprache wie die <frage></anweisung>
 </anweisungen>
@@ -116,7 +120,8 @@ Was ändert sich mit avs21 und wann ist die Reform in Kraft getreten? -> ["Ände
 
 QUERY_STATEMENT_REWRITING_PROMPT_FR = """<instructions>
     <instruction>Étant donné la <question> ci-dessous, reformulez-la en plusieurs énoncés sous forme d'instruction</instruction>
-    <instruction>Quand la question peut être décomposée en plusieurs sous-questions, reformulez chaque sous-question séparément</instruction>
+    <instruction>Quand la question peut être décomposée en plusieurs sous-instructions, reformulez chaque sous-instruction séparément</instruction>
+    <instruction>Chaque sous-instruction doit contenir une seule idée ou concept</instruction>
     <instruction>Prenez en compte tout l'<historique_de_conversation> récent et en rapport avec la <question> afin de raffiner la reformulation</instruction>
     <instruction>Écrire {n_alt_queries} questions reformulées sous forme d'instruction dans la même langue que la <question></instruction>
 </instructions>
@@ -146,7 +151,8 @@ Qu'est-ce qui change avec avs21 et quand la réforme est-elle entrée en vigueur
 
 QUERY_STATEMENT_REWRITING_PROMPT_IT = """<istruzioni>
     <istruzione> Data la <domanda> qui sotto, riformularla in diverse affermazioni sotto forma di istruzione</istruzione>
-    <istruzione>Quando la domanda può essere scomposta in diverse sotto-domande, riformulare ogni sotto-domanda separatamente</istruzione>
+    <istruzione>Quando la domanda può essere scomposta in diverse sotto-istruzione, riformulare ogni sotto-istruzione separatamente</istruzione>
+    <istruzione>Ogni sotto-istruzione deve contenere una singola idea o concetto</istruzione>
     <istruzione>Tenere conto di tutte le <memoria_conversazionale> recenti e relative alla <domanda> per perfezionare la riformulazione</istruzione>
     <istruzione>Scrivere {n_alt_queries} domande riformulate come istruzione nella stessa lingua della <domanda></istruzione>
 </istruzioni>
