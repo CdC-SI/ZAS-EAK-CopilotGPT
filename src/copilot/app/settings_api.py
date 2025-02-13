@@ -272,7 +272,7 @@ async def get_llm_models() -> List:
         llm_models.extend(SUPPORTED_OLLAMA_LLM_MODELS)
 
     # Temporary fix
-    return SUPPORTED_OPENAI_LLM_MODELS
+    return llm_models
 
 
 @app.get(
