@@ -157,7 +157,9 @@ class ClientConfig:
             groq_api_key=os.environ.get("GROQ_API_KEY"),
             cohere_api_key=os.environ.get("COHERE_API_KEY"),
             deepl_api_key=os.environ.get("DEEPL_API_KEY"),
-            llm_generation_endpoint=os.environ.get("LLM_GENERATION_ENDPOINT"),
+            llm_generation_endpoint=os.environ.get(
+                "LOCAL_LLM_GENERATION_ENDPOINT"
+            ),
         )
         self.proxy_config = ProxyConfig()
         self.factory = ClientFactory(self.env_config, self.proxy_config)
