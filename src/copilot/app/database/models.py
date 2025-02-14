@@ -316,7 +316,12 @@ class IntentDescriptions(Base):
 class Workflows(Base):
     __tablename__ = "workflows"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    workflow: Mapped[List[str]] = mapped_column(ARRAY(String), nullable=True)
+    intention_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("intentions.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    steps: Mapped[List[str]] = mapped_column(ARRAY(String), nullable=True)
 
 
 class ChatHistory(Base):
@@ -364,6 +369,26 @@ class ChatFeedback(Base):
     timestamp: Mapped[DateTime] = mapped_column(
         DateTime, default=datetime.utcnow
     )
+
+
+class UserPreferences(Base):
+    __tablename__ = "user_memory"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_uuid: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    user_preferences: Mapped[Dict] = mapped_column(JSON, nullable=True)
+
+    created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
+    modified_at: Mapped[DateTime] = mapped_column(
+        DateTime, default=func.now(), onupdate=func.now()
+    )
+
+    __table_args__ = (Index("idx_user_memory_user_uuid", "user_uuid"),)
+
+    def to_dict(self):
+        return {
+            c.key: getattr(self, c.key)
+            for c in inspect(self).mapper.column_attrs
+        }
 
 
 # class TokenUsage(Base):
