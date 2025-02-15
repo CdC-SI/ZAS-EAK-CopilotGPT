@@ -16,6 +16,9 @@ logger = logging.getLogger(__name__)
 class StatusType(Enum):
     RETRIEVAL = "retrieval"
     ROUTING = "routing"
+    INTENT_PROCESSING = "intent_processing"
+    SOURCE_PROCESSING = "source_processing"
+    TAGS_PROCESSING = "tags_processing"
     AGENT_HANDOFF = "agent_handoff"
     TOOL_USE = "tool_use"
     TOPIC_CHECK = "topic_check"
@@ -35,6 +38,21 @@ class StatusMessageService:
             "de": "Weiterleitung an den entsprechenden Dienst",
             "fr": "Routage vers le service approprié",
             "it": "Instradamento al servizio appropriato",
+        },
+        StatusType.INTENT_PROCESSING: {
+            "de": "Verarbeitung der Anfrage",
+            "fr": "Traitement de la demande",
+            "it": "Elaborazione della richiesta",
+        },
+        StatusType.SOURCE_PROCESSING: {
+            "de": "Auswahl der Quellen",
+            "fr": "Sélection des sources",
+            "it": "Selezione della fonte",
+        },
+        StatusType.TAGS_PROCESSING: {
+            "de": "Auswahl der Tags",
+            "fr": "Sélection des tags",
+            "it": "Selezione dei tag",
         },
         StatusType.AGENT_HANDOFF: {
             "de": "{} bearbeitet Ihre Anfrage",
