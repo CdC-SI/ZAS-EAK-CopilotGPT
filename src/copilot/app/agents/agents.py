@@ -11,6 +11,7 @@ from agents.tools import (
     rag_tool,
     translate_tool,
     summarize_tool,
+    update_user_preferences_tool,
 )
 from agents.function_executor import FunctionExecutor
 from chat.messages import MessageBuilder
@@ -97,6 +98,10 @@ class FollowUpAgent(BaseAgent):
         return prompts.get(language, prompts.get(cls.DEFAULT_LANGUAGE))
 
 
+async def run_set_user_preferences():
+    pass
+
+
 class ChatAgent(BaseAgent):
 
     def __init__(self, name: str = None):
@@ -110,15 +115,38 @@ class ChatAgent(BaseAgent):
         llm_client: BaseLLM,
         **kwargs,
     ) -> AsyncGenerator[Token, None]:
-        """
-        Process the query with Chat agent.
-        """
+        """Process the query with Chat agent."""
         intent = kwargs.get("intent")
         db = kwargs.get("db")
         memory_service = kwargs.get("memory_service")
         streaming_handler = kwargs.get("streaming_handler")
 
         logger.info("------ INTENT: %s", intent)
+
+        # Check for existing conversations in Redis and Postgres
+        # TO DO: optimize logic for better efficiency
+        has_redis_conversations = (
+            memory_service.chat_memory.redis_handler.has_conversations(
+                request.user_uuid
+            )
+        )
+        has_postgres_conversations = (
+            memory_service.chat_memory.postgres_handler.has_conversations(
+                db, request.user_uuid
+            )
+        )
+        has_user_preferences = (
+            memory_service.chat_memory.postgres_handler.has_user_preferences(
+                db, request.user_uuid
+            )
+        )
+
+        # If no conversations anywhere and no user preferences, run preferences setup
+        if (
+            not (has_redis_conversations or has_postgres_conversations)
+            and not has_user_preferences
+        ):
+            await run_set_user_preferences()
 
         match intent:
             case "translate":
@@ -157,7 +185,27 @@ class ChatAgent(BaseAgent):
                     raise e
 
             case "user_followup_q":
+                yield Token.from_status(
+                    f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='ask_user_feedback')}</tool_use>"
+                )
                 pass
+
+            case "update_user_preferences":
+                yield Token.from_status(
+                    f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='update_user_preferences')}</tool_use>"
+                )
+                # try:
+                async for token in update_user_preferences_tool(
+                    db,
+                    request,
+                    memory_service,
+                    message_builder,
+                    llm_client,
+                ):
+                    yield token
+                # except Exception as e:
+                #    logger.info("Error updating user preferences: %s", e)
+                #    raise e
 
             case _:
                 message = "Sorry, I do not understand your intent. Please try again with a more specific question."
@@ -244,6 +292,25 @@ class RAGAgent(BaseAgent):
         retriever_client = kwargs.get("retriever_client")
         memory_service = kwargs.get("memory_service")
         sources = kwargs.get("sources")
+        intent = kwargs.get("intent")
+
+        # Move to ChatAgent ?
+        match intent:
+            case "factual_qa":
+                # use query rewriting retriever with simple rewriting prompt (+ instructions) + from conversation history
+                pass
+
+            case "multipart_qa":
+                # use query rewriting retriever with multiple subquery extraction/inference + from conversation history
+                pass
+
+            case "user_followup_q":
+                # use query rewriting retriver with specific prompt for followup q -> perform immediate RAG retrieval on rewritten queries from conversation history
+                pass
+
+            # AGENT FOLLOWUP Q
+            # infer most suitable retriever ? add retrievers or expand search if retrieved docs not sufficient?
+            # ask user feedback
 
         async for token in rag_tool(
             db=db,
