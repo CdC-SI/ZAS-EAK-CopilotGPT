@@ -10,6 +10,9 @@ from memory import MemoryService
 from rag.retrievers import RetrieverClient
 from utils.streaming import StreamingHandler
 from schemas.agents import ParseTranslateArgs
+from schemas.agents import UserPreferences as UserPreferencesSchema
+from database.models import UserPreferences
+
 
 from memory.enums import MessageRole
 from commands.command_service import translation_service
@@ -98,8 +101,6 @@ async def translate_tool(
     )
     cleaned_text = clean_text(text)
 
-    logger.info("------CLEANED TEXT: %s", cleaned_text)
-
     translated_text = await translation_service.translate(
         cleaned_text, target_lang
     )
@@ -140,12 +141,139 @@ async def summarize_tool(
         messages,
         model="gpt-4o",
         stream=True,
-        temperature=0.7,
+        temperature=0.0,
         max_tokens=8192,
     )
 
     async for token in streaming_handler.generate_stream(event_stream):
         yield token
+
+
+@observe(name="update_user_preferences")
+async def update_user_preferences_tool(
+    db: Session,
+    request: ChatRequest,
+    memory_service: MemoryService,
+    message_builder: MessageBuilder,
+    llm_client: BaseLLM,
+) -> AsyncGenerator[Token, None]:
+    """
+    Update user preferences based on user_uuid.
+    """
+
+    conversational_memory = (
+        await memory_service.chat_memory.get_formatted_conversation(
+            db,
+            request.user_uuid,
+            request.conversation_uuid,
+            k_memory=-1,
+        )
+    )
+
+    messages = message_builder.build_user_preferences_prompt(
+        language=request.language,
+        llm_model="gpt-4o",
+        query=request.query,
+        conversational_memory=conversational_memory,
+    )
+
+    # fix here: test with:  update mes préférences de langue au français
+    res = await llm_client.llm_client.beta.chat.completions.parse(
+        model="gpt-4o",
+        temperature=0.0,
+        max_tokens=8192,
+        messages=messages,
+        response_format=UserPreferencesSchema,
+    )
+
+    user_preferences = res.choices[0].message.parsed
+
+    # Convert to dict for DB storage
+    preferences_dict = {
+        "communication_preferences": user_preferences.communication_preferences.dict(),
+        "interaction_preferences": user_preferences.interaction_preferences.dict(),
+        "learning_style": user_preferences.learning_style.dict(),
+        "historical_behaviour": user_preferences.historical_behaviour.dict(),
+        "contextual_preferences": user_preferences.contextual_preferences.dict(),
+    }
+
+    # TO DO: store in redis cache
+    # TO DO: retrieve prefs for ask_followup_q
+    existing_prefs = (
+        db.query(UserPreferences)
+        .filter(UserPreferences.user_uuid == request.user_uuid)
+        .first()
+    )
+
+    if existing_prefs:
+        existing_prefs.user_preferences = preferences_dict
+        db.merge(existing_prefs)
+    else:
+        new_prefs = UserPreferences(
+            user_uuid=request.user_uuid, user_preferences=preferences_dict
+        )
+        db.add(new_prefs)
+
+    try:
+        db.commit()
+        message = user_preferences.confirmation_msg
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to update user preferences: {str(e)}")
+        message = "Failed to update user preferences. Please try again later"
+
+    yield Token.from_text(message)
+
+
+@observe(name="ask_user_feedback")
+async def ask_user_feedback(
+    feedback_type: str,
+    **kwargs,
+) -> AsyncGenerator[Token, None]:
+    """
+    Generate a user feedback question.
+    """
+    match feedback_type:
+        case "no_docs":
+
+            # TO DO: translations
+            message = "No documents found matching your request.\n\nPlease update or reset document retrieval filters (tags, source) and/or language (some documents are only available in one language, mostly german)."
+            yield Token.from_text(message)
+
+        case "no_validated_docs":
+            message_builder = kwargs.get("message_builder")
+            llm_client = kwargs.get("llm_client")
+            streaming_handler = kwargs.get("streaming_handler")
+            request = kwargs.get("request")
+            invalid_docs_reason = kwargs.get("invalid_docs_reason")
+            invalid_docs_tags = kwargs.get("invalid_docs_tags")
+            formatted_invalid_docs = kwargs.get("formatted_invalid_docs")
+            conversational_memory = kwargs.get("conversational_memory")
+
+            feedback_message = (
+                message_builder.build_ask_user_feedback_no_valid_docs_prompt(
+                    request.language,
+                    request.llm_model,
+                    request.query,
+                    invalid_docs_reason,
+                    invalid_docs_tags,
+                    formatted_invalid_docs,
+                    conversational_memory,
+                )
+            )
+
+            event_stream = llm_client.call(
+                feedback_message,
+                model="gpt-4o",
+                stream=True,
+                temperature=0.0,
+                max_tokens=4096,
+            )
+            async for token in streaming_handler.generate_stream(event_stream):
+                yield token
+
+        case "partial_validated_docs":
+            pass
 
 
 # RAG tool
@@ -160,41 +288,157 @@ async def rag_tool(
     memory_service: MemoryService,
     sources: Dict,
 ) -> AsyncGenerator[Token, None]:
+    """
+    Tool to retrieve information using RAG. Will perform multiple retrieval rounds based on SourceValidatorAgent evaluation. Will ask for user feedback to provide more precise answer or disambiguate information/sources of documents.
+    """
 
+    from agents.agents import source_validator_agent
     from rag.rag_service import (
         rag_service,
     )  # TO DO: refactor to avoid circular import
 
-    # conversational_memory = (
-    #         await (
-    #             memory_service.chat_memory.get_formatted_conversation(
-    #                 db,
-    #                 request.user_uuid,
-    #                 request.conversation_uuid,
-    #                 request.k_memory,
-    #             )
-    #         )
-    #     )
+    conversational_memory = (
+        await (
+            memory_service.chat_memory.get_formatted_conversation(
+                db,
+                request.user_uuid,
+                request.conversation_uuid,
+                request.k_memory,
+            )
+        )
+    )
 
-    # documents = await rag_service.retrieve(
-    #         db, request, retriever_client, conversational_memory
-    #     )
+    documents = await rag_service.retrieve(
+        db, request, retriever_client, conversational_memory
+    )
 
-    # RetrievalEvaluatorAgent -> evaluates retrieval
-    # Multiple retrieval rounds based on evaluation
-    # Ask for user feedback to provide more precise answer or disambiguate information/sources of documents
+    # feedback use cases
+    # no docs retrieved
+    #   # ask user to update filters, language (some docs only available in one language, mostly de)
+    # docs retrieved
+    # ambiguous retrieved docs (multiple tags/topics) -> ask user feedback to refine question
+    # insufficient retrieved docs -> ask user feedback to refine question and expand search (eg. ask for relevant keywords or query reformulation)
 
-    async for token in rag_service.process_rag(
-        db,
+    # No docs were found matching your query, please refine tags/source filters, language
+    if not documents:
+        async for token in ask_user_feedback(feedback_type="no_docs"):
+            yield token
+        return
+
+    # RetrievalEvaluatorAgent
+    validated_docs = []
+    validated_sources = []
+    invalid_docs_reason = []
+    invalid_docs_tags = []
+    invalid_docs = []
+
+    # Source validation
+    async for (
+        doc,
+        llm_source_validation,
+    ) in source_validator_agent.validate_sources(
         request,
+        documents,
         llm_client,
-        streaming_handler,
-        retriever_client,
         message_builder,
-        memory_service,
-        sources,
     ):
+        if llm_source_validation.is_valid:
+            validated_docs.append(doc)
+            validated_sources.append(doc["url"])
+        else:
+            invalid_docs_reason.append(llm_source_validation.reason)
+            invalid_docs_tags.append(doc["tags"])
+            invalid_docs.append(doc)
+
+    # invalid_docs = [
+    #     {"text": "le splitting est considéré comme ayant été atteint.", "source": "source1"}, {"text": "le splitting est valide", "source": "source2"}, {"text": "le splitting est invalide.", "source": "source2"}
+    # ]
+    formatted_invalid_docs = "\n\n".join(
+        [
+            f"<doc_{i}>{d['text']}\n{d['source']}</doc_{i}>"
+            for i, d in enumerate(invalid_docs, start=1)
+        ]
+    )
+
+    # validated_docs = []
+    # invalid_docs_reason = ["La source ne traite pas du concept de 'splitting' et ne fournit pas d'explication à ce sujet.", "La source explique le partage des avoirs LPP lors d'un divorce, mais ne fournit pas une définition concise du terme 'splitting'.", "La source ne contient pas d'informations spécifiques sur le splitting"]
+    # invalid_docs_tags = ["general", "ahv_services", "occupational_benefits"]
+
+    # No more context docs after source validation: ask user feedback
+    if not validated_docs:
+        # feedback_message = message_builder.build_ask_user_feedback_prompt(
+        #     request.language,
+        #     request.llm_model,
+        #     request.query,
+        #     invalid_docs_reason,
+        #     invalid_docs_tags,
+        #     formatted_invalid_docs,
+        #     conversational_memory,
+        # )
+
+        # No docs were validated
+        async for token in ask_user_feedback(
+            feedback_type="no_validated_docs",
+            message_builder=message_builder,
+            llm_client=llm_client,
+            streaming_handler=streaming_handler,
+            request=request,
+            invalid_docs_reason="\n".join(invalid_docs_reason),
+            invalid_docs_tags="\n".join(invalid_docs_tags),
+            formatted_invalid_docs=formatted_invalid_docs,
+            conversational_memory=conversational_memory,
+        ):
+            yield token
+        return
+
+    else:
+        for source_url in validated_sources:
+            yield Token.from_source(source_url)
+
+    # else:
+    #     # Return top sources if no source validation
+    #     for doc in documents:
+    #         yield Token.from_source(doc["url"])
+    #         validated_docs.append(doc)
+    #         validated_sources.append(doc["url"])
+
+    # Continue with RAG
+    formatted_context_docs = "\n\n".join(
+        [
+            f"<doc_{i}>{doc['text']}</doc_{i}>"
+            for i, doc in enumerate(validated_docs, start=1)
+        ]
+    )
+
+    messages = message_builder.build_chat_prompt(
+        language=request.language,
+        llm_model=request.llm_model,
+        context_docs=formatted_context_docs,
+        query=request.query,
+        conversational_memory=conversational_memory,
+        response_style=request.response_style,
+        response_format=request.response_format,
+    )
+
+    # stream response
+    event_stream = llm_client.call(messages)
+    async for token in streaming_handler.generate_stream(event_stream):
         yield token
+
+    sources["documents"] = validated_docs
+    sources["source_urls"] = validated_sources
+
+    # async for token in rag_service.process_rag(
+    #     db,
+    #     request,
+    #     llm_client,
+    #     streaming_handler,
+    #     retriever_client,
+    #     message_builder,
+    #     memory_service,
+    #     sources,
+    # ):
+    #     yield token
 
 
 # Pension Agent tools
