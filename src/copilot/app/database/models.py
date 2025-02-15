@@ -372,7 +372,7 @@ class ChatFeedback(Base):
 
 
 class UserPreferences(Base):
-    __tablename__ = "user_memory"
+    __tablename__ = "user_preferences"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     user_uuid: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     user_preferences: Mapped[Dict] = mapped_column(JSON, nullable=True)
