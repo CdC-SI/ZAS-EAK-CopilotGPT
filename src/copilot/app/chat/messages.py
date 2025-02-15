@@ -61,6 +61,12 @@ from prompts.agents import (
     AGENT_HANDOFF_PROMPT_DE,
     AGENT_HANDOFF_PROMPT_FR,
     AGENT_HANDOFF_PROMPT_IT,
+    NO_VALIDATED_DOCS_PROMPT_DE,
+    NO_VALIDATED_DOCS_PROMPT_FR,
+    NO_VALIDATED_DOCS_PROMPT_IT,
+    UPDATE_USER_PREFERENCES_PROMPT_DE,
+    UPDATE_USER_PREFERENCES_PROMPT_FR,
+    UPDATE_USER_PREFERENCES_PROMPT_IT,
     PARSE_TRANSLATE_ARGS_PROMPT_DE,
     PARSE_TRANSLATE_ARGS_PROMPT_FR,
     PARSE_TRANSLATE_ARGS_PROMPT_IT,
@@ -200,6 +206,12 @@ class MessageBuilder:
         "it": AGENT_HANDOFF_PROMPT_IT,
     }
 
+    _NO_VALIDATED_DOCS_PROMPT = {
+        "de": NO_VALIDATED_DOCS_PROMPT_DE,
+        "fr": NO_VALIDATED_DOCS_PROMPT_FR,
+        "it": NO_VALIDATED_DOCS_PROMPT_IT,
+    }
+
     _PARSE_TRANSLATE_ARGS_PROMPT = {
         "de": PARSE_TRANSLATE_ARGS_PROMPT_DE,
         "fr": PARSE_TRANSLATE_ARGS_PROMPT_FR,
@@ -216,6 +228,12 @@ class MessageBuilder:
         "de": PENSION_FUNCTION_CALLING_PROMPT_DE,
         "fr": PENSION_FUNCTION_CALLING_PROMPT_FR,
         "it": PENSION_FUNCTION_CALLING_PROMPT_IT,
+    }
+
+    _UPDATE_USER_PREFERENCES_PROMPT = {
+        "de": UPDATE_USER_PREFERENCES_PROMPT_DE,
+        "fr": UPDATE_USER_PREFERENCES_PROMPT_FR,
+        "it": UPDATE_USER_PREFERENCES_PROMPT_IT,
     }
 
     _QUERY_REWRITING_PROMPT = {
@@ -885,6 +903,100 @@ class MessageBuilder:
                 {
                     "role": "system",
                     "content": agent_summarize_system_prompt,
+                },
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
+    @observe(
+        name="MessageBuilder_build_ask_user_feedback_no_valid_docs_prompt"
+    )
+    def build_ask_user_feedback_no_valid_docs_prompt(
+        self,
+        language: str,
+        llm_model: str,
+        query: str,
+        reasons: List[str],
+        tags: List[str],
+        invalid_docs: List[str],
+        conversational_memory: str,
+    ) -> Union[List[Dict], str]:
+        """
+        Format the Ask user feedback message to send to the appropriate LLM API.
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+            ask_user_feedback_no_valid_docs_system_prompt = (
+                self._NO_VALIDATED_DOCS_PROMPT.get(
+                    language,
+                    self._NO_VALIDATED_DOCS_PROMPT.get(self._DEFAULT_LANGUAGE),
+                )
+            )
+            ask_user_feedback_no_valid_docs_system_prompt = (
+                ask_user_feedback_no_valid_docs_system_prompt.format(
+                    query=query,
+                    reasons=reasons,
+                    tags=tags,
+                    invalid_docs=invalid_docs,
+                    conversational_memory=conversational_memory,
+                )
+            )
+            return [
+                {
+                    "role": "system",
+                    "content": ask_user_feedback_no_valid_docs_system_prompt,
+                },
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
+    @observe(
+        name="MessageBuilder_build_ask_user_feedback_no_valid_docs_prompt"
+    )
+    def build_user_preferences_prompt(
+        self,
+        language: str,
+        llm_model: str,
+        query: str,
+        conversational_memory: str,
+    ) -> Union[List[Dict], str]:
+        """
+        Format the Ask user feedback message to send to the appropriate LLM API.
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+            update_user_preferences_system_prompt = (
+                self._UPDATE_USER_PREFERENCES_PROMPT.get(
+                    language,
+                    self._NO_VALIDATED_DOCS_PROMPT.get(self._DEFAULT_LANGUAGE),
+                )
+            )
+            update_user_preferences_system_prompt = (
+                update_user_preferences_system_prompt.format(
+                    query=query,
+                    conversational_memory=conversational_memory,
+                )
+            )
+            return [
+                {
+                    "role": "system",
+                    "content": update_user_preferences_system_prompt,
                 },
             ]
         else:
