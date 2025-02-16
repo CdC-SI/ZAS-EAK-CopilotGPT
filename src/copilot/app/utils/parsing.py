@@ -1,4 +1,13 @@
+import ast
 import re
+from typing import Dict
+
+from schemas.chat import ChatRequest
+from chat.messages import MessageBuilder
+from llm.base import BaseLLM
+from schemas.agents import ParseTranslateArgs
+
+from langfuse.decorators import observe
 
 
 def extract_xml(text: str, tag: str) -> str:
@@ -33,3 +42,50 @@ def clean_text(text):
     text = re.sub(r"Source[^\]]*?\]", "", text)
 
     return text
+
+
+@observe(name="parse_translation_args")
+async def parse_translation_args(
+    request: ChatRequest,
+    message_builder: MessageBuilder,
+    llm_client: BaseLLM,
+) -> Dict[str, str]:
+    """
+    Parse user query with LLM to extract args for translation.
+    """
+    messages = message_builder.build_parse_translate_args_prompt(
+        request.language,
+        request.llm_model,
+        request.query,
+    )
+
+    res = await llm_client.llm_client.beta.chat.completions.parse(
+        model="gpt-4o",
+        temperature=0,
+        top_p=0.95,
+        max_tokens=4096,
+        messages=messages,
+        response_format=ParseTranslateArgs,
+    )
+
+    arg_names = ["target_lang", "n_msg", "roles"]
+    arg_values = res.choices[0].message.parsed.arg_values
+
+    parsed_args = []
+    for arg in arg_values:
+        try:
+            parsed_value = ast.literal_eval(arg)
+        except (ValueError, SyntaxError):
+            if arg.startswith("[MessageRole.") and arg.endswith("]"):
+                enum_values = arg.strip("[]").split(",")
+                parsed_value = [
+                    eval(enum_val.strip()) for enum_val in enum_values
+                ]
+            else:
+                parsed_value = arg
+
+        parsed_args.append(parsed_value)
+
+    args = {name: value for name, value in zip(arg_names, parsed_args)}
+
+    return args
