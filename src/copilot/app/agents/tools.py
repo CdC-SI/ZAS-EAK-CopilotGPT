@@ -1,5 +1,6 @@
 import ast
 from typing import Dict, AsyncGenerator
+import json
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from langfuse.decorators import observe
@@ -11,7 +12,6 @@ from rag.retrievers import RetrieverClient
 from utils.streaming import StreamingHandler
 from schemas.agents import ParseTranslateArgs
 from schemas.agents import UserPreferences as UserPreferencesSchema
-from database.models import UserPreferences
 
 
 from memory.enums import MessageRole
@@ -22,6 +22,7 @@ from llm.base import BaseLLM
 from utils.streaming import Token
 from utils.parsing import clean_text
 from utils.logging import get_logger
+from utils.user_preferences import update_user_preferences_in_db
 
 logger = get_logger(__name__)
 
@@ -170,11 +171,14 @@ async def update_user_preferences_tool(
         )
     )
 
-    messages = message_builder.build_user_preferences_prompt(
+    messages = message_builder.build_update_user_preferences_prompt(
         language=request.language,
         llm_model="gpt-4o",
         query=request.query,
         conversational_memory=conversational_memory,
+        response_schema=json.dumps(
+            UserPreferencesSchema.model_json_schema(), indent=4
+        ),
     )
 
     # fix here: test with:  update mes préférences de langue au français
@@ -187,41 +191,9 @@ async def update_user_preferences_tool(
     )
 
     user_preferences = res.choices[0].message.parsed
-
-    # Convert to dict for DB storage
-    preferences_dict = {
-        "communication_preferences": user_preferences.communication_preferences.dict(),
-        "interaction_preferences": user_preferences.interaction_preferences.dict(),
-        "learning_style": user_preferences.learning_style.dict(),
-        "historical_behaviour": user_preferences.historical_behaviour.dict(),
-        "contextual_preferences": user_preferences.contextual_preferences.dict(),
-    }
-
-    # TO DO: store in redis cache
-    # TO DO: retrieve prefs for ask_followup_q
-    existing_prefs = (
-        db.query(UserPreferences)
-        .filter(UserPreferences.user_uuid == request.user_uuid)
-        .first()
+    message = update_user_preferences_in_db(
+        db, request.user_uuid, user_preferences
     )
-
-    if existing_prefs:
-        existing_prefs.user_preferences = preferences_dict
-        db.merge(existing_prefs)
-    else:
-        new_prefs = UserPreferences(
-            user_uuid=request.user_uuid, user_preferences=preferences_dict
-        )
-        db.add(new_prefs)
-
-    try:
-        db.commit()
-        message = user_preferences.confirmation_msg
-    except Exception as e:
-        db.rollback()
-        logger.error(f"Failed to update user preferences: {str(e)}")
-        message = "Failed to update user preferences. Please try again later"
-
     yield Token.from_text(message)
 
 
