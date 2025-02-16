@@ -50,7 +50,7 @@ class CommunicationPreferences(BaseModel):
         ..., description="Verbosity of assistant responses"
     )
     preferred_technical_depth: str = Field(
-        ..., description="Technical level of assistnat responses"
+        ..., description="Technical level of assistant responses"
     )
 
 
