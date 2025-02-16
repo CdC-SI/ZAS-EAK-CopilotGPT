@@ -67,6 +67,7 @@ from prompts.agents import (
     UPDATE_USER_PREFERENCES_PROMPT_DE,
     UPDATE_USER_PREFERENCES_PROMPT_FR,
     UPDATE_USER_PREFERENCES_PROMPT_IT,
+    INFER_USER_PREFERENCES_PROMPT,
     PARSE_TRANSLATE_ARGS_PROMPT_DE,
     PARSE_TRANSLATE_ARGS_PROMPT_FR,
     PARSE_TRANSLATE_ARGS_PROMPT_IT,
@@ -958,18 +959,17 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
-    @observe(
-        name="MessageBuilder_build_ask_user_feedback_no_valid_docs_prompt"
-    )
-    def build_user_preferences_prompt(
+    @observe(name="MessageBuilder_build_user_preferences_prompt")
+    def build_update_user_preferences_prompt(
         self,
         language: str,
         llm_model: str,
         query: str,
         conversational_memory: str,
+        response_schema: str,
     ) -> Union[List[Dict], str]:
         """
-        Format the Ask user feedback message to send to the appropriate LLM API.
+        Format the Update user preferences message to send to the appropriate LLM API.
         """
         if (
             llm_model
@@ -984,19 +984,57 @@ class MessageBuilder:
             update_user_preferences_system_prompt = (
                 self._UPDATE_USER_PREFERENCES_PROMPT.get(
                     language,
-                    self._NO_VALIDATED_DOCS_PROMPT.get(self._DEFAULT_LANGUAGE),
+                    self._UPDATE_USER_PREFERENCES_PROMPT.get(
+                        self._DEFAULT_LANGUAGE
+                    ),
                 )
             )
             update_user_preferences_system_prompt = (
                 update_user_preferences_system_prompt.format(
                     query=query,
                     conversational_memory=conversational_memory,
+                    response_schema=response_schema,
                 )
             )
             return [
                 {
                     "role": "system",
                     "content": update_user_preferences_system_prompt,
+                },
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
+    @observe(name="MessageBuilder_build_infer_user_preferences_prompt")
+    def build_infer_user_preferences_prompt(
+        self,
+        llm_model: str,
+        conversations: str,
+        response_schema: str,
+    ) -> Union[List[Dict], str]:
+        """
+        Format the Infer user preferences prompt to send to the appropriate LLM API.
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+            infer_user_preferences_system_prompt = (
+                INFER_USER_PREFERENCES_PROMPT.format(
+                    conversations=conversations,
+                    response_schema=response_schema,
+                )
+            )
+            return [
+                {
+                    "role": "system",
+                    "content": infer_user_preferences_system_prompt,
                 },
             ]
         else:
