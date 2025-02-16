@@ -1,9 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import exists
 
-from database.models import ChatHistory, ChatTitle, UserPreferences
+from database.models import ChatHistory, ChatTitle
 from ..interfaces.storage import DatabaseStorage
 from ..exceptions import PostgresStorageError
 from ..models import MessageData
@@ -91,20 +90,6 @@ class PostgresMemoryHandler(DatabaseStorage):
             ]
         except SQLAlchemyError as e:
             raise PostgresStorageError(f"Failed to retrieve chat history: {e}")
-
-    def has_conversations(self, db: Session, user_uuid: str) -> bool:
-        """Check if user has any conversations in ChatHistory."""
-        result = db.query(
-            exists().where(ChatHistory.user_uuid == user_uuid)
-        ).scalar()
-        return result
-
-    def has_user_preferences(self, db: Session, user_uuid: str) -> bool:
-        """Check if user has preferences stored."""
-        result = db.query(
-            exists().where(UserPreferences.user_uuid == user_uuid)
-        ).scalar()
-        return result
 
     def get_all_user_conversations(
         self, db: Session, user_uuid: str
