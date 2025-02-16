@@ -87,7 +87,7 @@ async def start_scheduler():
                     tokenizer=tokenizer,
                 )
             ),
-            trigger=CronTrigger(hour="15,16,17,18, 19", minute=5),
+            trigger=CronTrigger(day="*/14", hour=23, minute=0),
             id="update_user_preferences",
             replace_existing=True,
         )
