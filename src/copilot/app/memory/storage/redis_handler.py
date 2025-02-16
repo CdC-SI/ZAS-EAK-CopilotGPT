@@ -168,3 +168,141 @@ class RedisMemoryHandler(BaseStorage):
         return ConversationData(
             conversation_uuid=conversation_uuid, turns=turns
         )
+
+    def has_conversations(self, user_uuid: str) -> bool:
+        """Check if user has any conversations in Redis cache."""
+        pattern = f"user:{user_uuid}:conversation:*"
+        keys = self.redis_client.keys(pattern)
+        return len(keys) > 0
+
+    def get_all_user_conversations(
+        self, db: Session, user_uuid: str
+    ) -> list[ConversationData]:
+        """
+        Retrieve all conversations for a given user from Redis or fallback to Postgres.
+
+        Args:
+            db: Database session
+            user_uuid: UUID of the user
+
+        Returns:
+            List of ConversationData objects containing structured conversations
+
+        Raises:
+            RedisStorageError: If Redis query fails
+        """
+        pattern = f"user:{user_uuid}:conversation:*"
+        keys = self.redis_client.keys(pattern)
+        messages = []
+
+        if not keys and db is not None:
+            # Fallback to postgres if no messages in Redis
+            try:
+                messages = self.postgres_handler.get_all_user_conversations(
+                    db, user_uuid
+                )
+                # Store retrieved messages in Redis for future access
+                for message in messages:
+                    self.store_message(message)
+            except Exception as e:
+                logger.error(f"Failed to retrieve from postgres: {e}")
+                raise
+        else:
+            try:
+                for key in keys:
+                    message_data = self.redis_client.hgetall(key)
+                    if not message_data:
+                        continue
+
+                    # Handle data conversion as before
+                    if message_data.get("faq_id") == "":
+                        message_data["faq_id"] = None
+                    elif message_data.get("faq_id"):
+                        message_data["faq_id"] = int(message_data["faq_id"])
+
+                    # Convert sources
+                    if message_data.get("sources") == "":
+                        message_data["sources"] = []
+                    elif message_data.get("sources"):
+                        try:
+                            message_data["sources"] = ast.literal_eval(
+                                message_data["sources"]
+                            )
+                        except (ValueError, AttributeError):
+                            message_data["sources"] = []
+
+                    # Convert retrieved_doc_ids
+                    if message_data.get("retrieved_doc_ids") == "":
+                        message_data["retrieved_doc_ids"] = None
+                    elif message_data.get("retrieved_doc_ids"):
+                        try:
+                            doc_ids_str = message_data[
+                                "retrieved_doc_ids"
+                            ].strip("[]")
+                            message_data["retrieved_doc_ids"] = [
+                                int(id.strip())
+                                for id in doc_ids_str.split(",")
+                                if id.strip()
+                            ]
+                        except (ValueError, AttributeError):
+                            message_data["retrieved_doc_ids"] = None
+
+                    # Convert timestamp
+                    if message_data.get("timestamp"):
+                        message_data["timestamp"] = (
+                            datetime.datetime.fromisoformat(
+                                message_data["timestamp"]
+                            )
+                        )
+
+                    messages.append(MessageData(**message_data))
+
+            except RedisError as e:
+                logger.error(f"Redis retrieval error: {e}")
+                raise RedisStorageError(
+                    f"Failed to retrieve messages from Redis: {e}"
+                )
+
+        # Group messages by conversation_uuid
+        conversations_dict = {}
+        for message in messages:
+            if message.conversation_uuid not in conversations_dict:
+                conversations_dict[message.conversation_uuid] = []
+            conversations_dict[message.conversation_uuid].append(message)
+
+        # Create ConversationData objects
+        conversations = []
+        for conv_uuid, conv_messages in conversations_dict.items():
+            # Sort messages by timestamp
+            conv_messages.sort(key=lambda x: x.timestamp)
+
+            # Group into turns
+            turns = []
+            current_turn = None
+
+            for message in conv_messages:
+                if message.role == MessageRole.USER:
+                    if (
+                        current_turn
+                        and current_turn.user_message
+                        and not current_turn.assistant_message
+                    ):
+                        turns.append(current_turn)
+                    current_turn = ConversationTurn(user_message=message)
+                elif message.role == MessageRole.ASSISTANT and current_turn:
+                    current_turn.assistant_message = message
+                    turns.append(current_turn)
+                    current_turn = None
+
+            # Add the last turn if it only contains a user message
+            if current_turn and current_turn.user_message:
+                turns.append(current_turn)
+
+            conversations.append(
+                ConversationData(
+                    conversation_uuid=conv_uuid,
+                    turns=turns,
+                )
+            )
+
+        return conversations
