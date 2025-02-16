@@ -83,6 +83,7 @@ SOURCE_SELECTION_PROMPT_DE = """<anweisungen>
     <anweisung>Ihre Aufgabe ist es, die geeignete Datenquelle auszuwählen, um die Frage des Nutzers zu beantworten</anweisung>
     <anweisung>Basieren Sie Ihre Auswahl auf der <frage>, der <intention>, dem <gesprächsverlauf> und der Liste der <quellen> und ihrer Beschreibung</anweisung>
     <anweisung>Basieren Sie Ihre Auswahl auf der jüngsten Geschichte der Aktionen des Benutzers</anweisung>
+    <anweisung>Nutze den <gesprächsverlauf>, um zusätzliche Kontextinformationen zu erhalten, die deine Wahl leiten</anweisung>
     <anweisung>Wenn Sie sich nicht sicher sind, welche Quelle Sie auswählen sollen, wählen Sie None</anweisung>
 </anweisungen>
 
@@ -117,6 +118,7 @@ SOURCE_SELECTION_PROMPT_FR = """<instructions>
     <instruction>Votre tâche consiste à sélectionner la source de données appropriée pour répondre à la question de l'utilisateur<instructions>
     <instructions>Basez votre sélection en fonction de la <question>, l'<intention>, l'<historique_de_conversation> et la liste de <sources> et leur description</instruction>
     <instruction>Basez votre sélection sur l'historique récent des actions de l'utilisateur</instruction>
+    <instruction>Utilisez l'<historique_de_conversation> pour obtenir des informations contextuelles supplémentaires afin de guider votre choix</instruction>
     <instruction>En cas de doute sur la source à sélectionner, retournez None</instruction>
 </instructions>
 
@@ -151,6 +153,7 @@ SOURCE_SELECTION_PROMPT_IT = """<istruzioni>
     <istruzione>Il vostro compito è selezionare la fonte di dati appropriata per rispondere alla domanda dell'utente<istruzione>
     <istruzione>Basate la vostra selezione sulla <domanda>, l'<intento>, la <storia_della_conversazione> e l'elenco delle <fonti> e delle loro descrizioni</istruzioni>
     <istruzione>Basare la selezione sulla storia recente delle azioni dell'utente</istruzione>
+    <istruzione>Utilizzare la <storia_della_conversazione> per ottenere ulteriori informazioni contestuali che guidino la scelta</istruzione>
     <istruzione>In caso di dubbio su quale fonte selezionare, scegliere None</istruzione>
 </istruzioni>
 
@@ -181,7 +184,37 @@ SourceSelection(
 </domanda>"""
 
 
-TAGS_SELECTION_PROMPT_DE = """"""
+TAGS_SELECTION_PROMPT_DE = """<anweisungen>
+    <anweisung>Ihre Aufgabe ist es, einen oder mehrere geeignete <tags> auszuwählen, um die Suche nach Dokumenten zu verfeinern</anweisung>
+    <anweisung>Basieren Sie Ihre Auswahl auf der <frage>, der <intent>, der <gesprächsverlauf>, den <quellen> und der Liste der <tags> und ihrer Beschreibung</anweisung>
+    <anweisung>Basieren Sie Ihre Auswahl auf der jüngsten Historie der Benutzeraktionen</anweisung>
+</anweisungen>
+
+<format_der_antwort>
+TagSelection(
+    inferred_tags: List[str] = None # der/die ausgewählten Tags (z.B. ["actuarial bases", "actuary"], ["ability to work/inability to work"], ["ahv number (insurance number)", "allowance for working pensioners", "early retirement pension withdrawal"], None, etc.)
+)
+</format_der_antwort>
+
+<tags>
+{tags}
+</tags>
+
+<quellen>
+{sources}
+</quellen>
+
+<intent>
+{intent}
+</intent>
+
+<gesprächsverlauf>
+{conversational_memory}
+</gesprächsverlauf>
+
+<frage>
+{query}
+</frage>"""
 
 
 TAGS_SELECTION_PROMPT_FR = """<instructions>
@@ -195,9 +228,6 @@ TagSelection(
     inferred_tags: List[str] = None # le/les tags sélectionnés (e.g. ["actuarial bases", "actuary"], ["ability to work/inability to work"], ["ahv number (insurance number)", "allowance for working pensioners", "early retirement pension withdrawal"], None, etc.)
 )
 </format_de_réponse>
-
-<exemples>
-<exemples>
 
 <tags>
 {tags}
@@ -220,7 +250,37 @@ TagSelection(
 </question>"""
 
 
-TAGS_SELECTION_PROMPT_IT = """"""
+TAGS_SELECTION_PROMPT_IT = """<istruzioni>
+    <istruzione>Il vostro compito è quello di selezionare uno o più <tags> appropriati per affinare la ricerca dei documenti<istruzioni>
+    <istruzioni>Basate la vostra selezione sulla <domanda>, l'<intento>, la <storia_conversazionale>, le <fonti> e l'elenco di <tags> e la loro descrizione</istruzioni>
+    <istruzione>Basare la selezione sulla storia recente delle azioni dell'utente</istruzione>
+</istruzioni>
+
+<formato_risposta>
+TagSelection(
+    inferred_tags: List[str] = None # il/i tag selezionato/i (ad esempio ["actuarial bases", "actuary"], ["ability to work/inability to work"], ["ahv number (insurance number)", "allowance for working pensioners", "early retirement pension withdrawal"], None, ecc.)
+)
+</formato_risposta>
+
+<tags>
+{tags}
+</tags>
+
+<fonti>
+{sources}
+</fonti>
+
+<intento>
+{intent}
+</intento>
+
+<storia_conversazionale>
+{memoria_conversazionale}
+</storia_conversazionale>
+
+<domanda>
+{query}
+</domanda>"""
 
 
 AGENT_HANDOFF_PROMPT_DE = """<anweisungen>
@@ -236,6 +296,7 @@ AgentHandoff(
 <agents>
 CHAT_AGENT: eine Unterhaltung zusammenfassen
 CHAT_AGENT: Eine Unterhaltung übersetzen
+CHAT_AGENT: Aktualisieren der Benutzereinstellungen
 
 RAG_AGENT: einfache Sachfragen
 RAG_AGENT: Mehrteilige Fragen (mehrere Unterfragen)
@@ -250,6 +311,8 @@ Fasse die Konversion zusammen -> CHAT_AGENT
 Fasse die letzte Nachricht unserer Diskussion zusammen -> CHAT_AGENT
 Übersetze diese Unterhaltung ins Deutsche -> CHAT_AGENT
 Übersetze diese Nachricht ins Italienische -> CHAT_AGENT
+Aktualisiert meine Antwortdetailpräferenzen auf sehr detailliert -> CHAT_AGENT
+Aktualisiert meine Suchpräferenzen auf fedlex -> CHAT_AGENT
 Ich bin am 1962.31.12 geboren, möchte am 01.01.2025 in Rente gehen und mein Jahreseinkommen beträgt ca. 55'000 CHF. Wie hoch ist mein Kürzungssatz? -> PENSION_AGENT
 Wie hoch ist mein Kürzungssatz, wenn ich am 1965-11-07 geboren bin, am 2026-04-15 in Rente gehen möchte und mein Jahreseinkommen 76200 beträgt? -> PENSION_AGENT
 Hier sind meine Informationen: Geburtsdatum 03.01.1968 und ich gehe 2027 in Rente. Ich verdiene etwa 90000 CHF pro Jahr. Kann ich einen Zuschlag oder einen Kürzungssatz erhalten? -> PENSION_AGENT
@@ -289,6 +352,7 @@ AgentHandoff(
 <agents>
 CHAT_AGENT: résumer une conversation
 CHAT_AGENT: traduire une conversation
+CHAT_AGENT: mettre à jour les préférences utilisateur
 
 RAG_AGENT: questions factuelles simples
 RAG_AGENT: questions multipartites (plusieurs sous questions)
@@ -303,6 +367,8 @@ Résume moi la converation -> CHAT_AGENT
 Résume moi le dernier message de notre discussion -> CHAT_AGENT
 Traduis cette conversation en allemand -> CHAT_AGENT
 Traduis ce message en italien -> CHAT_AGENT
+Update ma préférences de détail de réponse à très détaillé -> CHAT_AGENT
+Mets à jour mes préférences de recherche à fedlex -> CHAT_AGENT
 Je suis née le 1962.31.12, je souhaite prendre ma retraite le 01.01.2025 et mon revenu annuel est d'environ 55'000 CHF. Quel est mon taux de réduction ? -> PENSION_AGENT
 Quel sera mon taux de réduction si je suis née le 1965-11-07, je souhaite prendre ma retraite le 2026-04-15 et mon revenu annuel est de 76200 ? -> PENSION_AGENT
 Voici mes informations: date de naissance le 03.01.1968 et je pars à la retraite en 2027. Je gagne environ 90000 CHF par an. Puis-je bénéficier d'un supplément ou taux de réduction ? -> PENSION_AGENT
@@ -341,6 +407,7 @@ AgentHandoff(
 <agenti>
 CHAT_AGENT: riassume una conversazione
 CHAT_AGENT: traduce una conversazione
+CHAT_AGENT: aggiornamento delle preferenze dell'utente
 
 RAG_AGENT: domande semplici e concrete
 RAG_AGENT: domande in più parti (diverse sotto-domande)
@@ -355,6 +422,8 @@ Riassumere la conversione -> CHAT_AGENT
 Riassumi per me l'ultimo messaggio della nostra discussione -> CHAT_AGENT
 Traduci questa conversazione in tedesco -> CHAT_AGENT
 Traduci questo messaggio in italiano -> CHAT_AGENT
+Aggiornare le preferenze di dettaglio della risposta a Molto dettagliato -> CHAT_AGENT
+Aggiornare le preferenze di ricerca a fedlex -> CHAT_AGENT
 Sono nato il 31.12.1962, voglio andare in pensione il 01.01.2025 e il mio reddito annuo è di circa 55.000 franchi. Qual è il mio tasso di riduzione? -> AGENTE_PENSIONE
 Qual è il mio tasso di riduzione se sono nato il 1965-11-07, voglio andare in pensione il 2026-04-15 e il mio reddito annuo è di CHF 76200? -> AGENTE_PENSIONE
 Ecco le mie informazioni: sono nato il 03.01.1968 e andrò in pensione nel 2027. Guadagno circa 90.000 franchi all'anno. Posso beneficiare di un'integrazione o di una riduzione? -> AGENTE_PENSIONE
@@ -381,136 +450,291 @@ Ecco le mie informazioni: sono nato il 03.01.1968 e andrò in pensione nel 2027.
 <storia_conversazionale>"""
 
 
-RAG_FOLLOWUP_AGENT_PROMPT_DE = """# Aufgabe"""
+NO_VALIDATED_DOCS_PROMPT_DE = """<kontext>
+    Der Rahmen ist die AHV/IV in der Schweiz.
+    Die ursprüngliche Dokumentensuche lieferte nur <nicht_relevante_dokumente>, die die <frage> des Benutzers nicht beantworten konnten. Dies deutet darauf hin, dass die <frage> möglicherweise zu vage ist, es an domänenspezifischem Vokabular mangelt oder die genauen Details der Absicht des Nutzers nicht erfasst werden.
+  </kontext>.
 
+<ziel>
+    Ihre Aufgabe ist es, den Nutzer selbstständig zu engagieren, indem Sie klärende und präzisierende Fragen stellen, um die Anfrage zu verfeinern. Versuchen Sie, die Absicht des Nutzers zu verstehen.
+</ziel>
 
-RAG_FOLLOWUP_AGENT_PROMPT_FR = """# Tâche
-Votre tâche consiste à évaluer si la question suivante est formulée de manière suffisamment claire et précise pour effectuer une recherche sémantique dans une base de données vectorielle. Si la question est ambiguë ou nécessite des clarifications supplémentaires, vous devez poser des questions de suivi pour obtenir des informations supplémentaires.
+<anweisungen>
+    <anweisung>Weisen Sie den Nutzer darauf hin, dass die Suche keine relevanten Dokumente zurückgegeben hat</anweisung>
+    <anweisung>Ermutigen Sie den Nutzer, mehr Kontext, Hintergrund oder das spezifische Problem, das er zu lösen versucht, zu erläutern</anweisung>
+    <anweisung>Stellen Sie alle relevanten Fragen, um die Absicht des Nutzers so gut wie möglich zu erfassen</anweisung>
+    <anweisung>Sehen Sie sich die <nicht_relevante_dokumente> und den <gesprächsverlauf> bei Bedarf an, um den Kontext und die Absicht des Nutzers zu verstehen</anweisung>
+    <anweisung>Sehen Sie sich bei Bedarf die <nicht_relevanten_dokumente>, den <gesprächsverlauf> und die <nutzerpräferenzen> an, um den Kontext und die Absicht des Nutzers zu verstehen</anweisung>
+    anweisung>Sehen Sie sich die <nutzerpräferenzen> an, um mit dem Benutzer auf personalisiertere Weise zu interagieren</anweisung>
+</anweisungen>
 
-1. Déterminez le thème de la question
-2. Déterminez si la la question nécessite une question de suivi
-3. Formulez une question de suivi courte et précise pour obtenir des informations supplémentaires
+<nicht_relevante_dokumente>
+{invalid_docs}
+</nicht_relevante_dokumente>
 
-Vous pouvez également consulter l'historique de conversation pour obtenir des informations contextuelles supplémentaires.
-
-# Format de réponse
-theme: str - Thème de la question (e.g. "Splitting", "Bonifications pour tâches d'assistance", "Bonifications pour tâches éducatives", "Compte Individuel", etc.)
-followup: bool (True/False) - Indique si la question nécessite des clarifications ou des informations supplémentaires.
-question_de_suivi: str - Question de suivi courte et précise pour obtenir des informations supplémentaires.
-
-# Exemples de thèmes et questions de suivi
-Thème: Compte Individuel (CI)
-Comment puis-je vérifier mes cotisations ? -> Souhaitez-vous obtenir un extrait de votre compte individuel (CI) pour vérifier vos cotisations ?
-Est-ce que quelqu'un peut consulter mon compte individuel ? -> Souhaitez-vous savoir qui a accès à votre compte individuel (CI) ?
-Où puis-je obtenir mon relevé de compte ? -> Souhaitez-vous savoir auprès de quelle caisse de compensation vous pouvez demander votre extrait de compte ?
-Si je remarque une erreur sur mon compte, puis-je la corriger ? -> Souhaitez-vous savoir comment demander une rectification des inscriptions sur votre compte individuel (CI) ?
-Mon employeur a-t-il bien déclaré mes salaires ? -> Voulez-vous vérifier si votre employeur a correctement annoncé vos revenus à la caisse de compensation ?
-Que faire si je conteste les informations sur mon extrait ? -> Voulez-vous savoir comment contester ou faire rectifier les inscriptions sur votre compte individuel ?
-
-Thème: Splitting:
-Comment fonctionne le partage des revenus après un divorce ? -> Souhaitez-vous savoir quand le partage des revenus est effectué ou comment il est calculé ?
-Que dois-je faire après mon divorce concernant mes cotisations ? -> Souhaitez-vous savoir comment demander le partage des revenus auprès de la caisse de compensation ?
-Est-ce que je dois faire la demande avec mon ex-conjoint pour le partage des revenus ? -> Souhaitez-vous savoir si vous pouvez demander le partage des revenus individuellement ou si vous devez le faire conjointement ?
-Que se passe-t-il si je ne fais pas de demande pour le partage des revenus ? -> Souhaitez-vous savoir si le partage des revenus sera effectué automatiquement si vous ne le demandez pas ?
-Est-ce que mes revenus seront partagés si mon mariage a duré moins de deux ans ? -> Pouvez-vous me préciser les dates de votre mariage et de votre divorce pour déterminer si le partage s'applique ?
-À quel moment le partage des revenus est-il effectué si mon ex-conjoint est décédé ? -> Souhaitez-vous savoir si le partage des revenus a lieu lorsque vous atteignez l'âge de référence ou si vous avez droit à une rente d'invalidité ?
-
-Thème: Bonifications pour tâches d'assistance:
-Comment puis-je obtenir une aide pour m'occuper d'un proche ? -> Votre proche reçoit-il une allocation pour impotence et habitez-vous à proximité l'un de l'autre ?
-Puis-je avoir des bonifications si je m'occupe de mes parents âgés ? -> Est-ce que vos parents reçoivent une allocation pour impotence et vivez-vous à moins de 30 km d'eux ?
-Quel est le montant de la bonification pour tâches d'assistance ? -> Souhaitez-vous connaître le montant précis ou comment il est calculé ?
-Dois-je faire une demande chaque année pour les bonifications ? -> Voulez-vous savoir où et comment faire votre demande annuelle ?
-Est-ce que je peux obtenir la bonification si je m'occupe de mon partenaire ? -> Vivez-vous en ménage commun avec votre partenaire depuis au moins cinq ans sans interruption ?
-Quelles conditions faut-il remplir pour avoir droit aux bonifications ? -> Souhaitez-vous connaître les critères liés à la proximité de domicile et à l'état de la personne aidée ?
-
-Thème: Bonifications pour tâches éducatives:
-Comment puis-je obtenir une aide pour mes enfants ? -> Exercez-vous l'autorité parentale et êtes-vous marié(e), divorcé(e) ou non marié(e) avec l'autre parent ?
-Qui reçoit la bonification si on est séparés ? -> Avez-vous une décision des autorités ou une convention sur l'attribution des bonifications pour tâches éducatives ?
-Comment la bonification est-elle répartie entre les parents ? -> Exercez-vous l'autorité parentale conjointe avec l'autre parent, et avez-vous conclu une convention sur l'attribution des bonifications ?
-Que faire si on ne se met pas d'accord sur les bonifications pour les enfants ? -> Souhaitez-vous savoir comment l'APEA intervient en l'absence d'accord entre les parents ?
-Peut-on modifier l'attribution des bonifications pour nos enfants ? -> Souhaitez-vous conclure une nouvelle convention avec l'autre parent concernant l'attribution des bonifications ?
-Comment les bonifications sont-elles calculées si j'ai plusieurs enfants ? -> Voulez-vous savoir si les bonifications pour tâches éducatives se cumulent pour chaque enfant ?
-Dois-je informer la caisse de compensation si ma situation familiale change ? -> Souhaitez-vous savoir si vous devez signaler les changements concernant les bonifications pour tâches éducatives ?
-Que se passe-t-il si je suis le seul à m'occuper des enfants ? -> Exercez-vous l'autorité parentale exclusive, et êtes-vous marié(e), divorcé(e) ou non marié(e) avec l'autre parent ?
-
-Thème: Cotisations salariales à l"AVS, à l"AI et aux APG:
-À partir de quel âge doit-on commencer à payer des cotisations ? -> Pouvez-vous me dire en quelle année vous êtes né(e) ?
-Quand est-ce que je peux arrêter de cotiser à l'AVS ? -> Êtes-vous un homme ou une femme, et quelle est votre année de naissance ?
-Je continue à travailler après ma retraite, dois-je encore payer des cotisations ? -> Avez-vous atteint l'âge de référence et exercez-vous toujours une activité lucrative ?
-Comment fonctionne la franchise pour les retraités qui travaillent ? -> Souhaitez-vous connaître le montant de la franchise ou savoir comment elle s'applique ?
-Est-ce que je dois payer des cotisations si je gagne très peu ? -> Quel est le montant annuel de votre salaire pour chaque emploi ?
-Comment puis-je simplifier le paiement des cotisations ? -> Vos salariés gagnent-ils chacun moins de 22 050 francs par an, et le total des salaires ne dépasse-t-il pas 58 800 francs par an ?
-À quelle fréquence dois-je payer les cotisations ? -> Quel est le montant total annuel des salaires que vous versez à vos employés ?
-Que se passe-t-il si je paie mes cotisations en retard ? -> Souhaitez-vous connaître les intérêts moratoires applicables en cas de retard de paiement ?
-Quels types de rémunérations sont soumis à cotisations ? -> Voulez-vous savoir si des primes ou des allocations spécifiques sont concernées ?
-Les allocations familiales sont-elles soumises à cotisations ? -> Parlez-vous des allocations pour enfants ou de formation professionnelle conformes à l'usage local ou professionnel ?
-Est-ce que les indemnités journalières sont soumises à cotisations ? -> Faites-vous référence aux indemnités journalières de l'AI, de l'AC ou aux allocations pour perte de gain ?
-Les cadeaux de l'employeur sont-ils soumis à cotisations ? -> Pouvez-vous préciser le type de cadeaux et leur valeur approximative ?
-Dois-je payer des cotisations sur une gratification reçue plus tard ? -> Cette gratification concerne-t-elle une période où vous étiez assuré et tenu de cotiser ?
-Est-ce que les repas offerts par l'employeur sont soumis à cotisations ? -> Recevez-vous ces repas de manière régulière de la part de votre employeur ?
-Je suis membre du conseil d'administration, comment mes cotisations sont-elles calculées ? -> Percevez-vous des honoraires ou des tantièmes pour cette fonction, et si oui, de quel montant ?
-Est-ce que les allocations de déménagement sont soumises à cotisations ? -> Ces allocations sont-elles versées en raison d'un changement de domicile pour des raisons professionnelles ?
-Comment sont évaluées les prestations en nature ? -> Recevez-vous des avantages comme la nourriture ou le logement de manière régulière ?
-Les personnes qui travaillent dans une entreprise familiale paient-elles des cotisations ? -> Avez-vous moins de 20 ans et êtes-vous membre de la famille travaillant dans l'entreprise ?
-Est-ce que les membres de la famille qui travaillent dans une exploitation agricole doivent cotiser ? -> Êtes-vous une personne seule, mariée, et avez-vous des enfants mineurs à charge ?
-Dois-je payer des cotisations sur les allocations pour perte de gain versées en cas de service militaire ? -> Recevez-vous ces allocations directement ou par l'intermédiaire de votre employeur ?
-
-Thème: Cotisations des indépendants à l"AVS, à l"AI et aux APG:
-Est-ce que je suis considéré comme indépendant ? -> Pouvez-vous décrire votre activité professionnelle et si vous assumez les risques économiques ?
-Dois-je payer des cotisations si je suis à mon compte ? -> Exercez-vous une activité lucrative en Suisse en tant qu'indépendant ?
-À partir de quand dois-je commencer à cotiser ? -> Pouvez-vous me dire en quelle année vous êtes né(e) ?
-Jusqu'à quel âge dois-je payer des cotisations ? -> Avez-vous atteint l'âge de référence et continuez-vous à exercer une activité lucrative ?
-Quel est le taux de cotisation pour mon revenu ? -> Quel est votre revenu annuel provenant de votre activité indépendante ?
-Je gagne très peu, combien dois-je cotiser ? -> Quel est votre revenu annuel provenant de votre activité indépendante ?
-Je fais un petit travail indépendant en plus de mon emploi principal, dois-je cotiser dessus ? -> Quel est le montant annuel de votre revenu indépendant, et cotisez-vous déjà via votre emploi principal ?
-Je suis à la retraite mais je travaille encore, dois-je cotiser ? -> Exercez-vous une activité lucrative après avoir atteint l'âge de référence, et souhaitez-vous savoir si vous devez cotiser ?
-Comment fonctionne la franchise pour les retraités qui travaillent ? -> Souhaitez-vous connaître le montant de la franchise ou comment elle s'applique à vos revenus ?
-Dois-je payer des cotisations sur les indemnités que je reçois ? -> Recevez-vous des allocations pour perte de gain ou des indemnités journalières de l'AI, de l'AC ou de l'assurance militaire ?
-
-# Historique de conversation
+<gesprächsverlauf>
 {conversational_memory}
+</gesprächsverlauf>
 
-# Question
-{query}"""
+<nutzerpräferenzen>
+{user_preferences}
+</nutzerpräferenzen>
 
-RAG_FOLLOWUP_AGENT_PROMPT_IT = """# """
-
-FAK_EAK_FOLLOWUP_AGENT_PROMPT_DE = """# Aufgabe"""
-
-FAK_EAK_FOLLOWUP_AGENT_PROMPT_FR = """# Tâche
-Votre tâche consiste à poser des questions de suivi pour obtenir les informations nécessaires pour exécuter une fonction. Vous disposez des fonctions suivantes:
--
+<frage>
+{query}
+</frage>"""
 
 
-Si la question porte sur les allocations familiales, vérifiez que vous disposez des éléments suivants:
-- Si la question porte sur les allocations familiales, vérifiez que vous disposez des éléments suivants:
-    1. Questions sur le taux de réduction en cas d'anticipation de rente pour les femmes de la génération de transition:
-        - date de naissance (datetime.date): La date de naissance de la femme (devrait être entre 1961 et 1969).
-        - date de départ à la retraite (datetime.date): La date prévue pour le départ à la retraite.
-        - revenu annuel moyen (float): Le revenu annuel moyen en CHF.
-    2. Questions sur quel parent reçoit les allocations familiales:
-        - 1 parent possède une activité lucrative OU les deux parents possèdent une activité lucrative ?
-        - quel(s) parent(s) ont l'autorité parentale ?
-        - les parents vivent-ils ensemble ?
-        - un parent travaille dans le canton de domicile de l'enfant ?
-        - 1 parent est salarité et l'autre indépendant OU les deux parents sont salariés OU les deux parents sont indépendants ?
-        -
+NO_VALIDATED_DOCS_PROMPT_FR = """<context>
+    Le cadre est l'AVS/AI en Suisse.
+    La recherche de documents initiale n'a retourné que des <documents_non_pertinents> ne pouvant répondre à la <question> de l'utilisateur. Cela indique que la <question> peut être trop vague, manquer de vocabulaire spécifique au domaine ou ne pas capturer les détails précis de l'intention de l'utilisateur.
+  </context>
 
-# Format de réponse
+<objectif>
+    Votre tâche est d'engager l'utilisateur de manière autonome en posant des questions de clarification et de précision afin d'affiner la requête. Essayez de comprendre l'intention de l'utilisateur.
+</objectif>
 
-# Exemples
+<instructions>
+    <instruction>Indiquez à l'utilisateur que la recherche n'a pas retourné de documents pertinents</instruction>
+    <instruction>Encouragez l'utilisateur à donner plus de contexte, d'arrière-plan ou à expliquer le problème spécifique qu'il cherche à résoudre</instruction>
+    <instruction>Posez toutes questions pertinentes afin de cerner l'intention de l'utilisateur au mieux</instruction>
+    <instruction>Consultez les <documents_non_pertinents>, l'<historique_de_conversation> et les <préférences_utilisateur> si besoin pour comprendre le contexte et l'intention de l'utilisateur</instruction>
+    <instruction>Consultez les <préférences_utilisateur> afin d'intéragir avec l'utilisateur de manière plus personnalisée</instruction>
+</instructions>
+
+<documents_non_pertinents>
+{invalid_docs}
+</documents_non_pertinents>
+
+<historique_de_conversation>
+{conversational_memory}
+</historique_de_conversation>
+
+<préférences_utilisateur>
+{user_preferences}
+<préférences_utilisateur>
+
+<question>
+{query}
+</question>"""
 
 
-# Question
-{query}"""
+NO_VALIDATED_DOCS_PROMPT_IT = """<contesto>
+    Il quadro di riferimento è l'AVS/AI in Svizzera.
+    La ricerca iniziale di documenti ha restituito solo <documenti_non_rilevanti> che non potevano rispondere alla <domanda> dell'utente. Ciò indica che la <domanda> può essere troppo vaga, che manca di un vocabolario specifico del dominio o che non riesce a cogliere i dettagli precisi dell'intento dell'utente.
+  </contesto>
 
-FAK_EAK_FOLLOWUP_AGENT_PROMPT_IT = """# """
+<obiettivo>
+    Il vostro compito è quello di coinvolgere autonomamente l'utente ponendo domande chiarificatrici e di approfondimento per perfezionare la richiesta. Cercate di capire l'intenzione dell'utente.
+</obiettivo>
+
+<istruzioni>
+    <istruzione>Indicare all'utente che la ricerca non ha restituito alcun documento pertinente</istruzione>
+    <istruzione>Incoraggiare l'utente a fornire un contesto più ampio o a spiegare il problema specifico che sta cercando di risolvere</istruzione>
+    <istruzione>Fare qualsiasi domanda pertinente per cogliere al meglio l'intento dell'utente</istruzione>
+    <istruzione>Consultare i <documenti_non_rilevanti> e la <storia_conversazionale>, se necessario, per comprendere il contesto e l'intento dell'utente</istruzione>
+    <istruzione>Consultare i <documenti_non_rilevanti>, la <storia_conversazionale> e le <preferenze_utente> se necessario per comprendere il contesto e l'intento dell'utente</istruzione>
+    <istruzione>Consultare le <preferenze_utente> per interagire con l'utente in modo più personalizzato</istruzione>
+</istruzioni>
+
+<documenti_non_rilevanti>
+{invalid_docs}
+</documenti_non_rilevanti>
+
+<storia_conversazionale>
+{memoria_conversazionale}
+</storia_conversazionale>
+
+<preferenze_utente>
+{user_preferences}
+</preferenze_utente>
+
+<domanda>
+{query}
+</domanda>"""
+
+
+SEARCH_REFINEMENT_PROMPT_DE = """"""
+
+"""
+Search refinement must be run immediately after no validated docs are found, or used with conversational memory with retrieved_doc_ids (less info -> or provide more info in conversational memory !!! eg. source, tags, etc.)?
+
+"""
+SEARCH_REFINEMENT_PROMPT_FR = """<context>
+</context>
+
+<objectif>
+</objectif>
+
+<instructions>
+    <>Sélectionnez les sources (id), tags, etc. des documents contenant une information valide ou partielle pour répondre à la question de l'utilisateur<>
+    <>Sélectionnez les id des docments valides<>
+</instructions>
+"""
+
+
+SEARCH_REFINEMENT_PROMPT_IT = """"""
+
+
+ASK_USER_FEEDBACK_PROMPT_DE = """"""
+
+
+ASK_USER_FEEDBACK_PROMPT_FR = """<objectif>
+    Suite à la <question> de l'utilisateur, aucun document n'a été validé comme étant pertinent pour répondre à la question de l'utilisateur.
+    Formulez une question de suivi qui permettra de récolter un feedback précis de l'utilisateur afin d'améliorer la recherche de documents pertinents.
+</objectif>
+
+<instructions>
+    <instruction>Analysez le contexte en examinant :
+        - La <question> initiale posée par l'utilisateur
+        - Les <catégories_de_documents> qui se sont révélées non pertinentes
+        - Les <raisons> pour lesquelles ces documents ou sources ont été jugés non pertinents
+        - Les <documents_non_valide> qui ont été rejetés
+        - L'<historique_de_conversation>
+    </instruction>
+    <instruction>Déterminez l'objectif de la question de suivi, qui doit permettre de :
+        - Obtenir des précisions supplémentaires pour mieux comprendre le besoin de l'utilisateur
+        - Orienter la recherche vers des documents ou informations potentiellement plus pertinents
+        - Solliciter des clarifications spécifiques en cas d'ambiguïté sur les catégories ou le thème
+        - Solliciter des clarifications sur la base du contenu des documents rejettés:
+            - trop vagues: demander des précisions à l'utilisateur sur le niveau de détail souhaité
+            - non pertinents: indiquer à l'utilisateur pourquoi les documents ne sont pas pertinents et demander des précisions sur la base des documents rejetés
+            - ayant du contenu contradictoire entre eux: demander des précisions sur le contenu recherché
+            - documents nécéssitants des précisions de l'utilisateur: demander le niveau de précision souhaité (réponse sur mesure ou générale)
+            - sources contiennent des informations différentes (ou une applicabilité différente) mais pertinentes pour répondre à la <question> (ex: loi cantonale vs loi fédérale): partager les sources et demander quelle source favoriser
+    </instruction>
+    <instruction>Formulez une question de suivi claire, concise et directement liée aux éléments analysés, afin d'encourager l'utilisateur à fournir des détails complémentaires pour affiner la recherche de documents</instruction>
+</instructions>
+
+<question>
+{query}
+</question>
+
+<catégories_de_documents>
+{tags}
+</catégories_de_documents>
+
+<raisons>
+{reasons}
+</raisons>
+
+<documents_non_valide>
+{invalid_docs}
+</documents_non_valide>
+
+<historique_de_conversation>
+{conversational_memory}
+</historique_de_conversation>"""
+
+
+ASK_USER_FEEDBACK_PROMPT_IT = """"""
+
+
+UPDATE_USER_PREFERENCES_PROMPT_DE = """<anweisungen>
+    <anweisung>Extrahieren Sie die notwendigen Informationen aus der <frage> oder dem <gesprächsverlauf>, um die Einstellungen des Benutzers zu aktualisieren</anweisung>
+    <anweisung>Aktualisieren Sie nur die Felder, die in der <frage> oder dem <gesprächsverlauf> eindeutig identifiziert sind</anweisung>
+    <anweisung>Formulieren Sie eine kurze Bestätigungsnachricht, um den Nutzer darüber zu informieren, dass seine Einstellungen aktualisiert wurden</anweisung>
+</anweisungen>
+
+<antwort_format>
+Pydantic Model:
+{response_schema}
+</antwort_format>
+
+<gesprächsverlauf>
+{conversational_memory}
+</gesprächsverlauf>
+
+frage>
+{query}
+</frage>"""
+
+
+UPDATE_USER_PREFERENCES_PROMPT_FR = """<instructions>
+    <instruction>Extrayez les informations nécessaires de la <question> ou de l'<historique_de_conversation> afin de mettre à jour les préférences de l'utilisateur</instruction>
+    <instruction>Mettez seulement à jour les champs clairement identifiés dans la <question> ou l'<historique_de_conversation></instruction>
+    <instructions>Formulez un court message de confirmation pour informer l'utilisateur que ses préférences ont été mises à jour</instructions>
+<instructions>
+
+<format_de_réponse>
+Pydantic Model:
+{response_schema}
+</format_de_réponse>
+
+<historique_de_conversation>
+{conversational_memory}
+</historique_de_conversation>
+
+<question>
+{query}
+</question>"""
+
+UPDATE_USER_PREFERENCES_PROMPT_IT = """<istruzioni>
+    <istruzione>Estrarre le informazioni necessarie dalla <domanda> o dalla <storia_conversazione> per aggiornare le preferenze dell'utente</istruzione>
+    <istruzione>Aggiornare solo i campi chiaramente identificati nella <domanda> o nella <storia_conversazione></istruzione>
+    <istruzioni>Formulare un breve messaggio di conferma per informare l'utente che le sue preferenze sono state aggiornate</istruzioni>
+</istruzioni>
+
+<formato_risposta>
+Pydantic Model:
+{response_schema}
+</formato_risposta>
+
+<storia_conversazione>
+{conversational_memory}
+</storia_conversazione>
+
+<domanda>
+{query}
+</domanda>"""
+
+
+INFER_USER_PREFERENCES_PROMPT = """<instructions>
+    <instruction>Parse all user <conversations> to set/update user preferences fields<instruction>
+    <instruction>Estimate most likely parameters. If uncertain, set default value. Favor latest interactions (see timestamps) over older ones if necessary<instruction>
+</instructions>
+
+<response_format>
+Pydantic Model:
+{response_schema}
+</response_format>
+
+<conversations>
+{conversations}
+</conversations>"""
+
+
+SET_USER_PREFERENCES_PROMPT_DE = """"""
+
+
+SET_USER_PREFERENCES_PROMPT_FR = """<instructions>
+    <instruction>Formulez les questions nécessaires en fonction du <format_de_réponse> attendu et de l'<historique_de_conversation> afin de définir les préférences de l'utilisateur</instruction>
+    <instruction>Mettez seulement à jour les champs clairement identifiés dans la <question> ou l'<historique_de_conversation></instruction>
+    <instructions>Formulez un court message de confirmation SEULEMENT lorsque toutes les questions ont été posées (voir <historique_de_conversation> et <format_de_réponse>) pour informer l'utilisateur que ses préférences ont été mises à jour et lui demander comment vous pouvez l'aider à réponder à ses questions sur l'AVS/AI</instructions>
+<instructions>
+
+<format_de_réponse>
+Pydantic Model:
+{response_schema}
+</format_de_réponse>
+
+<historique_de_conversation>
+{conversational_memory}
+</historique_de_conversation>
+
+<question>
+{query}
+</question>"""
+
+
+SET_USER_PREFERENCES_PROMPT_IT = """"""
+
 
 PENSION_FUNCTION_CALLING_PROMPT_DE = """# Aufgabe
 Ihre Aufgabe ist es, die richtige Funktion aufzurufen, um die vom Benutzer gestellte Frage zu beantworten. Sie müssen die Frage analysieren und die Parameter extrahieren/formatieren, die für den Aufruf der ausgewählten Funktion erforderlich sind.
 
 # Verfügbare Funktionen
-- determine_reduction_rate_and_supplement: Berechnet den Kürzungssatz und den Zuschlag für Frauen der Übergangsgeneration
+- determine_reduction_rate_and_supplement_tool: Berechnet den Kürzungssatz und den Zuschlag für Frauen der Übergangsgeneration
 - estimate_pension: Schätzt die Altersrente
 - determine_reference_age: Bestimmt das Referenzalter (das Alter, in dem eine Person ihre Altersrente erhält)
 
@@ -536,7 +760,7 @@ PENSION_FUNCTION_CALLING_PROMPT_FR = """<instructions>
 
 <fonctions_disponibles>
     <fonction>
-        <nom>determine_reduction_rate_and_supplement</nom>
+        <nom>determine_reduction_rate_and_supplement_tool</nom>
         <description>calcule le taux de réduction et le supplément pour les femmes de la génération transitoire</description>
         <paramètres></paramètres>
     </fonction>
@@ -583,7 +807,7 @@ PENSION_FUNCTION_CALLING_PROMPT_IT = """# Compito
 Il compito consiste nel chiamare la funzione appropriata per rispondere alla domanda posta dall'utente. Dovete analizzare la domanda ed estrarre/formattare i parametri necessari per chiamare la funzione scelta.
 
 # Funzioni disponibili
-- determine_reduction_rate_and_supplement: calcola il tasso di riduzione e il supplemento per le donne della generazione di transizione
+- determine_reduction_rate_and_supplement_tool: calcola il tasso di riduzione e il supplemento per le donne della generazione di transizione
 - estimate_pension: stima la pensione di vecchiaia
 - determine_reference_age: determina l'età di riferimento (l'età in cui una persona riceve la pensione di vecchiaia)
 
@@ -805,28 +1029,6 @@ AGENT_SUMMARIZE_PROMPT_IT = """<istruzioni>
 {query}
 </domanda>"""
 
-
-FAK_EAK_FUNCTION_CALLING_PROMPT_DE = """# Aufgabe"""
-
-FAK_EAK_FUNCTION_CALLING_PROMPT_FR = """# Tâche
-Votre tâche consiste à appeler la fonction appropriée pour répondre à la question posée par l'utilisateur. Vous devez analyser la question et extraire/formatter les paramètres nécessaires pour appeler la fonction choisie.
-
-# Fonctions disponibles
-- determine_child_benefits_eligibility: Détermine l'éligibilité aux allocations familiales pour les parents
-
-# Signature de la fonction
-{func_metadata}
-
-# Format de réponse
-function_name(param1, param2, ...)
-
-# Exemples
-
-
-# Question
-{query}"""
-
-FAK_EAK_FUNCTION_CALLING_PROMPT_IT = """# Compito"""
 
 STATIC_WORKERS_SNOWBALL_PROMPT_FR = """# Tâche
 Votre tâche consiste à poser des questions de suivi pour obtenir les informations nécessaires.
