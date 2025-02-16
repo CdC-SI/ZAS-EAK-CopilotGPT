@@ -917,10 +917,9 @@ class MessageBuilder:
         language: str,
         llm_model: str,
         query: str,
-        reasons: List[str],
-        tags: List[str],
         invalid_docs: List[str],
         conversational_memory: str,
+        user_preferences: str,
     ) -> Union[List[Dict], str]:
         """
         Format the Ask user feedback message to send to the appropriate LLM API.
@@ -944,10 +943,9 @@ class MessageBuilder:
             ask_user_feedback_no_valid_docs_system_prompt = (
                 ask_user_feedback_no_valid_docs_system_prompt.format(
                     query=query,
-                    reasons=reasons,
-                    tags=tags,
                     invalid_docs=invalid_docs,
                     conversational_memory=conversational_memory,
+                    user_preferences=user_preferences,
                 )
             )
             return [
