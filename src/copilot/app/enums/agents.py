@@ -1,6 +1,12 @@
 from enum import Enum
 
 
+class FeedbackType(str, Enum):
+    NO_DOCS = "no_docs"
+    NO_VALIDATED_DOCS = "no_validated_docs"
+    PARTIAL_VALIDATED_DOCS = "partial_validated_docs"
+
+
 class Language(str, Enum):
     DEUTSCH = "de"
     FRANCAIS = "fr"
