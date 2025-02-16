@@ -35,9 +35,10 @@ def update_user_preferences_in_db(
     }
 
     try:
-        # Update Redis cache first
+        # Convert dict values to strings for Redis
+        redis_preferences = {k: str(v) for k, v in preferences_dict.items()}
         redis_key = f"user_preferences:{user_uuid}"
-        redis_client.hset(redis_key, mapping=preferences_dict)
+        redis_client.hset(redis_key, mapping=redis_preferences)
         # Set TTL for cached preferences (2 weeks))
         # redis_client.expire(redis_key, 1209600)
     except RedisError as e:
