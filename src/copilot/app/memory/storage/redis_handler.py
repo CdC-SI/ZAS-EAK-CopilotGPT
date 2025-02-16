@@ -12,6 +12,8 @@ from ..models import MessageData, ConversationData, ConversationTurn
 from ..config import RedisConfig
 from ..enums import MessageRole
 
+from database.models import UserPreferences
+
 logger = logging.getLogger(__name__)
 
 
@@ -169,12 +171,6 @@ class RedisMemoryHandler(BaseStorage):
             conversation_uuid=conversation_uuid, turns=turns
         )
 
-    def has_conversations(self, user_uuid: str) -> bool:
-        """Check if user has any conversations in Redis cache."""
-        pattern = f"user:{user_uuid}:conversation:*"
-        keys = self.redis_client.keys(pattern)
-        return len(keys) > 0
-
     def get_all_user_conversations(
         self, db: Session, user_uuid: str
     ) -> list[ConversationData]:
@@ -306,3 +302,66 @@ class RedisMemoryHandler(BaseStorage):
             )
 
         return conversations
+
+    def get_user_preferences(self, db: Session, user_uuid: str) -> dict:
+        """
+        Get user preferences from Redis cache or fallback to Postgres.
+
+        Args:
+            db: Database session
+            user_uuid: UUID of the user
+
+        Returns:
+            dict: User preferences dictionary or None if not found
+
+        Raises:
+            RedisStorageError: If Redis operation fails
+        """
+        redis_key = f"user_preferences:{user_uuid}"
+
+        try:
+            # Try Redis first
+            preferences = self.redis_client.hgetall(redis_key)
+            if preferences:
+                # Convert string values back to dicts
+                for key, value in preferences.items():
+                    try:
+                        preferences[key] = ast.literal_eval(value)
+                    except (ValueError, SyntaxError):
+                        # Keep as string if can't be evaluated
+                        continue
+                return preferences
+
+        except RedisError as e:
+            logger.error(
+                f"Redis error while fetching preferences for user {user_uuid}: {str(e)}"
+            )
+
+        # Fallback to postgres if not in Redis
+        if db is not None:
+            try:
+                db_prefs = (
+                    db.query(UserPreferences)
+                    .filter(UserPreferences.user_uuid == user_uuid)
+                    .first()
+                )
+                if db_prefs:
+                    # Cache in Redis for future requests
+                    try:
+                        self.redis_client.hset(
+                            redis_key, mapping=db_prefs.user_preferences
+                        )
+                        # self.redis_client.expire(redis_key, 1209600)
+                    except RedisError as e:
+                        logger.error(
+                            f"Failed to cache preferences in Redis: {str(e)}"
+                        )
+
+                    return db_prefs.user_preferences
+            except Exception as e:
+                logger.error(
+                    f"Database error while fetching preferences: {str(e)}"
+                )
+                raise
+
+        return None
