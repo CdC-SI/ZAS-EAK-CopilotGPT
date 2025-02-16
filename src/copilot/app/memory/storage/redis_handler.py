@@ -321,16 +321,22 @@ class RedisMemoryHandler(BaseStorage):
 
         try:
             # Try Redis first
-            preferences = self.redis_client.hgetall(redis_key)
-            if preferences:
+            str_preferences = self.redis_client.hgetall(redis_key)
+            if str_preferences:
                 # Convert string values back to dicts
-                for key, value in preferences.items():
+                preferences = {}
+                for key, value in str_preferences.items():
                     try:
-                        preferences[key] = ast.literal_eval(value)
-                    except (ValueError, SyntaxError):
-                        # Keep as string if can't be evaluated
+                        # Strip any extra whitespace and quotes that might interfere with parsing
+                        cleaned_value = value.strip("'").strip('"')
+                        preferences[key] = ast.literal_eval(cleaned_value)
+                    except (ValueError, SyntaxError) as e:
+                        logger.error(
+                            f"Failed to parse preference value for {key}: {e}"
+                        )
+                        # Skip this value if we can't parse it
                         continue
-                return preferences
+                return preferences if preferences else None
 
         except RedisError as e:
             logger.error(
