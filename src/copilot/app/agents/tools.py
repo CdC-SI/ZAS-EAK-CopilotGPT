@@ -1,4 +1,3 @@
-import ast
 from typing import Dict, AsyncGenerator
 import json
 from datetime import date
@@ -10,7 +9,6 @@ from schemas.chat import ChatRequest
 from memory import MemoryService
 from rag.retrievers import RetrieverClient
 from utils.streaming import StreamingHandler
-from schemas.agents import ParseTranslateArgs
 from schemas.agents import UserPreferences as UserPreferencesSchema
 
 
@@ -20,62 +18,13 @@ from commands.command_service import translation_service
 from chat.messages import MessageBuilder
 from llm.base import BaseLLM
 from utils.streaming import Token
-from utils.parsing import clean_text
+from utils.parsing import clean_text, parse_translation_args
 from utils.logging import get_logger
 from utils.user_preferences import update_user_preferences_in_db
 
 logger = get_logger(__name__)
 
 
-@observe(name="parse_translation_args")
-async def parse_translation_args(
-    request: ChatRequest,
-    message_builder: MessageBuilder,
-    llm_client: BaseLLM,
-) -> Dict[str, str]:
-    """
-    Parse user query with LLM to extract args for translation.
-    """
-    messages = message_builder.build_parse_translate_args_prompt(
-        request.language,
-        request.llm_model,
-        request.query,
-    )
-
-    res = await llm_client.llm_client.beta.chat.completions.parse(
-        model="gpt-4o",
-        temperature=0,
-        top_p=0.95,
-        max_tokens=4096,
-        messages=messages,
-        response_format=ParseTranslateArgs,
-    )
-
-    arg_names = ["target_lang", "n_msg", "roles"]
-    arg_values = res.choices[0].message.parsed.arg_values
-
-    # TO DO: move parsing logic to utils.parsing
-    parsed_args = []
-    for arg in arg_values:
-        try:
-            parsed_value = ast.literal_eval(arg)
-        except (ValueError, SyntaxError):
-            if arg.startswith("[MessageRole.") and arg.endswith("]"):
-                enum_values = arg.strip("[]").split(",")
-                parsed_value = [
-                    eval(enum_val.strip()) for enum_val in enum_values
-                ]
-            else:
-                parsed_value = arg
-
-        parsed_args.append(parsed_value)
-
-    args = {name: value for name, value in zip(arg_names, parsed_args)}
-
-    return args
-
-
-# Translate tool
 @observe(name="translate_tool")
 async def translate_tool(
     request: ChatRequest,
@@ -109,7 +58,6 @@ async def translate_tool(
     yield translated_text
 
 
-# Summarize tool
 @observe(name="summarize_tool")
 async def summarize_tool(
     request: ChatRequest,
@@ -181,7 +129,6 @@ async def update_user_preferences_tool(
         ),
     )
 
-    # fix here: test with:  update mes préférences de langue au français
     res = await llm_client.llm_client.beta.chat.completions.parse(
         model="gpt-4o",
         temperature=0.0,
@@ -349,6 +296,7 @@ async def rag_tool(
         # )
 
         # No docs were validated
+        # -------> GET USER PREFS FROM REDIS
         async for token in ask_user_feedback(
             feedback_type="no_validated_docs",
             message_builder=message_builder,
@@ -374,7 +322,7 @@ async def rag_tool(
     #         validated_docs.append(doc)
     #         validated_sources.append(doc["url"])
 
-    # Continue with RAG
+    # --------> Continue with RAG
     formatted_context_docs = "\n\n".join(
         [
             f"<doc_{i}>{doc['text']}</doc_{i}>"
@@ -413,9 +361,8 @@ async def rag_tool(
     #     yield token
 
 
-# Pension Agent tools
 @observe(name="FAK_EAK_calculate_reduction_rate_and_supplement_tool")
-def determine_reduction_rate_and_supplement(
+def determine_reduction_rate_and_supplement_tool(
     date_of_birth: str, retirement_date: str, average_annual_income: float
 ) -> Dict:
     """Calculate the reduction rate or pension supplement for women of the transitional generation.
@@ -539,7 +486,7 @@ def _format_reference_age(months: int) -> str:
 
 
 @observe(name="PENSION_determine_reference_age_tool")
-def determine_reference_age(date_of_birth: str) -> Dict:
+def determine_reference_age_tool(date_of_birth: str) -> Dict:
     """
     Determine the reference age for women born between 1961-1969 (transitional generation).
     Returns a dictionary with formatted reference age string.
@@ -582,11 +529,11 @@ def determine_reference_age(date_of_birth: str) -> Dict:
 
 
 @observe(name="PENSION_estimate_pension_tool")
-def estimate_pension():
+def estimate_pension_tool():
     pass
 
 
 # FAK-EAK tools
 @observe(name="FAK_EAK_determine_child_benefits_eligibility_tool")
-def determine_child_benefits_eligibility():
+def determine_child_benefits_eligibility_tool():
     pass
