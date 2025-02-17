@@ -231,6 +231,7 @@ class Question(BaseContentModel, DocumentEmbeddingMixin):
     source: Mapped["Source"] = relationship(
         "Source", back_populates="questions", overlaps="source"
     )
+    user_uuid: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
     __table_args__ = (
         # Text search optimizations
@@ -301,9 +302,11 @@ class ChatHistory(Base):
     message_uuid: Mapped[str] = mapped_column(String, unique=True)
     role: Mapped[str] = mapped_column(String)
     message: Mapped[str] = mapped_column(String)
-    url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     language: Mapped[str] = mapped_column(String)
     faq_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    sources: Mapped[Optional[List[str]]] = mapped_column(
+        ARRAY(String), nullable=True
+    )
     timestamp: Mapped[DateTime] = mapped_column(
         DateTime, default=datetime.utcnow
     )
