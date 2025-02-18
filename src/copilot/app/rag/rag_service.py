@@ -135,7 +135,7 @@ class RAGService:
             conversational_memory=conversational_memory,
         )
 
-        return rows if len(rows) > 0 else [{"id": "", "text": "", "url": ""}]
+        return rows if len(rows) > 0 else []
 
     @observe()
     async def process_rag(
@@ -238,11 +238,13 @@ class RAGService:
         memory_service: MemoryService,
         sources: Dict,
     ) -> AsyncGenerator[Token, None]:
+
         # Routing status update
         yield Token.from_status(
             f"<routing>{status_service.get_status_message(StatusType.ROUTING, request.language)}</routing>"
         )
 
+        # Get conversational memory
         conversational_memory = (
             await (
                 memory_service.chat_memory.get_formatted_conversation(
@@ -255,12 +257,9 @@ class RAGService:
         )
 
         # Intent detection
-        # TO DO: perform retrieval to get context docs
-        # TO DO: format docs
-        # documents = await self.retrieve(db, request, retriever_client)
-        # formatted_docs = "\n\n".join([doc["text"] for doc in documents])
-
-        # TO DO: yield status message
+        yield Token.from_status(
+            f"<intent_processing>{status_service.get_status_message(StatusType.INTENT_PROCESSING, request.language)}</intent_processing>"
+        )
         (inferred_intent, followup_question) = await infer_intent(
             db=db,
             message_builder=message_builder,
@@ -269,22 +268,19 @@ class RAGService:
             conversational_memory=conversational_memory,
         )
 
-        # TO DO: method to observe with langfuse for FollowUpQ --> FollowUpQ should be applied to all agentic workflows
         if followup_question:
             yield Token.from_text(followup_question)
             return
 
         # Workflow selection
-        # TO DO: implement workflow steps
-        # if step is user_followup_q -> don't do retrieval, only lookup conv memory
-        # if step is factual_qa -> rag_agent
-        # if step is ...
+        # Not implemented yet
 
         # Source detection
-        # TO DO: yield status message
-        # TO DO: implement document translation and summarization (not only conversation)
         if inferred_intent in ["factual_qa", "multipart_qa"]:
             if not request.source:
+                yield Token.from_status(
+                    f"<source_processing>{status_service.get_status_message(StatusType.SOURCE_PROCESSING, request.language)}</source_processing>"
+                )
                 inferred_sources = await infer_sources(
                     db=db,
                     message_builder=message_builder,
@@ -296,8 +292,10 @@ class RAGService:
                 request.source = inferred_sources
 
         # Tags detection
-        # TO DO: yield status message
         if not request.tags:
+            # yield Token.from_status(
+            #         f"<tags_processing>{status_service.get_status_message(StatusType.TAGS_PROCESSING, request.language)}</tags_processing>"
+            #     )
             # inferred_tags = await infer_tags(
             #     db=db,
             #     message_builder=message_builder,
