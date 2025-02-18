@@ -10,6 +10,7 @@ from memory import MemoryService
 from rag.retrievers import RetrieverClient
 from utils.streaming import StreamingHandler
 from schemas.agents import UserPreferences as UserPreferencesSchema
+from agents.feedback import ask_user_feedback
 
 
 from memory.enums import MessageRole
@@ -144,57 +145,6 @@ async def update_user_preferences_tool(
     yield Token.from_text(message)
 
 
-@observe(name="ask_user_feedback")
-async def ask_user_feedback(
-    feedback_type: str,
-    **kwargs,
-) -> AsyncGenerator[Token, None]:
-    """
-    Generate a user feedback question.
-    """
-    match feedback_type:
-        case "no_docs":
-
-            # TO DO: translations
-            message = "No documents found matching your request.\n\nPlease update or reset document retrieval filters (tags, source) and/or language (some documents are only available in one language, mostly german)."
-            yield Token.from_text(message)
-
-        case "no_validated_docs":
-            message_builder = kwargs.get("message_builder")
-            llm_client = kwargs.get("llm_client")
-            streaming_handler = kwargs.get("streaming_handler")
-            request = kwargs.get("request")
-            invalid_docs_reason = kwargs.get("invalid_docs_reason")
-            invalid_docs_tags = kwargs.get("invalid_docs_tags")
-            formatted_invalid_docs = kwargs.get("formatted_invalid_docs")
-            conversational_memory = kwargs.get("conversational_memory")
-
-            feedback_message = (
-                message_builder.build_ask_user_feedback_no_valid_docs_prompt(
-                    request.language,
-                    request.llm_model,
-                    request.query,
-                    invalid_docs_reason,
-                    invalid_docs_tags,
-                    formatted_invalid_docs,
-                    conversational_memory,
-                )
-            )
-
-            event_stream = llm_client.call(
-                feedback_message,
-                model="gpt-4o",
-                stream=True,
-                temperature=0.0,
-                max_tokens=4096,
-            )
-            async for token in streaming_handler.generate_stream(event_stream):
-                yield token
-
-        case "partial_validated_docs":
-            pass
-
-
 # RAG tool
 @observe(name="RAG_tool")
 async def rag_tool(
@@ -216,6 +166,7 @@ async def rag_tool(
         rag_service,
     )  # TO DO: refactor to avoid circular import
 
+    # Retrieve documents
     conversational_memory = (
         await (
             memory_service.chat_memory.get_formatted_conversation(
@@ -231,27 +182,16 @@ async def rag_tool(
         db, request, retriever_client, conversational_memory
     )
 
-    # feedback use cases
-    # no docs retrieved
-    #   # ask user to update filters, language (some docs only available in one language, mostly de)
-    # docs retrieved
-    # ambiguous retrieved docs (multiple tags/topics) -> ask user feedback to refine question
-    # insufficient retrieved docs -> ask user feedback to refine question and expand search (eg. ask for relevant keywords or query reformulation)
-
-    # No docs were found matching your query, please refine tags/source filters, language
     if not documents:
-        async for token in ask_user_feedback(feedback_type="no_docs"):
+        async for token in ask_user_feedback(request, feedback_type="no_docs"):
             yield token
         return
 
-    # RetrievalEvaluatorAgent
+    # Source validation
     validated_docs = []
     validated_sources = []
-    invalid_docs_reason = []
-    invalid_docs_tags = []
     invalid_docs = []
 
-    # Source validation
     async for (
         doc,
         llm_source_validation,
@@ -265,64 +205,59 @@ async def rag_tool(
             validated_docs.append(doc)
             validated_sources.append(doc["url"])
         else:
-            invalid_docs_reason.append(llm_source_validation.reason)
-            invalid_docs_tags.append(doc["tags"])
-            invalid_docs.append(doc)
+            invalid_docs.append((doc, llm_source_validation.reason))
 
+    # validated_docs = []
     # invalid_docs = [
-    #     {"text": "le splitting est considéré comme ayant été atteint.", "source": "source1"}, {"text": "le splitting est valide", "source": "source2"}, {"text": "le splitting est invalide.", "source": "source2"}
+    #     ({"text": "le splitting est considéré comme ayant été atteint.", "source": "source1", "tags": ["tag1", "tag2"], "subtopics": ["subtopic1", "subtopic2"], "summary": "summary", "id": 0}, "mauvais document"),
+    #     ({"text": "le splitting est valide", "source": "source2", "tags": ["tag1", "tag2"], "subtopics": ["subtopic1", "subtopic2"], "summary": "summary", "id": "3"}, "document ambigu"), ({"text": "le splitting est invalide.", "source": "source2", "tags": ["tag1", "tag2"], "subtopics": ["subtopic1", "subtopic2"], "summary": "summary", "id": 4}, "bad doc"), ({"text": "hello hello", "source": "test_source", "tags": ["tag1", "tag2"], "subtopics": ["subtopic1", "subtopic2"], "summary": "summary", "id": "id"}, "bad BAD BADBAD doc"),
     # ]
+
     formatted_invalid_docs = "\n\n".join(
         [
-            f"<doc_{i}>{d['text']}\n{d['source']}</doc_{i}>"
+            f"""<doc_{i}>{d[0]['text']}
+Source: {d[0]['source']}
+Tags: {d[0]['tags']}
+Subtopics: {d[0]['subtopics']}
+Summary: {d[0]['summary']}
+Id: {d[0]['id']}
+Reason: {d[1]}
+</doc_{i}>"""
             for i, d in enumerate(invalid_docs, start=1)
         ]
     )
 
-    # validated_docs = []
-    # invalid_docs_reason = ["La source ne traite pas du concept de 'splitting' et ne fournit pas d'explication à ce sujet.", "La source explique le partage des avoirs LPP lors d'un divorce, mais ne fournit pas une définition concise du terme 'splitting'.", "La source ne contient pas d'informations spécifiques sur le splitting"]
-    # invalid_docs_tags = ["general", "ahv_services", "occupational_benefits"]
-
-    # No more context docs after source validation: ask user feedback
+    # No more context docs after source validation
     if not validated_docs:
-        # feedback_message = message_builder.build_ask_user_feedback_prompt(
-        #     request.language,
-        #     request.llm_model,
-        #     request.query,
-        #     invalid_docs_reason,
-        #     invalid_docs_tags,
-        #     formatted_invalid_docs,
-        #     conversational_memory,
-        # )
 
-        # No docs were validated
-        # -------> GET USER PREFS FROM REDIS
+        user_preferences = (
+            memory_service.chat_memory.cache.get_user_preferences(
+                db, request.user_uuid
+            )
+        )
+
         async for token in ask_user_feedback(
+            request=request,
             feedback_type="no_validated_docs",
             message_builder=message_builder,
             llm_client=llm_client,
             streaming_handler=streaming_handler,
-            request=request,
-            invalid_docs_reason="\n".join(invalid_docs_reason),
-            invalid_docs_tags="\n".join(invalid_docs_tags),
             formatted_invalid_docs=formatted_invalid_docs,
             conversational_memory=conversational_memory,
+            user_preferences=user_preferences,
         ):
             yield token
         return
 
     else:
+        # Return top validated sources
         for source_url in validated_sources:
             yield Token.from_source(source_url)
 
-    # else:
-    #     # Return top sources if no source validation
-    #     for doc in documents:
-    #         yield Token.from_source(doc["url"])
-    #         validated_docs.append(doc)
-    #         validated_sources.append(doc["url"])
-
-    # --------> Continue with RAG
+    # Send RAG docs to LLM
+    # ----> TO DO: keep track of doc_ids, source, tags, subtopics, summary, etc. for next search rounds (add this info in formatted_context_docs just below?) -> see sprint ticket
+    # -> exclude docs that have already been validated
+    # -> rerank cache of docs to retrieve faster if necessary
     formatted_context_docs = "\n\n".join(
         [
             f"<doc_{i}>{doc['text']}</doc_{i}>"
