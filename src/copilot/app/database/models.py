@@ -231,6 +231,7 @@ class Question(BaseContentModel, DocumentEmbeddingMixin):
     source: Mapped["Source"] = relationship(
         "Source", back_populates="questions", overlaps="source"
     )
+    user_uuid: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
     user_uuid: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
