@@ -1,5 +1,4 @@
 import logging
-from enum import Enum
 from typing import List, Dict, AsyncGenerator
 import asyncio
 from asyncio import Semaphore
@@ -7,7 +6,7 @@ from collections.abc import AsyncIterator
 
 from agents.function_metadata import extract_function_metadata
 from agents.tools import (
-    determine_reduction_rate_and_supplement,
+    determine_reduction_rate_and_supplement_tool,
     rag_tool,
     translate_tool,
     summarize_tool,
@@ -17,11 +16,7 @@ from agents.function_executor import FunctionExecutor
 from chat.messages import MessageBuilder
 from schemas.chat import ChatRequest
 from llm.base import BaseLLM
-from prompts.agents import (
-    RAG_FOLLOWUP_AGENT_PROMPT_DE,
-    RAG_FOLLOWUP_AGENT_PROMPT_FR,
-    RAG_FOLLOWUP_AGENT_PROMPT_IT,
-)
+
 from schemas.agents import FunctionCall, UniqueSourceValidation
 from agents.response_service import calculation_response_service
 from agents.base import BaseAgent
@@ -34,7 +29,7 @@ from langfuse.decorators import observe
 logger = logging.getLogger(__name__)
 
 executor = FunctionExecutor()
-executor.register_function(determine_reduction_rate_and_supplement)
+executor.register_function(determine_reduction_rate_and_supplement_tool)
 
 llm_client = LLMFactory.get_llm_client(
     model="gpt-4o-mini",
@@ -43,63 +38,6 @@ llm_client = LLMFactory.get_llm_client(
     top_p=0.95,
     max_tokens=2056,
 )
-
-
-class FollowUp(Enum):
-    RAG = "rag"
-    FAK_REDUCTION_RATE = "reduction_rate"
-    FAK_ELIGIBILITY = "eligibility"
-
-
-class FollowUpAgent(BaseAgent):
-    """Agent for handling follow-up prompts based on different scenarios"""
-
-    _PROMPTS = {
-        FollowUp.RAG: {
-            "de": RAG_FOLLOWUP_AGENT_PROMPT_DE,
-            "fr": RAG_FOLLOWUP_AGENT_PROMPT_FR,
-            "it": RAG_FOLLOWUP_AGENT_PROMPT_IT,
-        },
-        FollowUp.FAK_REDUCTION_RATE: {
-            "de": "Um Ihren Kürzungssatz zu berechnen, benötige ich folgende Informationen:\n"
-            "- Ihr genaues Rentenvorbezugsdatum\n"
-            "- Ihr Geschlecht\n"
-            "Können Sie mir diese Informationen bitte mitteilen?",
-            "fr": "Pour calculer votre taux de réduction, j'ai besoin des informations suivantes:\n"
-            "- Votre date exacte de retraite anticipée\n"
-            "- Votre sexe\n"
-            "Pouvez-vous me fournir ces informations?",
-            "it": "Per calcolare il tasso di riduzione, ho bisogno delle seguenti informazioni:\n"
-            "- La data esatta del pensionamento anticipato\n"
-            "- Il suo sesso\n"
-            "Può fornirmi queste informazioni?",
-        },
-        FollowUp.FAK_ELIGIBILITY: {
-            "de": "Um Ihre Berechtigung zu prüfen, bitte ich Sie um folgende Angaben:\n"
-            "- Sind Sie in der Schweiz wohnhaft?\n"
-            "- Sind Sie bei der AHV versichert?",
-            "fr": "Pour vérifier votre éligibilité, veuillez me fournir les informations suivantes:\n"
-            "- Résidez-vous en Suisse?\n"
-            "- Êtes-vous assuré(e) à l'AVS?",
-            "it": "Per verificare la sua ammissibilità, la prego di fornirmi le seguenti informazioni:\n"
-            "- Risiede in Svizzera?\n"
-            "- È assicurato/a all'AVS?",
-        },
-    }
-
-    DEFAULT_LANGUAGE = "de"
-
-    @classmethod
-    def get_follow_up_prompt(
-        cls, follow_up_type: FollowUp, language: str
-    ) -> str:
-        """Get follow-up prompt for given type and language"""
-        prompts = cls._PROMPTS[follow_up_type]
-        return prompts.get(language, prompts.get(cls.DEFAULT_LANGUAGE))
-
-
-async def run_set_user_preferences():
-    pass
 
 
 class ChatAgent(BaseAgent):
@@ -123,66 +61,33 @@ class ChatAgent(BaseAgent):
 
         logger.info("------ INTENT: %s", intent)
 
-        # Check for existing conversations in Redis and Postgres
-        # TO DO: optimize logic for better efficiency
-        has_redis_conversations = (
-            memory_service.chat_memory.redis_handler.has_conversations(
-                request.user_uuid
-            )
-        )
-        has_postgres_conversations = (
-            memory_service.chat_memory.postgres_handler.has_conversations(
-                db, request.user_uuid
-            )
-        )
-        has_user_preferences = (
-            memory_service.chat_memory.postgres_handler.has_user_preferences(
-                db, request.user_uuid
-            )
-        )
-
-        # If no conversations anywhere and no user preferences, run preferences setup
-        if (
-            not (has_redis_conversations or has_postgres_conversations)
-            and not has_user_preferences
-        ):
-            await run_set_user_preferences()
-
         match intent:
             case "translate":
                 yield Token.from_status(
                     f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='translate_conversation')}</tool_use>"
                 )
-                try:
-                    async for token in translate_tool(
-                        request,
-                        memory_service,
-                        message_builder,
-                        llm_client,
-                        db,
-                    ):
-                        yield Token.from_text(token)
-                except Exception as e:
-                    logger.info("Error translating conversation: %s", e)
-                    raise e
+                async for token in translate_tool(
+                    request,
+                    memory_service,
+                    message_builder,
+                    llm_client,
+                    db,
+                ):
+                    yield Token.from_text(token)
 
             case "summarize":
                 yield Token.from_status(
                     f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='summarize_conversation')}</tool_use>"
                 )
-                try:
-                    async for token in summarize_tool(
-                        request,
-                        memory_service,
-                        message_builder,
-                        llm_client,
-                        streaming_handler,
-                        db,
-                    ):
-                        yield token
-                except Exception as e:
-                    logger.info("Error summarizing conversation: %s", e)
-                    raise e
+                async for token in summarize_tool(
+                    request,
+                    memory_service,
+                    message_builder,
+                    llm_client,
+                    streaming_handler,
+                    db,
+                ):
+                    yield token
 
             case "user_followup_q":
                 yield Token.from_status(
@@ -194,7 +99,6 @@ class ChatAgent(BaseAgent):
                 yield Token.from_status(
                     f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='update_user_preferences')}</tool_use>"
                 )
-                # try:
                 async for token in update_user_preferences_tool(
                     db,
                     request,
@@ -203,9 +107,6 @@ class ChatAgent(BaseAgent):
                     llm_client,
                 ):
                     yield token
-                # except Exception as e:
-                #    logger.info("Error updating user preferences: %s", e)
-                #    raise e
 
             case _:
                 message = "Sorry, I do not understand your intent. Please try again with a more specific question."
@@ -232,7 +133,7 @@ class PensionAgent(BaseAgent):
             f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='determine_reduction_rate_and_supplement')}</tool_use>"
         )
         func_metadata = extract_function_metadata(
-            determine_reduction_rate_and_supplement
+            determine_reduction_rate_and_supplement_tool
         )
 
         messages = message_builder.build_function_call_prompt(
