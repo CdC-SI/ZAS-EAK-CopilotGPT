@@ -1,4 +1,5 @@
 import ast
+import json
 from typing import Optional
 import datetime
 from redis import Redis, RedisError
@@ -321,21 +322,24 @@ class RedisMemoryHandler(BaseStorage):
 
         try:
             # Try Redis first
+            preferences = {}
             str_preferences = self.redis_client.hgetall(redis_key)
+
             if str_preferences:
-                # Convert string values back to dicts
-                preferences = {}
                 for key, value in str_preferences.items():
                     try:
-                        # Strip any extra whitespace and quotes that might interfere with parsing
-                        cleaned_value = value.strip("'").strip('"')
-                        preferences[key] = ast.literal_eval(cleaned_value)
-                    except (ValueError, SyntaxError) as e:
-                        logger.error(
-                            f"Failed to parse preference value for {key}: {e}"
-                        )
-                        # Skip this value if we can't parse it
-                        continue
+                        # Try to parse as JSON first
+                        preferences[key] = json.loads(value)
+                    except json.JSONDecodeError:
+                        try:
+                            # Fallback to literal_eval if not valid JSON
+                            preferences[key] = ast.literal_eval(value)
+                        except (ValueError, SyntaxError) as e:
+                            logger.error(
+                                f"Failed to parse preference value for {key}: {e}"
+                            )
+                            # Skip this value if we can't parse it
+                            continue
                 return preferences if preferences else None
 
         except RedisError as e:
@@ -352,12 +356,14 @@ class RedisMemoryHandler(BaseStorage):
                     .first()
                 )
                 if db_prefs:
-                    # Cache in Redis for future requests
+                    # Cache in Redis for future requests - use json.dumps for nested structures
                     try:
-                        self.redis_client.hset(
-                            redis_key, mapping=db_prefs.user_preferences
-                        )
-                        # self.redis_client.expire(redis_key, 1209600)
+                        redis_data = {
+                            k: json.dumps(v)
+                            for k, v in db_prefs.user_preferences.items()
+                        }
+                        self.redis_client.hset(redis_key, mapping=redis_data)
+                        # self.redis_client.expire(redis_key, self.config.cache_ttl_seconds)
                     except RedisError as e:
                         logger.error(
                             f"Failed to cache preferences in Redis: {str(e)}"
