@@ -59,7 +59,7 @@ async def get_organizations(db: Session = Depends(get_db)) -> List[str]:
     """
     Endpoint to get all organizations.
     """
-    return ["ZAS", "EAK"]
+    return ["BK"]
 
 
 @app.get("/sources")
