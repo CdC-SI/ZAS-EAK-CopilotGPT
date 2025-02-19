@@ -233,8 +233,6 @@ class Question(BaseContentModel, DocumentEmbeddingMixin):
     )
     user_uuid: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
-    user_uuid: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-
     __table_args__ = (
         # Text search optimizations
         Index(
