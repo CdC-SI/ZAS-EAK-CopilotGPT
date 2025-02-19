@@ -1,3 +1,4 @@
+from memory.enums import MessageRole
 import ast
 import re
 from typing import Dict
@@ -76,10 +77,12 @@ async def parse_translation_args(
         try:
             parsed_value = ast.literal_eval(arg)
         except (ValueError, SyntaxError):
+            # Handle MessageRole enum values
             if arg.startswith("[MessageRole.") and arg.endswith("]"):
                 enum_values = arg.strip("[]").split(",")
                 parsed_value = [
-                    eval(enum_val.strip()) for enum_val in enum_values
+                    getattr(MessageRole, enum_val.split(".")[-1].strip())
+                    for enum_val in enum_values
                 ]
             else:
                 parsed_value = arg
