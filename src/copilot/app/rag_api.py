@@ -1,6 +1,6 @@
 import logging
 
-from typing import List
+from typing import List, Optional
 from schemas.document import Document
 
 from fastapi import FastAPI, status, Depends
@@ -12,12 +12,18 @@ from config.network_config import CORS_ALLOWED_ORIGINS
 from config.base_config import rag_app_config
 
 # Load models
-from rag.rag_service import rag_service
 from chat.chatbot import bot
 from schemas.chat import ChatRequest
+from rag.factory import RetrieverFactory
 
 from sqlalchemy.orm import Session
 from database.database import get_db
+
+from memory import MemoryService
+from memory.config import MemoryConfig
+from config.base_config import chat_config
+from chat.messages import MessageBuilder
+from llm.factory import LLMFactory
 
 # Setup logging
 logging.basicConfig(
@@ -25,6 +31,14 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+message_builder = MessageBuilder()
+memory_config = MemoryConfig.from_dict(chat_config["memory"])
+memory_service = MemoryService(
+    memory_type=memory_config.memory_type,
+    k_memory=memory_config.k_memory,
+    config=memory_config.storage,
+)
 
 app = FastAPI(**rag_app_config)
 
@@ -63,7 +77,7 @@ async def process_query(request: ChatRequest, db: Session = Depends(get_db)):
     return StreamingResponse(content, media_type="text/event-stream")
 
 
-@app.get(
+@app.post(
     "/context_docs",
     summary="Retrieve context docs endpoint",
     response_description="Return context docs from semantic search",
@@ -71,10 +85,16 @@ async def process_query(request: ChatRequest, db: Session = Depends(get_db)):
     status_code=200,
 )
 async def docs(
-    request: ChatRequest,
-    language: str = None,
-    tags: List[str] = None,
-    k: int = 0,
+    query: str,
+    language: Optional[str] = "de",
+    tags: Optional[List[str]] = None,
+    source: Optional[List[str]] = None,
+    organizations: Optional[List[str]] = ["ZAS", "EAK"],
+    user_uuid: Optional[str] = "test_uuid",
+    conversation_uuid: Optional[str] = "test_conversation_uuid",
+    llm_model: Optional[str] = "gpt-4o",
+    retrieval_method: Optional[List[str]] = ["top_k_retriever"],
+    k: int = 10,
     db: Session = Depends(get_db),
 ):
     """
@@ -99,7 +119,48 @@ async def docs(
         The retrieved documents.
     """
 
-    return rag_service.retrieve(db, request, language, tags=tags, k=k)
+    tags = None if not tags or tags == [""] else tags
+
+    conversational_memory = (
+        await (
+            memory_service.chat_memory.get_formatted_conversation(
+                db,
+                user_uuid,
+                conversation_uuid,
+                k,
+            )
+        )
+    )
+
+    llm_client = LLMFactory.get_llm_client(
+        model=llm_model,
+        stream=False,
+        temperature=0.0,
+        top_p=0.95,
+        max_tokens=4096,
+    )
+
+    retriever_client = RetrieverFactory.get_retriever_client(
+        retrieval_method=retrieval_method,
+        llm_client=llm_client,
+        message_builder=message_builder,
+    )
+
+    rows = await retriever_client.get_documents(
+        db,
+        query,
+        language=language,
+        tags=tags,
+        source=source,
+        organizations=organizations,
+        user_uuid=user_uuid,
+        k_retrieve=k,
+        llm_model=llm_model,
+        conversational_memory=conversational_memory,
+    )
+
+    # Return empty document with proper types instead of empty strings
+    return rows if len(rows) > 0 else [Document(id=None, text="", url="")]
 
 
 @app.get(

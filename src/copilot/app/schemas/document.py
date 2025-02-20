@@ -86,6 +86,8 @@ class DocumentUpdate(DocumentBase):
 
 
 class Document(DocumentBase):
-    id: int
+    id: Optional[int] = None
+    text: str = ""
+    url: str = ""
 
     model_config = ConfigDict(from_attributes=True)

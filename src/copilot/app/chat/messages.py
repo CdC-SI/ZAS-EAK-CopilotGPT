@@ -2,6 +2,10 @@ from typing import List, Dict, Union
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
+from utils.logging import get_logger
+
+logger = get_logger(__name__)
+
 from prompts.memory import (
     SUMMARY_MEMORY_PROMPT_DE,
     SUMMARY_MEMORY_PROMPT_FR,
@@ -51,9 +55,25 @@ from prompts.agents import (
     SOURCE_SELECTION_PROMPT_DE,
     SOURCE_SELECTION_PROMPT_FR,
     SOURCE_SELECTION_PROMPT_IT,
+    TAGS_SELECTION_PROMPT_DE,
+    TAGS_SELECTION_PROMPT_FR,
+    TAGS_SELECTION_PROMPT_IT,
     AGENT_HANDOFF_PROMPT_DE,
     AGENT_HANDOFF_PROMPT_FR,
     AGENT_HANDOFF_PROMPT_IT,
+    NO_VALIDATED_DOCS_PROMPT_DE,
+    NO_VALIDATED_DOCS_PROMPT_FR,
+    NO_VALIDATED_DOCS_PROMPT_IT,
+    UPDATE_USER_PREFERENCES_PROMPT_DE,
+    UPDATE_USER_PREFERENCES_PROMPT_FR,
+    UPDATE_USER_PREFERENCES_PROMPT_IT,
+    INFER_USER_PREFERENCES_PROMPT,
+    PARSE_TRANSLATE_ARGS_PROMPT_DE,
+    PARSE_TRANSLATE_ARGS_PROMPT_FR,
+    PARSE_TRANSLATE_ARGS_PROMPT_IT,
+    AGENT_SUMMARIZE_PROMPT_DE,
+    AGENT_SUMMARIZE_PROMPT_FR,
+    AGENT_SUMMARIZE_PROMPT_IT,
     PENSION_FUNCTION_CALLING_PROMPT_DE,
     PENSION_FUNCTION_CALLING_PROMPT_FR,
     PENSION_FUNCTION_CALLING_PROMPT_IT,
@@ -110,12 +130,22 @@ from config.llm_config import (
 )
 
 from database.database import get_db
-from settings_api import get_tags_descriptions, get_source_descriptions
+from settings_api import (
+    get_tags_descriptions,
+    get_source_descriptions,
+    get_intentions_descriptions,
+)
 
 from langfuse.decorators import observe
 
 
 class MessageBuilder:
+    """
+    A class for building various types of message prompts for different LLM APIs.
+
+    Handles formatting and construction of system and user messages for different
+    use cases like chat, query rewriting, summarization etc.
+    """
 
     _SUMMARY_MEMORY_PROMPT = {
         "de": SUMMARY_MEMORY_PROMPT_DE,
@@ -171,16 +201,46 @@ class MessageBuilder:
         "it": SOURCE_SELECTION_PROMPT_IT,
     }
 
+    _TAGS_SELECTION_PROMPT = {
+        "de": TAGS_SELECTION_PROMPT_DE,
+        "fr": TAGS_SELECTION_PROMPT_FR,
+        "it": TAGS_SELECTION_PROMPT_IT,
+    }
+
     _AGENT_HANDOFF_PROMPT = {
         "de": AGENT_HANDOFF_PROMPT_DE,
         "fr": AGENT_HANDOFF_PROMPT_FR,
         "it": AGENT_HANDOFF_PROMPT_IT,
     }
 
+    _NO_VALIDATED_DOCS_PROMPT = {
+        "de": NO_VALIDATED_DOCS_PROMPT_DE,
+        "fr": NO_VALIDATED_DOCS_PROMPT_FR,
+        "it": NO_VALIDATED_DOCS_PROMPT_IT,
+    }
+
+    _PARSE_TRANSLATE_ARGS_PROMPT = {
+        "de": PARSE_TRANSLATE_ARGS_PROMPT_DE,
+        "fr": PARSE_TRANSLATE_ARGS_PROMPT_FR,
+        "it": PARSE_TRANSLATE_ARGS_PROMPT_IT,
+    }
+
+    _AGENT_SUMMARIZE_PROMPT = {
+        "de": AGENT_SUMMARIZE_PROMPT_DE,
+        "fr": AGENT_SUMMARIZE_PROMPT_FR,
+        "it": AGENT_SUMMARIZE_PROMPT_IT,
+    }
+
     _PENSION_FUNCTION_CALLING_PROMPT = {
         "de": PENSION_FUNCTION_CALLING_PROMPT_DE,
         "fr": PENSION_FUNCTION_CALLING_PROMPT_FR,
         "it": PENSION_FUNCTION_CALLING_PROMPT_IT,
+    }
+
+    _UPDATE_USER_PREFERENCES_PROMPT = {
+        "de": UPDATE_USER_PREFERENCES_PROMPT_DE,
+        "fr": UPDATE_USER_PREFERENCES_PROMPT_FR,
+        "it": UPDATE_USER_PREFERENCES_PROMPT_IT,
     }
 
     _QUERY_REWRITING_PROMPT = {
@@ -289,9 +349,22 @@ class MessageBuilder:
         self, llm_model: str, language: str, conversational_memory: str
     ) -> str:
         """
-        Format the Summary Memory message to send to the appropriate LLM API.
-        """
+        Format the Summary Memory message for LLM API.
 
+        Parameters
+        ----------
+        llm_model : str
+            The name/identifier of the LLM model
+        language : str
+            The target language code (e.g. 'de', 'fr', 'it')
+        conversational_memory : str
+            The conversation history to summarize
+
+        Returns
+        -------
+        list
+            List of message dictionaries formatted for the LLM API
+        """
         if (
             llm_model
             in SUPPORTED_OPENAI_LLM_MODELS
@@ -325,9 +398,30 @@ class MessageBuilder:
         response_format: str,
     ) -> Union[List[Dict], str]:
         """
-        Format the RAG message to send to the appropriate LLM API.
-        """
+        Format the RAG message for LLM API.
 
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        context_docs : List[Dict]
+            Retrieved documents providing context
+        query : str
+            The user's query
+        conversational_memory : str
+            The conversation history
+        response_style : str
+            The desired style of response
+        response_format : str
+            The desired format of response
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
+        """
         if llm_model == "ollama/deepseek-r1:8b":
             rag_system_prompt = self._RAG_REASONING_SYSTEM_PROMPT.get(
                 language,
@@ -546,11 +640,28 @@ class MessageBuilder:
         llm_model: str,
         query: str,
         conversational_memory: str,
-        documents: str,
         db: Session = Depends(get_db),
     ) -> Union[List[Dict], str]:
         """
         Format the Intent Detection message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        query : str
+            The user's query
+        conversational_memory : str
+            The conversation history
+        db : Session
+            The database session
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
         """
         if (
             llm_model
@@ -563,10 +674,23 @@ class MessageBuilder:
             + SUPPORTED_LLAMACPP_LLM_MODELS
         ):
 
-            tags = await get_tags_descriptions(db, language)
-            formatted_tags = "\n".join([f"{tag[0]}: {tag[1]}" for tag in tags])
+            # tags = await get_tags_descriptions(db, language)
+            # formatted_tags = "\n".join([f"{tag[0]}: {tag[1]}" for tag in tags])
+
+            # sources = await get_source_descriptions(db)
+            # formatted_sources = "\n".join([f"{source['url']}: {source['description']}" for source in sources])
+
+            intentions = await get_intentions_descriptions(db, language)
+            formatted_intentions = "\n".join(
+                [
+                    f"{intent['name']}: {intent['description']}"
+                    for intent in intentions
+                ]
+            )
+
             # TO DO: check duplicates
             # better formatting and prompt instruction
+
             intent_detection_system_prompt = self._INTENT_DETECTION_PROMPT.get(
                 language,
                 self._INTENT_DETECTION_PROMPT.get(self._DEFAULT_LANGUAGE),
@@ -574,8 +698,7 @@ class MessageBuilder:
             intent_detection_system_prompt = (
                 intent_detection_system_prompt.format(
                     conversational_memory=conversational_memory,
-                    documents=documents,
-                    tags=formatted_tags,
+                    intentions=formatted_intentions,
                     query=query,
                 )
             )
@@ -592,12 +715,31 @@ class MessageBuilder:
         llm_model: str,
         query: str,
         intent: str,
-        tags: List[str],
         conversational_memory: str,
         db: Session = Depends(get_db),
     ) -> Union[List[Dict], str]:
         """
         Format the Source Selection message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        query : str
+            The user's query
+        intent : str
+            The detected intent
+        conversational_memory : str
+            The conversation history
+        db : Session
+            The database session
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
         """
         if (
             llm_model
@@ -611,6 +753,12 @@ class MessageBuilder:
         ):
 
             sources = await get_source_descriptions(db)
+            formatted_sources = "\n\n".join(
+                [
+                    f"**{source['url']}**: {source['description']}"
+                    for source in sources
+                ]
+            )
             source_selection_system_prompt = self._SOURCE_SELECTION_PROMPT.get(
                 language,
                 self._SOURCE_SELECTION_PROMPT.get(self._DEFAULT_LANGUAGE),
@@ -619,13 +767,80 @@ class MessageBuilder:
                 source_selection_system_prompt.format(
                     query=query,
                     intent=intent,
-                    tags=tags,
                     conversational_memory=conversational_memory,
-                    sources=sources,
+                    sources=formatted_sources,
                 )
             )
             return [
                 {"role": "system", "content": source_selection_system_prompt},
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
+    @observe(name="MessageBuilder_build_tag_selection_prompt")
+    async def build_tag_selection_prompt(
+        self,
+        language: str,
+        llm_model: str,
+        query: str,
+        intent: str,
+        sources: List[str],
+        conversational_memory: str,
+        db: Session = Depends(get_db),
+    ) -> Union[List[Dict], str]:
+        """
+        Format the Source Selection message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        query : str
+            The user's query
+        intent : str
+            The detected intent
+        sources : List[str]
+            The selected sources
+        conversational_memory : str
+            The conversation history
+        db : Session
+            The database session
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+
+            tags = await get_tags_descriptions(db, language)
+            formatted_tags = "\n".join(
+                [f"**{tag['name']}**: {tag['description']}" for tag in tags]
+            )
+            tags_selection_system_prompt = self._TAGS_SELECTION_PROMPT.get(
+                language,
+                self._TAGS_SELECTION_PROMPT.get(self._DEFAULT_LANGUAGE),
+            )
+            tags_selection_system_prompt = tags_selection_system_prompt.format(
+                query=query,
+                intent=intent,
+                sources=sources,
+                tags=formatted_tags,
+                conversational_memory=conversational_memory,
+            )
+            return [
+                {"role": "system", "content": tags_selection_system_prompt},
             ]
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
@@ -638,10 +853,33 @@ class MessageBuilder:
         query: str,
         intent: str,
         tags: List[str],
+        sources: List[str],
         conversational_memory: str,
     ) -> Union[List[Dict], str]:
         """
         Format the Agent Handoff message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        query : str
+            The user's query
+        intent : str
+            The detected intent
+        tags : List[str]
+            The selected tags
+        sources : List[str]
+            The selected sources
+        conversational_memory : str
+            The conversation history
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
         """
         if (
             llm_model
@@ -662,6 +900,7 @@ class MessageBuilder:
                 query=query,
                 intent=intent,
                 tags=tags,
+                sources=sources,
                 conversational_memory=conversational_memory,
             )
             return [
@@ -676,6 +915,22 @@ class MessageBuilder:
     ) -> Union[List[Dict], str]:
         """
         Format the Function Call message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        query : str
+            The user's query
+        func_metadata : str
+            The function metadata
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
         """
         if (
             llm_model
@@ -710,12 +965,328 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
+    @observe(name="MessageBuilder_build_parse_translate_args_prompt")
+    def build_parse_translate_args_prompt(
+        self,
+        language: str,
+        llm_model: str,
+        query: str,
+    ) -> Union[List[Dict], str]:
+        """
+        Format the Parse translate args message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        query : str
+            The user's query
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+            parse_translate_args_system_prompt = (
+                self._PARSE_TRANSLATE_ARGS_PROMPT.get(
+                    language,
+                    self._PARSE_TRANSLATE_ARGS_PROMPT.get(
+                        self._DEFAULT_LANGUAGE
+                    ),
+                )
+            )
+            parse_translate_args_system_prompt = (
+                parse_translate_args_system_prompt.format(
+                    query=query,
+                )
+            )
+            return [
+                {
+                    "role": "system",
+                    "content": parse_translate_args_system_prompt,
+                },
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
+    @observe(name="MessageBuilder_build_agent_summarize_prompt")
+    def build_agent_summarize_prompt(
+        self,
+        language: str,
+        llm_model: str,
+        query: str,
+        conversational_memory: str,
+    ) -> Union[List[Dict], str]:
+        """
+        Format the agent summarize message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        query : str
+            The user's query
+        conversational_memory : str
+            The conversation history
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+            agent_summarize_system_prompt = self._AGENT_SUMMARIZE_PROMPT.get(
+                language,
+                self._AGENT_SUMMARIZE_PROMPT.get(self._DEFAULT_LANGUAGE),
+            )
+            agent_summarize_system_prompt = (
+                agent_summarize_system_prompt.format(
+                    query=query,
+                    conversational_memory=conversational_memory,
+                )
+            )
+            return [
+                {
+                    "role": "system",
+                    "content": agent_summarize_system_prompt,
+                },
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
+    @observe(
+        name="MessageBuilder_build_ask_user_feedback_no_valid_docs_prompt"
+    )
+    def build_ask_user_feedback_no_valid_docs_prompt(
+        self,
+        language: str,
+        llm_model: str,
+        query: str,
+        invalid_docs: List[str],
+        conversational_memory: str,
+        user_preferences: str,
+    ) -> Union[List[Dict], str]:
+        """
+        Format the Ask user feedback message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        query : str
+            The user's query
+        invalid_docs : List[str]
+            The list of invalid documents
+        conversational_memory : str
+            The conversation history
+        user_preferences : str
+            The user preferences
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+            ask_user_feedback_no_valid_docs_system_prompt = (
+                self._NO_VALIDATED_DOCS_PROMPT.get(
+                    language,
+                    self._NO_VALIDATED_DOCS_PROMPT.get(self._DEFAULT_LANGUAGE),
+                )
+            )
+            ask_user_feedback_no_valid_docs_system_prompt = (
+                ask_user_feedback_no_valid_docs_system_prompt.format(
+                    query=query,
+                    invalid_docs=invalid_docs,
+                    conversational_memory=conversational_memory,
+                    user_preferences=user_preferences,
+                )
+            )
+            return [
+                {
+                    "role": "system",
+                    "content": ask_user_feedback_no_valid_docs_system_prompt,
+                },
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
+    @observe(name="MessageBuilder_build_user_preferences_prompt")
+    def build_update_user_preferences_prompt(
+        self,
+        language: str,
+        llm_model: str,
+        query: str,
+        conversational_memory: str,
+        response_schema: str,
+    ) -> Union[List[Dict], str]:
+        """
+        Format the Update user preferences message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        query : str
+            The user's query
+        conversational_memory : str
+            The conversation history
+        response_schema : str
+            The response schema
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+            update_user_preferences_system_prompt = (
+                self._UPDATE_USER_PREFERENCES_PROMPT.get(
+                    language,
+                    self._UPDATE_USER_PREFERENCES_PROMPT.get(
+                        self._DEFAULT_LANGUAGE
+                    ),
+                )
+            )
+            update_user_preferences_system_prompt = (
+                update_user_preferences_system_prompt.format(
+                    query=query,
+                    conversational_memory=conversational_memory,
+                    response_schema=response_schema,
+                )
+            )
+            return [
+                {
+                    "role": "system",
+                    "content": update_user_preferences_system_prompt,
+                },
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
+    @observe(name="MessageBuilder_build_infer_user_preferences_prompt")
+    def build_infer_user_preferences_prompt(
+        self,
+        llm_model: str,
+        conversations: str,
+        response_schema: str,
+    ) -> Union[List[Dict], str]:
+        """
+        Format the Infer user preferences prompt to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        llm_model : str
+            The name/identifier of the LLM model
+        conversations : str
+            The conversation history
+        response_schema : str
+            The response schema
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
+        """
+        if (
+            llm_model
+            in SUPPORTED_OPENAI_LLM_MODELS
+            + SUPPORTED_AZUREOPENAI_LLM_MODELS
+            + SUPPORTED_ANTHROPIC_LLM_MODELS
+            + SUPPORTED_GROQ_LLM_MODELS
+            + SUPPORTED_OLLAMA_LLM_MODELS
+            + SUPPORTED_MLX_LLM_MODELS
+            + SUPPORTED_LLAMACPP_LLM_MODELS
+        ):
+            infer_user_preferences_system_prompt = (
+                INFER_USER_PREFERENCES_PROMPT.format(
+                    conversations=conversations,
+                    response_schema=response_schema,
+                )
+            )
+            return [
+                {
+                    "role": "system",
+                    "content": infer_user_preferences_system_prompt,
+                },
+            ]
+        else:
+            raise ValueError(f"Unsupported LLM model: {llm_model}")
+
     @observe(name="MessageBuilder_build_query_rewriting_prompt")
     def build_query_rewriting_prompt(
-        self, language: str, llm_model: str, n_alt_queries: int, query: str
+        self,
+        language: str,
+        llm_model: str,
+        n_alt_queries: int,
+        query: str,
+        conversational_memory: str,
     ) -> List[Dict]:
         """
         Format the Query Rewriting message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        n_alt_queries : int
+            The number of alternative queries
+        query : str
+            The user's query
+        conversational_memory : str
+            The conversation history
+
+        Returns
+        -------
+        List[Dict]
+            Formatted messages for the LLM API
         """
         if (
             llm_model
@@ -733,7 +1304,9 @@ class MessageBuilder:
             )
             query_rewriting_system_prompt = (
                 query_rewriting_system_prompt.format(
-                    n_alt_queries=n_alt_queries, query=query
+                    n_alt_queries=n_alt_queries,
+                    query=query,
+                    conversational_memory=conversational_memory,
                 )
             )
             return [
@@ -744,10 +1317,33 @@ class MessageBuilder:
 
     @observe(name="MessageBuilder_build_query_statement_rewriting_prompt")
     def build_query_statement_rewriting_prompt(
-        self, language: str, llm_model: str, n_alt_queries: int, query: str
+        self,
+        language: str,
+        llm_model: str,
+        n_alt_queries: int,
+        query: str,
+        conversational_memory: str,
     ) -> List[Dict]:
         """
         Format the Query Statement Rewriting message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        n_alt_queries : int
+            The number of alternative queries
+        query : str
+            The user's query
+        conversational_memory : str
+            The conversation history
+
+        Returns
+        -------
+        List[Dict]
+            Formatted messages for the LLM API
         """
         if (
             llm_model
@@ -769,7 +1365,9 @@ class MessageBuilder:
             )
             query_statement_rewriting_system_prompt = (
                 query_statement_rewriting_system_prompt.format(
-                    n_alt_queries=n_alt_queries, query=query
+                    n_alt_queries=n_alt_queries,
+                    query=query,
+                    conversational_memory=conversational_memory,
                 )
             )
             return [
@@ -787,6 +1385,22 @@ class MessageBuilder:
     ) -> List[Dict]:
         """
         Format the Contextual Compression message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        context_doc : str
+            The context document
+        query : str
+            The user's query
+
+        Returns
+        -------
+        List[Dict]
+            Formatted messages for the LLM API
         """
         # For OpenAI LLM models
         if (
@@ -833,6 +1447,26 @@ class MessageBuilder:
     ) -> List[Dict]:
         """
         Format the SummarizeCommand message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        command : str
+            The command to execute
+        input_text : str
+            The input text to summarize
+        mode : str
+            The mode of summarization
+        style : str
+            The style of summarization
+
+        Returns
+        -------
+        List[Dict]
+            Formatted messages for the LLM API
         """
         if (
             llm_model

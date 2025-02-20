@@ -13,27 +13,20 @@ logger = get_logger(__name__)
 
 class OllamaLLM(BaseLLM):
     """
-    Class used to generate responses using an an Open Source Large Language Model (LLM) via API to Ollama server.
+    Generates responses using Ollama server API.
 
-    Attributes
+    Parameters
     ----------
-    model : str
-        The name of the Ollama LLM model to use for response generation (starts with ollama:<model>)
-    stream : bool
-        Whether to stream the response generation.
-    temperature : float
-        The temperature to use for response generation.
-    top_p : float
-        The top-p value to use for response generation.
-    max_tokens : int
-        The maximum number of tokens to generate.
-
-    Methods
-    -------
-    agenerate(messages: List[dict]) -> str
-        Generates a single string async response for a list of messages using the Ollama model.
-    _astream()
-        Generates an async stream of events as response for a list of messages using the Ollama model.
+    model : str, optional
+        Name of the Ollama model (default: DEFAULT_OLLAMA_LLM_MODEL)
+    stream : bool, optional
+        Enable response streaming (default: True)
+    temperature : float, optional
+        Sampling temperature (default: 0.0)
+    top_p : float, optional
+        Nucleus sampling parameter (default: 0.95)
+    max_tokens : int, optional
+        Maximum tokens to generate (default: 512)
     """
 
     def __init__(
@@ -53,22 +46,22 @@ class OllamaLLM(BaseLLM):
 
     async def agenerate(self, messages: List[Any]) -> str:
         """
-        Generate a response using the Ollama model.
+        Generate a single response using the Ollama model.
 
         Parameters
         ----------
-        messages : List[dict]
-            The messages to generate a response for.
+        messages : List[Any]
+            List of message dictionaries for the conversation
 
         Returns
         -------
-        str
-            The generated response.
+        ResponseModel
+            Model containing the generated response
 
         Raises
         ------
         Exception
-            If an error occurs during generation.
+            If generation fails
         """
         try:
             response = await self.llm_client.chat(
@@ -94,6 +87,24 @@ class OllamaLLM(BaseLLM):
             raise e
 
     async def _astream(self, messages: List[Any]):
+        """
+        Stream responses from the Ollama model.
+
+        Parameters
+        ----------
+        messages : List[Any]
+            List of message dictionaries for the conversation
+
+        Yields
+        ------
+        ResponseModel
+            Model containing response deltas or completion signal
+
+        Raises
+        ------
+        Exception
+            If streaming fails
+        """
         try:
             async for event in await self.llm_client.chat(
                 model=self.model,

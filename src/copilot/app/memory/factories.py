@@ -25,7 +25,23 @@ class MemoryStrategyFactory:
     def get_strategy_class(
         cls, memory_type: MemoryType
     ) -> Type[BaseMemoryStrategy]:
-        """Get the strategy class for the given memory type."""
+        """Get the strategy class for the given memory type.
+
+        Parameters
+        ----------
+        memory_type : MemoryType
+            The type of memory strategy to retrieve.
+
+        Returns
+        -------
+        Type[BaseMemoryStrategy]
+            The class of the requested memory strategy.
+
+        Raises
+        ------
+        InvalidMemoryTypeError
+            If the memory type is not supported.
+        """
         strategy_class = cls._strategies.get(memory_type)
         if not strategy_class:
             raise InvalidMemoryTypeError(f"Invalid memory type: {memory_type}")
@@ -35,7 +51,20 @@ class MemoryStrategyFactory:
     def create_storage_handlers(
         cls, config: Optional[StorageConfig] = None, k_memory: int = 1
     ) -> tuple[BaseStorage, DatabaseStorage]:
-        """Create storage handler instances with configuration."""
+        """Create storage handler instances with configuration.
+
+        Parameters
+        ----------
+        config : StorageConfig, optional
+            Configuration for storage handlers, by default None
+        k_memory : int, default=1
+            Number of memories to maintain.
+
+        Returns
+        -------
+        tuple[BaseStorage, DatabaseStorage]
+            A tuple containing cache storage and database storage handlers.
+        """
         config = config or StorageConfig()
         cache_storage = RedisMemoryHandler(
             k_memory=k_memory, config=config.redis
@@ -52,7 +81,33 @@ class MemoryStrategyFactory:
         db_storage: Optional[DatabaseStorage] = None,
         config: Optional[StorageConfig] = None,
     ) -> BaseMemoryStrategy:
-        """Create a strategy instance with the given configuration."""
+        """Create a strategy instance with the given configuration.
+
+        Parameters
+        ----------
+        memory_type : MemoryType
+            Type of memory strategy to create.
+        k_memory : int
+            Number of memories to maintain.
+        cache_storage : BaseStorage, optional
+            Cache storage handler, by default None
+        db_storage : DatabaseStorage, optional
+            Database storage handler, by default None
+        config : StorageConfig, optional
+            Configuration for storage handlers, by default None
+
+        Returns
+        -------
+        BaseMemoryStrategy
+            Configured memory strategy instance.
+
+        Raises
+        ------
+        InvalidMemoryTypeError
+            If the memory type is not supported.
+        MemoryStrategyError
+            If strategy creation fails.
+        """
         try:
             if cache_storage is None or db_storage is None:
                 cache_storage, db_storage = cls.create_storage_handlers(

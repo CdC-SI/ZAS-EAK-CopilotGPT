@@ -11,6 +11,21 @@ from ..enums import MessageRole
 
 class PostgresMemoryHandler(DatabaseStorage):
     def index_chat_history(self, db: Session, message: MessageData) -> None:
+        """
+        Store chat message in database.
+
+        Parameters
+        ----------
+        db : Session
+            SQLAlchemy database session
+        message : MessageData
+            Message data to be stored
+
+        Raises
+        ------
+        PostgresStorageError
+            If database operation fails
+        """
         # Convert MessageRole enum to string value
         role = (
             message.role.value
@@ -40,6 +55,21 @@ class PostgresMemoryHandler(DatabaseStorage):
     def conversation_uuid_exists(
         self, db: Session, conversation_uuid: str
     ) -> bool:
+        """
+        Check if conversation exists in database.
+
+        Parameters
+        ----------
+        db : Session
+            SQLAlchemy database session
+        conversation_uuid : str
+            UUID of conversation to check
+
+        Returns
+        -------
+        bool
+            True if conversation exists, False otherwise
+        """
         result = db.execute(
             select(ChatTitle).filter_by(conversation_uuid=conversation_uuid)
         )
@@ -48,6 +78,25 @@ class PostgresMemoryHandler(DatabaseStorage):
     def index_chat_title(
         self, db: Session, user_uuid: str, conversation_uuid: str, title: str
     ) -> None:
+        """
+        Store chat title in database.
+
+        Parameters
+        ----------
+        db : Session
+            SQLAlchemy database session
+        user_uuid : str
+            UUID of user
+        conversation_uuid : str
+            UUID of conversation
+        title : str
+            Title of chat
+
+        Raises
+        ------
+        PostgresStorageError
+            If database operation fails
+        """
         chat_title = ChatTitle(
             user_uuid=user_uuid,
             conversation_uuid=conversation_uuid,
@@ -63,6 +112,28 @@ class PostgresMemoryHandler(DatabaseStorage):
     def get_conversation_history(
         self, db: Session, user_uuid: str, conversation_uuid: str
     ) -> list[MessageData]:
+        """
+        Retrieve conversation history for specific user and conversation.
+
+        Parameters
+        ----------
+        db : Session
+            SQLAlchemy database session
+        user_uuid : str
+            UUID of user
+        conversation_uuid : str
+            UUID of conversation
+
+        Returns
+        -------
+        list[MessageData]
+            List of messages in conversation
+
+        Raises
+        ------
+        PostgresStorageError
+            If database query fails
+        """
         try:
             result = db.execute(
                 select(ChatHistory)
@@ -90,3 +161,54 @@ class PostgresMemoryHandler(DatabaseStorage):
             ]
         except SQLAlchemyError as e:
             raise PostgresStorageError(f"Failed to retrieve chat history: {e}")
+
+    def get_all_user_conversations(
+        self, db: Session, user_uuid: str
+    ) -> list[MessageData]:
+        """
+        Retrieve all conversations for a given user.
+
+        Parameters
+        ----------
+        db : Session
+            SQLAlchemy database session
+        user_uuid : str
+            UUID of the user
+
+        Returns
+        -------
+        list[MessageData]
+            List of all messages from user's conversations
+
+        Raises
+        ------
+        PostgresStorageError
+            If database query fails
+        """
+        try:
+            result = db.execute(
+                select(ChatHistory)
+                .filter_by(user_uuid=user_uuid)
+                .order_by(ChatHistory.conversation_uuid, ChatHistory.timestamp)
+            )
+            chat_history = result.scalars().all()
+
+            return [
+                MessageData(
+                    user_uuid=msg.user_uuid,
+                    conversation_uuid=msg.conversation_uuid,
+                    message_uuid=msg.message_uuid,
+                    role=msg.role,
+                    message=msg.message,
+                    sources=msg.sources,
+                    language=msg.language,
+                    faq_id=msg.faq_id,
+                    retrieved_doc_ids=msg.retrieved_docs,
+                    timestamp=msg.timestamp,
+                )
+                for msg in chat_history
+            ]
+        except SQLAlchemyError as e:
+            raise PostgresStorageError(
+                f"Failed to retrieve user conversations: {e}"
+            )

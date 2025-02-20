@@ -6,6 +6,7 @@ import ast
 class FunctionExecutor:
     def __init__(self):
         self._registered_functions: Dict[str, Callable] = {}
+        self._command_functions = None
 
     def register_function(self, func: Callable) -> None:
         """Register a function that can be called via string."""
