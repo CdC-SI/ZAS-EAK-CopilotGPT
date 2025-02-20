@@ -140,6 +140,12 @@ from langfuse.decorators import observe
 
 
 class MessageBuilder:
+    """
+    A class for building various types of message prompts for different LLM APIs.
+
+    Handles formatting and construction of system and user messages for different
+    use cases like chat, query rewriting, summarization etc.
+    """
 
     _SUMMARY_MEMORY_PROMPT = {
         "de": SUMMARY_MEMORY_PROMPT_DE,
@@ -343,9 +349,22 @@ class MessageBuilder:
         self, llm_model: str, language: str, conversational_memory: str
     ) -> str:
         """
-        Format the Summary Memory message to send to the appropriate LLM API.
-        """
+        Format the Summary Memory message for LLM API.
 
+        Parameters
+        ----------
+        llm_model : str
+            The name/identifier of the LLM model
+        language : str
+            The target language code (e.g. 'de', 'fr', 'it')
+        conversational_memory : str
+            The conversation history to summarize
+
+        Returns
+        -------
+        list
+            List of message dictionaries formatted for the LLM API
+        """
         if (
             llm_model
             in SUPPORTED_OPENAI_LLM_MODELS
@@ -379,9 +398,30 @@ class MessageBuilder:
         response_format: str,
     ) -> Union[List[Dict], str]:
         """
-        Format the RAG message to send to the appropriate LLM API.
-        """
+        Format the RAG message for LLM API.
 
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        context_docs : List[Dict]
+            Retrieved documents providing context
+        query : str
+            The user's query
+        conversational_memory : str
+            The conversation history
+        response_style : str
+            The desired style of response
+        response_format : str
+            The desired format of response
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
+        """
         if llm_model == "ollama/deepseek-r1:8b":
             rag_system_prompt = self._RAG_REASONING_SYSTEM_PROMPT.get(
                 language,
@@ -604,6 +644,24 @@ class MessageBuilder:
     ) -> Union[List[Dict], str]:
         """
         Format the Intent Detection message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        query : str
+            The user's query
+        conversational_memory : str
+            The conversation history
+        db : Session
+            The database session
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
         """
         if (
             llm_model
@@ -662,6 +720,26 @@ class MessageBuilder:
     ) -> Union[List[Dict], str]:
         """
         Format the Source Selection message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        query : str
+            The user's query
+        intent : str
+            The detected intent
+        conversational_memory : str
+            The conversation history
+        db : Session
+            The database session
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
         """
         if (
             llm_model
@@ -712,6 +790,28 @@ class MessageBuilder:
     ) -> Union[List[Dict], str]:
         """
         Format the Source Selection message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        query : str
+            The user's query
+        intent : str
+            The detected intent
+        sources : List[str]
+            The selected sources
+        conversational_memory : str
+            The conversation history
+        db : Session
+            The database session
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
         """
         if (
             llm_model
@@ -758,6 +858,28 @@ class MessageBuilder:
     ) -> Union[List[Dict], str]:
         """
         Format the Agent Handoff message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        query : str
+            The user's query
+        intent : str
+            The detected intent
+        tags : List[str]
+            The selected tags
+        sources : List[str]
+            The selected sources
+        conversational_memory : str
+            The conversation history
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
         """
         if (
             llm_model
@@ -793,6 +915,22 @@ class MessageBuilder:
     ) -> Union[List[Dict], str]:
         """
         Format the Function Call message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        query : str
+            The user's query
+        func_metadata : str
+            The function metadata
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
         """
         if (
             llm_model
@@ -836,6 +974,20 @@ class MessageBuilder:
     ) -> Union[List[Dict], str]:
         """
         Format the Parse translate args message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        query : str
+            The user's query
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
         """
         if (
             llm_model
@@ -879,6 +1031,22 @@ class MessageBuilder:
     ) -> Union[List[Dict], str]:
         """
         Format the agent summarize message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        query : str
+            The user's query
+        conversational_memory : str
+            The conversation history
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
         """
         if (
             llm_model
@@ -923,6 +1091,26 @@ class MessageBuilder:
     ) -> Union[List[Dict], str]:
         """
         Format the Ask user feedback message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        query : str
+            The user's query
+        invalid_docs : List[str]
+            The list of invalid documents
+        conversational_memory : str
+            The conversation history
+        user_preferences : str
+            The user preferences
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
         """
         if (
             llm_model
@@ -968,6 +1156,24 @@ class MessageBuilder:
     ) -> Union[List[Dict], str]:
         """
         Format the Update user preferences message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        query : str
+            The user's query
+        conversational_memory : str
+            The conversation history
+        response_schema : str
+            The response schema
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
         """
         if (
             llm_model
@@ -1012,6 +1218,20 @@ class MessageBuilder:
     ) -> Union[List[Dict], str]:
         """
         Format the Infer user preferences prompt to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        llm_model : str
+            The name/identifier of the LLM model
+        conversations : str
+            The conversation history
+        response_schema : str
+            The response schema
+
+        Returns
+        -------
+        Union[List[Dict], str]
+            Formatted messages for the LLM API
         """
         if (
             llm_model
@@ -1049,6 +1269,24 @@ class MessageBuilder:
     ) -> List[Dict]:
         """
         Format the Query Rewriting message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        n_alt_queries : int
+            The number of alternative queries
+        query : str
+            The user's query
+        conversational_memory : str
+            The conversation history
+
+        Returns
+        -------
+        List[Dict]
+            Formatted messages for the LLM API
         """
         if (
             llm_model
@@ -1088,6 +1326,24 @@ class MessageBuilder:
     ) -> List[Dict]:
         """
         Format the Query Statement Rewriting message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        n_alt_queries : int
+            The number of alternative queries
+        query : str
+            The user's query
+        conversational_memory : str
+            The conversation history
+
+        Returns
+        -------
+        List[Dict]
+            Formatted messages for the LLM API
         """
         if (
             llm_model
@@ -1129,6 +1385,22 @@ class MessageBuilder:
     ) -> List[Dict]:
         """
         Format the Contextual Compression message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        context_doc : str
+            The context document
+        query : str
+            The user's query
+
+        Returns
+        -------
+        List[Dict]
+            Formatted messages for the LLM API
         """
         # For OpenAI LLM models
         if (
@@ -1175,6 +1447,26 @@ class MessageBuilder:
     ) -> List[Dict]:
         """
         Format the SummarizeCommand message to send to the appropriate LLM API.
+
+        Parameters
+        ----------
+        language : str
+            The target language code
+        llm_model : str
+            The name/identifier of the LLM model
+        command : str
+            The command to execute
+        input_text : str
+            The input text to summarize
+        mode : str
+            The mode of summarization
+        style : str
+            The style of summarization
+
+        Returns
+        -------
+        List[Dict]
+            Formatted messages for the LLM API
         """
         if (
             llm_model
