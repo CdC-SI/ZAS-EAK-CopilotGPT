@@ -1,5 +1,5 @@
 import logging
-from typing import List, Dict, AsyncGenerator
+from typing import List, Dict, AsyncGenerator, Tuple
 import asyncio
 from asyncio import Semaphore
 from collections.abc import AsyncIterator
@@ -41,6 +41,14 @@ llm_client = LLMFactory.get_llm_client(
 
 
 class ChatAgent(BaseAgent):
+    """
+    Agent for handling chat-related operations and processing different intents.
+
+    Parameters
+    ----------
+    name : str, optional
+        The name of the agent, defaults to "CHAT_AGENT"
+    """
 
     def __init__(self, name: str = None):
         self.name = name if name else "CHAT_AGENT"
@@ -114,6 +122,14 @@ class ChatAgent(BaseAgent):
 
 
 class PensionAgent(BaseAgent):
+    """
+    Agent for handling pension-related calculations and queries.
+
+    Parameters
+    ----------
+    name : str, optional
+        The name of the agent, defaults to "PENSION_AGENT"
+    """
 
     def __init__(self, name: str = None):
         self.name = name if name else "PENSION_AGENT"
@@ -173,6 +189,14 @@ class PensionAgent(BaseAgent):
 
 
 class RAGAgent(BaseAgent):
+    """
+    Agent for handling Retrieval-Augmented Generation (RAG) operations.
+
+    Parameters
+    ----------
+    name : str, optional
+        The name of the agent, defaults to "RAG_AGENT"
+    """
 
     def __init__(self, name: str = None):
         self.name = name if name else "RAG_AGENT"
@@ -195,7 +219,7 @@ class RAGAgent(BaseAgent):
         sources = kwargs.get("sources")
         intent = kwargs.get("intent")
 
-        # Move to ChatAgent ?
+        # Note: Move to ChatAgent ?
         match intent:
             case "factual_qa":
                 # use query rewriting retriever with simple rewriting prompt (+ instructions) + from conversation history
@@ -227,6 +251,14 @@ class RAGAgent(BaseAgent):
 
 
 class RetrievalEvaluatorAgent(BaseAgent):
+    """
+    Agent for evaluating retrieval operations and their results.
+
+    Parameters
+    ----------
+    name : str, optional
+        The name of the agent, defaults to "RETRIEVAL_EVALUATOR_AGENT"
+    """
 
     def __init__(self, name: str = None):
         self.name = name if name else "RETRIEVAL_EVALUATOR_AGENT"
@@ -246,6 +278,14 @@ class RetrievalEvaluatorAgent(BaseAgent):
 
 
 class SourceValidatorAgent(BaseAgent):
+    """
+    Agent for validating sources with concurrent processing capabilities.
+
+    Parameters
+    ----------
+    name : str, optional
+        The name of the agent, defaults to "SOURCE_VALIDATOR_AGENT"
+    """
 
     def __init__(self, name: str = None):
         self.name = name if name else "SOURCE_VALIDATOR_AGENT"
@@ -273,8 +313,26 @@ class SourceValidatorAgent(BaseAgent):
         document: Dict,
         llm_client: BaseLLM,
         message_builder: MessageBuilder,
-    ) -> Token | None:
-        """Validate a single source with retry logic"""
+    ) -> Tuple:
+        """
+        Validate a single source with retry logic.
+
+        Parameters
+        ----------
+        request : ChatRequest
+            The chat request containing query and language information
+        document : Dict
+            The document to be validated
+        llm_client : BaseLLM
+            The LLM client instance for making validation requests
+        message_builder : MessageBuilder
+            The message builder for constructing prompts
+
+        Returns
+        -------
+        Token | None
+            Validated document and validation result, or None if validation fails
+        """
         for attempt in range(self.max_retries):
             try:
                 async with self.semaphore:
@@ -321,7 +379,22 @@ class SourceValidatorAgent(BaseAgent):
     ) -> AsyncIterator[Token]:
         """
         Validate sources against the query using concurrent LLM calls with rate limiting.
-        Sources are yielded as soon as they are validated.
+
+        Parameters
+        ----------
+        request : ChatRequest
+            The chat request containing query and language information
+        documents : List[Dict]
+            List of documents to be validated
+        llm_client : BaseLLM
+            The LLM client instance for making validation requests
+        message_builder : MessageBuilder
+            The message builder for constructing prompts
+
+        Yields
+        ------
+        Token
+            Validated document and its validation result as they complete
         """
         tasks = [
             self._validate_single_source(
@@ -344,9 +417,28 @@ class SourceValidatorAgent(BaseAgent):
 
 
 class AgentFactory:
+    """Factory class for creating different types of agents."""
 
     @staticmethod
     def get_agent(agent_name: str):
+        """
+        Create and return an agent instance based on the agent name.
+
+        Parameters
+        ----------
+        agent_name : str
+            The name of the agent to create
+
+        Returns
+        -------
+        BaseAgent
+            An instance of the requested agent
+
+        Raises
+        ------
+        ValueError
+            If the agent name is not supported
+        """
         match agent_name:
             case "RAG_AGENT":
                 return RAGAgent(name=agent_name)
