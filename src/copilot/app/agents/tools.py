@@ -35,7 +35,25 @@ async def translate_tool(
     db: Session,
 ) -> AsyncGenerator[Token, None]:
     """
-    Tool to translate text messages.
+    Tool to translate text messages from conversation history.
+
+    Parameters
+    ----------
+    request : ChatRequest
+        The chat request containing user and conversation information
+    memory_service : MemoryService
+        Service for accessing chat memory
+    message_builder : MessageBuilder
+        Service for constructing messages
+    llm_client : BaseLLM
+        LLM client for processing
+    db : Session
+        Database session
+
+    Yields
+    ------
+    Token
+        Translated text tokens
     """
 
     args = await parse_translation_args(request, message_builder, llm_client)
@@ -69,7 +87,27 @@ async def summarize_tool(
     db: Session,
 ) -> AsyncGenerator[Token, None]:
     """
-    Tool to summarize text messages.
+    Tool to generate summaries of conversation history.
+
+    Parameters
+    ----------
+    request : ChatRequest
+        The chat request containing user and conversation information
+    memory_service : MemoryService
+        Service for accessing chat memory
+    message_builder : MessageBuilder
+        Service for constructing messages
+    llm_client : BaseLLM
+        LLM client for processing
+    streaming_handler : StreamingHandler
+        Handler for streaming responses
+    db : Session
+        Database session
+
+    Yields
+    ------
+    Token
+        Summary text tokens
     """
     conversational_memory = (
         await memory_service.chat_memory.get_formatted_conversation(
@@ -108,9 +146,26 @@ async def update_user_preferences_tool(
     llm_client: BaseLLM,
 ) -> AsyncGenerator[Token, None]:
     """
-    Update user preferences based on user_uuid.
-    """
+    Updates user preferences based on conversation context.
 
+    Parameters
+    ----------
+    db : Session
+        Database session
+    request : ChatRequest
+        The chat request containing user information
+    memory_service : MemoryService
+        Service for accessing chat memory
+    message_builder : MessageBuilder
+        Service for constructing messages
+    llm_client : BaseLLM
+        LLM client for processing
+
+    Yields
+    ------
+    Token
+        Confirmation message tokens
+    """
     conversational_memory = (
         await memory_service.chat_memory.get_formatted_conversation(
             db,
@@ -158,7 +213,31 @@ async def rag_tool(
     sources: Dict,
 ) -> AsyncGenerator[Token, None]:
     """
-    Tool to retrieve information using RAG. Will perform multiple retrieval rounds based on SourceValidatorAgent evaluation. Will ask for user feedback to provide more precise answer or disambiguate information/sources of documents.
+    Retrieves and validates information using RAG (Retrieval-Augmented Generation).
+
+    Parameters
+    ----------
+    db : Session
+        Database session
+    request : ChatRequest
+        The chat request containing query and user information
+    llm_client : BaseLLM
+        LLM client for processing
+    streaming_handler : StreamingHandler
+        Handler for streaming responses
+    retriever_client : RetrieverClient
+        Client for retrieving documents
+    message_builder : MessageBuilder
+        Service for constructing messages
+    memory_service : MemoryService
+        Service for accessing chat memory
+    sources : Dict
+        Dictionary to store retrieved documents and sources
+
+    Yields
+    ------
+    Token
+        Response tokens and source information
     """
 
     from agents.agents import source_validator_agent
@@ -300,20 +379,27 @@ Reason: {d[1]}
 def determine_reduction_rate_and_supplement_tool(
     date_of_birth: str, retirement_date: str, average_annual_income: float
 ) -> Dict:
-    """Calculate the reduction rate or pension supplement for women of the transitional generation.
+    """
+    Calculate the reduction rate or pension supplement for women of the transitional generation.
 
-    Parameters:
-    - date_of_birth (str) - Birth date in YYYY-MM-DD format for women born between 1961-1969
-    - retirement_date (str) - Planned retirement date in YYYY-MM-DD format
-    - average_annual_income (float) - Average annual income in CHF (minimum 0)
+    Parameters
+    ----------
+    date_of_birth : str
+        Birth date in YYYY-MM-DD format for women born between 1961-1969
+    retirement_date : str
+        Planned retirement date in YYYY-MM-DD format
+    average_annual_income : float
+        Average annual income in CHF (minimum 0)
 
-    Returns:
-    - Dict - A dictionary containing the calculated reduction rate, pension supplement or error message
-
-    Examples:
-    - date_of_birth: "1965-06-15"
-    - retirement_date: "2030-06-15"
-    - average_annual_income: 70000.00
+    Returns
+    -------
+    Dict
+        Dictionary containing either:
+        - {'ReductionRate': float} : Reduction rate percentage
+        - {'PensionSupplement': float} : Monthly pension supplement amount
+        - {'NotEligible': str} : URL with eligibility information
+        - {'InvalidIncome': str} : Error message for invalid income
+        - {'InvalidAnticipationYears': str} : URL with valid anticipation periods
     """
     date_of_birth = date.fromisoformat(date_of_birth)
     retirement_date = date.fromisoformat(retirement_date)
@@ -413,6 +499,19 @@ def determine_reduction_rate_and_supplement_tool(
 
 
 def _format_reference_age(months: int) -> str:
+    """
+    Convert total months into a formatted string of years and months.
+
+    Parameters
+    ----------
+    months : int
+        Total number of months to convert
+
+    Returns
+    -------
+    str
+        Formatted string in the format "X years" or "X years and Y months"
+    """
     years = months // 12
     remaining_months = months % 12
     if remaining_months == 0:
@@ -423,8 +522,19 @@ def _format_reference_age(months: int) -> str:
 @observe(name="PENSION_determine_reference_age_tool")
 def determine_reference_age_tool(date_of_birth: str) -> Dict:
     """
-    Determine the reference age for women born between 1961-1969 (transitional generation).
-    Returns a dictionary with formatted reference age string.
+    Determine the reference age for women of the transitional generation.
+
+    Parameters
+    ----------
+    date_of_birth : str
+        Birth date in YYYY-MM-DD format
+
+    Returns
+    -------
+    Dict
+        Dictionary containing either:
+        - {'ReferenceAge': str} : Formatted reference age and pension start date
+        - {'NotEligible': str} : Message or URL explaining ineligibility
     """
     date_of_birth = date.fromisoformat(date_of_birth)
     year_of_birth = date_of_birth.year
