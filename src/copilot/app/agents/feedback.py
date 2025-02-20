@@ -9,6 +9,19 @@ from langfuse.decorators import observe
 
 @dataclass
 class FeedbackMessage:
+    """
+    A container for multilingual feedback messages.
+
+    Attributes
+    ----------
+    de : str
+        German version of the message
+    fr : str
+        French version of the message
+    it : str
+        Italian version of the message
+    """
+
     de: str
     fr: str
     it: str
@@ -18,6 +31,15 @@ class FeedbackMessage:
 
 
 class FeedbackMessages:
+    """
+    Collection of predefined feedback messages in multiple languages.
+
+    Attributes
+    ----------
+    NO_DOCS : FeedbackMessage
+        Message shown when no documents are found
+    """
+
     NO_DOCS = FeedbackMessage(
         de="Keine Dokumente gefunden, die Ihrer Anfrage entsprechen.\n\nBitte aktualisieren oder setzen Sie die Dokumentenfilter (Tags, Quelle) und/oder Sprache zurück (einige Dokumente sind nur in einer Sprache verfügbar, meist deutsch).",
         fr="Aucun document trouvé correspondant à votre demande.\n\nVeuillez mettre à jour ou réinitialiser les filtres de documents (tags, source) et/ou la langue (certains documents ne sont disponibles que dans une seule langue, principalement en allemand).",
@@ -32,7 +54,21 @@ async def ask_user_feedback(
     **kwargs,
 ) -> AsyncGenerator[Token, None]:
     """
-    Generate a user feedback question.
+    Generate a user feedback question based on the feedback type.
+
+    Parameters
+    ----------
+    request : ChatRequest
+        The chat request containing language and query information
+    feedback_type : FeedbackType
+        Type of feedback to generate
+    **kwargs : dict
+        Additional arguments needed for specific feedback types
+
+    Yields
+    ------
+    Token
+        Tokens of the generated feedback message
     """
     match feedback_type:
         case FeedbackType.NO_DOCS:
