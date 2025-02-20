@@ -11,7 +11,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\examples\\preprocessing\\ofas.js",
+            "program": "${workspaceFolder}\\examples\\preprocessing\\ofas_scraping.js",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ]
