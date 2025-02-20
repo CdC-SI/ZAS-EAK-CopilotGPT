@@ -1,9 +1,9 @@
-import tiktoken
+from tiktoken.core import Encoding
+from sqlalchemy.orm import Session
 
-from database.database import SessionLocal
 from chat.messages import MessageBuilder
+from llm.base import BaseLLM
 from config.base_config import rag_config
-from config.clients_config import config
 from database.models import Source
 from database.service import document_service
 from utils.logging import get_logger
@@ -11,7 +11,12 @@ from utils.logging import get_logger
 logger = get_logger(__name__)
 
 
-async def create_source_descriptions() -> None:
+async def create_source_descriptions(
+    db: Session,
+    message_builder: MessageBuilder,
+    llm_client: BaseLLM,
+    tokenizer: Encoding,
+) -> None:
     """
     Create source descriptions for all sources in the database.
     Only generates descriptions for sources where description field is null.
@@ -20,12 +25,6 @@ async def create_source_descriptions() -> None:
     # enums for model params (eg. max tokens)
     # subtract prompt length from max tokens
     # language management in doc preprocessing
-
-    db = SessionLocal()
-    message_builder = MessageBuilder()
-    llm_client = config.factory.create_llm_client(rag_config["llm"]["model"])
-    tokenizer = tiktoken.encoding_for_model(rag_config["llm"]["model"])
-
     try:
         # Get only sources with null descriptions
         sources = db.query(Source).filter(Source.description.is_(None)).all()
@@ -63,7 +62,7 @@ async def create_source_descriptions() -> None:
                 source_name=source.url,
                 docs=combined_text,
             )
-            source_description = await llm_client.chat.completions.create(
+            llm_description = await llm_client.chat.completions.create(
                 model=rag_config["llm"]["model"],
                 stream=False,
                 temperature=0,
@@ -73,7 +72,15 @@ async def create_source_descriptions() -> None:
             )
 
             # Update source description in database
-            source.description = source_description.choices[0].message.content
+            description = (
+                (
+                    "**USER UPLOADED DOCUMENT:** "
+                    + llm_description.choices[0].message.content
+                )
+                if source.url.startswith("user_pdf_upload")
+                else llm_description.choices[0].message.content
+            )
+            source.description = description
             db.commit()
 
             logger.info(f"Updated source description for {source.url}")

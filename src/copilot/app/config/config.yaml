@@ -29,12 +29,12 @@ rag:
       b: 0.75
       top_k: 10
     query_rewriting_retriever_params:
-      n_alt_queries: 3
+      n_alt_queries: 6
       top_k: 10
     contextual_compression_retriever_params:
       top_k: 10
     rag_fusion_retriever_params:
-      n_alt_queries: 3
+      n_alt_queries: 6
       rrf_k: 60
       top_k: 10
     reranking_params:
@@ -49,11 +49,11 @@ rag:
     top_p: 0.95
     stream: true
 chat:
-  topic_check: true
+  topic_check: false
   source_validation: false
   memory:
     memory_type: "buffer"
-    k_memory: 5
+    k_memory: 15
 indexing:
   enabled: true
   dev_mode: true

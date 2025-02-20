@@ -53,7 +53,7 @@ services:
   # frontend
   zas-copilot:
     build:
-      context: https://github.com/CdC-SI/copilot-frontend.git#frontend-updates
+      context: https://github.com/CdC-SI/copilot-frontend.git#main
     image: zas-copilot:latest
     environment:
       - ENVIRONMENT=development
@@ -68,7 +68,7 @@ services:
   # security service
   zas-security:
     build:
-      context: https://github.com/CdC-SI/copilot-backend.git#frontend-updates
+      context: https://github.com/CdC-SI/copilot-backend.git#main
     image: zas-security:latest
     env_file:
       - .env
