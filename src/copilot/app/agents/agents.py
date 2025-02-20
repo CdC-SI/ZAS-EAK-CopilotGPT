@@ -61,7 +61,24 @@ class ChatAgent(BaseAgent):
         llm_client: BaseLLM,
         **kwargs,
     ) -> AsyncGenerator[Token, None]:
-        """Process the query with Chat agent."""
+        """Process the query with Chat agent.
+
+        Parameters
+        ----------
+        request : ChatRequest
+            The chat request containing query and language information
+        message_builder : MessageBuilder
+            Helper for building message prompts
+        llm_client : BaseLLM
+            The LLM client instance for making requests
+        **kwargs : dict
+            Additional keyword arguments
+
+        Yields
+        ------
+        Token
+            Generated tokens from the evaluation process
+        """
         intent = kwargs.get("intent")
         db = kwargs.get("db")
         memory_service = kwargs.get("memory_service")
@@ -144,6 +161,22 @@ class PensionAgent(BaseAgent):
     ) -> AsyncGenerator[Token, None]:
         """
         Process the query with Pension agent.
+
+        Parameters
+        ----------
+        request : ChatRequest
+            The chat request containing query and language information
+        message_builder : MessageBuilder
+            Helper for building message prompts
+        llm_client : BaseLLM
+            The LLM client instance for making requests
+        **kwargs : dict
+            Additional keyword arguments
+
+        Yields
+        ------
+        Token
+            Generated tokens from the evaluation process
         """
         yield Token.from_status(
             f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='determine_reduction_rate_and_supplement')}</tool_use>"
@@ -211,6 +244,22 @@ class RAGAgent(BaseAgent):
     ) -> AsyncGenerator[Token, None]:
         """
         Process the query with RAG agent.
+
+        Parameters
+        ----------
+        request : ChatRequest
+            The chat request containing query and language information
+        message_builder : MessageBuilder
+            Helper for building message prompts
+        llm_client : BaseLLM
+            The LLM client instance for making requests
+        **kwargs : dict
+            Additional keyword arguments
+
+        Yields
+        ------
+        Token
+            Generated tokens from the evaluation process
         """
         db = kwargs.get("db")
         streaming_handler = kwargs.get("streaming_handler")
@@ -273,6 +322,22 @@ class RetrievalEvaluatorAgent(BaseAgent):
     ) -> AsyncGenerator[Token, None]:
         """
         Process the query with Retrieval Evaluator agent.
+
+        Parameters
+        ----------
+        request : ChatRequest
+            The chat request containing query and language information
+        message_builder : MessageBuilder
+            Helper for building message prompts
+        llm_client : BaseLLM
+            The LLM client instance for making requests
+        **kwargs : dict
+            Additional keyword arguments
+
+        Yields
+        ------
+        Token
+            Generated tokens from the evaluation process
         """
         pass
 
@@ -303,6 +368,22 @@ class SourceValidatorAgent(BaseAgent):
     ) -> AsyncGenerator[Token, None]:
         """
         Process the query with Source Validator agent.
+
+        Parameters
+        ----------
+        request : ChatRequest
+            The chat request containing query and language information
+        message_builder : MessageBuilder
+            Helper for building message prompts
+        llm_client : BaseLLM
+            The LLM client instance for making requests
+        **kwargs : dict
+            Additional keyword arguments
+
+        Yields
+        ------
+        Token
+            Generated tokens from the evaluation process
         """
         pass
 
@@ -417,17 +498,25 @@ class SourceValidatorAgent(BaseAgent):
 
 
 class AgentFactory:
-    """Factory class for creating different types of agents."""
+    """
+    Factory class for creating different types of agents.
+
+    Methods
+    -------
+    get_agent(agent_name: str)
+        Creates and returns an agent instance based on the agent name.
+    """
 
     @staticmethod
-    def get_agent(agent_name: str):
+    def get_agent(agent_name: str) -> BaseAgent:
         """
         Create and return an agent instance based on the agent name.
 
         Parameters
         ----------
         agent_name : str
-            The name of the agent to create
+            The name of the agent to create. Valid values are:
+            'RAG_AGENT', 'PENSION_AGENT', 'CHAT_AGENT', 'SOURCE_VALIDATOR_AGENT'
 
         Returns
         -------
