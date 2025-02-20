@@ -11,7 +11,21 @@ class ResponseType(Enum):
 
 
 class CalculationResponseService:
-    """Service for handling calculation response messages in different languages"""
+    """
+    Service for handling calculation response messages in different languages.
+
+    This class manages response messages for pension-related calculations,
+    supporting multiple languages and different types of responses.
+
+    Attributes
+    ----------
+    _SOURCE_URLS : dict
+        URLs for pension documentation in different languages
+    _RESPONSE_MESSAGES : dict
+        Message templates for different response types and languages
+    DEFAULT_LANGUAGE : str
+        Fallback language code
+    """
 
     _SOURCE_URLS = {
         "de": "https://www.eak.admin.ch/eak/de/home/dokumentation/pensionierung/reform-ahv21/kuerzungssaetze-bei-vorbezug.html",
@@ -53,7 +67,25 @@ class CalculationResponseService:
     def get_response_message(
         cls, calculation_result: Dict[str, Any], language: str
     ) -> str:
-        """Get formatted response message for calculation result and language"""
+        """
+        Format response message based on calculation result and language.
+
+        Parameters
+        ----------
+        calculation_result : Dict[str, Any]
+            Dictionary containing single key-value pair with response type and value
+        language : str
+            Language code for the response message
+
+        Returns
+        -------
+        tuple
+            Formatted message string and source URL for documentation
+
+        Notes
+        -----
+        Returns "Invalid calculation result" for invalid input
+        """
         if not calculation_result or len(calculation_result) != 1:
             return "Invalid calculation result"
 

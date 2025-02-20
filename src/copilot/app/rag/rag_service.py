@@ -104,6 +104,16 @@ class RAGService:
     async def embed(self, text_input: EmbeddingRequest):
         """
         Get the embedding of an embedding request.
+
+        Parameters
+        ----------
+        text_input : EmbeddingRequest
+            The request containing the text to embed.
+
+        Returns
+        -------
+        dict
+            Dictionary containing the embedding data.
         """
         embedding = await get_embedding(text_input.text)
         return {"data": embedding}
@@ -118,6 +128,22 @@ class RAGService:
     ):
         """
         Retrieve context documents related to the user input question.
+
+        Parameters
+        ----------
+        db : Session
+            Database session.
+        request : ChatRequest
+            The chat request containing query and filtering parameters.
+        retriever_client : RetrieverClient
+            Client for retrieving documents.
+        conversational_memory : str
+            Formatted conversation history.
+
+        Returns
+        -------
+        list
+            List of retrieved documents or empty list if none found.
         """
         tags = (
             None if not request.tags or request.tags == [""] else request.tags
@@ -150,10 +176,31 @@ class RAGService:
         sources: Dict,
     ) -> AsyncGenerator[Token, None]:
         """
-        Process a ChatRequest to retrieve relevant documents and generate a response.
+        Process a ChatRequest using RAG to generate a response.
 
-        This method retrieves relevant documents from the database, constructs context from the documents and conversational history,
-        and then uses an LLM client to generate a response based on the request query and the context.
+        Parameters
+        ----------
+        db : Session
+            Database session.
+        request : ChatRequest
+            The chat request to process.
+        llm_client : BaseLLM
+            Language model client.
+        streaming_handler : StreamingHandler
+            Handler for streaming responses.
+        retriever_client : RetrieverClient
+            Client for retrieving documents.
+        message_builder : MessageBuilder
+            Builder for constructing messages.
+        memory_service : MemoryService
+            Service for managing conversation memory.
+        sources : Dict
+            Dictionary to store source information.
+
+        Yields
+        ------
+        Token
+            Tokens representing status updates, sources, and response content.
         """
         # Retrieval status update
         yield Token.from_status(
@@ -238,7 +285,33 @@ class RAGService:
         memory_service: MemoryService,
         sources: Dict,
     ) -> AsyncGenerator[Token, None]:
+        """
+        Process a ChatRequest using agent-based RAG to generate a response.
 
+        Parameters
+        ----------
+        db : Session
+            Database session.
+        request : ChatRequest
+            The chat request to process.
+        llm_client : BaseLLM
+            Language model client.
+        streaming_handler : StreamingHandler
+            Handler for streaming responses.
+        retriever_client : RetrieverClient
+            Client for retrieving documents.
+        message_builder : MessageBuilder
+            Builder for constructing messages.
+        memory_service : MemoryService
+            Service for managing conversation memory.
+        sources : Dict
+            Dictionary to store source information.
+
+        Yields
+        ------
+        Token
+            Tokens representing status updates, sources, and response content.
+        """
         # Routing status update
         yield Token.from_status(
             f"<routing>{status_service.get_status_message(StatusType.ROUTING, request.language)}</routing>"

@@ -182,6 +182,24 @@ class QueryRewritingRetriever(BaseRetriever):
         Rewrite the input query into multiple query variations (variations, declarative).
         This method uses the llm_client to rewrite the input query into multiple queries.
         The number of rewritten queries (total: 2*n_alt_queries) is specified by the parameter `n_alt_queries`.
+
+        Parameters
+        ----------
+        language : str
+            Target language for query reformulation
+        llm_model : str
+            Name of the language model to use
+        query : str
+            Original query to rewrite
+        n_alt_queries : int, optional
+            Number of alternative queries to generate, by default 3
+        conversational_memory : str, optional
+            Previous conversation context, by default None
+
+        Returns
+        -------
+        List[str]
+            List of rewritten queries including variations and declarative forms
         """
         # Query reformulations (variations)
         messages = self.message_builder.build_query_rewriting_prompt(
@@ -306,6 +324,25 @@ class ContextualCompressionRetriever(BaseRetriever):
 
     @observe(name="ContextualCompressionRetriever_compress_doc")
     async def compress_doc(self, language, llm_model, query, doc):
+        """
+        Compress a single document in context of the query.
+
+        Parameters
+        ----------
+        language : str
+            Target language for compression
+        llm_model : str
+            Name of the language model to use
+        query : str
+            Query used for contextual compression
+        doc : dict
+            Document to compress
+
+        Returns
+        -------
+        dict or None
+            Compressed document if relevant, None if irrelevant
+        """
         messages = self.message_builder.build_contextual_compression_prompt(
             language, llm_model, doc["text"], query
         )
@@ -379,7 +416,21 @@ class RAGFusionRetriever(QueryRewritingRetriever):
     def reciprocal_rank_fusion(
         self, retrieved_docs: List[List[Document]], rrf_k: int = 60
     ):
+        """
+        Perform reciprocal rank fusion on multiple ranked document lists.
 
+        Parameters
+        ----------
+        retrieved_docs : List[List[Document]]
+            List of ranked document lists to fuse
+        rrf_k : int, optional
+            Constant that controls contribution of lower-ranked documents, by default 60
+
+        Returns
+        -------
+        list
+            Reranked list of documents with fused scores
+        """
         fused_scores = {}
         for docs in retrieved_docs:
             for rank, doc in enumerate(docs):
@@ -460,7 +511,19 @@ class BM25Retriever(BaseRetriever):
 
     def bm25_score(self, query: str, docs: List[Any]) -> np.array:
         """
-        Computes the BM25 score for each document given a query.
+        Compute BM25 scores for documents given a query.
+
+        Parameters
+        ----------
+        query : str
+            The search query text
+        docs : List[Any]
+            List of document objects containing text field
+
+        Returns
+        -------
+        np.array
+            Array of BM25 scores for each document
         """
         # CHECK doc_len (n chars or n words)
         doc_len = np.array([len(doc.text) for doc in docs])

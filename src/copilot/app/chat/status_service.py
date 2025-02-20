@@ -77,7 +77,23 @@ class StatusMessageService:
     def get_status_message(
         cls, status_type: StatusType, language: str, **kwargs
     ) -> str:
-        """Get status message for given type and language"""
+        """
+        Get status message for given type and language.
+
+        Parameters
+        ----------
+        status_type : StatusType
+            Type of status message to retrieve
+        language : str
+            Language code for the message
+        **kwargs : dict
+            Additional arguments for message formatting
+
+        Returns
+        -------
+        str
+            Formatted status message in requested language
+        """
         messages = cls._STATUS_MESSAGES[status_type]
         message = messages.get(language, messages.get(cls.DEFAULT_LANGUAGE))
 
@@ -105,7 +121,21 @@ class LoginMessageService:
 
     @classmethod
     def get_message(cls, status_type: StatusType, language: str) -> str:
-        """Get login message for given language"""
+        """
+        Get login message for given language.
+
+        Parameters
+        ----------
+        status_type : StatusType
+            Type of message to retrieve
+        language : str
+            Language code for the message
+
+        Returns
+        -------
+        str
+            Login message in requested language
+        """
         if status_type == StatusType.LOGIN:
             messages = cls._LOGIN_MESSAGES[status_type]
             messages = messages.get(
@@ -129,7 +159,19 @@ class TopicCheckService:
         self.model_name = model_name
 
     def get_message(self, language: str) -> str:
-        """Get off-topic message for given language"""
+        """
+        Get off-topic message for given language.
+
+        Parameters
+        ----------
+        language : str
+            Language code for the message
+
+        Returns
+        -------
+        str
+            Off-topic message in requested language
+        """
         return self._MESSAGES.get(
             language, self._MESSAGES[self.DEFAULT_LANGUAGE]
         )
@@ -142,7 +184,25 @@ class TopicCheckService:
         llm_client: BaseLLM,
         message_builder: MessageBuilder,
     ):
-        """Check if query is on topic and yield appropriate responses"""
+        """
+        Check if query is on topic and yield appropriate responses.
+
+        Parameters
+        ----------
+        query : str
+            User query to check
+        language : str
+            Language code for the response
+        llm_client : BaseLLM
+            Language model client instance
+        message_builder : MessageBuilder
+            Message builder instance for prompt construction
+
+        Yields
+        ------
+        Token
+            Response tokens for off-topic queries
+        """
         messages = message_builder.build_topic_check_prompt(
             language=language, llm_model=self.model_name, query=query
         )

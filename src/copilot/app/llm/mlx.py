@@ -16,27 +16,20 @@ ASYNC_GENERATE_ENDPOINT = os.path.join(LLM_GENERATION_ENDPOINT, "agenerate")
 
 class MLXLLM(BaseLLM):
     """
-    Class used to generate responses using an an Open Source Large Language Model (LLM) via API to MLX server.
+    Interface for generating responses using MLX models via API.
 
-    Attributes
+    Parameters
     ----------
-    model : str
-        The name of the OpenAI mlx-community LLM model to use for response generation (starts with mlx-community:<model>)
-    stream : bool
-        Whether to stream the response generation.
-    temperature : float
-        The temperature to use for response generation.
-    top_p : float
-        The top-p value to use for response generation.
-    max_tokens : int
-        The maximum number of tokens to generate.
-
-    Methods
-    -------
-    agenerate(messages: List[dict]) -> str
-        Generates a single string async response for a list of messages using the MLXLLM model.
-    _astream()
-        Generates an async stream of events as response for a list of messages using the MLXLLM model.
+    model : str, optional
+        MLX model identifier, by default DEFAULT_MLX_LLM_MODEL
+    stream : bool, optional
+        Enable response streaming, by default True
+    temperature : float, optional
+        Sampling temperature, by default 0.0
+    top_p : float, optional
+        Top-p sampling parameter, by default 0.95
+    max_tokens : int, optional
+        Maximum tokens to generate, by default 512
     """
 
     def __init__(
@@ -55,7 +48,19 @@ class MLXLLM(BaseLLM):
         super().__init__(stream)
 
     def _format_prompt(self, messages: List[Dict]) -> str:
-        """Extract system and user prompts from messages list and format them."""
+        """
+        Format messages into a single prompt string.
+
+        Parameters
+        ----------
+        messages : List[Dict]
+            List of message dictionaries containing role and content
+
+        Returns
+        -------
+        str
+            Formatted prompt combining system and user messages
+        """
         system_prompt = ""
         query = ""
 
@@ -71,22 +76,22 @@ class MLXLLM(BaseLLM):
 
     async def agenerate(self, messages: List[Dict]) -> str:
         """
-        Generate a response using the MLXLLM model.
+        Generate a complete response asynchronously.
 
         Parameters
         ----------
-        messages : List[dict]
-            The messages to generate a response for.
+        messages : List[Dict]
+            List of message dictionaries to generate response from
 
         Returns
         -------
-        str
-            The generated response.
+        ResponseModel
+            Model containing the generated response
 
         Raises
         ------
         Exception
-            If an error occurs during generation.
+            If generation fails
         """
         messages = self._format_prompt(messages)
         async with aiohttp.ClientSession() as session:
@@ -107,6 +112,19 @@ class MLXLLM(BaseLLM):
                 )
 
     async def _astream(self, messages: List[Dict]):
+        """
+        Stream response tokens asynchronously.
+
+        Parameters
+        ----------
+        messages : List[Dict]
+            List of message dictionaries to generate response from
+
+        Yields
+        ------
+        ResponseModel
+            Model containing each generated token or completion signal
+        """
         messages = self._format_prompt(messages)
         async with aiohttp.ClientSession() as session:
             headers = {

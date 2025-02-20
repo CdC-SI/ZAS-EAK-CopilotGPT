@@ -26,6 +26,31 @@ from config.llm_config import (
 
 @dataclass
 class EnvironmentConfig:
+    """
+    Configuration class for storing API keys and endpoints.
+
+    Parameters
+    ----------
+    openai_api_key : str, optional
+        API key for OpenAI services
+    azure_openai_api_key : str, optional
+        API key for Azure OpenAI services
+    azure_openai_api_version : str, optional
+        API version for Azure OpenAI
+    azure_openai_endpoint : str, optional
+        Endpoint URL for Azure OpenAI
+    anthropic_api_key : str, optional
+        API key for Anthropic services
+    groq_api_key : str, optional
+        API key for Groq services
+    cohere_api_key : str, optional
+        API key for Cohere services
+    deepl_api_key : str, optional
+        API key for DeepL translation services
+    llm_generation_endpoint : str, optional
+        Endpoint for local LLM generation
+    """
+
     openai_api_key: Optional[str] = None
     azure_openai_api_key: Optional[str] = None
     azure_openai_api_version: Optional[str] = None
@@ -38,11 +63,23 @@ class EnvironmentConfig:
 
 
 class ProxyConfig:
+    """
+    Configuration class for HTTP proxy settings.
+    """
+
     def __init__(self):
         self.http_proxy = os.environ.get("HTTP_PROXY")
         self.ca_bundle = os.environ.get("REQUESTS_CA_BUNDLE")
 
     def setup_httpx_client(self) -> Optional[httpx.AsyncClient]:
+        """
+        Set up an httpx client with proxy configuration.
+
+        Returns
+        -------
+        httpx.AsyncClient or None
+            Configured httpx client if proxy settings exist, None otherwise
+        """
         if self.http_proxy and self.ca_bundle:
             return httpx.AsyncClient(
                 proxy=self.http_proxy, verify=self.ca_bundle
@@ -51,6 +88,17 @@ class ProxyConfig:
 
 
 class ClientFactory:
+    """
+    Factory class for creating various API clients.
+
+    Parameters
+    ----------
+    env_config : EnvironmentConfig
+        Environment configuration containing API keys
+    proxy_config : ProxyConfig
+        Proxy configuration for HTTP requests
+    """
+
     def __init__(
         self, env_config: EnvironmentConfig, proxy_config: ProxyConfig
     ):
@@ -59,6 +107,19 @@ class ClientFactory:
         self.httpx_client = proxy_config.setup_httpx_client()
 
     def create_llm_client(self, model: str):
+        """
+        Create a language model client based on the model type.
+
+        Parameters
+        ----------
+        model : str
+            Name of the LLM model to use
+
+        Returns
+        -------
+        object or None
+            Appropriate client instance for the specified model
+        """
         if (
             model in SUPPORTED_OPENAI_LLM_MODELS
             and self.env_config.openai_api_key
@@ -107,6 +168,19 @@ class ClientFactory:
         return None
 
     def create_embedding_client(self, model: str):
+        """
+        Create an embedding model client.
+
+        Parameters
+        ----------
+        model : str
+            Name of the embedding model to use
+
+        Returns
+        -------
+        object or None
+            OpenAI or Azure OpenAI client for embeddings
+        """
         if (
             model in SUPPORTED_OPENAI_EMBEDDING_MODELS
             and self.env_config.openai_api_key
@@ -128,6 +202,14 @@ class ClientFactory:
         return None
 
     def create_rerank_client(self):
+        """
+        Create a client for reranking operations.
+
+        Returns
+        -------
+        cohere.AsyncClient or None
+            Cohere client if API key exists, None otherwise
+        """
         if self.env_config.cohere_api_key:
             return cohere.AsyncClient(
                 api_key=self.env_config.cohere_api_key,
@@ -136,6 +218,14 @@ class ClientFactory:
         return None
 
     def create_translation_client(self):
+        """
+        Create a translation client.
+
+        Returns
+        -------
+        deepl.DeepLClient or None
+            DeepL client if API key exists, None otherwise
+        """
         if self.env_config.deepl_api_key:
             return deepl.DeepLClient(
                 auth_key=self.env_config.deepl_api_key,
@@ -146,6 +236,10 @@ class ClientFactory:
 
 
 class ClientConfig:
+    """
+    Main configuration class for initializing all API clients.
+    """
+
     def __init__(self):
         load_dotenv()
         self.env_config = EnvironmentConfig(

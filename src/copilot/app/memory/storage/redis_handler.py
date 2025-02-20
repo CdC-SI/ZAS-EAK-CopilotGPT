@@ -19,6 +19,18 @@ logger = logging.getLogger(__name__)
 
 
 class RedisMemoryHandler(BaseStorage):
+    """Redis-based storage handler for conversation memory with Postgres fallback.
+
+    Parameters
+    ----------
+    k_memory : int, optional
+        Number of conversation turns to retain, by default 1
+    config : RedisConfig, optional
+        Redis configuration object, by default None
+    postgres_handler : PostgresMemoryHandler, optional
+        Postgres fallback handler, by default None
+    """
+
     def __init__(
         self,
         k_memory: int = 1,
@@ -43,6 +55,18 @@ class RedisMemoryHandler(BaseStorage):
             )
 
     def store_message(self, message: MessageData) -> None:
+        """Store a message in Redis with TTL.
+
+        Parameters
+        ----------
+        message : MessageData
+            Message data object to store
+
+        Raises
+        ------
+        RedisStorageError
+            If storing the message fails
+        """
         message_data = message.dict()
         key = f"user:{message.user_uuid}:conversation:{message.conversation_uuid}:{message.message_uuid}"
 
@@ -74,6 +98,29 @@ class RedisMemoryHandler(BaseStorage):
         conversation_uuid: str,
         k_memory: int,
     ) -> ConversationData:
+        """Retrieve conversation from Redis or fallback to Postgres.
+
+        Parameters
+        ----------
+        db : Session
+            Database session
+        user_uuid : str
+            UUID of the user
+        conversation_uuid : str
+            UUID of the conversation
+        k_memory : int
+            Number of turns to retrieve (-1 for all)
+
+        Returns
+        -------
+        ConversationData
+            Structured conversation data with turns
+
+        Raises
+        ------
+        RedisStorageError
+            If Redis retrieval fails
+        """
         pattern = f"user:{user_uuid}:conversation:{conversation_uuid}:*"
         keys = self.redis_client.keys(pattern)
 

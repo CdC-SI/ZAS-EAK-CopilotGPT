@@ -62,9 +62,37 @@ class CommandService:
         self.message_builder = message_builder
 
     def parse_args(self, command_args: str) -> List[str]:
+        """
+        Parse command arguments into a list.
+
+        Parameters
+        ----------
+        command_args : str
+            Space-separated command arguments.
+
+        Returns
+        -------
+        List[str]
+            List of parsed arguments.
+        """
         return command_args.split()
 
     def get_summarize_args(self, args: List[str]) -> Tuple[str, int, str]:
+        """
+        Parse arguments for summarize command.
+
+        Parameters
+        ----------
+        args : List[str]
+            List of command arguments.
+
+        Returns
+        -------
+        Tuple[str, int, str]
+            summary_mode: 'last', 'all', or 'highlights'
+            n_msg: number of messages to summarize (-1 for all)
+            summary_style: 'formal', 'concise', 'detailed', or 'bulletpoint'
+        """
         summary_mode = (
             args[0]
             if len(args) > 0 and args[0] in ["last", "all", "highlights"]
@@ -86,6 +114,20 @@ class CommandService:
         return summary_mode, n_msg, summary_style
 
     def get_translate_args(self, args: List[str]) -> Tuple[int, str]:
+        """
+        Parse arguments for translate command.
+
+        Parameters
+        ----------
+        args : List[str]
+            List of command arguments.
+
+        Returns
+        -------
+        Tuple[int, str]
+            n_msg: number of messages to translate (-1 for all)
+            target_lang: target language code
+        """
         translate_mode = (
             args[0] if len(args) > 0 and args[0] in ["last", "all"] else "all"
         )
@@ -138,6 +180,21 @@ class CommandService:
         return n_msg, target_lang
 
     def map_summary_style_to_language(self, language: str, style: str) -> str:
+        """
+        Map summary style to localized language version.
+
+        Parameters
+        ----------
+        language : str
+            Language code ('de', 'fr', 'it')
+        style : str
+            Style to map ('formal', 'concise', 'detailed', 'bulletpoint')
+
+        Returns
+        -------
+        str
+            Localized style name in uppercase
+        """
         mapping = {
             "de": {
                 "formal": "formell",
@@ -162,6 +219,21 @@ class CommandService:
         return mapping[language][style].upper()
 
     def map_summary_mode_to_language(self, language: str, mode: str) -> str:
+        """
+        Map summary mode to localized language version.
+
+        Parameters
+        ----------
+        language : str
+            Language code ('de', 'fr', 'it')
+        mode : str
+            Mode to map ('last', 'all', 'highlights')
+
+        Returns
+        -------
+        str
+            Localized mode name in uppercase
+        """
         mapping = {
             "de": {
                 "last": "den gesamten",  # already retrieved last n_msg
@@ -190,6 +262,23 @@ class CommandService:
     async def execute_command(
         self, db, request: ChatRequest, memory_service: MemoryService
     ) -> Dict[str, Any]:
+        """
+        Execute a command based on the chat request.
+
+        Parameters
+        ----------
+        db : Any
+            Database connection
+        request : ChatRequest
+            Chat request containing command and arguments
+        memory_service : MemoryService
+            Service for handling chat memory
+
+        Returns
+        -------
+        Dict[str, Any]
+            Command execution result containing messages or translated text
+        """
         args = self.parse_args(request.command_args)
         if request.command == "/summarize":
             summary_mode, n_msg, summary_style = self.get_summarize_args(args)
@@ -236,7 +325,27 @@ class CommandService:
         streaming_handler: StreamingHandler,
         memory_service: MemoryService,
     ):
+        """
+        Process a command and stream the response.
 
+        Parameters
+        ----------
+        db : Any
+            Database connection
+        request : ChatRequest
+            Chat request containing command and arguments
+        llm_client : BaseLLM
+            Language model client
+        streaming_handler : StreamingHandler
+            Handler for streaming responses
+        memory_service : MemoryService
+            Service for handling chat memory
+
+        Yields
+        ------
+        Token
+            Response tokens
+        """
         result = await self.execute_command(db, request, memory_service)
         messages = result.get("messages")
         translated_text = result.get("translated_text")

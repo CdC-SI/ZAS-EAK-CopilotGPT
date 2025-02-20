@@ -22,7 +22,18 @@ Users = Table(
 
 
 def format_conversations(conversations: list[ConversationData]) -> str:
-    """Format list of ConversationData objects into a single string."""
+    """Format list of ConversationData objects into a single string.
+
+    Parameters
+    ----------
+    conversations : list[ConversationData]
+        List of conversation data objects to format
+
+    Returns
+    -------
+    str
+        Formatted string containing all conversations
+    """
     # Sort conversations by created_at timestamp
     sorted_convs = sorted(conversations, key=lambda x: x.created_at)
 
@@ -47,14 +58,25 @@ async def update_user_preferences(
     llm_client: BaseLLM,
     tokenizer: Encoding,
 ) -> list[str]:
-    """
-    Update user preferences and return list of unique user UUIDs.
+    """Update user preferences and return list of unique user UUIDs.
 
-    Args:
-        db: Database session
-        postgres_memory_handler: Postgres memory handler instance
-        message_builder: Message builder instance
-        llm_client: LLM client instance
+    Parameters
+    ----------
+    db : Session
+        Database session object
+    memory_service : MemoryService
+        Service for handling memory operations
+    message_builder : MessageBuilder
+        Builder for creating message prompts
+    llm_client : BaseLLM
+        LLM client for making completion requests
+    tokenizer : Encoding
+        Tokenizer for encoding/decoding text
+
+    Returns
+    -------
+    list[str]
+        List of unique user UUIDs that were updated
     """
     # Query distinct user UUIDs
     user_uuids = [uuid[0] for uuid in db.query(distinct(Users.c.uuid)).all()]

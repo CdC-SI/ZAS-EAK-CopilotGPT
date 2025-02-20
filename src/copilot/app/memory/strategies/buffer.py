@@ -18,6 +18,16 @@ class ConversationalMemoryBuffer(BaseMemoryStrategy):
         super().__init__(cache_storage, db_storage, k_memory)
 
     def add_message_to_memory(self, db: Session, message: MessageData):
+        """
+        Add a message to the conversation memory.
+
+        Parameters
+        ----------
+        db : Session
+            Database session object
+        message : MessageData
+            Message data to be stored in memory
+        """
         self.store(db, message)
 
     async def get_conversational_memory(
@@ -27,6 +37,25 @@ class ConversationalMemoryBuffer(BaseMemoryStrategy):
         conversation_uuid: str,
         k_memory: int,
     ) -> ConversationData:
+        """
+        Retrieve conversation memory for a specific user and conversation.
+
+        Parameters
+        ----------
+        db : Session
+            Database session object
+        user_uuid : str
+            User identifier
+        conversation_uuid : str
+            Conversation identifier
+        k_memory : int
+            Number of memory turns to retrieve
+
+        Returns
+        -------
+        ConversationData
+            Conversation data containing message turns
+        """
         if not (user_uuid and conversation_uuid):
             return ConversationData(
                 conversation_uuid=conversation_uuid, turns=[]
@@ -46,6 +75,27 @@ class ConversationalMemoryBuffer(BaseMemoryStrategy):
     ) -> str:
         """
         Get formatted conversation from memory.
+
+        Parameters
+        ----------
+        db : Session
+            Database session object
+        user_uuid : str
+            User identifier
+        conversation_uuid : str
+            Conversation identifier
+        k_memory : int
+            Number of memory turns to retrieve
+        **kwargs : dict
+            k_turns : int
+                Number of conversation turns to format (-1 for all)
+            roles : list
+                List of message roles to include in formatting
+
+        Returns
+        -------
+        str
+            Formatted conversation string
         """
         k_turns = kwargs.get("k_turns", -1)
         roles = kwargs.get("roles", [MessageRole.USER, MessageRole.ASSISTANT])
