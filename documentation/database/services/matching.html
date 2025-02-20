@@ -339,7 +339,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>db</strong> (<em>Session</em>)</p></li>
+<li><p><strong>db</strong> (<em>Session</em>) – User input to match database entries</p></li>
 <li><p><strong>user_input</strong> (<em>str</em>) – User input to match database entries</p></li>
 <li><p><strong>language</strong> (<em>str</em><em>, </em><em>optional</em>) – Question and results language</p></li>
 <li><p><strong>k</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of results to return</p></li>
@@ -358,7 +358,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>db</strong> (<em>Session</em>)</p></li>
+<li><p><strong>db</strong> (<em>Session</em>) – User input to match database entries</p></li>
 <li><p><strong>user_input</strong> (<em>str</em>) – User input to match database entries</p></li>
 <li><p><strong>threshold</strong> (<em>int</em><em>, </em><em>optional</em>)</p></li>
 <li><p><strong>language</strong> (<em>str</em><em>, </em><em>optional</em>) – Question and results language</p></li>
@@ -378,7 +378,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>db</strong> (<em>Session</em>)</p></li>
+<li><p><strong>db</strong> (<em>Session</em>) – User input to match database entries</p></li>
 <li><p><strong>user_input</strong> (<em>str</em>) – User input to match database entries</p></li>
 <li><p><strong>threshold</strong> (<em>int</em><em>, </em><em>optional</em>) – Trigram similarity threshold, default to 0.4</p></li>
 <li><p><strong>language</strong> (<em>str</em><em>, </em><em>optional</em>) – Question and results language</p></li>
@@ -395,20 +395,23 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>db</strong> (<em>Session</em>)</p></li>
-<li><p><strong>user_input</strong> (<em>str</em>) – User input to match database entries</p></li>
-<li><p><strong>symbol</strong> (<em>str</em><em>, </em><em>optional</em>) – distance function symbol, default to <cite>&lt;=&gt;</cite> (cosine distance). For other options, see <a class="reference external" href="https://github.com/pgvector/pgvector">https://github.com/pgvector/pgvector</a></p></li>
-<li><p><strong>language</strong> (<em>str</em><em>, </em><em>optional</em>) – Question and results language</p></li>
-<li><p><strong>k</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of results to return, default to 0 (return all results)</p></li>
+<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
+<li><p><strong>user_input</strong> (<em>str</em>) – Input text to match against</p></li>
+<li><p><strong>language</strong> (<em>str</em><em>, </em><em>optional</em>) – Filter by language</p></li>
+<li><p><strong>k</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of results to return (0 for all)</p></li>
+<li><p><strong>symbol</strong> (<em>str</em><em>, </em><em>optional</em>) – Operator symbol for similarity comparison</p></li>
 <li><p><strong>tags</strong> (<em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Filter by tags</p></li>
-<li><p><strong>source</strong> (<em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Filter by source</p></li>
+<li><p><strong>source</strong> (<em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Filter by source URLs</p></li>
 <li><p><strong>organizations</strong> (<em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Filter by organizations</p></li>
-<li><p><strong>user_uuid</strong> (<em>str</em><em>, </em><em>optional</em>) – Filter by user_uuid</p></li>
-<li><p><strong>embedding_field</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Single field name or list of field names to match against</p></li>
+<li><p><strong>user_uuid</strong> (<em>str</em><em>, </em><em>optional</em>) – User UUID for personal documents</p></li>
+<li><p><strong>embedding_field</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Field(s) containing embeddings</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of dict</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matched documents sorted by similarity</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[dict]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -416,7 +419,24 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="database.service.matching.MatchingService.semantic_similarity_match_l1">
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">semantic_similarity_match_l1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#database.service.matching.MatchingService.semantic_similarity_match_l1" title="Link to this definition">¶</a></dt>
-<dd><p>Get semantic similarity match from database using L1 distance</p>
+<dd><p>Get semantic similarity match using L1 distance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>db</strong> (<em>Session</em>) – Database session</p></li>
+<li><p><strong>user_input</strong> (<em>str</em>) – Input text to match against</p></li>
+<li><p><strong>language</strong> (<em>str</em><em>, </em><em>optional</em>) – Filter by language</p></li>
+<li><p><strong>k</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of results (0 for all)</p></li>
+<li><p><strong>tags</strong> (<em>str</em><em>, </em><em>optional</em>) – Filter by tags</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matched documents sorted by L1 distance</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[dict]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">

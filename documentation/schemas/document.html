@@ -1586,10 +1586,12 @@
 <span class="w">   </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
 <span class="w">   </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Text&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Url&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
 <span class="w">      </span><span class="p">},</span>
@@ -1710,15 +1712,18 @@
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;User Uuid&quot;</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Id&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span>
+<span class="w">         </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">         </span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Id&quot;</span>
 <span class="w">      </span><span class="p">}</span>
-<span class="w">   </span><span class="p">},</span>
-<span class="w">   </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;url&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;id&quot;</span>
-<span class="w">   </span><span class="p">]</span>
+<span class="w">   </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -1734,14 +1739,14 @@
 <li><p><a class="reference internal" href="#schemas.document.Document.doctype" title="schemas.document.Document.doctype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doctype</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.Document.hyq" title="schemas.document.Document.hyq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hyq</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.Document.hyq_declarative" title="schemas.document.Document.hyq_declarative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hyq_declarative</span> <span class="pre">()</span></code></a></p></li>
-<li><p><a class="reference internal" href="#schemas.document.Document.id" title="schemas.document.Document.id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">id</span> <span class="pre">(int)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#schemas.document.Document.id" title="schemas.document.Document.id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">id</span> <span class="pre">(int</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.Document.language" title="schemas.document.Document.language"><code class="xref py py-obj docutils literal notranslate"><span class="pre">language</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.Document.organizations" title="schemas.document.Document.organizations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">organizations</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.Document.subtopics" title="schemas.document.Document.subtopics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">subtopics</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.Document.summary" title="schemas.document.Document.summary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summary</span> <span class="pre">()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.Document.tags" title="schemas.document.Document.tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tags</span> <span class="pre">()</span></code></a></p></li>
-<li><p><a class="reference internal" href="#schemas.document.Document.text" title="schemas.document.Document.text"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span> <span class="pre">()</span></code></a></p></li>
-<li><p><a class="reference internal" href="#schemas.document.Document.url" title="schemas.document.Document.url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">url</span> <span class="pre">()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#schemas.document.Document.text" title="schemas.document.Document.text"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span> <span class="pre">(str)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#schemas.document.Document.url" title="schemas.document.Document.url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">url</span> <span class="pre">(str)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#schemas.document.Document.user_uuid" title="schemas.document.Document.user_uuid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_uuid</span> <span class="pre">()</span></code></a></p></li>
 </ul>
 </dd>
@@ -1766,7 +1771,7 @@
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="schemas.document.Document.id">
-<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#schemas.document.Document.id" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#schemas.document.Document.id" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -1801,13 +1806,13 @@
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="schemas.document.Document.text">
-<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">text</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#schemas.document.Document.text" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">text</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#schemas.document.Document.text" title="Link to this definition">¶</a></dt>
 <dd><p>Content of the document</p>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="schemas.document.Document.url">
-<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#schemas.document.Document.url" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#schemas.document.Document.url" title="Link to this definition">¶</a></dt>
 <dd><p>URL where the document was found</p>
 </dd></dl>
 

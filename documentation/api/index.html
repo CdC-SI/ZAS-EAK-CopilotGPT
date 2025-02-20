@@ -203,7 +203,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -320,7 +320,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -338,6 +338,26 @@
 </dd>
 </dl>
 <p>Beside, <code class="docutils literal notranslate"><span class="pre">main.py</span></code> sets up CORS (Cross-Origin Resource Sharing) middleware to allow the frontend to access the API, a lifespan context manager that initializes the databases with some example data, and a dummy endpoint to check if the API is running.</p>
+<dl class="py function" id="module-main">
+<dt class="sig sig-object py" id="main.lifespan">
+<span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">lifespan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">fastapi.FastAPI</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#main.lifespan" title="Link to this definition">¶</a></dt>
+<dd><p>Application lifespan context manager</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="main.welcome">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">welcome</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#main.welcome" title="Link to this definition">¶</a></dt>
+<dd><p>Dummy endpoint for testing the API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A welcome message.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
 <div class="toctree-wrapper compound">
 </div>
 </section>
@@ -385,8 +405,28 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">API</a><ul>
+<li><a class="reference internal" href="#main.lifespan"><code class="docutils literal notranslate"><span class="pre">lifespan()</span></code></a></li>
+<li><a class="reference internal" href="#main.welcome"><code class="docutils literal notranslate"><span class="pre">welcome()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
