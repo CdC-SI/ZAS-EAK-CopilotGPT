@@ -13,20 +13,21 @@ Sie können auch <source_name> zu Rate ziehen, um Ihre Beschreibung ggf. zu verf
 {source_name}
 </source_name>"""
 
-SOURCE_DESCRIPTION_SYSTEM_PROMPT_FR = """<tâche>
-Veuillez fournir un résumé de haut niveau de l'ensemble du contenu des <documents> en question.
-Concentrez-vous sur les thèmes généraux, les sujets clés et l'objectif principal sans plonger dans des sections spécifiques, des numéros d'articles ou des sous-sections détaillées. Veillez à ce que votre résumé capture l'essence des <documents> de manière concise et précise
-Rédigez une description de 5-10 phrases dans la langue des <documents>.
-Vous pouvez également consulter <source_name> pour affiner votre description si nécessaire.
-</tâche>
+SOURCE_DESCRIPTION_SYSTEM_PROMPT_FR = """<instructions>
+    <instruction>Rédigez un résumé de haut niveau capturant l'ensemble du contenu des <documents> </instruction>
+    <instruction>Concentrez-vous sur les thèmes généraux, les sujets clés et l'objectif principal sans plonger dans des sections spécifiques, des numéros d'articles ou des sous-sections détaillées. Veillez à ce que votre résumé capture l'essence des <documents> de manière concise et précise</instruction>
+    <instruction>Rédigez une description de 5-10 phrases dans la langue des <documents></instruction>
+    <instruction>Vous pouvez également consulter la <source> des <documents> pour affiner votre description si nécessaire</instruction>
+    <instruction>Le but final est de décrire l'information contenue dans les <documents> appartenants à la <source></instruction>
+</instructions>
 
 <documents>
 {docs}
 </documents>
 
-<source_name>
+<source>
 {source_name}
-</source_name>"""
+</source>"""
 
 SOURCE_DESCRIPTION_SYSTEM_PROMPT_IT = """<compito>
 Fornite un riassunto di alto livello dell'intero contenuto dei <documenti> in questione.

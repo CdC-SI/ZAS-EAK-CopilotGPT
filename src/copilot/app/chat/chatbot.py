@@ -58,8 +58,17 @@ class ChatBot:
         self.top_k = rag_config["retrieval"]["top_k"]
 
     def _initialize_components(self, request: ChatRequest):
-        """
-        Initialize LLM client, MessageBuilder, Retriever client, StreamingHandler and CommandService.
+        """Initialize LLM client, MessageBuilder, Retriever client, StreamingHandler and CommandService.
+
+        Parameters
+        ----------
+        request : ChatRequest
+            The chat request containing configuration parameters
+
+        Returns
+        -------
+        tuple
+            (llm_client, message_builder, retriever_client, streaming_handler, command_service)
         """
         llm_client = LLMFactory.get_llm_client(
             model=request.llm_model,
@@ -72,6 +81,14 @@ class ChatBot:
         if request.response_style == "legal":
             retrieval_method = request.retrieval_method
             retrieval_method.append("fedlex_retriever")
+            retriever_client = RetrieverFactory.get_retriever_client(
+                retrieval_method=retrieval_method,
+                llm_client=llm_client,
+                message_builder=message_builder,
+            )
+        elif request.agentic_rag:
+            retrieval_method = request.retrieval_method
+            retrieval_method.append("query_rewriting_retriever")
             retriever_client = RetrieverFactory.get_retriever_client(
                 retrieval_method=retrieval_method,
                 llm_client=llm_client,
@@ -106,8 +123,24 @@ class ChatBot:
         user_message_uuid: str = None,
         assistant_message_uuid: str = None,
     ):
-        """
-        Index the query and response in chat history.
+        """Index the query and response in chat history.
+
+        Parameters
+        ----------
+        db : Session
+            Database session
+        request : ChatRequest
+            The chat request containing user and conversation info
+        assistant_response : List[str]
+            The response from the assistant
+        documents : List[Dict]
+            Retrieved documents
+        source_urls : List[str]
+            URLs of source documents
+        user_message_uuid : str, optional
+            UUID for user message
+        assistant_message_uuid : str, optional
+            UUID for assistant message
         """
         if request.command:
             user_message = f"{request.command} {request.command_args}"
@@ -159,8 +192,20 @@ class ChatBot:
         message_builder: MessageBuilder,
         llm_client: BaseLLM,
     ):
-        """
-        Index the chat title if it does not already exist.
+        """Index the chat title if it does not already exist.
+
+        Parameters
+        ----------
+        db : Session
+            Database session
+        request : ChatRequest
+            The chat request containing conversation info
+        assistant_response : List[str]
+            The response from the assistant
+        message_builder : MessageBuilder
+            Message builder instance
+        llm_client : BaseLLM
+            LLM client instance
         """
         if not self.memory_service.chat_memory.conversation_uuid_exists(
             db, request.conversation_uuid
@@ -186,7 +231,22 @@ class ChatBot:
         llm_client: BaseLLM,
         streaming_handler: StreamingHandler,
     ):
+        """Process a vanilla LLM request without RAG.
 
+        Parameters
+        ----------
+        request : ChatRequest
+            The chat request
+        llm_client : BaseLLM
+            LLM client instance
+        streaming_handler : StreamingHandler
+            Handler for streaming responses
+
+        Yields
+        ------
+        token
+            Generated tokens from the LLM
+        """
         messages = [{"role": "user", "content": request.query}]
 
         event_stream = llm_client.call(messages)
@@ -201,7 +261,24 @@ class ChatBot:
         llm_client: BaseLLM,
         message_builder: MessageBuilder,
     ):
-        """Check if the query is on topic."""
+        """Check if the query is on topic.
+
+        Parameters
+        ----------
+        query : str
+            User query to check
+        language : str
+            Query language
+        llm_client : BaseLLM
+            LLM client instance
+        message_builder : MessageBuilder
+            Message builder instance
+
+        Yields
+        ------
+        token
+            Topic check response tokens
+        """
         async for token in topic_check_service.check_topic(
             query=query,
             language=language,
@@ -221,8 +298,19 @@ class ChatBot:
         )
 
     async def process_request(self, db: Session, request: ChatRequest):
-        """
-        Process a request by setting up necessary components and routing to appropriate service.
+        """Process a chat request.
+
+        Parameters
+        ----------
+        db : Session
+            Database session
+        request : ChatRequest
+            The chat request containing all parameters
+
+        Yields
+        ------
+        str
+            Generated response tokens
         """
         # Login check for advanced features
         if not request.user_uuid:

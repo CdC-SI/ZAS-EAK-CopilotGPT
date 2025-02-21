@@ -58,7 +58,9 @@ class RetrieverFactory:
         retrievers = []
         reranker = None
 
-        for method in retrieval_method:
+        unique_methods = list(dict.fromkeys(retrieval_method))
+
+        for method in unique_methods:
             match method:
                 case "top_k_retriever":
                     retrievers.append(

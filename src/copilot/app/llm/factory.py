@@ -36,16 +36,22 @@ class LLMFactory:
             The name of the LLM model. Currently supported models are in config/llm_config.py.
         stream : bool
             Whether to stream the response as events or return a single text response.
+        temperature : float
+            Sampling temperature between 0 and 1. Higher values make output more random.
+        top_p : float
+            Nucleus sampling parameter between 0 and 1. Lower values make output more focused.
+        max_tokens : int
+            Maximum number of tokens to generate in the response.
 
         Returns
         -------
-        LLM
-            An instance of the appropriate llm client.
+        BaseLLM
+            An instance of the appropriate LLM client implementing the BaseLLM interface.
 
         Raises
         ------
         ValueError
-            If the `llm_model` is not supported.
+            If the provided model name is not supported or configured.
         """
         if (
             model in SUPPORTED_OPENAI_LLM_MODELS

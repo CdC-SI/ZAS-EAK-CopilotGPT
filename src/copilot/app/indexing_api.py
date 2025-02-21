@@ -1,6 +1,7 @@
 import logging
 import os
 from typing import List
+import uuid
 
 from fastapi import FastAPI, Depends, File, UploadFile, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,6 +16,14 @@ from config.base_config import indexing_config, indexing_app_config
 from indexing.pipelines.admin import admin_indexer
 from indexing.pipelines.ahv import ahv_indexer
 from indexing.pipelines.bsv import BSVIndexer
+
+from memory.models import MessageData
+from memory import MemoryService
+from memory.config import MemoryConfig
+from memory.enums import MessageRole
+from config.base_config import chat_config
+
+from indexing.sources import create_source_descriptions
 
 from sqlalchemy.orm import Session
 from database.service.question import faq_question_service
@@ -37,6 +46,13 @@ import codecs
 
 # Setup logging
 logger = get_logger(__name__)
+
+memory_config = MemoryConfig.from_dict(chat_config["memory"])
+memory_service = MemoryService(
+    memory_type=memory_config.memory_type,
+    k_memory=memory_config.k_memory,
+    config=memory_config.storage,
+)
 
 
 async def init_indexing():
@@ -566,6 +582,7 @@ async def upload_pdf_rag(
     files: List[UploadFile] = File(..., description="PDF files only"),
     embed: bool = True,
     user_uuid: str = None,
+    conversation_uuid: str = None,
     language: str = "de",
     db: Session = Depends(get_db),
 ) -> Response:
@@ -619,13 +636,29 @@ async def upload_pdf_rag(
                 await ahv_indexer.add_content_to_db(
                     db,
                     content=[Path(temp_file.name)],
-                    source=f"user_pdf_upload:{original_filename}",  # Use original filename
+                    source=f"user_pdf_upload:{original_filename}",
                     user_uuid=user_uuid,
                     language=language,
                     embed=embed,
                 )
                 uploaded_files.append(original_filename)
                 logger.info(f"File {original_filename} processed successfully")
+
+                user_message = MessageData(
+                    user_uuid=user_uuid,
+                    conversation_uuid=conversation_uuid,
+                    message_uuid=str(uuid.uuid4()),
+                    role=MessageRole.USER,
+                    message=f"User uploaded a PDF file: {original_filename}",
+                    language=language,
+                )
+
+                memory_service.chat_memory.add_message_to_memory(
+                    db,
+                    user_message,
+                )
+
+                await create_source_descriptions()
             finally:
                 os.remove(temp_file.name)
 
