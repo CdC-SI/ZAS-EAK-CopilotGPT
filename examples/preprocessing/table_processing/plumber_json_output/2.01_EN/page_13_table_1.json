@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "source": ".\\2.01_EN.pdf",
+    "page": 13,
+    "table_number": 1,
+    "dimensions": {
+      "rows": 4,
+      "columns": 6
+    }
+  },
+  "data": {
+    "headers": [
+      "",
+      "Annual net income from business",
+      "",
+      "",
+      "Income as a Board member",
+      ""
+    ],
+    "rows": [
+      [
+        "",
+        "CHF",
+        "30 500.–",
+        "",
+        "CHF",
+        "18 000.–"
+      ],
+      [
+        "Personal allowance",
+        "- CHF",
+        "16 800.–",
+        "",
+        "- CHF",
+        "16 800.–"
+      ],
+      [
+        "Subject to compulsory contributions",
+        "CHF",
+        "13 700.–",
+        "",
+        "CHF",
+        "1 200.–"
+      ]
+    ]
+  }
+}

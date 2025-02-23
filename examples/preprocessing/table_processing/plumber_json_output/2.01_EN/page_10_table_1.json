@@ -1,0 +1,63 @@
+{
+  "metadata": {
+    "source": ".\\2.01_EN.pdf",
+    "page": 10,
+    "table_number": 1,
+    "dimensions": {
+      "rows": 6,
+      "columns": 6
+    }
+  },
+  "data": {
+    "headers": [
+      "Benefits in kind",
+      "per day",
+      "",
+      "",
+      "per month",
+      ""
+    ],
+    "rows": [
+      [
+        "Breakfast",
+        "CHF",
+        "3.50",
+        "",
+        "CHF",
+        "105.–"
+      ],
+      [
+        "Lunch",
+        "CHF",
+        "10.00",
+        "",
+        "CHF",
+        "300.–"
+      ],
+      [
+        "Dinner",
+        "CHF",
+        "8.00",
+        "",
+        "CHF",
+        "240.–"
+      ],
+      [
+        "Accommodation",
+        "CHF",
+        "11.50",
+        "",
+        "CHF",
+        "345.–"
+      ],
+      [
+        "Full board and accommodation",
+        "CHF",
+        "33.00",
+        "",
+        "CHF",
+        "990.–"
+      ]
+    ]
+  }
+}

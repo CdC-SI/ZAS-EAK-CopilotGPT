@@ -1,0 +1,51 @@
+{
+  "metadata": {
+    "source": ".\\2.01_EN.pdf",
+    "page": 14,
+    "table_number": 1,
+    "bbox": [
+      34.01599884033203,
+      158.489013671875,
+      348.6617919921875,
+      222.916015625
+    ],
+    "dimensions": {
+      "rows": 4,
+      "columns": 6
+    }
+  },
+  "data": [
+    [
+      "2025",
+      "Firm A",
+      null,
+      "",
+      "Firm B",
+      null
+    ],
+    [
+      "Annual salary",
+      "CHF",
+      "19 200.–",
+      "",
+      "CHF",
+      "18 000.–"
+    ],
+    [
+      "Personal allowance",
+      "- CHF",
+      "16 800.–",
+      "",
+      "- CHF",
+      "16 800.–"
+    ],
+    [
+      "subject to obligatory\ncontributions",
+      "CHF",
+      "2 400.–",
+      "",
+      "CHF",
+      "1 200.–"
+    ]
+  ]
+}

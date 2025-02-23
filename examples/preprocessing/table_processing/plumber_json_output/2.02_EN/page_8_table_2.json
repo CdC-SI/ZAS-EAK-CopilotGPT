@@ -1,0 +1,27 @@
+{
+  "metadata": {
+    "source": ".\\2.02_EN.pdf",
+    "page": 8,
+    "table_number": 2,
+    "dimensions": {
+      "rows": 3,
+      "columns": 2
+    }
+  },
+  "data": {
+    "headers": [
+      "Relates to",
+      "Interest accrued from"
+    ],
+    "rows": [
+      [
+        "Contributions on account amount to less than 75 % of the final con- tributions for the contribution year",
+        "1st January after the calendar year following the contribution year"
+      ],
+      [
+        "Contributions for previous years",
+        "1st January after end of relevant contribution year"
+      ]
+    ]
+  }
+}

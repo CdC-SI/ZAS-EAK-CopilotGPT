@@ -1,0 +1,21 @@
+{
+  "metadata": {
+    "source": ".\\2.01_EN.pdf",
+    "page": 2,
+    "table_number": 2,
+    "dimensions": {
+      "rows": 1,
+      "columns": 5
+    }
+  },
+  "data": {
+    "headers": [
+      "2008",
+      "exempt",
+      "required to pay",
+      "required to pay",
+      "required to pay"
+    ],
+    "rows": []
+  }
+}

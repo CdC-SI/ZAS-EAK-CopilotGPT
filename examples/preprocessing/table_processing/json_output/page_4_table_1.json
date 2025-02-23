@@ -1,0 +1,23 @@
+{
+  "metadata": {
+    "source": "2.02_EN.pdf",
+    "page": 4,
+    "table_number": 1,
+    "dimensions": {
+      "rows": 2,
+      "columns": 2
+    }
+  },
+  "data": {
+    "headers": [
+      "Year of birth",
+      "Reference age"
+    ],
+    "rows": [
+      [
+        "Up to 1960",
+        "64"
+      ]
+    ]
+  }
+}

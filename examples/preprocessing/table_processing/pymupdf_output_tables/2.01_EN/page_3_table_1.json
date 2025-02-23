@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "source": ".\\2.01_EN.pdf",
+    "page": 3,
+    "table_number": 1,
+    "bbox": [
+      70.86599731445312,
+      228.7860107421875,
+      385.5119934082031,
+      321.8760070800781
+    ],
+    "dimensions": {
+      "rows": 6,
+      "columns": 2
+    }
+  },
+  "data": [
+    [
+      "Year of birth",
+      "Reference age"
+    ],
+    [
+      "Up to 1960",
+      "64"
+    ],
+    [
+      "1961 64 plus 3 months",
+      null
+    ],
+    [
+      "1962",
+      "64 plus 6 months"
+    ],
+    [
+      "1963 64 plus 9 months",
+      null
+    ],
+    [
+      "From 1964",
+      "65"
+    ]
+  ]
+}

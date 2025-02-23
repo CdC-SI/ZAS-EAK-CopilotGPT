@@ -1,0 +1,338 @@
+{
+  "metadata": {
+    "source": "column_separators.pdf",
+    "page": 2,
+    "table_number": 1,
+    "accuracy": 100.0,
+    "dimensions": {
+      "rows": 46,
+      "columns": 5
+    }
+  },
+  "data": {
+    "headers": [
+      "ALPHABETIC LISTING BY TYPE FEBRUARY 2014 M27 (BUS)",
+      "",
+      "",
+      "",
+      "ABLPDM27"
+    ],
+    "rows": [
+      [
+        "OF ACTIVE LICENSES",
+        "",
+        "",
+        "",
+        "3/19/2014"
+      ],
+      [
+        "OKLAHOMA ABLE COMMISSION",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "LICENSE PREMISE",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "LICENSEE NAME ADDRESS NUMBER TYPE DBA NAME CITY",
+        "ST",
+        "ZIP",
+        "PHONE NUMBER",
+        "EXPIRES"
+      ],
+      [
+        "648765 AAA ALLEGIANT AIR                    ALLEGIANT AIR LLC               7100 TERMINAL DRIVE          OKLAHOMA CITY",
+        "OK",
+        "73159",
+        "-",
+        "2014/12/03"
+      ],
+      [
+        "7777 EAST APACHE",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "ALLEGIANT AIR                    ALLEGIANT AIR LLC               STREET                  648766 AAA TULSA",
+        "OK",
+        "74115",
+        "-",
+        "2014/12/16"
+      ],
+      [
+        "82030 AAA AMERICAN AIRLINES           AMERICAN AIRLINES INC     7100 TERMINAL DRIVE          OKLAHOMA CITY",
+        "OK",
+        "73159",
+        "(405) 680-3701",
+        "2014/09/14"
+      ],
+      [
+        "509462 AAA AMERICAN AIRLINES           AMERICAN AIRLINES INC     7777 EAST APACHE DRIVE   TULSA",
+        "OK",
+        "74115",
+        "(918) 831-6302",
+        "2014/08/19"
+      ],
+      [
+        "AMERICAN EAGLE",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "AMERICAN EAGLE                AIRLINES INC              509609 AAA 7100 TERMINAL DRIVE          OKLAHOMA CITY",
+        "OK",
+        "73159",
+        "(405) 680-3701",
+        "2014/08/19"
+      ],
+      [
+        "AMERICAN EAGLE",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "AMERICAN EAGLE                AIRLINES INC              402986 AAA 7777 EAST APACHE DRIVE   TULSA",
+        "OK",
+        "74115",
+        "(859) 767-3747",
+        "2014/10/22"
+      ],
+      [
+        "WILL ROGERS AIRPORT",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "DELTA AIR LINES                 DELTA AIR LINES INC            BOX 59975            79145 AAA OKLAHOMA CITY",
+        "OK",
+        "73159",
+        "(404) 773-9745",
+        "2014/05/11"
+      ],
+      [
+        "600941 AAA ENDEAVOR AIR                    ENDEAVOR AIR INC               7100 TERMINAL DRIVE          OKLAHOMA CITY",
+        "OK",
+        "73159",
+        "(901) 348-4100",
+        "2015/03/26"
+      ],
+      [
+        "7100 TERMINAL DRIVE",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "EXPRESSJET AIRLINES      EXPRESSJET AIRLINES INC  WILL ROGERS AIRPORT  478482 AAA OKLAHOMA CITY",
+        "OK",
+        "73159",
+        "(832) 353-1201",
+        "2014/05/08"
+      ],
+      [
+        "505981 AAA SKYWEST AIRLINES            SKYWEST INC                        7100 TERMINAL DRIVE          OKLAHOMA CITY",
+        "OK",
+        "73159",
+        "(405) 634-3000",
+        "2014/05/28"
+      ],
+      [
+        "429754 AAA SOUTHWEST AIRLINES       SOUTHWEST AIRLINES CO  7100 TERMINAL DRIVE          OKLAHOMA CITY",
+        "OK",
+        "73159",
+        "(405) 682-4183",
+        "2015/02/15"
+      ],
+      [
+        "TULSA INTERNATIONAL",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "AIRPORT              429755 AAA SOUTHWEST AIRLINES CO  7777 EAST APACHE DRIVE   TULSA",
+        "OK",
+        "74115",
+        "(918) 834-4495",
+        "2015/02/16"
+      ],
+      [
+        "415051 AAA UNITED AIRLINES                UNITED AIRLINES INC           7777 EAST APACHE DRIVE   TULSA",
+        "OK",
+        "74115",
+        "(872) 825-8309",
+        "2014/05/12"
+      ],
+      [
+        "106719 AAA UNITED AIRLINES                UNITED AIRLINES INC           WILL ROGERS AIRPORT        OKLAHOMA CITY",
+        "OK",
+        "73159",
+        "(872) 825-8309",
+        "2014/04/11"
+      ],
+      [
+        "A SENSU JAPANESE  7123 SOUTH 92ND EAST",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "RESTAURANT              INFORMAL PARTNERSHIP    AVENUE SUITE J      625422 BAW TULSA",
+        "OK",
+        "74133",
+        "(918) 252-0333",
+        "2015/02/14"
+      ],
+      [
+        "ADAMO'S ROUTE 66  2132 WEST GARY",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "ITALIAN VILLA           TADJ INC                                 BOULEVARD                 464828 BAW CLINTON",
+        "OK",
+        "73601",
+        "(580) 323-5900",
+        "2015/02/11"
+      ],
+      [
+        "12215 NORTH",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "PENNSYLVANIA                 184066 BAW AJANTA                                 CABAB N' CURRY INC            OKLAHOMA CITY",
+        "OK",
+        "73120",
+        "(405) 752-5283",
+        "2014/07/27"
+      ],
+      [
+        "SAYRE LODGING",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "ENTERPRISES LLC            547693 BAW AMERICINN OF SAYRE        2405 SOUTH EL CAMINO       SAYRE",
+        "OK",
+        "73662",
+        "(580) 928-2700",
+        "2014/09/08"
+      ],
+      [
+        "ANDOLINI'S PIZZERIA &  12140 EAST 96TH STREET",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "ITALIAN RESTAURANT ANDOLINI'S LLC                      NORTH #106        428377 BAW OWASSO",
+        "OK",
+        "74055",
+        "(918) 272-9325",
+        "2015/02/10"
+      ],
+      [
+        "ASAHI JAPANESE",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "RESTAURANT                446957 BAW JIN CORPORATION                7831 EAST 71ST STREET      TULSA",
+        "OK",
+        "74133",
+        "(918) 307-9151",
+        "2014/12/22"
+      ],
+      [
+        "SMOKEHOUSE",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "ASSOCIATES INC                632501 BAW BACK DOOR BARBECUE     315 NORTHWEST 23RD         OKLAHOMA CITY",
+        "OK",
+        "73103",
+        "-",
+        "2014/08/01"
+      ],
+      [
+        "598515 BAW BAMBOO THAI BISTRO        BAMBOO THAI BISTRO INC  5079 SOUTH YALE AVENUE  TULSA",
+        "OK",
+        "74135",
+        "(918) 828-0740",
+        "2015/03/11"
+      ],
+      [
+        "BANDANA RED'S",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "STEAKHOUSE                 618693 BAW BRADSHAW, STEVE_LEN     37808 OLD HIGHWAY 270      SHAWNEE",
+        "OK",
+        "74804",
+        "-",
+        "2014/08/20"
+      ],
+      [
+        "1522 WEST LINDSEY",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "STREET                 632575 BAW BASHU LEGENDS                 HYH HE CHUANG LLC            NORMAN",
+        "OK",
+        "73069",
+        "-",
+        "2014/07/21"
+      ],
+      [
+        "DEEP FORK HOLDINGS",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "LLC                   543149 BAW BEDLAM BAR-B-Q                 610 NORTHEAST 50TH           OKLAHOMA CITY",
+        "OK",
+        "73105",
+        "(405) 528-7427",
+        "2015/02/23"
+      ]
+    ]
+  }
+}

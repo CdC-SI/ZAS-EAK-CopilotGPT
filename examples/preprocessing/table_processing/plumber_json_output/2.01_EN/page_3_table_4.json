@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "source": ".\\2.01_EN.pdf",
+    "page": 3,
+    "table_number": 4,
+    "dimensions": {
+      "rows": 5,
+      "columns": 2
+    }
+  },
+  "data": {
+    "headers": [
+      "Contribution rates",
+      ""
+    ],
+    "rows": [
+      [
+        "OASI",
+        "8.7 %"
+      ],
+      [
+        "DI",
+        "1.4 %"
+      ],
+      [
+        "IC",
+        "0.5 %"
+      ],
+      [
+        "Total",
+        "10.6 %"
+      ]
+    ]
+  }
+}

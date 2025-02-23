@@ -1,0 +1,75 @@
+{
+  "metadata": {
+    "source": ".\\2.01_EN.pdf",
+    "page": 13,
+    "table_number": 2,
+    "bbox": [
+      70.86599731445312,
+      363.0010070800781,
+      385.6863966721755,
+      467.1860046386719
+    ],
+    "dimensions": {
+      "rows": 7,
+      "columns": 6
+    }
+  },
+  "data": [
+    [
+      "",
+      "Firm C",
+      null,
+      "",
+      "Firm D",
+      null
+    ],
+    [
+      null,
+      "from 1st March to 6 April",
+      null,
+      "",
+      "from 23 to 30 April",
+      null
+    ],
+    [
+      "Monthly salary for March",
+      "CHF",
+      "8 000.–",
+      "",
+      "CHF",
+      ""
+    ],
+    [
+      "Monthly salary for April",
+      "CHF",
+      "1 200.–",
+      "",
+      "CHF",
+      "2 100.–"
+    ],
+    [
+      "Total",
+      "CHF",
+      "9 200.–",
+      "",
+      "CHF",
+      "2 100.–"
+    ],
+    [
+      "Personal allowance",
+      "- CHF",
+      "2 800.–",
+      "",
+      "- CHF",
+      "1 400.–"
+    ],
+    [
+      "subject to obligatory\ncontributions",
+      "CHF",
+      "6 400.–",
+      "",
+      "CHF",
+      "700.–"
+    ]
+  ]
+}

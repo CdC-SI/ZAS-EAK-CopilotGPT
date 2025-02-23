@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "source": ".\\2.01_EN.pdf",
+    "page": 6,
+    "table_number": 2,
+    "bbox": [
+      34.01599884033203,
+      325.1159973144531,
+      347.6610107421875,
+      460.62298583984375
+    ],
+    "dimensions": {
+      "rows": 3,
+      "columns": 3
+    }
+  },
+  "data": [
+    [
+      "Settlement",
+      "30 January following\nend of contribution\nyear",
+      "1st January after\nend of contribution year"
+    ],
+    [
+      "Difference between\ncontributions on 30 days from invoice\n1st day from invoice date\naccount and final date\ncontributions",
+      null,
+      null
+    ],
+    [
+      "Retrospective de­\nmands for contribu­\ntions for previous\nyears",
+      "",
+      "1st January after end of\nrelevant contribution\nyear"
+    ]
+  ]
+}

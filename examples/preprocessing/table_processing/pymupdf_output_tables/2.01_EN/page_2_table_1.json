@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "source": ".\\2.01_EN.pdf",
+    "page": 2,
+    "table_number": 1,
+    "bbox": [
+      34.01599884033203,
+      258.34600830078125,
+      348.7539978027344,
+      287.0150146484375
+    ],
+    "dimensions": {
+      "rows": 2,
+      "columns": 5
+    }
+  },
+  "data": [
+    [
+      "Year of\nbirth",
+      "Calendar year",
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      "2025",
+      "2026",
+      "2027",
+      "2028"
+    ]
+  ]
+}

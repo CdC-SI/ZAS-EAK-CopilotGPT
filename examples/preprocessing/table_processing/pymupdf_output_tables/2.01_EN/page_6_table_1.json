@@ -1,0 +1,24 @@
+{
+  "metadata": {
+    "source": ".\\2.01_EN.pdf",
+    "page": 6,
+    "table_number": 1,
+    "bbox": [
+      34.01599884033203,
+      262.7770080566406,
+      347.6610107421875,
+      287.9460144042969
+    ],
+    "dimensions": {
+      "rows": 1,
+      "columns": 3
+    }
+  },
+  "data": [
+    [
+      "Relates to",
+      "Payment not\nreceived within",
+      "Interest accrued from"
+    ]
+  ]
+}

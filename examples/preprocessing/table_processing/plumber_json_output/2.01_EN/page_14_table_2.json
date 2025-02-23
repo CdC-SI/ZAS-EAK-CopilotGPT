@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "source": ".\\2.01_EN.pdf",
+    "page": 14,
+    "table_number": 2,
+    "dimensions": {
+      "rows": 4,
+      "columns": 6
+    }
+  },
+  "data": {
+    "headers": [
+      "2026",
+      "Firm A",
+      "",
+      "",
+      "Firm B",
+      ""
+    ],
+    "rows": [
+      [
+        "Annual salary",
+        "CHF",
+        "21 300.–",
+        "",
+        "CHF",
+        "18 200.–"
+      ],
+      [
+        "Personal allowance",
+        "- CHF",
+        "0.–",
+        "",
+        "- CHF",
+        "16 800.–"
+      ],
+      [
+        "subject to obligatory contributions",
+        "CHF",
+        "21 300.–",
+        "",
+        "CHF",
+        "1 400.–"
+      ]
+    ]
+  }
+}

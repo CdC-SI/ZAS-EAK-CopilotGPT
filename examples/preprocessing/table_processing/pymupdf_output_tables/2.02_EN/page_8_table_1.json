@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "source": ".\\2.02_EN.pdf",
+    "page": 8,
+    "table_number": 1,
+    "bbox": [
+      34.01599884033203,
+      332.218994140625,
+      348.41148376464844,
+      419.72698974609375
+    ],
+    "dimensions": {
+      "rows": 3,
+      "columns": 3
+    }
+  },
+  "data": [
+    [
+      "Relates to",
+      "Payment not\nreceived within",
+      "Interest accrued\nfrom"
+    ],
+    [
+      "Contributions on\naccount",
+      "30 days after end\nof quarter",
+      "1st day after end\nof quarter"
+    ],
+    [
+      "Difference between\ncontributions on account\nand final contributions",
+      "30 days from invoice\ndate",
+      "1st day from invoice\ndate"
+    ]
+  ]
+}

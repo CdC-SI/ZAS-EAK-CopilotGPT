@@ -1,0 +1,19 @@
+{
+  "metadata": {
+    "source": ".\\2.01_EN.pdf",
+    "page": 6,
+    "table_number": 1,
+    "dimensions": {
+      "rows": 1,
+      "columns": 3
+    }
+  },
+  "data": {
+    "headers": [
+      "Relates to",
+      "Payment not received within",
+      "Interest accrued from"
+    ],
+    "rows": []
+  }
+}

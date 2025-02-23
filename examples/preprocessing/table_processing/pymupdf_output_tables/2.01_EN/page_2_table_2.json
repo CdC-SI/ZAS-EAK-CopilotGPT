@@ -1,0 +1,40 @@
+{
+  "metadata": {
+    "source": ".\\2.01_EN.pdf",
+    "page": 2,
+    "table_number": 2,
+    "bbox": [
+      34.01599884033203,
+      302.5150146484375,
+      348.7539978027344,
+      349.0150146484375
+    ],
+    "dimensions": {
+      "rows": 3,
+      "columns": 5
+    }
+  },
+  "data": [
+    [
+      "2008",
+      "exempt",
+      "required to pay",
+      "required to pay",
+      "required to pay"
+    ],
+    [
+      "2009 exempt exempt required to pay required to pay",
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "2010",
+      "exempt",
+      "exempt",
+      "exempt",
+      "required to pay"
+    ]
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "metadata": {
+    "source": ".\\2.01_EN.pdf",
+    "page": 6,
+    "table_number": 2,
+    "dimensions": {
+      "rows": 1,
+      "columns": 3
+    }
+  },
+  "data": {
+    "headers": [
+      "Settlement",
+      "30 January following end of contribution year",
+      "1st January after end of contribution year"
+    ],
+    "rows": []
+  }
+}
