@@ -295,6 +295,38 @@ class BaseIndexer(ABC):
             The content extracted from the URLs.
         """
 
+    async def get_content_from_pdf(self, content: List[Any]) -> List[Any]:
+        """
+        Extract content from PDFs.
+
+        Parameters
+        ----------
+        content : List[Any]
+            The content to extract from.
+
+        Returns
+        -------
+        List[Any]
+            The extracted content chunked.
+        """
+        # Convert content to Document objects
+        documents = self.parser.convert_to_documents(content)
+
+        # Remove empty documents
+        documents = self.parser.remove_empty_documents(documents["documents"])
+
+        # Clean documents
+        documents = self.parser.clean_documents(documents)
+
+        # Split documents into chunks
+        chunks = self.parser.split_documents(documents["documents"])
+        result = [
+            {"text": chunk.content, "url": chunk.meta.get("url", None)}
+            for chunk in chunks["documents"]
+        ]
+
+        return result
+
     async def add_content_to_db(
         self,
         db: Session,

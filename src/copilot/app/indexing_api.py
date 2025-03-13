@@ -573,6 +573,64 @@ async def upload_csv_tags(
     logger.info(f"Finished adding {i} entries to tags database.")
     return {"content": f"Successfully added {i} entries to tags database."}
 
+@app.post(
+    "/parse_pdf",
+    summary="Parse a PDF file, returns chunks as Documents"
+)
+async def parse_pdf(
+        file: UploadFile = File(..., description="PDF files only")
+):
+    """
+    Parse a PDF file and return the text chunks as documents.
+
+    Parameters
+    ----------
+    file : UploadFile
+        The PDF file sent by the user
+
+    Returns
+    -------
+    Response
+        A response body containing the text chunks of the PDF file.
+    """
+    logger.info("Starting PDF parsing")
+    try:
+        # Get original filename from the client's upload
+        original_filename = file.filename.split("/")[
+            -1
+        ]  # Handle potential path separators
+        logger.info(f"Processing file: {original_filename}")
+
+        if file.content_type != "application/pdf":
+            logger.error(f"{original_filename} is not a valid PDF file.")
+            return Response(
+                content=f"{original_filename} is not a valid PDF file.",
+                status_code=400,
+            )
+
+        # Create temporary file
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=".pdf"
+        ) as temp_file:
+            await file.seek(0)
+            content = await file.read()
+            temp_file.write(content)
+            temp_file.flush()
+
+        try:
+            parsed_file_chunks = await ahv_indexer.get_content_from_pdf([Path(temp_file.name)])
+            logger.info(f"File {original_filename} processed successfully")
+            return parsed_file_chunks
+        finally:
+            os.remove(temp_file.name)
+
+    except Exception as e:
+        logger.error(f"Error parsing the file: {str(e)}")
+        return Response(
+            content="Error parsing the file",
+            status_code=500
+        )
+
 
 @app.post(
     "/upload_pdf_rag",
