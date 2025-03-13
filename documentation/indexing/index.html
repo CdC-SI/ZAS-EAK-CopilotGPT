@@ -357,6 +357,23 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="indexing.base.BaseIndexer.get_content_from_pdf">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_content_from_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#indexing.base.BaseIndexer.get_content_from_pdf" title="Link to this definition">¶</a></dt>
+<dd><p>Extract content from PDFs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>content</strong> (<em>List</em><em>[</em><em>Any</em><em>]</em>) – The content to extract from.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The extracted content chunked.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="indexing.base.BaseIndexer.add_content_to_db">
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add_content_to_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing.base.BaseIndexer.add_content_to_db" title="Link to this definition">¶</a></dt>
 <dd><p>Add content to the database.</p>
@@ -445,6 +462,7 @@
 <li><a class="reference internal" href="#indexing.base.BaseIndexer"><code class="docutils literal notranslate"><span class="pre">BaseIndexer</span></code></a><ul>
 <li><a class="reference internal" href="#indexing.base.BaseIndexer.index"><code class="docutils literal notranslate"><span class="pre">BaseIndexer.index()</span></code></a></li>
 <li><a class="reference internal" href="#indexing.base.BaseIndexer.from_pages_to_content"><code class="docutils literal notranslate"><span class="pre">BaseIndexer.from_pages_to_content()</span></code></a></li>
+<li><a class="reference internal" href="#indexing.base.BaseIndexer.get_content_from_pdf"><code class="docutils literal notranslate"><span class="pre">BaseIndexer.get_content_from_pdf()</span></code></a></li>
 <li><a class="reference internal" href="#indexing.base.BaseIndexer.add_content_to_db"><code class="docutils literal notranslate"><span class="pre">BaseIndexer.add_content_to_db()</span></code></a></li>
 </ul>
 </li>

@@ -430,6 +430,23 @@ The function acknowledges the following columns:</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="indexing_api.parse_pdf">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">parse_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">fastapi.UploadFile</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.File</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#indexing_api.parse_pdf" title="Link to this definition">¶</a></dt>
+<dd><p>Parse a PDF file and return the text chunks as documents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file</strong> (<em>UploadFile</em>) – The PDF file sent by the user</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A response body containing the text chunks of the PDF file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="indexing_api.upload_pdf_rag">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexing_api.</span></span><span class="sig-name descname"><span class="pre">upload_pdf_rag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">fastapi.UploadFile</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversation_uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'de'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">fastapi.Depends</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">fastapi.Response</span></span></span><a class="headerlink" href="#indexing_api.upload_pdf_rag" title="Link to this definition">¶</a></dt>
 <dd><p>Upload a CSV file containing RAG data to the database.</p>
@@ -716,6 +733,7 @@ embedding database. This function is specifically designed for the site “<a cl
 <li><a class="reference internal" href="#indexing_api.upload_csv_rag"><code class="docutils literal notranslate"><span class="pre">upload_csv_rag()</span></code></a></li>
 <li><a class="reference internal" href="#indexing_api.upload_csv_faq"><code class="docutils literal notranslate"><span class="pre">upload_csv_faq()</span></code></a></li>
 <li><a class="reference internal" href="#indexing_api.upload_csv_tags"><code class="docutils literal notranslate"><span class="pre">upload_csv_tags()</span></code></a></li>
+<li><a class="reference internal" href="#indexing_api.parse_pdf"><code class="docutils literal notranslate"><span class="pre">parse_pdf()</span></code></a></li>
 <li><a class="reference internal" href="#indexing_api.upload_pdf_rag"><code class="docutils literal notranslate"><span class="pre">upload_pdf_rag()</span></code></a></li>
 <li><a class="reference internal" href="#indexing_api.add_rag_data_from_csv"><code class="docutils literal notranslate"><span class="pre">add_rag_data_from_csv()</span></code></a></li>
 <li><a class="reference internal" href="#indexing_api.add_faq_data_from_csv"><code class="docutils literal notranslate"><span class="pre">add_faq_data_from_csv()</span></code></a></li>
