@@ -165,5 +165,5 @@ venv_copilot/
 node_modules/
 out/
 
-*.ipynb
+# *.ipynb
 delete_tables.sql
