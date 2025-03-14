@@ -10,20 +10,33 @@ logger = get_logger(__name__)
 
 class OpenAILLM(BaseLLM):
     """
-    Class used to generate responses using an OpenAI API Large Language Model (LLM).
+    OpenAI API Large Language Model (LLM) implementation.
+
+    Parameters
+    ----------
+    model : str, optional
+        Name of the LLM model, by default DEFAULT_OPENAI_LLM_MODEL
+    stream : bool, optional
+        Enable response streaming, by default True
+    temperature : float, optional
+        Sampling temperature, by default 0.0
+    top_p : float, optional
+        Nucleus sampling parameter, by default 0.95
+    max_tokens : int, optional
+        Maximum tokens in response, by default 2048
 
     Attributes
     ----------
     model : str
-        The name of the LLM model to use for response generation.
-    stream : bool
-        Whether to stream the response generation.
+        Current model name
     temperature : float
-        The temperature to use for response generation.
+        Sampling temperature
     top_p : float
-        The top-p value to use for response generation.
+        Nucleus sampling parameter
     max_tokens : int
-        The maximum number of tokens to generate.
+        Maximum token limit
+    llm_client : object
+        OpenAI API client instance
     """
 
     def __init__(
@@ -41,46 +54,72 @@ class OpenAILLM(BaseLLM):
         self.llm_client = config.factory.create_llm_client(model)
         super().__init__(stream)
 
-    async def agenerate(self, messages: List[dict]) -> str:
+    async def agenerate(self, messages: List[dict], **kwargs) -> str:
         """
-        Generate a response using the LLM model.
+        Generate a response asynchronously using the LLM model.
 
         Parameters
         ----------
         messages : List[dict]
-            The messages to generate a response for.
+            List of message dictionaries containing conversation history
+        **kwargs : dict
+            Additional parameters to pass to the API call
 
         Returns
         -------
         str
-            The generated response.
+            Generated response text
 
         Raises
         ------
         Exception
-            If an error occurs during generation.
+            If API call fails or other errors occur
         """
         try:
-            return await self.llm_client.chat.completions.create(
-                model=self.model,
-                stream=False,
-                temperature=self.temperature,
-                top_p=self.top_p,
-                max_tokens=self.max_tokens,
-                messages=messages,
-            )
+            params = {
+                "model": self.model,
+                "stream": False,
+                "temperature": self.temperature,
+                "top_p": self.top_p,
+                "max_tokens": self.max_tokens,
+                "messages": messages,
+            }
+            params.update(kwargs)
+            return await self.llm_client.chat.completions.create(**params)
         except Exception as e:
             raise e
 
-    async def _astream(self, messages: List[Any]):
+    async def _astream(self, messages: List[Any], **kwargs):
+        """
+        Stream responses asynchronously from the LLM model.
+
+        Parameters
+        ----------
+        messages : List[Any]
+            List of messages for the conversation
+        **kwargs : dict
+            Additional parameters to pass to the API call
+
+        Returns
+        -------
+        AsyncIterator
+            Stream of response chunks
+
+        Raises
+        ------
+        Exception
+            If streaming fails or other errors occur
+        """
         try:
-            return await self.llm_client.chat.completions.create(
-                model=self.model,
-                stream=True,
-                temperature=self.temperature,
-                top_p=self.top_p,
-                max_tokens=self.max_tokens,
-                messages=messages,
-            )
+            params = {
+                "model": self.model,
+                "stream": True,
+                "temperature": self.temperature,
+                "top_p": self.top_p,
+                "max_tokens": self.max_tokens,
+                "messages": messages,
+            }
+            params.update(kwargs)
+            return await self.llm_client.chat.completions.create(**params)
         except Exception as e:
             raise e

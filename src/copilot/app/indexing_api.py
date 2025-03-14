@@ -1,6 +1,7 @@
 import logging
 import os
 from typing import List
+import uuid
 
 from fastapi import FastAPI, Depends, File, UploadFile, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,6 +16,14 @@ from config.base_config import indexing_config, indexing_app_config
 from indexing.pipelines.admin import admin_indexer
 from indexing.pipelines.ahv import ahv_indexer
 from indexing.pipelines.bsv import BSVIndexer
+
+from memory.models import MessageData
+from memory import MemoryService
+from memory.config import MemoryConfig
+from memory.enums import MessageRole
+from config.base_config import chat_config
+
+from indexing.sources import create_source_descriptions
 
 from sqlalchemy.orm import Session
 from database.service.question import faq_question_service
@@ -37,6 +46,13 @@ import codecs
 
 # Setup logging
 logger = get_logger(__name__)
+
+memory_config = MemoryConfig.from_dict(chat_config["memory"])
+memory_service = MemoryService(
+    memory_type=memory_config.memory_type,
+    k_memory=memory_config.k_memory,
+    config=memory_config.storage,
+)
 
 
 async def init_indexing():
@@ -557,6 +573,64 @@ async def upload_csv_tags(
     logger.info(f"Finished adding {i} entries to tags database.")
     return {"content": f"Successfully added {i} entries to tags database."}
 
+@app.post(
+    "/parse_pdf",
+    summary="Parse a PDF file, returns chunks as Documents"
+)
+async def parse_pdf(
+        file: UploadFile = File(..., description="PDF files only")
+):
+    """
+    Parse a PDF file and return the text chunks as documents.
+
+    Parameters
+    ----------
+    file : UploadFile
+        The PDF file sent by the user
+
+    Returns
+    -------
+    Response
+        A response body containing the text chunks of the PDF file.
+    """
+    logger.info("Starting PDF parsing")
+    try:
+        # Get original filename from the client's upload
+        original_filename = file.filename.split("/")[
+            -1
+        ]  # Handle potential path separators
+        logger.info(f"Processing file: {original_filename}")
+
+        if file.content_type != "application/pdf":
+            logger.error(f"{original_filename} is not a valid PDF file.")
+            return Response(
+                content=f"{original_filename} is not a valid PDF file.",
+                status_code=400,
+            )
+
+        # Create temporary file
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=".pdf"
+        ) as temp_file:
+            await file.seek(0)
+            content = await file.read()
+            temp_file.write(content)
+            temp_file.flush()
+
+        try:
+            parsed_file_chunks = await ahv_indexer.get_content_from_pdf([Path(temp_file.name)])
+            logger.info(f"File {original_filename} processed successfully")
+            return parsed_file_chunks
+        finally:
+            os.remove(temp_file.name)
+
+    except Exception as e:
+        logger.error(f"Error parsing the file: {str(e)}")
+        return Response(
+            content="Error parsing the file",
+            status_code=500
+        )
+
 
 @app.post(
     "/upload_pdf_rag",
@@ -566,6 +640,7 @@ async def upload_pdf_rag(
     files: List[UploadFile] = File(..., description="PDF files only"),
     embed: bool = True,
     user_uuid: str = None,
+    conversation_uuid: str = None,
     language: str = "de",
     db: Session = Depends(get_db),
 ) -> Response:
@@ -619,13 +694,29 @@ async def upload_pdf_rag(
                 await ahv_indexer.add_content_to_db(
                     db,
                     content=[Path(temp_file.name)],
-                    source=f"user_pdf_upload:{original_filename}",  # Use original filename
+                    source=f"user_pdf_upload:{original_filename}",
                     user_uuid=user_uuid,
                     language=language,
                     embed=embed,
                 )
                 uploaded_files.append(original_filename)
                 logger.info(f"File {original_filename} processed successfully")
+
+                user_message = MessageData(
+                    user_uuid=user_uuid,
+                    conversation_uuid=conversation_uuid,
+                    message_uuid=str(uuid.uuid4()),
+                    role=MessageRole.USER,
+                    message=f"User uploaded a PDF file: {original_filename}",
+                    language=language,
+                )
+
+                memory_service.chat_memory.add_message_to_memory(
+                    db,
+                    user_message,
+                )
+
+                await create_source_descriptions()
             finally:
                 os.remove(temp_file.name)
 

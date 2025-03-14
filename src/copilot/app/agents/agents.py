@@ -1,22 +1,26 @@
 import logging
-from enum import Enum
-from typing import List, Dict
+from typing import List, Dict, AsyncGenerator, Tuple
 import asyncio
 from asyncio import Semaphore
 from collections.abc import AsyncIterator
 
 from agents.function_metadata import extract_function_metadata
-from agents.tools import determine_reduction_rate_and_supplement
+from agents.tools import (
+    determine_reduction_rate_and_supplement_tool,
+    rag_tool,
+    translate_tool,
+    summarize_tool,
+    update_user_preferences_tool,
+)
 from agents.function_executor import FunctionExecutor
 from chat.messages import MessageBuilder
+from schemas.chat import ChatRequest
 from llm.base import BaseLLM
-from prompts.agents import (
-    RAG_FOLLOWUP_AGENT_PROMPT_DE,
-    RAG_FOLLOWUP_AGENT_PROMPT_FR,
-    RAG_FOLLOWUP_AGENT_PROMPT_IT,
-)
+
 from schemas.agents import FunctionCall, UniqueSourceValidation
 from agents.response_service import calculation_response_service
+from agents.base import BaseAgent
+from llm.factory import LLMFactory
 from utils.streaming import Token
 from chat.status_service import status_service, StatusType
 
@@ -25,140 +29,171 @@ from langfuse.decorators import observe
 logger = logging.getLogger(__name__)
 
 executor = FunctionExecutor()
-executor.register_function(determine_reduction_rate_and_supplement)
+executor.register_function(determine_reduction_rate_and_supplement_tool)
+
+llm_client = LLMFactory.get_llm_client(
+    model="gpt-4o-mini",
+    stream=True,
+    temperature=0.0,
+    top_p=0.95,
+    max_tokens=2056,
+)
 
 
-class Agent:
+class ChatAgent(BaseAgent):
+    """
+    Agent for handling chat-related operations and processing different intents.
 
-    # What should an agent do?
-    # What methods?
-    # Access to conversational memory, have memory (state), llm_client, message_builder, tools (eg. functions, rag)
-    # input: query, language
-    # output: (stream of) tokens
+    Parameters
+    ----------
+    name : str, optional
+        The name of the agent, defaults to "CHAT_AGENT"
+    """
 
-    def __init__(
-        self,
-        model: BaseLLM,
-        system_prompt: str,
-        max_loops: int = 3,
-        tools=None,
-        output_type=None,
-        reason=None,
-        result_schema=None,
-    ):
-        self.model = model
-        self.system_prompt = system_prompt
-        self.max_loops = max_loops
-        self.tools = tools
-        self.output_type = output_type  # stream or single
-        self.reason = reason  # will setup plan itself
-        self.result_schema = result_schema  # structured schema -> you must return this schema and fill in the values
-        self.context_vars = {}
-        self.memory = None
-        self.llm_client = None
-        self.stream = True
+    def __init__(self, name: str = None):
+        self.name = name if name else "CHAT_AGENT"
 
-    async def run(self) -> str:
-        pass
-
-    async def run_stream(self):  # -> AsyncIterator[Token]:
-        pass
-
-    def _register_tool(self, tool) -> None:
-        pass
-
-    def _prepare_messages(self, query: str) -> str:
-        pass
-
-
-class Swarm:
-    pass
-
-
-class FollowUp(Enum):
-    RAG = "rag"
-    FAK_REDUCTION_RATE = "reduction_rate"
-    FAK_ELIGIBILITY = "eligibility"
-
-
-class FollowUpAgent:
-    """Agent for handling follow-up prompts based on different scenarios"""
-
-    _PROMPTS = {
-        FollowUp.RAG: {
-            "de": RAG_FOLLOWUP_AGENT_PROMPT_DE,
-            "fr": RAG_FOLLOWUP_AGENT_PROMPT_FR,
-            "it": RAG_FOLLOWUP_AGENT_PROMPT_IT,
-        },
-        FollowUp.FAK_REDUCTION_RATE: {
-            "de": "Um Ihren Kürzungssatz zu berechnen, benötige ich folgende Informationen:\n"
-            "- Ihr genaues Rentenvorbezugsdatum\n"
-            "- Ihr Geschlecht\n"
-            "Können Sie mir diese Informationen bitte mitteilen?",
-            "fr": "Pour calculer votre taux de réduction, j'ai besoin des informations suivantes:\n"
-            "- Votre date exacte de retraite anticipée\n"
-            "- Votre sexe\n"
-            "Pouvez-vous me fournir ces informations?",
-            "it": "Per calcolare il tasso di riduzione, ho bisogno delle seguenti informazioni:\n"
-            "- La data esatta del pensionamento anticipato\n"
-            "- Il suo sesso\n"
-            "Può fornirmi queste informazioni?",
-        },
-        FollowUp.FAK_ELIGIBILITY: {
-            "de": "Um Ihre Berechtigung zu prüfen, bitte ich Sie um folgende Angaben:\n"
-            "- Sind Sie in der Schweiz wohnhaft?\n"
-            "- Sind Sie bei der AHV versichert?",
-            "fr": "Pour vérifier votre éligibilité, veuillez me fournir les informations suivantes:\n"
-            "- Résidez-vous en Suisse?\n"
-            "- Êtes-vous assuré(e) à l'AVS?",
-            "it": "Per verificare la sua ammissibilità, la prego di fornirmi le seguenti informazioni:\n"
-            "- Risiede in Svizzera?\n"
-            "- È assicurato/a all'AVS?",
-        },
-    }
-
-    DEFAULT_LANGUAGE = "de"
-
-    @classmethod
-    def get_follow_up_prompt(
-        cls, follow_up_type: FollowUp, language: str
-    ) -> str:
-        """Get follow-up prompt for given type and language"""
-        prompts = cls._PROMPTS[follow_up_type]
-        return prompts.get(language, prompts.get(cls.DEFAULT_LANGUAGE))
-
-
-class PensionAgent:
-
-    def __init__(self):
-        pass
-
+    @observe(name="CHAT_agent_process")
     async def process(
         self,
-        query: str,
-        language: str,
+        request: ChatRequest,
         message_builder: MessageBuilder,
         llm_client: BaseLLM,
-    ):
+        **kwargs,
+    ) -> AsyncGenerator[Token, None]:
+        """Process the query with Chat agent.
+
+        Parameters
+        ----------
+        request : ChatRequest
+            The chat request containing query and language information
+        message_builder : MessageBuilder
+            Helper for building message prompts
+        llm_client : BaseLLM
+            The LLM client instance for making requests
+        **kwargs : dict
+            Additional keyword arguments
+
+        Yields
+        ------
+        Token
+            Generated tokens from the evaluation process
+        """
+        intent = kwargs.get("intent")
+        db = kwargs.get("db")
+        memory_service = kwargs.get("memory_service")
+        streaming_handler = kwargs.get("streaming_handler")
+
+        logger.info("------ INTENT: %s", intent)
+
+        match intent:
+            case "translate":
+                yield Token.from_status(
+                    f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='translate_conversation')}</tool_use>"
+                )
+                async for token in translate_tool(
+                    request,
+                    memory_service,
+                    message_builder,
+                    llm_client,
+                    db,
+                ):
+                    yield Token.from_text(token)
+
+            case "summarize":
+                yield Token.from_status(
+                    f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='summarize_conversation')}</tool_use>"
+                )
+                async for token in summarize_tool(
+                    request,
+                    memory_service,
+                    message_builder,
+                    llm_client,
+                    streaming_handler,
+                    db,
+                ):
+                    yield token
+
+            case "user_followup_q":
+                yield Token.from_status(
+                    f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='ask_user_feedback')}</tool_use>"
+                )
+                pass
+
+            case "update_user_preferences":
+                yield Token.from_status(
+                    f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='update_user_preferences')}</tool_use>"
+                )
+                async for token in update_user_preferences_tool(
+                    db,
+                    request,
+                    memory_service,
+                    message_builder,
+                    llm_client,
+                ):
+                    yield token
+
+            case _:
+                message = "Sorry, I do not understand your intent. Please try again with a more specific question."
+                yield Token.from_text(message)
+
+
+class PensionAgent(BaseAgent):
+    """
+    Agent for handling pension-related calculations and queries.
+
+    Parameters
+    ----------
+    name : str, optional
+        The name of the agent, defaults to "PENSION_AGENT"
+    """
+
+    def __init__(self, name: str = None):
+        self.name = name if name else "PENSION_AGENT"
+
+    @observe(name="PENSION_agent_process")
+    async def process(
+        self,
+        request: ChatRequest,
+        message_builder: MessageBuilder,
+        llm_client: BaseLLM,
+        **kwargs,
+    ) -> AsyncGenerator[Token, None]:
         """
         Process the query with Pension agent.
+
+        Parameters
+        ----------
+        request : ChatRequest
+            The chat request containing query and language information
+        message_builder : MessageBuilder
+            Helper for building message prompts
+        llm_client : BaseLLM
+            The LLM client instance for making requests
+        **kwargs : dict
+            Additional keyword arguments
+
+        Yields
+        ------
+        Token
+            Generated tokens from the evaluation process
         """
         yield Token.from_status(
-            f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, language, tool_name='determine_reduction_rate_and_supplement')}</tool_use>"
+            f"<tool_use>{status_service.get_status_message(StatusType.TOOL_USE, request.language, tool_name='determine_reduction_rate_and_supplement')}</tool_use>"
         )
         func_metadata = extract_function_metadata(
-            determine_reduction_rate_and_supplement
+            determine_reduction_rate_and_supplement_tool
         )
 
         messages = message_builder.build_function_call_prompt(
-            language=language,
-            llm_model="gpt-4o-mini",
-            query=query,
+            language=request.language,
+            llm_model="gpt-4o",
+            query=request.query,
             func_metadata=func_metadata,
         )
 
         res = await llm_client.llm_client.beta.chat.completions.parse(
-            model="gpt-4o-mini",
+            model="gpt-4o",
             temperature=0,
             top_p=0.95,
             max_tokens=512,
@@ -172,7 +207,8 @@ class PensionAgent:
             calculation_result = executor.execute(function_call)
             response, source = (
                 calculation_response_service.get_response_message(
-                    calculation_result=calculation_result, language=language
+                    calculation_result=calculation_result,
+                    language=request.language,
                 )
             )
             for token in response:
@@ -185,77 +221,199 @@ class PensionAgent:
             yield Token.from_source(source)
 
 
-class FAK_EAK_Agent:
+class RAGAgent(BaseAgent):
+    """
+    Agent for handling Retrieval-Augmented Generation (RAG) operations.
 
-    def __init__(self):
-        pass
+    Parameters
+    ----------
+    name : str, optional
+        The name of the agent, defaults to "RAG_AGENT"
+    """
 
-    async def process(self, query: str, message_builder: MessageBuilder):
-        """
-        Process the query with RAG agent.
-        """
-        pass
+    def __init__(self, name: str = None):
+        self.name = name if name else "RAG_AGENT"
 
-
-class RAGAgent:
-
-    def __init__(self):
-        pass
-
-    async def process(self, query: str, message_builder: MessageBuilder):
-        """
-        Process the query with RAG agent.
-        """
-        pass
-
-
-class ResearchAgent:
-
-    def __init__(self):
-        pass
-
+    @observe(name="RAG_agent_process")
     async def process(
         self,
-        query: str,
-        language: str,
+        request: ChatRequest,
         message_builder: MessageBuilder,
         llm_client: BaseLLM,
-    ):
+        **kwargs,
+    ) -> AsyncGenerator[Token, None]:
         """
-        Process the query with Research agent.
+        Process the query with RAG agent.
+
+        Parameters
+        ----------
+        request : ChatRequest
+            The chat request containing query and language information
+        message_builder : MessageBuilder
+            Helper for building message prompts
+        llm_client : BaseLLM
+            The LLM client instance for making requests
+        **kwargs : dict
+            Additional keyword arguments
+
+        Yields
+        ------
+        Token
+            Generated tokens from the evaluation process
+        """
+        db = kwargs.get("db")
+        streaming_handler = kwargs.get("streaming_handler")
+        retriever_client = kwargs.get("retriever_client")
+        memory_service = kwargs.get("memory_service")
+        sources = kwargs.get("sources")
+        intent = kwargs.get("intent")
+
+        # Note: Move to ChatAgent ?
+        match intent:
+            case "factual_qa":
+                # use query rewriting retriever with simple rewriting prompt (+ instructions) + from conversation history
+                pass
+
+            case "multipart_qa":
+                # use query rewriting retriever with multiple subquery extraction/inference + from conversation history
+                pass
+
+            case "user_followup_q":
+                # use query rewriting retriver with specific prompt for followup q -> perform immediate RAG retrieval on rewritten queries from conversation history
+                pass
+
+            # AGENT FOLLOWUP Q
+            # infer most suitable retriever ? add retrievers or expand search if retrieved docs not sufficient?
+            # ask user feedback
+
+        async for token in rag_tool(
+            db=db,
+            request=request,
+            llm_client=llm_client,
+            streaming_handler=streaming_handler,
+            retriever_client=retriever_client,
+            message_builder=message_builder,
+            memory_service=memory_service,
+            sources=sources,
+        ):
+            yield token
+
+
+class RetrievalEvaluatorAgent(BaseAgent):
+    """
+    Agent for evaluating retrieval operations and their results.
+
+    Parameters
+    ----------
+    name : str, optional
+        The name of the agent, defaults to "RETRIEVAL_EVALUATOR_AGENT"
+    """
+
+    def __init__(self, name: str = None):
+        self.name = name if name else "RETRIEVAL_EVALUATOR_AGENT"
+
+    @observe(name="RETRIEVAL_EVALUATOR_agent_process")
+    async def process(
+        self,
+        request: ChatRequest,
+        message_builder: MessageBuilder,
+        llm_client: BaseLLM,
+        **kwargs,
+    ) -> AsyncGenerator[Token, None]:
+        """
+        Process the query with Retrieval Evaluator agent.
+
+        Parameters
+        ----------
+        request : ChatRequest
+            The chat request containing query and language information
+        message_builder : MessageBuilder
+            Helper for building message prompts
+        llm_client : BaseLLM
+            The LLM client instance for making requests
+        **kwargs : dict
+            Additional keyword arguments
+
+        Yields
+        ------
+        Token
+            Generated tokens from the evaluation process
         """
         pass
 
 
-class SourceValidatorAgent:
+class SourceValidatorAgent(BaseAgent):
+    """
+    Agent for validating sources with concurrent processing capabilities.
 
-    def __init__(self):
-        self.semaphore = Semaphore(5)  # Limit to 3 concurrent requests
+    Parameters
+    ----------
+    name : str, optional
+        The name of the agent, defaults to "SOURCE_VALIDATOR_AGENT"
+    """
+
+    def __init__(self, name: str = None):
+        self.name = name if name else "SOURCE_VALIDATOR_AGENT"
+        self.semaphore = Semaphore(5)  # Limit to 5 concurrent requests
         self.max_retries = 3
         self.retry_delay = 1
 
+    @observe(name="SOURCE_VALIDATOR_agent_process")
     async def process(
         self,
-        query: str,
-        language: str,
+        request: ChatRequest,
         message_builder: MessageBuilder,
         llm_client: BaseLLM,
-    ):
+        **kwargs,
+    ) -> AsyncGenerator[Token, None]:
         """
         Process the query with Source Validator agent.
+
+        Parameters
+        ----------
+        request : ChatRequest
+            The chat request containing query and language information
+        message_builder : MessageBuilder
+            Helper for building message prompts
+        llm_client : BaseLLM
+            The LLM client instance for making requests
+        **kwargs : dict
+            Additional keyword arguments
+
+        Yields
+        ------
+        Token
+            Generated tokens from the evaluation process
         """
         pass
 
     @observe(name="_validate_single_source")
     async def _validate_single_source(
         self,
-        language: str,
-        query: str,
+        request: ChatRequest,
         document: Dict,
         llm_client: BaseLLM,
         message_builder: MessageBuilder,
-    ) -> Token | None:
-        """Validate a single source with retry logic"""
+    ) -> Tuple:
+        """
+        Validate a single source with retry logic.
+
+        Parameters
+        ----------
+        request : ChatRequest
+            The chat request containing query and language information
+        document : Dict
+            The document to be validated
+        llm_client : BaseLLM
+            The LLM client instance for making validation requests
+        message_builder : MessageBuilder
+            The message builder for constructing prompts
+
+        Returns
+        -------
+        Token | None
+            Validated document and validation result, or None if validation fails
+        """
         for attempt in range(self.max_retries):
             try:
                 async with self.semaphore:
@@ -265,20 +423,18 @@ class SourceValidatorAgent:
                         top_p=0.95,
                         max_tokens=128,
                         messages=message_builder.build_unique_source_validation_prompt(
-                            language=language,
+                            language=request.language,
                             llm_model="gpt-4o-mini",
-                            query=query,
+                            query=request.query,
                             source=document,
                         ),
                         response_format=UniqueSourceValidation,
                     )
-                    if result.choices[0].message.parsed.is_valid:
-                        logger.info(
-                            "---------Source validated: %s",
-                            result.choices[0].message.parsed,
-                        )
-                        return document
-                    return None
+                    logger.info(
+                        "---------Source validated: %s",
+                        result.choices[0].message.parsed,
+                    )
+                    return (document, result.choices[0].message.parsed)
             except Exception as e:
                 if attempt == self.max_retries - 1:
                     logger.error(
@@ -297,20 +453,33 @@ class SourceValidatorAgent:
     @observe(name="validate_sources")
     async def validate_sources(
         self,
-        language: str,
-        query: str,
+        request: ChatRequest,
         documents: List[Dict],
         llm_client: BaseLLM,
         message_builder: MessageBuilder,
     ) -> AsyncIterator[Token]:
         """
         Validate sources against the query using concurrent LLM calls with rate limiting.
-        Sources are yielded as soon as they are validated.
+
+        Parameters
+        ----------
+        request : ChatRequest
+            The chat request containing query and language information
+        documents : List[Dict]
+            List of documents to be validated
+        llm_client : BaseLLM
+            The LLM client instance for making validation requests
+        message_builder : MessageBuilder
+            The message builder for constructing prompts
+
+        Yields
+        ------
+        Token
+            Validated document and its validation result as they complete
         """
         tasks = [
             self._validate_single_source(
-                language=language,
-                query=query,
+                request=request,
                 document=doc,
                 llm_client=llm_client,
                 message_builder=message_builder,
@@ -320,9 +489,57 @@ class SourceValidatorAgent:
 
         for completed_task in asyncio.as_completed(tasks):
             try:
-                token = await completed_task
-                if token:
-                    yield token
+                doc, source_validation = await completed_task
+                if doc:
+                    yield doc, source_validation
             except Exception as e:
                 logger.error("Error processing validation result: %s", e)
                 continue
+
+
+class AgentFactory:
+    """
+    Factory class for creating different types of agents.
+
+    Methods
+    -------
+    get_agent(agent_name: str)
+        Creates and returns an agent instance based on the agent name.
+    """
+
+    @staticmethod
+    def get_agent(agent_name: str) -> BaseAgent:
+        """
+        Create and return an agent instance based on the agent name.
+
+        Parameters
+        ----------
+        agent_name : str
+            The name of the agent to create. Valid values are:
+            'RAG_AGENT', 'PENSION_AGENT', 'CHAT_AGENT', 'SOURCE_VALIDATOR_AGENT'
+
+        Returns
+        -------
+        BaseAgent
+            An instance of the requested agent
+
+        Raises
+        ------
+        ValueError
+            If the agent name is not supported
+        """
+        match agent_name:
+            case "RAG_AGENT":
+                return RAGAgent(name=agent_name)
+            case "PENSION_AGENT":
+                return PensionAgent(name=agent_name)
+            case "CHAT_AGENT":
+                return ChatAgent(name=agent_name)
+            case "SOURCE_VALIDATOR_AGENT":
+                return SourceValidatorAgent(name=agent_name)
+            case _:
+                # TO DO: ask for user feedback to select agent
+                raise ValueError(f"Unsupported agent name: {agent_name}")
+
+
+source_validator_agent = SourceValidatorAgent()

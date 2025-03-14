@@ -9,21 +9,20 @@ logger = get_logger(__name__)
 
 
 class AnthropicLLM(BaseLLM):
-    """
-    Class used to generate responses using an Anthropic API Large Language Model (LLM).
+    """Anthropic API Large Language Model (LLM) response generator.
 
-    Attributes
+    Parameters
     ----------
-    model : str
-        The name of the LLM model to use for response generation.
-    stream : bool
-        Whether to stream the response generation.
-    temperature : float
-        The temperature to use for response generation.
-    top_p : float
-        The top-p value to use for response generation.
-    max_tokens : int
-        The maximum number of tokens to generate.
+    model : str, optional
+        LLM model name, by default DEFAULT_ANTHROPIC_LLM_MODEL
+    stream : bool, optional
+        Enable response streaming, by default True
+    temperature : float, optional
+        Sampling temperature, by default 0.0
+    top_p : float, optional
+        Nucleus sampling probability, by default 0.95
+    max_tokens : int, optional
+        Maximum tokens to generate, by default 2048
     """
 
     def __init__(
@@ -42,30 +41,40 @@ class AnthropicLLM(BaseLLM):
         super().__init__(stream)
 
     def _extract_system_prompt(self, messages: List[dict]) -> str:
-        """Extract system prompt from messages list."""
+        """Extract system prompt from message list.
+
+        Parameters
+        ----------
+        messages : List[dict]
+            List of message dictionaries
+
+        Returns
+        -------
+        str
+            System prompt content or empty string if not found
+        """
         for message in messages:
             if message.get("role") == "system":
                 return message.get("content", "")
         return ""
 
     async def agenerate(self, messages: List[dict]) -> str:
-        """
-        Generate a response using the LLM model.
+        """Generate a non-streaming response using the LLM model.
 
         Parameters
         ----------
         messages : List[dict]
-            The messages to generate a response for.
+            List of message dictionaries
 
         Returns
         -------
-        str
-            The generated response.
+        ResponseModel
+            Model containing generated response
 
         Raises
         ------
         Exception
-            If an error occurs during generation.
+            If generation fails
         """
         try:
             system_prompt = self._extract_system_prompt(messages)
@@ -87,6 +96,23 @@ class AnthropicLLM(BaseLLM):
             raise e
 
     async def _astream(self, messages: List[Any]):
+        """Generate a streaming response using the LLM model.
+
+        Parameters
+        ----------
+        messages : List[Any]
+            List of message dictionaries
+
+        Returns
+        -------
+        AsyncIterator
+            Stream of response chunks
+
+        Raises
+        ------
+        Exception
+            If generation fails
+        """
         try:
             system_prompt = self._extract_system_prompt(messages)
             return await self.llm_client.messages.create(

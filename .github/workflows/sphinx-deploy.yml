@@ -16,10 +16,12 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: '3.11'
+          cache: 'pip'
 
       - name: Install Dependencies
         run: |
+          python -m pip install --upgrade pip wheel setuptools
           pip install -r doc/requirements.txt
           pip install -r src/copilot/requirements.txt
 

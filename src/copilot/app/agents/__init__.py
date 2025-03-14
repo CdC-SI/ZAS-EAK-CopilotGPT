@@ -1,13 +1,13 @@
 from agents.agents import PensionAgent
 from agents.agents import RAGAgent
-from agents.agents import FollowUpAgent
-from agents.agents import FAK_EAK_Agent
+from agents.agents import ChatAgent
 from agents.agents import SourceValidatorAgent
+from agents.agents import AgentFactory
 
 __all__ = [
     "PensionAgent",
     "RAGAgent",
-    "FollowUpAgent",
-    "FAK_EAK_Agent",
+    "ChatAgent",
     "SourceValidatorAgent",
+    "AgentFactory",
 ]

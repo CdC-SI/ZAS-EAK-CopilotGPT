@@ -32,6 +32,7 @@ class MatchingService(EmbeddingService):
         Parameters
         ----------
         db : Session
+            User input to match database entries
         user_input : str
             User input to match database entries
         language : str, optional
@@ -73,6 +74,7 @@ class MatchingService(EmbeddingService):
         Parameters
         ----------
         db : Session
+            User input to match database entries
         user_input : str
             User input to match database entries
         threshold : int, optional
@@ -117,6 +119,7 @@ class MatchingService(EmbeddingService):
         Parameters
         ----------
         db : Session
+            User input to match database entries
         user_input : str
             User input to match database entries
         threshold : int, optional
@@ -154,7 +157,36 @@ class MatchingService(EmbeddingService):
         user_uuid: str = None,
         embedding_field: Union[str, List[str]] = "text_embedding",
     ):
-        """Get semantic similarity match from database"""
+        """Get semantic similarity match from database
+
+        Parameters
+        ----------
+        db : Session
+            Database session
+        user_input : str
+            Input text to match against
+        language : str, optional
+            Filter by language
+        k : int, optional
+            Number of results to return (0 for all)
+        symbol : str, optional
+            Operator symbol for similarity comparison
+        tags : List[str], optional
+            Filter by tags
+        source : List[str], optional
+            Filter by source URLs
+        organizations : List[str], optional
+            Filter by organizations
+        user_uuid : str, optional
+            User UUID for personal documents
+        embedding_field : Union[str, List[str]], optional
+            Field(s) containing embeddings
+
+        Returns
+        -------
+        List[dict]
+            Matched documents sorted by similarity
+        """
         embedding_fields = self._validate_and_get_embedding_fields(
             embedding_field
         )
@@ -185,7 +217,23 @@ class MatchingService(EmbeddingService):
     def _validate_and_get_embedding_fields(
         self, embedding_field: Union[str, List[str]]
     ) -> List[str]:
-        """Validate and return list of embedding fields"""
+        """Validate and return list of embedding fields
+
+        Parameters
+        ----------
+        embedding_field : Union[str, List[str]]
+            Field or fields to validate
+
+        Returns
+        -------
+        List[str]
+            List of validated embedding field names
+
+        Raises
+        ------
+        ValueError
+            If field doesn't exist in model
+        """
         embedding_fields = (
             [embedding_field]
             if isinstance(embedding_field, str)
@@ -213,7 +261,36 @@ class MatchingService(EmbeddingService):
         organizations: List[str],
         user_uuid: str,
     ) -> List[dict]:
-        """Get matches for a specific embedding field"""
+        """Get matches for a specific embedding field
+
+        Parameters
+        ----------
+        db : Session
+            Database session
+        q_embedding : List[float]
+            Query embedding vector
+        field : str
+            Embedding field name
+        language : str
+            Language filter
+        k : int
+            Number of results
+        symbol : str
+            Comparison operator
+        tags : List[str]
+            Tag filters
+        source : List[str]
+            Source URL filters
+        organizations : List[str]
+            Organization filters
+        user_uuid : str
+            User UUID for personal documents
+
+        Returns
+        -------
+        List[dict]
+            Matched documents for the field
+        """
         embedding_attr = getattr(self.model, field)
 
         user_docs = await self._get_user_documents(
@@ -337,8 +414,25 @@ class MatchingService(EmbeddingService):
         k: int = 0,
         tags: str = None,
     ):
-        """
-        Get semantic similarity match from database using L1 distance
+        """Get semantic similarity match using L1 distance
+
+        Parameters
+        ----------
+        db : Session
+            Database session
+        user_input : str
+            Input text to match against
+        language : str, optional
+            Filter by language
+        k : int, optional
+            Number of results (0 for all)
+        tags : str, optional
+            Filter by tags
+
+        Returns
+        -------
+        List[dict]
+            Matched documents sorted by L1 distance
         """
         return self.get_semantic_match(
             db,

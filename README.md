@@ -27,10 +27,7 @@ For more in-depth procedures and examples, see:
 - Livingdocs Adapter
 - Confluence Adapter
 - Local Private Embeddings
-- GraphRAG
-- RAPTOR
-- Optimized Indexing Pipeline
-- Anonymization/De-Anonymization Module
+- Local Private LLMs
 
 ### Version 0.3.0
 
@@ -126,7 +123,17 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
     cp .env.example .env
     ```
 
-    If using commercial API LLM/embedding/reranking APIs, set:
+    Minimal requirements:
+    ```
+    - `OPENAI_API_KEY`
+    - `COHERE_API_KEY`
+    - `DEEPL_API_KEY` (if you want translation capabilities)
+    - `LANGFUSE_SECRET_KEY` # get at localhost:3000
+    - `LANGFUSE_PUBLIC_KEY` # get at localhost:3000
+    - `ENCRYPTION_KEY` # run openssl rand -hex 32
+    ````
+
+    For different LLM/embedding/reranking APIs, set:
 
     - `OPENAI_API_KEY` (get it at [OpenAI console](https://platform.openai.com/api-keys))
     - Note: You can also use AzureOpenAI by setting:
@@ -139,10 +146,9 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
     - `COHERE_API_KEY` (get it at [Cohere console](https://dashboard.cohere.com/api-keys))
     - `DEEPL_API_KEY` (get it at [Deepl console](https://support.deepl.com/hc/en-us/articles/360020695820-API-Key-for-DeepL-s-API))
 
-    If using Open Source local LLM/embedding/reranking APIs, set:
+    If using Open Source local LLM API, set:
 
-    - `LLM_GENERATION_ENDPOINT` (URL and port, eg. `http://host.docker.internal:5000`)
-
+    - `LOCAL_LLM_GENERATION_ENDPOINT` (URL and port, eg. `http://host.docker.internal:11434` for ollama)
 
     All other fields are preconfigured with default settings (but can be configured as well).
 
@@ -158,8 +164,9 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
         - `llama-3.1-8b-instant` with a GROQ API key
         - Note: set a valid LLM API model name for a given provider.
         - Note: if using an Open Source LLM:
-            - with `llama.cpp`: prefix the model name with `llama-cpp` (eg. `llama-cpp/qwen2.5-7b-instruct-q2_k.gguf`)
-            - with `mlx`: prefix the model name with `mlx-community` (eg. `mlx-community/Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX`)
+            - with `llama.cpp`: prefix the model name with `llama-cpp:` (eg. `llama-cpp:qwen2.5-7b-instruct-q2_k.gguf`)
+            - with `mlx`: prefix the model name with `mlx-community:` (eg. `mlx-community:Nous-Hermes-2-Mistral-7B-DPO-4bit-MLX`)
+            - with `ollama`: prefix the model name with `ollama:` (eg. `ollama:deepseek-r1:8b`)
     - `rag/embedding/model`: set a specific embedding model
         - `text-embedding-3-small` with an OpenAI API key
         - Note: RAG performance might vary if you don't embed all your data with the same embedding model.
@@ -177,6 +184,9 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
     ```bash docker
     docker-compose up --build -d
     ```
+
+    Note: you might need to down the services and re-up them once at first startup due to db connectivity issues.
+
 5. **Verifying the Installation**
 
     Check the status of the containers to confirm everything is running as expected:
@@ -188,8 +198,8 @@ Linux users may need to prepend `sudo` to Docker commands depending on their Doc
 6. **Index some data**
 
     - To index some sample data for FAQ and RAG, you can navigate to the [indexing](http://localhost:8000/apy/indexing/docs/) swagger and make a request to:
-        - ```/add_faq_data_from_csv```
-        - ```/add_rag_data_from_csv```
+        - ```/upload_csv_rag```
+        - ```/upload_csv_faq```
         - Note: set ```embed``` parameter to ```true``` to enable semantic search
 
     - To index more extensive RAG data from any official government website, navigate to the [indexing](http://localhost:8000/apy/indexing/docs) swagger and make a request to:
