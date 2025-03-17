@@ -6,9 +6,9 @@ const path = require('path');
     const baseUrl = 'https://sozialversicherungen.admin.ch/';
     const languages = ['it', 'fr', 'de'];
     const pageByTag = [
-        {tag:'ahv_services', pages: ['5621', '5622', '5623', '5625', '5624', '5665', '5666', '5667']},
-        {tag:'iv_services', pages:['5661', '5664',  '5662', '5663', '5659', '5660', '15871', '12918','20314', '5637']},
-        {tag:'el_services', pages:['5638', '5639', '5640']}
+        {tag:'ahv_services', pages: ['5596'/* ,'5621' */, '5622'/* , '5623', '5625', '5624', '5665', '5666', '5667' */]},
+        {tag:'iv_services', pages:['5661', /* '5664', */  '5662', /* '5663',  '5659', '5660', '15871', '12918','20314', '5637'*/]},
+        // {tag:'el_services', pages:['5638', '5639', '5640']}
     ];
     const banned_urls = ['5543', '5544', '5545'];
     const result = [];
