@@ -6,9 +6,11 @@ const path = require('path');
     const baseUrl = 'https://sozialversicherungen.admin.ch/';
     const languages = ['it', 'fr', 'de'];
     const pageByTag = [
-        {tag:'ahv_services', pages: ['5621', '5622', '5623', '5625', '5624', '5665', '5666', '5667']},
-        {tag:'iv_services', pages:['5661', '5664',  '5662', '5663', '5659', '5660', '15871', '12918','20314', '5637']},
-        {tag:'el_services', pages:['5638', '5639', '5640']}
+        {tag:'ahv_services', pages: [/* '5596', */'5621'/* , '5622' *//* , '5623', '5625', '5624', '5665', '5666', '5667' */]},
+        // {tag:'iv_services', pages:['5661', '5664',  '5662', '5663',  '5659', '5660', '15871', '12918','20314', '5637']},
+        {tag:'el_services', pages:['5638'/* , '5639', '5640' */]},
+        {tag:'eo_services', pages:['5619']},
+        {tag:'famz_services', pages:['5599']}
     ];
     const banned_urls = ['5543', '5544', '5545'];
     const result = [];
@@ -51,5 +53,5 @@ const path = require('path');
     await browser.close();
 
     // Output the result array to the JSON file
-    fs.writeFileSync(path.resolve(__dirname, 'sources/pdf_urls.json'), JSON.stringify(result, null, 2));
+    fs.writeFileSync(path.resolve(__dirname, 'data/sources/pdf_urls.json'), JSON.stringify(result, null, 2));
 })();
