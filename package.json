@@ -1,0 +1,16 @@
+{
+  "name": "zas-eak-copilotgpt",
+  "version": "1.0.0",
+  "description": "[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/CdC-SI/eak-copilot)",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc",
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
