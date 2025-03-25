@@ -42,6 +42,10 @@ services:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - HTTP_PROXY=${PROXY}
+      - HTTPS_PROXY=${PROXY}
+      - http_proxy=${PROXY}
+      - https_proxy=${PROXY}
     volumes:
       - ./src/copilot/app:/app
     networks:
@@ -51,26 +55,32 @@ services:
     restart: "no"
 
   # frontend
-  zas-copilot:
-    build:
-      context: ../copilot-frontend
-      dockerfile: Dockerfile
-    image: zas-copilot:latest
-    environment:
-      - ENVIRONMENT=development
-    ports:
-      - "4200:4200"
-    networks:
-      - copilot-network
-    depends_on:
-      - zas-security
-    restart: "no"
+  # For use on ZAS network comment container
+  # and run command "ng serve" from copilot-frontend
+  # to start the frontend.
+#  zas-copilot:
+#    build:
+#      context: ../copilot-frontend
+#      dockerfile: Dockerfile
+#    image: zas-copilot:latest
+#    environment:
+#      - ENVIRONMENT=development
+#    ports:
+#      - "4200:4200"
+#    networks:
+#      - copilot-network
+#    depends_on:
+#      - zas-security
+#    restart: "no"
 
   # security service
   zas-security:
     build:
       context: ../copilot-backend
       dockerfile: Dockerfile
+      args:
+        - MAVEN_REPOSITORY_USERNAME=${MAVEN_REPOSITORY_USERNAME}
+        - MAVEN_REPOSITORY_PASSWORD=${MAVEN_REPOSITORY_PASSWORD}
     image: zas-security:latest
     env_file:
       - .env
@@ -80,6 +90,10 @@ services:
       - DS_PASSWORD=${POSTGRES_PASSWORD}
       - PY_BACKEND_URL=${PY_BACKEND_URL}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - HTTP_PROXY=${PROXY}
+      - HTTPS_PROXY=${PROXY}
+      - http_proxy=${PROXY}
+      - https_proxy=${PROXY}
     ports:
       - "8080:8080"
     networks:
