@@ -19,12 +19,12 @@ class BaseLLM(ABC):
         Asynchronously stream an answer based on input messages using an LLM.
         """
 
-    def call(self, messages: List[dict], **kwargs):
+    def call(self, messages: List[dict], tools: list=[], **kwargs):
         """
         Call the appropriate method based on the 'stream' parameter.
         Allows overriding parameters via kwargs.
         """
         if self.stream:
-            return self._astream(messages, **kwargs)
+            return self._astream(messages, tools, **kwargs)
         else:
-            return self.agenerate(messages, **kwargs)
+            return self.agenerate(messages, tools, **kwargs)
