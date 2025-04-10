@@ -4,6 +4,7 @@ from config.llm_config import DEFAULT_OPENAI_LLM_MODEL
 from config.clients_config import config
 
 from utils.logging import get_logger
+import json
 
 logger = get_logger(__name__)
 
@@ -54,7 +55,7 @@ class OpenAILLM(BaseLLM):
         self.llm_client = config.factory.create_llm_client(model)
         super().__init__(stream)
 
-    async def agenerate(self, messages: List[dict], **kwargs) -> str:
+    async def agenerate(self, messages: List[dict], tools: list = [], **kwargs) -> str:
         """
         Generate a response asynchronously using the LLM model.
 
@@ -83,13 +84,40 @@ class OpenAILLM(BaseLLM):
                 "top_p": self.top_p,
                 "max_tokens": self.max_tokens,
                 "messages": messages,
+                # "tools": tools,
             }
             params.update(kwargs)
-            return await self.llm_client.chat.completions.create(**params)
+            if tools in [[], None, '']:
+                return await self.llm_client.chat.completions.create(**params)
+            else:
+                params['tools'] = tools
+                params.update(kwargs)
+
+                response = await self.llm_client.chat.completions.create(**params)
+
+                tool_call = response.choices[0].message.tool_calls[0]
+                args = json.loads(tool_call.function.arguments)
+
+                if tools['function']['name'] == 'mise_en_parallele_des_revenus':
+                    result = mise_en_parallele_des_revenus(args)
+
+                alt_res = response.choices[0].message
+                if len(alt_res.tool_calls) > 1:
+                    alt_res.tool_calls = [tool_calls]
+                
+                params['messages'].append(altered_res) 
+                params['messages'].append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "content": result
+                })
+                params.update(kwargs)
+
+                return client.chat.completions.create(**params)
         except Exception as e:
             raise e
 
-    async def _astream(self, messages: List[Any], **kwargs):
+    async def _astream(self, messages: List[Any], tools: list = [], **kwargs):
         """
         Stream responses asynchronously from the LLM model.
 
@@ -113,13 +141,41 @@ class OpenAILLM(BaseLLM):
         try:
             params = {
                 "model": self.model,
-                "stream": True,
+                "stream": False,
                 "temperature": self.temperature,
                 "top_p": self.top_p,
                 "max_tokens": self.max_tokens,
                 "messages": messages,
+                # "tools": tools,
             }
             params.update(kwargs)
-            return await self.llm_client.chat.completions.create(**params)
+            if tools in [[], None, '']:
+                return await self.llm_client.chat.completions.create(**params)
+            else:
+                params['tools'] = tools
+                params.update(kwargs)
+
+                response = await self.llm_client.chat.completions.create(**params)
+
+                tool_call = response.choices[0].message.tool_calls[0]
+                args = json.loads(tool_call.function.arguments)
+
+                if tools['function']['name'] == 'mise_en_parallele_des_revenus':
+                    result = mise_en_parallele_des_revenus(args)
+
+                alt_res = response.choices[0].message
+                if len(alt_res.tool_calls) > 1:
+                    alt_res.tool_calls = [tool_calls]
+                
+                params['messages'].append(altered_res) 
+                params['messages'].append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "content": result
+                })
+                params['stream'] = True
+                params.update(kwargs)
+
+                return client.chat.completions.create(**params)
         except Exception as e:
             raise e
