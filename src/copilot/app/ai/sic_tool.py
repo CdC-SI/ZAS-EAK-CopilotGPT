@@ -10,107 +10,151 @@ client = OpenAI()
 tools = [{
     "type": "function",
     "function": {
-        "name": "mise_en_parallele_des_revenus",
-        "description": "Defines the properties of a beneficiary in a social assistance context",
-        "strict": True,
+        "name": "get_invalidite",
+        "description": "Calculates the invalidity rate based on the beneficiary's income and required financial indicators.",
+        "strict": true,
         "parameters": {
             "type": "object",
             "required": [
-                "sexe",
-                "branche",
-                "niveau_comp",
-                "salaire_ofs",
-                "ess",
-                "salaire_effectif",
-                "horaire",
-                "diminution",
-                "salaire_as",
-                "abattement"  
+                "benef"
             ],
             "properties": {
-                "sexe": {
-                    "type": "string",
-                    "description": "Le sexe du demandeur. Valeurs acceptées : ['homme', 'femme', '26 al. 6 RAI']"
-                },
-                "branche": {
-                    "type": "string",
-                    "description": "La branche économique. ex: (05-96)"
-                },
-                "niveau_comp": {
-                    "type": "integer",
-                    "description": "Le niveau de compétence."
-                },
-                "salaire_ofs": {
+                "benef": {
                     "type": "object",
-                    "required": [
-                        "année",
-                        "salaire"
-                    ],
+                    "description": "A JSON object representing the beneficiary's data.",
                     "properties": {
-                        "année": {
-                            "type": "integer",
-                            "description": "Année de référence."
-                        },
-                        "salaire": {
+                        "abattement": {
                             "type": "number",
-                            "description": "Salaire OFS."
+                            "description": "Flat rate deduction on income."
+                        },
+                        "diminution": {
+                            "type": "number",
+                            "description": "Percentage reduction in work capacity."
+                        },
+                        "ess": {
+                            "type": "number",
+                            "description": "Year of reference (disability evaluation year)."
+                        },
+                        "ex": {
+                            "type": "object",
+                            "description": "Exigible wage data for the beneficiary.",
+                            "properties": {
+                                "année": {
+                                    "type": "number",
+                                    "description": "Year of the exigible wage."
+                                },
+                                "branche": {
+                                    "type": "string",
+                                    "description": "Economic sector of the exigible wage."
+                                },
+                                "niveau_comp": {
+                                    "type": "number",
+                                    "description": "Competence level associated with the exigible wage."
+                                },
+                                "salaire": {
+                                    "type": "number",
+                                    "description": "Exigible salary amount."
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "année",
+                                "branche",
+                                "niveau_comp",
+                                "salaire"
+                            ]
+                        },
+                        "horaire": {
+                            "type": "number",
+                            "description": "Occupation rate as a percentage."
+                        },
+                        "salaire_as": {
+                            "type": "object",
+                            "description": "Pre-disability salary data.",
+                            "properties": {
+                                "année": {
+                                    "type": "number",
+                                    "description": "Year of recorded salary."
+                                },
+                                "salaire": {
+                                    "type": "number",
+                                    "description": "Salary amount before health impairment."
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "année",
+                                "salaire"
+                            ]
+                        },
+                        "sainv": {
+                            "type": "object",
+                            "description": "Salary data post-health impairment.",
+                            "properties": {
+                                "année": {
+                                    "type": "number",
+                                    "description": "Year of the post-health impairment salary."
+                                },
+                                "branche": {
+                                    "type": "string",
+                                    "description": "Economic sector relevant to the post-health impairment salary."
+                                },
+                                "niveau_comp": {
+                                    "type": "number",
+                                    "description": "Competence level related to the post-health impairment salary."
+                                },
+                                "salaire": {
+                                    "type": "number",
+                                    "description": "Post-health impairment salary amount."
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "année",
+                                "branche",
+                                "niveau_comp",
+                                "salaire"
+                            ]
+                        },
+                        "salaire_effectif": {
+                            "type": "object",
+                            "description": "Current effective salary data.",
+                            "properties": {
+                                "année": {
+                                    "type": "number",
+                                    "description": "Year of the effective salary."
+                                },
+                                "salaire": {
+                                    "type": "number",
+                                    "description": "Current effective salary amount."
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "année",
+                                "salaire"
+                            ]
+                        },
+                        "sexe": {
+                            "type": "string",
+                            "description": "Gender of the beneficiary (e.g. 'homme', 'femme')."
                         }
                     },
-                    "additionalProperties": False
-                },
-                "ess": {
-                    "type": "integer",
-                    "description": "Année d'exigibilité."
-                },
-                "salaire_effectif": {
-                    "type": "object",
+                    "additionalProperties": false,
                     "required": [
-                        "salaire",
-                        "année"
-                    ],
-                    "properties": {
-                        "salaire": {
-                            "type": "integer",
-                            "description": "Salaire effectif. ne pas confondre avec revenu sans activité effectif"
-                        },
-                        "année": {
-                            "type": "number",
-                            "description": "Année correspondante."
-                        }
-                    },
-                    "additionalProperties": False
-                },
-                "horaire": {
-                    "type": "integer",
-                    "description": "Taux d'activité. Valeur entre 0-100."
-                },
-                "diminution": {
-                    "type": "integer",
-                    "description": "Réduction du taux d'activité. Valeur entre 0-100."
-                },
-                "salaire_as": {
-                    "type": "object",
-                    "required": [
-                        "salaire",
-                        "année"
-                    ],
-                    "properties": {
-                        "salaire": {
-                            "type": "number",
-                            "description": "Salaire avant l'atteinte à la santé ou revenu sans activité effectif."
-                        },
-                        "année": {
-                            "type": "integer",
-                            "description": "Année correspondante."
-                        }
-                    },
-                    "additionalProperties": False
-                },
-                "abattement": {
-                    "type": "number"
+                        "abattement",
+                        "diminution",
+                        "ess",
+                        "ex",
+                        "horaire",
+                        "salaire_as",
+                        "sainv",
+                        "salaire_effectif",
+                        "sexe"
+                    ]
                 }
             },
-            "additionalProperties": False
+            "additionalProperties": false
         }
     }
 }]
