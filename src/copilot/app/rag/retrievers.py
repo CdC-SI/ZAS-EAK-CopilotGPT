@@ -50,7 +50,7 @@ class RetrieverClient(BaseRetriever):
         self.retrievers = retrievers
         self.reranker = reranker
 
-    @observe(name="RetrieverClient")
+    # @observe(name="RetrieverClient")
     async def get_documents(
         self,
         db,
@@ -130,7 +130,7 @@ class TopKRetriever(BaseRetriever):
     def __init__(self, top_k):
         self.top_k = top_k
 
-    @observe(name="TopKRetriever_get_documents")
+    # @observe(name="TopKRetriever_get_documents")
     async def get_documents(
         self,
         db,
@@ -169,7 +169,7 @@ class QueryRewritingRetriever(BaseRetriever):
         self.llm_client = llm_client
         self.message_builder = message_builder
 
-    @observe(name="QueryRewritingRetriever_rewrite_queries")
+    # @observe(name="QueryRewritingRetriever_rewrite_queries")
     async def rewrite_queries(
         self,
         language: str,
@@ -246,7 +246,7 @@ class QueryRewritingRetriever(BaseRetriever):
         )
         return reformulated_queries
 
-    @observe(name="QueryRewritingRetriever_get_documents")
+    # @observe(name="QueryRewritingRetriever_get_documents")
     async def get_documents(
         self,
         db,
@@ -322,7 +322,7 @@ class ContextualCompressionRetriever(BaseRetriever):
         # Filter out None results (for irrelevant contexts)
         return [doc for doc in docs if doc is not None]
 
-    @observe(name="ContextualCompressionRetriever_compress_doc")
+    # @observe(name="ContextualCompressionRetriever_compress_doc")
     async def compress_doc(self, language, llm_model, query, doc):
         """
         Compress a single document in context of the query.
@@ -359,7 +359,7 @@ class ContextualCompressionRetriever(BaseRetriever):
             }
         return None
 
-    @observe(name="ContextualCompressionRetriever_get_documents")
+    # @observe(name="ContextualCompressionRetriever_get_documents")
     async def get_documents(
         self,
         db,
@@ -412,7 +412,7 @@ class RAGFusionRetriever(QueryRewritingRetriever):
         super().__init__(n_alt_queries, top_k, llm_client, message_builder)
         self.rrf_k = rrf_k
 
-    @observe(name="RAGFusionRetriever_reciprocal_rank_fusion")
+    # @observe(name="RAGFusionRetriever_reciprocal_rank_fusion")
     def reciprocal_rank_fusion(
         self, retrieved_docs: List[List[Document]], rrf_k: int = 60
     ):
@@ -459,7 +459,7 @@ class RAGFusionRetriever(QueryRewritingRetriever):
 
         return reranked_results
 
-    @observe(name="RAGFusionRetriever_get_documents")
+    # @observe(name="RAGFusionRetriever_get_documents")
     async def get_documents(
         self,
         db,
@@ -540,7 +540,7 @@ class BM25Retriever(BaseRetriever):
 
         return tf * idf
 
-    @observe(name="BM25Retriever_get_documents")
+    # @observe(name="BM25Retriever_get_documents")
     async def get_documents(
         self,
         db,
@@ -600,7 +600,7 @@ class SemanticMetadataRetriever(TopKRetriever):
     def __init__(self, top_k):
         super().__init__(top_k)
 
-    @observe(name="SemanticMetadataRetriever_get_documents")
+    # @observe(name="SemanticMetadataRetriever_get_documents")
     async def get_documents(
         self,
         db,
@@ -640,7 +640,7 @@ class FedlexRetriever(TopKRetriever):
     def __init__(self, top_k):
         super().__init__(top_k)
 
-    @observe(name="FedlexRetriever_get_documents")
+    # @observe(name="FedlexRetriever_get_documents")
     async def get_documents(
         self,
         db,

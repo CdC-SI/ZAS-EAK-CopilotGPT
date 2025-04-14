@@ -176,7 +176,7 @@ class TopicCheckService:
             language, self._MESSAGES[self.DEFAULT_LANGUAGE]
         )
 
-    @observe(name="check_topic")
+    # @observe(name="check_topic")
     async def check_topic(
         self,
         query: str,

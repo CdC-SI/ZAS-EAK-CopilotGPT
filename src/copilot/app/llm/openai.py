@@ -2,6 +2,7 @@ from typing import List, Any
 from llm.base import BaseLLM
 from config.llm_config import DEFAULT_OPENAI_LLM_MODEL
 from config.clients_config import config
+from ai.sic import mise_en_parallele_des_revenus as mepdr
 
 from utils.logging import get_logger
 import json
@@ -138,6 +139,7 @@ class OpenAILLM(BaseLLM):
         Exception
             If streaming fails or other errors occur
         """
+        logger.info(messages)
         try:
             params = {
                 "model": self.model,
@@ -145,29 +147,32 @@ class OpenAILLM(BaseLLM):
                 "temperature": self.temperature,
                 "top_p": self.top_p,
                 "max_tokens": self.max_tokens,
-                "messages": messages,
-                # "tools": tools,
+                "messages": [messages[-1]],
+                "tools": tools,
             }
             params.update(kwargs)
             if tools in [[], None, '']:
+                params['stream'] = True
+                params.update(kwargs)
                 return await self.llm_client.chat.completions.create(**params)
             else:
-                params['tools'] = tools
-                params.update(kwargs)
-
+                # params['tools'] = tools
+                # params.update(kwargs)
+                logger.info(f"\n+-------------\n\n{params}\n\n-------------+\n")
                 response = await self.llm_client.chat.completions.create(**params)
+                logger.info(f"-----\n\n{response}\n\n-----")
 
                 tool_call = response.choices[0].message.tool_calls[0]
                 args = json.loads(tool_call.function.arguments)
 
-                if tools['function']['name'] == 'mise_en_parallele_des_revenus':
-                    result = mise_en_parallele_des_revenus(args)
+                if tools[0]['function']['name'] == 'mise_en_parallele_des_revenus':
+                    result = mepdr(args)
 
                 alt_res = response.choices[0].message
                 if len(alt_res.tool_calls) > 1:
-                    alt_res.tool_calls = [tool_calls]
+                    alt_res.tool_calls = [tool_call]
                 
-                params['messages'].append(altered_res) 
+                params['messages'].append(alt_res) 
                 params['messages'].append({
                     "role": "tool",
                     "tool_call_id": tool_call.id,
@@ -176,6 +181,6 @@ class OpenAILLM(BaseLLM):
                 params['stream'] = True
                 params.update(kwargs)
 
-                return client.chat.completions.create(**params)
+                return await self.llm_client.chat.completions.create(**params)
         except Exception as e:
             raise e

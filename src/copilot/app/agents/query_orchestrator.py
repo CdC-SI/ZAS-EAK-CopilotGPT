@@ -25,7 +25,7 @@ logger = get_logger(__name__)
 SUPPORTED_AGENTS = ["RAG_AGENT", "CHAT_AGENT", "PENSION_AGENT"]
 
 
-@observe(name="infer_intent")
+# @observe(name="infer_intent")
 async def infer_intent(
     db: Session,
     message_builder: MessageBuilder,
@@ -81,7 +81,7 @@ async def infer_intent(
     )
 
 
-@observe(name="infer_sources")
+# @observe(name="infer_sources")
 async def infer_sources(
     db: Session,
     message_builder: MessageBuilder,
@@ -143,7 +143,7 @@ async def infer_sources(
     return inferred_sources
 
 
-@observe(name="infer_tags")
+# @observe(name="infer_tags")
 async def infer_tags(
     db: Session,
     message_builder: MessageBuilder,
@@ -209,7 +209,7 @@ async def infer_tags(
     return inferred_tags
 
 
-@observe(name="select_agent")
+# @observe(name="select_agent")
 async def select_agent(
     request: ChatRequest,
     message_builder: MessageBuilder,
@@ -271,7 +271,7 @@ async def select_agent(
     return agent
 
 
-@observe(name="run_agent")
+# @observe(name="run_agent")
 async def run_agent(
     db: Session,
     llm_client: BaseLLM,

@@ -49,7 +49,7 @@ class StreamingHandler(ABC):
 
 
 class OpenAIStreaming(StreamingHandler):
-    @observe(as_type="generation", name="openai_output_stream")
+    # @observe(as_type="generation", name="openai_output_stream")
     async def generate_stream(self, events):
         events = await events
         content_received = False
@@ -62,7 +62,7 @@ class OpenAIStreaming(StreamingHandler):
 
 
 class AzureOpenAIStreaming(StreamingHandler):
-    @observe(as_type="generation", name="azureopenai_output_stream")
+    # @observe(as_type="generation", name="azureopenai_output_stream")
     async def generate_stream(self, events):
         events = await events
         content_received = False
@@ -77,7 +77,7 @@ class AzureOpenAIStreaming(StreamingHandler):
 
 
 class AnthropicStreaming(StreamingHandler):
-    @observe(as_type="generation", name="anthropic_output_stream")
+    # @observe(as_type="generation", name="anthropic_output_stream")
     async def generate_stream(self, events):
         events = await events
         async for event in events:
@@ -88,7 +88,7 @@ class AnthropicStreaming(StreamingHandler):
 
 
 class MLXStreaming(StreamingHandler):
-    @observe(as_type="generation", name="mlx_output_stream")
+    # @observe(as_type="generation", name="mlx_output_stream")
     async def generate_stream(self, events):
         content_received = False
         async for event in events:
@@ -102,7 +102,7 @@ class MLXStreaming(StreamingHandler):
 
 
 class LlamaCppStreaming(StreamingHandler):
-    @observe(as_type="generation", name="llamacpp_output_stream")
+    # @observe(as_type="generation", name="llamacpp_output_stream")
     async def generate_stream(self, events):
         content_received = False
         async for event in events:
@@ -114,7 +114,7 @@ class LlamaCppStreaming(StreamingHandler):
 
 
 class OllamaStreaming(StreamingHandler):
-    @observe(as_type="generation", name="ollama_output_stream")
+    # @observe(as_type="generation", name="ollama_output_stream")
     async def generate_stream(self, events):
         content_received = False
         async for event in events:

@@ -45,7 +45,7 @@ def clean_text(text):
     return text
 
 
-@observe(name="parse_translation_args")
+# @observe(name="parse_translation_args")
 async def parse_translation_args(
     request: ChatRequest,
     message_builder: MessageBuilder,

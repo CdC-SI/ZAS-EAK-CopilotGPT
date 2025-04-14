@@ -59,7 +59,7 @@ class Reranker:
         except Exception as e:
             logger.error(f"Reranker raised an exception: {e}")
 
-    @observe(name="rerank")
+    # @observe(name="rerank")
     async def rerank(
         self,
         query,

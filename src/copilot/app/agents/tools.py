@@ -26,7 +26,7 @@ from utils.user_preferences import update_user_preferences_in_db
 logger = get_logger(__name__)
 
 
-@observe(name="translate_tool")
+# @observe(name="translate_tool")
 async def translate_tool(
     request: ChatRequest,
     memory_service: MemoryService,
@@ -77,7 +77,7 @@ async def translate_tool(
     yield translated_text
 
 
-@observe(name="summarize_tool")
+# @observe(name="summarize_tool")
 async def summarize_tool(
     request: ChatRequest,
     memory_service: MemoryService,
@@ -137,7 +137,7 @@ async def summarize_tool(
         yield token
 
 
-@observe(name="update_user_preferences")
+# @observe(name="update_user_preferences")
 async def update_user_preferences_tool(
     db: Session,
     request: ChatRequest,
@@ -201,7 +201,7 @@ async def update_user_preferences_tool(
 
 
 # RAG tool
-@observe(name="RAG_tool")
+# @observe(name="RAG_tool")
 async def rag_tool(
     db: Session,
     request: ChatRequest,
@@ -375,7 +375,7 @@ Reason: {d[1]}
     #     yield token
 
 
-@observe(name="FAK_EAK_calculate_reduction_rate_and_supplement_tool")
+# @observe(name="FAK_EAK_calculate_reduction_rate_and_supplement_tool")
 def determine_reduction_rate_and_supplement_tool(
     date_of_birth: str, retirement_date: str, average_annual_income: float
 ) -> Dict:
@@ -519,7 +519,7 @@ def _format_reference_age(months: int) -> str:
     return f"{years} years and {remaining_months} months"
 
 
-@observe(name="PENSION_determine_reference_age_tool")
+# @observe(name="PENSION_determine_reference_age_tool")
 def determine_reference_age_tool(date_of_birth: str) -> Dict:
     """
     Determine the reference age for women of the transitional generation.
@@ -573,12 +573,12 @@ def determine_reference_age_tool(date_of_birth: str) -> Dict:
     return {"ReferenceAge": response}
 
 
-@observe(name="PENSION_estimate_pension_tool")
+# @observe(name="PENSION_estimate_pension_tool")
 def estimate_pension_tool():
     pass
 
 
 # FAK-EAK tools
-@observe(name="FAK_EAK_determine_child_benefits_eligibility_tool")
+# @observe(name="FAK_EAK_determine_child_benefits_eligibility_tool")
 def determine_child_benefits_eligibility_tool():
     pass

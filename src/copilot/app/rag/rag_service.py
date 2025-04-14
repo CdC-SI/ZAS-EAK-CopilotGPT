@@ -3,6 +3,8 @@ import logging
 from typing import Dict, AsyncGenerator
 from dotenv import load_dotenv
 
+from ai.sic_tool import tools
+
 from llm.base import BaseLLM
 from rag.retrievers import RetrieverClient
 from memory import MemoryService
@@ -63,21 +65,21 @@ if HTTP_PROXY and REQUESTS_CA_BUNDLE:
     )
 
 # Initialize Langfuse client
-langfuse_client = Langfuse(
-    secret_key=LANGFUSE_SECRET_KEY,
-    public_key=LANGFUSE_PUBLIC_KEY,
-    host=LANGFUSE_HOST,
-    httpx_client=httpx_client,
-)
+# langfuse_client = Langfuse(
+#     secret_key=LANGFUSE_SECRET_KEY,
+#     public_key=LANGFUSE_PUBLIC_KEY,
+#     host=LANGFUSE_HOST,
+#     httpx_client=httpx_client,
+# )
 
 # Configure the Langfuse client with a custom httpx client
-langfuse_context.configure(
-    secret_key=LANGFUSE_SECRET_KEY,
-    public_key=LANGFUSE_PUBLIC_KEY,
-    httpx_client=httpx_client,
-    host=LANGFUSE_HOST,
-    enabled=True,
-)
+# langfuse_context.configure(
+#     secret_key=LANGFUSE_SECRET_KEY,
+#     public_key=LANGFUSE_PUBLIC_KEY,
+#     httpx_client=httpx_client,
+#     host=LANGFUSE_HOST,
+#     enabled=True,
+# )
 
 
 class RAGService:
@@ -118,7 +120,7 @@ class RAGService:
         embedding = await get_embedding(text_input.text)
         return {"data": embedding}
 
-    @observe(name="RAG_service_retrieve")
+    # @observe(name="RAG_service_retrieve")
     async def retrieve(
         self,
         db: Session,
@@ -163,7 +165,7 @@ class RAGService:
 
         return rows if len(rows) > 0 else []
 
-    @observe()
+    # @observe()
     async def process_rag(
         self,
         db: Session,
@@ -266,14 +268,14 @@ class RAGService:
         )
 
         # stream response
-        event_stream = llm_client.call(messages)
+        event_stream = llm_client.call(messages, tools)
         async for token in streaming_handler.generate_stream(event_stream):
             yield token
 
         sources["documents"] = validated_docs
         sources["source_urls"] = validated_sources
 
-    @observe()
+    # @observe()
     async def process_agentic_rag(
         self,
         db: Session,

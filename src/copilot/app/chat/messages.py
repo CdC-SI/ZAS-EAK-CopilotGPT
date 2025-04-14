@@ -344,7 +344,7 @@ class MessageBuilder:
 
     _DEFAULT_RULE = "detailed"
 
-    @observe(name="MessageBuilder_build_summary_memory_prompt")
+    # @observe(name="MessageBuilder_build_summary_memory_prompt")
     def build_conversation_summary_prompt(
         self, llm_model: str, language: str, conversational_memory: str
     ) -> str:
@@ -386,7 +386,7 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
-    @observe(name="MessageBuilder_build_chat_prompt")
+    # @observe(name="MessageBuilder_build_chat_prompt")
     def build_chat_prompt(
         self,
         language: str,
@@ -562,7 +562,7 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
-    @observe(name="MessageBuilder_build_topic_check_prompt")
+    # @observe(name="MessageBuilder_build_topic_check_prompt")
     def build_topic_check_prompt(
         self, language: str, llm_model: str, query: str
     ) -> Union[List[Dict], str]:
@@ -591,7 +591,7 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
-    @observe(name="MessageBuilder_build_unique_source_validation_prompt")
+    # @observe(name="MessageBuilder_build_unique_source_validation_prompt")
     def build_unique_source_validation_prompt(
         self, language: str, llm_model: str, query: str, source: Dict
     ) -> List[Dict]:
@@ -633,7 +633,7 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
-    @observe(name="MessageBuilder_build_intent_detection_prompt")
+    # @observe(name="MessageBuilder_build_intent_detection_prompt")
     async def build_intent_detection_prompt(
         self,
         language: str,
@@ -708,7 +708,7 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
-    @observe(name="MessageBuilder_build_source_selection_prompt")
+    # @observe(name="MessageBuilder_build_source_selection_prompt")
     async def build_source_selection_prompt(
         self,
         language: str,
@@ -777,7 +777,7 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
-    @observe(name="MessageBuilder_build_tag_selection_prompt")
+    # @observe(name="MessageBuilder_build_tag_selection_prompt")
     async def build_tag_selection_prompt(
         self,
         language: str,
@@ -845,7 +845,7 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
-    @observe(name="MessageBuilder_build_agent_handoff_prompt")
+    # @observe(name="MessageBuilder_build_agent_handoff_prompt")
     async def build_agent_handoff_prompt(
         self,
         language: str,
@@ -909,7 +909,7 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
-    @observe(name="MessageBuilder_build_function_call_prompt")
+    # @observe(name="MessageBuilder_build_function_call_prompt")
     def build_function_call_prompt(
         self, language: str, llm_model: str, query: str, func_metadata: str
     ) -> Union[List[Dict], str]:
@@ -965,7 +965,7 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
-    @observe(name="MessageBuilder_build_parse_translate_args_prompt")
+    # @observe(name="MessageBuilder_build_parse_translate_args_prompt")
     def build_parse_translate_args_prompt(
         self,
         language: str,
@@ -1021,7 +1021,7 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
-    @observe(name="MessageBuilder_build_agent_summarize_prompt")
+    # @observe(name="MessageBuilder_build_agent_summarize_prompt")
     def build_agent_summarize_prompt(
         self,
         language: str,
@@ -1077,9 +1077,9 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
-    @observe(
-        name="MessageBuilder_build_ask_user_feedback_no_valid_docs_prompt"
-    )
+    # @observe(
+    #     name="MessageBuilder_build_ask_user_feedback_no_valid_docs_prompt"
+    # )
     def build_ask_user_feedback_no_valid_docs_prompt(
         self,
         language: str,
@@ -1145,7 +1145,7 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
-    @observe(name="MessageBuilder_build_user_preferences_prompt")
+    # @observe(name="MessageBuilder_build_user_preferences_prompt")
     def build_update_user_preferences_prompt(
         self,
         language: str,
@@ -1209,7 +1209,7 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
-    @observe(name="MessageBuilder_build_infer_user_preferences_prompt")
+    # @observe(name="MessageBuilder_build_infer_user_preferences_prompt")
     def build_infer_user_preferences_prompt(
         self,
         llm_model: str,
@@ -1258,7 +1258,7 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
-    @observe(name="MessageBuilder_build_query_rewriting_prompt")
+    # @observe(name="MessageBuilder_build_query_rewriting_prompt")
     def build_query_rewriting_prompt(
         self,
         language: str,
@@ -1315,7 +1315,7 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
-    @observe(name="MessageBuilder_build_query_statement_rewriting_prompt")
+    # @observe(name="MessageBuilder_build_query_statement_rewriting_prompt")
     def build_query_statement_rewriting_prompt(
         self,
         language: str,
@@ -1379,7 +1379,7 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
-    @observe(name="MessageBuilder_build_contextual_compression_prompt")
+    # @observe(name="MessageBuilder_build_contextual_compression_prompt")
     def build_contextual_compression_prompt(
         self, language: str, llm_model: str, context_doc: str, query: str
     ) -> List[Dict]:
@@ -1435,7 +1435,7 @@ class MessageBuilder:
         else:
             raise ValueError(f"Unsupported LLM model: {llm_model}")
 
-    @observe(name="MessageBuilder_build_summarize_prompt")
+    # @observe(name="MessageBuilder_build_summarize_prompt")
     def build_summarize_prompt(
         self,
         language: str,

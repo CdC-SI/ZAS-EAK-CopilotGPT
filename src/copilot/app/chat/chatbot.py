@@ -224,7 +224,7 @@ class ChatBot:
                 chat_title.choices[0].message.content,
             )
 
-    @observe()
+    # @observe()
     async def process_vanilla_llm(
         self,
         request: ChatRequest,
@@ -253,7 +253,7 @@ class ChatBot:
         async for token in streaming_handler.generate_stream(event_stream):
             yield token
 
-    @observe(name="topic_check")
+    # @observe(name="topic_check")
     async def _topic_check(
         self,
         query: str,

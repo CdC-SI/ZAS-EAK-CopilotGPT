@@ -316,7 +316,7 @@ class CommandService:
         else:
             return f"Unknown command: {request.command}"
 
-    @observe()
+    # @observe()
     async def process_command(
         self,
         db,

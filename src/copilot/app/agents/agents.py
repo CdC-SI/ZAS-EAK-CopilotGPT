@@ -53,7 +53,7 @@ class ChatAgent(BaseAgent):
     def __init__(self, name: str = None):
         self.name = name if name else "CHAT_AGENT"
 
-    @observe(name="CHAT_agent_process")
+    # @observe(name="CHAT_agent_process")
     async def process(
         self,
         request: ChatRequest,
@@ -151,7 +151,7 @@ class PensionAgent(BaseAgent):
     def __init__(self, name: str = None):
         self.name = name if name else "PENSION_AGENT"
 
-    @observe(name="PENSION_agent_process")
+    # @observe(name="PENSION_agent_process")
     async def process(
         self,
         request: ChatRequest,
@@ -234,7 +234,7 @@ class RAGAgent(BaseAgent):
     def __init__(self, name: str = None):
         self.name = name if name else "RAG_AGENT"
 
-    @observe(name="RAG_agent_process")
+    # @observe(name="RAG_agent_process")
     async def process(
         self,
         request: ChatRequest,
@@ -312,7 +312,7 @@ class RetrievalEvaluatorAgent(BaseAgent):
     def __init__(self, name: str = None):
         self.name = name if name else "RETRIEVAL_EVALUATOR_AGENT"
 
-    @observe(name="RETRIEVAL_EVALUATOR_agent_process")
+    # @observe(name="RETRIEVAL_EVALUATOR_agent_process")
     async def process(
         self,
         request: ChatRequest,
@@ -358,7 +358,7 @@ class SourceValidatorAgent(BaseAgent):
         self.max_retries = 3
         self.retry_delay = 1
 
-    @observe(name="SOURCE_VALIDATOR_agent_process")
+    # @observe(name="SOURCE_VALIDATOR_agent_process")
     async def process(
         self,
         request: ChatRequest,
@@ -387,7 +387,7 @@ class SourceValidatorAgent(BaseAgent):
         """
         pass
 
-    @observe(name="_validate_single_source")
+    # @observe(name="_validate_single_source")
     async def _validate_single_source(
         self,
         request: ChatRequest,
@@ -450,7 +450,7 @@ class SourceValidatorAgent(BaseAgent):
                 await asyncio.sleep(self.retry_delay)
         return None
 
-    @observe(name="validate_sources")
+    # @observe(name="validate_sources")
     async def validate_sources(
         self,
         request: ChatRequest,

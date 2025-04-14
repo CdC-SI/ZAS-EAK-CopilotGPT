@@ -47,7 +47,7 @@ class FeedbackMessages:
     )
 
 
-@observe(name="ask_user_feedback")
+# @observe(name="ask_user_feedback")
 async def ask_user_feedback(
     request: ChatRequest,
     feedback_type: FeedbackType,
