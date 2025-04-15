@@ -2,7 +2,7 @@ from typing import List, Any
 from llm.base import BaseLLM
 from config.llm_config import DEFAULT_OPENAI_LLM_MODEL
 from config.clients_config import config
-from ai.sic import mise_en_parallele_des_revenus as mepdr
+from ai.sic import get_invalidite
 
 from utils.logging import get_logger
 import json
@@ -163,10 +163,10 @@ class OpenAILLM(BaseLLM):
                 logger.info(f"-----\n\n{response}\n\n-----")
 
                 tool_call = response.choices[0].message.tool_calls[0]
-                args = json.loads(tool_call.function.arguments)
-
-                if tools[0]['function']['name'] == 'mise_en_parallele_des_revenus':
-                    result = mepdr(args)
+                args = json.loads(tool_call.function.arguments)['benef']
+                logger.info(f"\n+-------------\n\n{args}\n\n-------------+\n")
+                # if tools[0]['function']['name'] == 'get_invalidite':
+                result = get_invalidite(args)
 
                 alt_res = response.choices[0].message
                 if len(alt_res.tool_calls) > 1:

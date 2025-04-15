@@ -12,7 +12,7 @@ tools = [{
     "function": {
         "name": "get_invalidite",
         "description": "Calculates the invalidity rate based on the beneficiary's income and required financial indicators.",
-        "strict": true,
+        "strict": True,
         "parameters": {
             "type": "object",
             "required": [
@@ -25,11 +25,11 @@ tools = [{
                     "properties": {
                         "abattement": {
                             "type": "number",
-                            "description": "Flat rate deduction on income."
+                            "description": "Flat rate deduction on income.  if not mentioned in description all properties' values = 0"
                         },
                         "diminution": {
                             "type": "number",
-                            "description": "Percentage reduction in work capacity."
+                            "description": "Percentage reduction in work capacity.  if not mentioned in description all properties' values = 0"
                         },
                         "ess": {
                             "type": "number",
@@ -45,7 +45,7 @@ tools = [{
                                 },
                                 "branche": {
                                     "type": "string",
-                                    "description": "Economic sector of the exigible wage."
+                                    "description": "Economic sector of the exigible wage. string always start with a capital letter unless a number"
                                 },
                                 "niveau_comp": {
                                     "type": "number",
@@ -56,7 +56,7 @@ tools = [{
                                     "description": "Exigible salary amount."
                                 }
                             },
-                            "additionalProperties": false,
+                            "additionalProperties": False,
                             "required": [
                                 "année",
                                 "branche",
@@ -81,7 +81,7 @@ tools = [{
                                     "description": "Salary amount before health impairment."
                                 }
                             },
-                            "additionalProperties": false,
+                            "additionalProperties": False,
                             "required": [
                                 "année",
                                 "salaire"
@@ -89,26 +89,26 @@ tools = [{
                         },
                         "sainv": {
                             "type": "object",
-                            "description": "Salary data post-health impairment.",
+                            "description": "Salary data pre-health impairment. if not mentioned in description all properties' values = 0",
                             "properties": {
                                 "année": {
                                     "type": "number",
-                                    "description": "Year of the post-health impairment salary."
+                                    "description": "Year of the pre-health impairment salary."
                                 },
                                 "branche": {
                                     "type": "string",
-                                    "description": "Economic sector relevant to the post-health impairment salary."
+                                    "description": "Economic sector relevant to the pre-health impairment salary."
                                 },
                                 "niveau_comp": {
                                     "type": "number",
-                                    "description": "Competence level related to the post-health impairment salary."
+                                    "description": "Competence level related to the pre-health impairment salary."
                                 },
                                 "salaire": {
                                     "type": "number",
-                                    "description": "Post-health impairment salary amount."
+                                    "description": "pre-health impairment salary amount."
                                 }
                             },
-                            "additionalProperties": false,
+                            "additionalProperties": False,
                             "required": [
                                 "année",
                                 "branche",
@@ -118,7 +118,7 @@ tools = [{
                         },
                         "salaire_effectif": {
                             "type": "object",
-                            "description": "Current effective salary data.",
+                            "description": "Current effective salary data. if not mentioned in description all properties' values = 0",
                             "properties": {
                                 "année": {
                                     "type": "number",
@@ -129,7 +129,7 @@ tools = [{
                                     "description": "Current effective salary amount."
                                 }
                             },
-                            "additionalProperties": false,
+                            "additionalProperties": False,
                             "required": [
                                 "année",
                                 "salaire"
@@ -140,7 +140,7 @@ tools = [{
                             "description": "Gender of the beneficiary (e.g. 'homme', 'femme')."
                         }
                     },
-                    "additionalProperties": false,
+                    "additionalProperties": False,
                     "required": [
                         "abattement",
                         "diminution",
@@ -154,7 +154,7 @@ tools = [{
                     ]
                 }
             },
-            "additionalProperties": false
+            "additionalProperties": False
         }
     }
 }]

@@ -504,6 +504,7 @@ def get_invalidite(benef):
     taux_invalidite = perte_revenu * 100 / revenu_sainv
     print(f"Calcul de l'invalidité:\nPerte de revenu sur 100%: {perte_revenu} CHF\nTaux d'invalidité dans la partie lucrative: {taux_invalidite}\n\n Degré d'invalidité: {round(taux_invalidite, 2)}%")
 
+    return f"Revenu sans invalidité: {revenu_sainv}, Revenu exigible: {revenu_ex}\nCalcul de l'invalidité:\nPerte de revenu sur 100%: {perte_revenu} CHF\nTaux d'invalidité dans la partie lucrative: {taux_invalidite}\n\n Degré d'invalidité: {round(taux_invalidite, 2)}%"
 
 
 
