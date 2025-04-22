@@ -4,6 +4,7 @@ from typing import Dict, AsyncGenerator
 from dotenv import load_dotenv
 
 from ai.sic_tool import tools
+from ai.sic_tool import calc_ai_prompt
 
 from llm.base import BaseLLM
 from rag.retrievers import RetrieverClient
@@ -266,6 +267,8 @@ class RAGService:
             response_style=request.response_style,
             response_format=request.response_format,
         )
+
+        # messages.append({"role": "system", "content": calc_ai_prompt})
 
         # stream response
         event_stream = llm_client.call(messages, tools)

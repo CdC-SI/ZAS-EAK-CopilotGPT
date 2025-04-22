@@ -1,60 +1,43 @@
+# %% [markdown]
+# # Statistical income calculation
 
-# Exemple de bénéficiaire (vous pouvez adapter si besoin)
+# %% [markdown]
+# ## Data
+
+# %% [markdown]
+# ### Input
+
+# %%
 beneficiary = {
-    "ess": 2022,                    # Correspond à l'année d'exigibilié du cas.
-    "sexe": "homme",                # le sexe permet de déterminé le tableau de référence pour le calcul du salaire, dans certain cas il peut prendre la valeur "26 al. 6 RAI" en référence à un cas spécifique ou le sexe n'est pas pris en compte.
-    "salaire_as": {                 # Le salaire du demandeur avant l'atteinte à la santé. (peut être nul)
-        "salaire": 90000,               # le revenu annuel.
-        "année": 2021                   # La dernière année où le salaire a été perçu. 
+    "sexe": "homme",                   # Based on context
+    "branche": "05-96",     # Occupation was in construction (CFC)
+    "niveau_comp": 1,                  # CFC = skill level 2 for the original job
+    "salaire_ofs": {
+        "année": 2022,                 # The year we consult the ESS (or 2021,
+        # depending on decision date)
+        "salaire": 5305                # Will be determined from the ESS if needed
     },
-    "sainv": {                      # Les données nécessaires au calcul du salaire statistique (avant l'atteinte à la santé).
-        "année": 2022,                  # L'année de référence.
-        "salaire": 6160,                # Le salaire brute médian selon la branche économique, le sexe et et le niveau de compétence.
-        "niveau_comp": 2,               # Le niveau de compétence.
-        "branche": "Construction",      # La branche économique.
-    },                 
-    "ex": {                         # Les données nécessaires au calcul du salaire statistique exigible (après l'atteinte à la santé).
-        "année": 2022,                  # L'année de référence.
-        "salaire": 5305,                # Le salaire brute médian selon la branche économique, le sexe et et le niveau de compétence.
-        "niveau_comp": 1,               # Le niveau de compétence.
-        "branche": "TOTAL",             # La branche économique.
-    },                  
-    "salaire_effectif": {           # Le salaire du demandeur après l'atteinte à la santé. (peut être nul)
-        "salaire": 90000,               # le revenu annuel.
-        "année": 2021                   # L'année où le salaire est perçu. 
+    "ess": 2022,                       # Date of exigibilité: 01.07.2022 => relevant year for stats
+    "salaire_effectif": {
+        "salaire": 0,              # Actual salary pre-invalidity
+        "année": 0
     },
-    "horaire": 100,                 # Taux d’activité en %.
-    "diminution": 0,                # Réduction du taux d'activité après l'atteinte à la santé en %.
-    "abattement": 0,                # Déduction du taux supplémentaire.
+    "horaire": 100,                      # Now working only 50%
+    "diminution": 50,                # Hourly wage reduction (if known)
+    "abattement": None,                # E.g. if capacity ≤50% might get a 10% deduction;
+    # depends on medical/SMR input
+    "salaire_as": {
+        "salaire": 90000,              # Salary before the health issue
+        "année": 2021
+    }
 }
 
 
+# %% [markdown]
+# ### Database
+
+# %%
 import pandas as pd
-
-data = {
-    "id": ["01-96", "05-43", "05-9", "10-33", "10-11", "12", "13-15", "16-18", "19-20", "21", "22-23", "24-25", "26", "27", "28", "29-30", "31-33", "35", "36-39", "41-43", "45-96", "45-47", "45-46", "47", "49-53", "49-52", "53", "55-56", "58-63", "58-60", "61", "62-63", "64-66", "64+66", "65", "68", "69-75", "69-71", "72", "73-75", "77-82", "77+79-82", "78", "85", "86-88", "90-93", "94-96", "94-95", "96"],
-    "label": ["TOTAL", "SECTEUR 2  PRODUCTION", "Industries extractives", "Industrie manufacturière", "Industries alimentaires; fabr. de boissons", "Fabrication de produits à base de tabac", "Industries du textile et de l’habillement", "Industries du bois et du papier; imprimerie", "Cokéfaction; industrie chimique", "Industrie pharmaceutique", "Industries du caoutchouc et du plastique", "Métallurgie; fabr. produits métalliques", "Fabr. prod. informatiques, électroniques et optiques; horlogerie", "Fabrication d’équipements électriques", "Fabr. de machines et équipements n.c.a", "Fabrication de matériels de transport", "Fabr. meubles; autres ind. manufact.; rép. et inst. machines", "Production et distribution d’énergie", "Prod. et distr. d’eau; gestion déchets", "Construction", "SECTEUR 3  SERVICES", "Commerce; réparation d’automobiles", "Commerce de gros; com. et rép. d'automobiles", "Commerce de détail", "Transports et entreposage", "Transp. terrestres, par eau, aériens; entreposage", "Activités de poste et de courrier", "Hébergement et restauration", "Information et communication", "Édition, audiovisuel et diffusion", "Télécommunications", "Activ. informatiques et services d’information", "Activités financières et d'assurances", "Services financiers; activ. auxiliaires de serv. fin. et d'ass.", "Assurance", "Activités immobilières", "Activ. spécialisées, scientifiques et techniques", "Activ. jur., comptables, de gestion, d’architecture, d’ingénierie", "Recherche-développement scientifique", "Autres activités spéc., scient. et techn.", "Activités de services admin. et de soutien", "Activités de services admin. (sans 78)", "Activités liées à l'emploi", "Enseignement", "Santé humaine et action sociale ", "Arts, spectacles et activités récréatives", "Autres activités de services", "Activ. org. associatives et religieuses; réparation biens pers.", "Autres services personnels"],
-    "total": [6510, 6600, 6360, 6717, 5393, 13299, 5417, 6212, 8071, 10296, 6224, 6239, 7365, 6799, 7245, 7003, 6619, 8577, 5903, 6401, 6463, 5895, 6900, 5095, 5777, 5803, 5666, 4585, 9127, 7961, 8970, 9505, 9985, 10317, 9052, 6975, 8079, 8188, 9210, 6747, 5524, 5161, 5855, 7640, 6407, 6254, 6685, 7472, 4333],
-    "femme": [6017, 5990, 6412, 5910, 4829, 13548, 4812, 5590, 7651, 10095, 5464, 5591, 6043, 5433, 6526, 6674, 5911, 7659, 6069, 6154, 6024, 5230, 6720, 4900, 5610, 5564, 5671, 4451, 7750, 7344, 7545, 8001, 8230, 8445, 7702, 6583, 7254, 7362, 8730, 6140, 5068, 4659, 5676, 7224, 6223, 5969, 6210, 7183, 4186],
-    "homme": [6816, 6714, 6357, 6973, 5775, 13048, 6084, 6324, 8210, 10417, 6386, 6348, 8073, 7218, 7402, 7038, 6871, 8757, 5874, 6428, 6922, 6477, 6973, 5611, 5824, 5853, 5662, 4725, 9618, 8426, 9498, 9902, 11220, 11508, 10373, 7585, 8730, 8803, 9587, 7508, 5707, 5448, 5901, 8366, 7044, 6548, 7435, 8017, 5037],
-    "4 total": [9008, 9595, 10294, 9638, 8100, 16310, 8307, 8354, 10024, 12884, 8956, 9071, 9835, 8987, 9127, 8626, 9160, 10630, 9286, 9204, 8832, 9200, 10300, 7573, 8444, 8382, 9125, 6360, 9803, 8662, 10800, 9860, 11667, 11984, 10672, 9558, 9167, 9292, 9630, 7800, 7831, 8047, 7692, 8662, 7610, 7646, 8688, 8804, 6422],
-    "4 femme": [7958, 9210, 10294, 9390, 7429, 15875, 6877, 7159, 9354, 12042, 8102, 8204, 9118, 7912, 8411, 8047, 8493, 9523, 8125, 7503, 7837, 8125, 9382, 6901, 7613, 7524, 8489, 6177, 8729, 8174, 9263, 8941, 10189, 10436, 9342, 8500, 8174, 8354, 9089, 7075, 7142, 7016, 7199, 8334, 7393, 7024, 8244, 8443, 5365],
-    "4 homme": [9727, 9694, 10546, 9696, 8376, 16668, 9159, 8531, 10370, 13507, 9124, 9246, 10025, 9130, 9201, 8692, 9343, 10912, 9629, 9485, 9746, 9803, 10538, 8125, 8653, 8567, 9467, 6468, 10048, 8948, 11047, 10008, 12345, 12635, 11236, 10451, 9612, 9705, 10089, 8588, 8475, 8696, 8235, 9340, 8397, 8190, 9208, 9285, 7795],
-    "3 total": [7187, 7662, 7417, 7659, 6898, 9744, 6631, 7107, 8120, 8692, 7325, 7198, 8320, 7576, 7827, 7624, 7136, 8790, 6983, 7597, 6934, 6993, 7932, 5682, 6911, 7120, 6533, 5476, 8079, 7991, 7357, 8524, 9524, 9823, 8998, 7282, 7412, 7536, 8083, 6000, 6522, 6329, 6976, 7077, 6268, 6146, 7219, 7392, 5367],
-    "3 femme": [6500, 7071, 7417, 7120, 6549, 10192, 5921, 6067, 7492, 8518, 7204, 6660, 7469, 6424, 7220, 7316, 6500, 8292, 6583, 6781, 6428, 6017, 7753, 5365, 6347, 6283, 6388, 5090, 7648, 7605, 7258, 7772, 8316, 8620, 7852, 6978, 6898, 7112, 7686, 5498, 6433, 6183, 6844, 6875, 6136, 6000, 7088, 7273, 4983],
-    "3 homme": [7661, 7753, 7367, 7787, 7047, 9551, 7032, 7253, 8357, 8790, 7331, 7262, 8618, 7823, 7930, 7630, 7372, 8861, 7119, 7653, 7562, 7661, 7993, 6445, 7081, 7358, 6612, 5673, 8243, 8167, 7380, 8818, 10466, 10748, 9993, 7791, 7781, 7830, 8491, 6945, 6582, 6415, 7327, 7299, 6950, 6236, 7437, 7631, 6073],
-    "2 total": [5599, 6019, 6115, 5891, 5104, 7282, 4914, 5970, 6581, 7376, 5898, 5944, 6008, 5951, 6419, 6062, 5955, 7093, 5733, 6143, 5303, 5173, 5820, 4853, 5504, 5492, 5576, 4482, 6530, 6350, 6590, 6635, 7122, 7297, 6717, 6023, 6270, 6346, 6705, 5796, 5419, 5159, 5714, 5905, 5340, 5352, 5159, 6275, 4244],
-    "2 femme": [5147, 5399, 5890, 5262, 4701, 7161, 4501, 5564, 6071, 7102, 5402, 5412, 5439, 5161, 5884, 5757, 5430, 6518, 5809, 5959, 5094, 4870, 5687, 4754, 5447, 5296, 6041, 4419, 6190, 6166, 6322, 6162, 6753, 6834, 6587, 5810, 6259, 6353, 6731, 5561, 5097, 4972, 5290, 5833, 5281, 5225, 4890, 6205, 4127],
-    "2 homme": [5848, 6135, 6118, 6096, 5449, 7282, 5628, 6056, 6798, 7512, 6002, 6017, 6490, 6163, 6500, 6093, 6133, 7227, 5730, 6160, 5520, 5591, 5877, 5135, 5517, 5533, 5323, 4569, 6996, 6909, 6762, 7250, 7997, 8384, 7083, 6274, 6285, 6313, 6609, 6111, 5546, 5237, 5829, 6106, 5569, 5437, 5714, 6397, 4762],
-    "1 total": [4919, 5438, 5881, 5143, 4589, 5179, 4760, 5087, 5923, 5740, 5290, 5259, 5263, 5098, 5634, 5958, 5123, 6140, 5096, 5811, 4585, 4890, 4996, 4750, 5146, 4958, 5308, 4058, 4600, 4150, 4600, 5325, 5081, 4916, 5199, 4976, 5011, 4861, 5484, 5200, 4492, 4163, 5090, 4704, 4788, 4465, 4152, 4852, 3985],
-    "1 femme": [4367, 4656, 5881, 4643, 4338, 5179, 4333, 4643, 4489, 4699, 4706, 4728, 4894, 4410, 5154, 4693, 4807, 5496, 4775, 4970, 4290, 4547, 4614, 4505, 5002, 4295, 5282, 4025, 4419, 4129, 4419, 4865, 4802, 4478, 5200, 4714, 4750, 4694, 5208, 4742, 4069, 4006, 4468, 4622, 4739, 4440, 4100, 4742, 3921],
-    "1 homme": [5305, 5637, 5881, 5474, 4796, 5179, 5199, 5340, 6084, 6568, 5469, 5430, 6047, 5677, 5937, 6094, 5370, 6273, 5104, 5825, 4879, 5077, 5179, 4899, 5200, 5114, 5346, 4110, 5150, 4199, 5150, 5325, 5538, 5958, 5199, 5484, 5276, 5170, 5484, 5381, 5000, 4637, 5399, 4952, 4983, 4605, 4395, 5236, 4167]
-}
-
-ta1 = pd.DataFrame(data)
-
-ta1_ids = data["id"]
-ta1_labels = data["label"]
 
 # Create the DataFrame from the cleaned data
 data = {
@@ -88,11 +71,14 @@ data = {
 
 t1_10 = pd.DataFrame(data)
 
+# %%
 t1_rai_ids = data['id']
 t1_labels = data['label']
 
-codes = ['B-S', 'B-S', 'B-F', 'B, D, E', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'B, D, E', 'B, D, E', 'F', 'F', 'F', 'G-S', 'G', 'G', 'G', 'G', 'H', 'H', 'H', 'H', 'H', 'I', 'I', 'I', 'J', 'J', 'J', 'J', 'K', 'K', 'K', 'K', 'G-S', 'M', 'M', 'M', 'M', 'M', 'M', 'N', 'N', 'N', 'O', 'G-S', 'Q', 'Q', 'Q', 'Q', 'R, S', 'R, S']
+# %%
+t1 = ['B-S', 'B-S', 'B-F', 'B, D, E', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'B, D, E', 'B, D, E', 'F', 'F', 'F', 'G-S', 'G', 'G', 'G', 'G', 'H', 'H', 'H', 'H', 'H', 'I', 'I', 'I', 'J', 'J', 'J', 'J', 'K', 'K', 'K', 'K', 'G-S', 'M', 'M', 'M', 'M', 'M', 'M', 'N', 'N', 'N', 'O', 'G-S', 'Q', 'Q', 'Q', 'Q', 'R, S', 'R, S']
 
+# %%
 data = {
     'id':['05-96', '01-03', '05-43', '05-09/35-39', '10-33', '41-43', '45-96', '45-47', '49-53', '55/56', '58-63', '64-66', '69-75', '77-82', '84', '86-88', '90-96'],
     'label':['TOTAL', 'SECTEUR PRIMAIRE', 'SECTEUR SECONDAIRE', 'Industries extractives, production et distribution d\'électricité, de gaz et d\'eau', 'Industries manufacturières', 'Construction', 'SECTEUR TERTIAIRE', 'Commerce, réparation d\'automobiles et motocycles', 'Transports et entreposage, Poste et courrier', 'Hébergement et restauration', 'Infomation et communication', 'Activités financières et d\'assurance', 'Activités spécialisées scientifiques et techniques', 'Activités de services administratifs et de soutien', 'Administration publique', 'Santé, Hébergement médico-social et action sociale', 'Arts, spectacles et activités récréatives, autres activités de services'],
@@ -205,74 +191,11 @@ labels = {}
 t1s = {}
 for i,l in enumerate(data['id']):
     labels[l] = data['label'][i]
-    t1s[l] = codes[i]
+    t1s[l] = t1[i]
+labels
 
 # %% [markdown]
 # ## Data processing
-
-# %%
-def to_id(branche):
-    labels_inv = {}
-    for i, l in enumerate(labels):
-        labels_inv[labels[l]] = l
-    if labels_inv[branche]:
-        return labels_inv[branche]
-    else:
-        # print(branche)
-        return branche
-
-# %%
-def to_range(id_str):
-    """
-    NE PAS MODIFIER : Convertit la chaîne d’identifiant d’une branche
-    (p. ex. '05-96', '45-47', '77+79-82') en liste d’entiers représentant les indices.
-    """
-    if '+' in id_str:
-        # Ex. '77+79-82' => [77,79,80,81,82]
-        return [77,79,80,81,82]
-    elif '/' in id_str:
-        parts = id_str.split('/')
-        id_range = []
-        for part in parts:
-            if '-' in part:
-                rr = [int(x) for x in part.split('-')]
-                id_range.extend(range(rr[0], rr[-1]+1))
-            else:
-                id_range.append(int(part))
-        return id_range
-    elif '-' in id_str:
-        rr = [int(i) for i in id_str.split('-')]
-        return list(range(rr[0], rr[-1]+1))
-    else:
-        return [int(id_str)]
-
-# %%
-def get_id(id, index):
-    id = index[0]['id'] if id == "TOTAL" else to_id(id)
-    res = []
-    if id in [x['id'] for x in index]:
-        return id
-    else:
-        for i in index:
-            is_in = True
-            for r in to_range(id):
-                if r not in i['index']:
-                    is_in = False
-                    break
-            if is_in:
-                res.append(i)
-        if len(res) == 0:
-            print('id not in index')
-            return None
-        elif len(res) > 1:
-            final = res[0]
-            for r in res:
-                if len(final['index']) > len(r['index']):
-                    final = r
-            # print(final['id'])
-            return final['id']
-        else:
-            return res[0]['id']
 
 # %%
 t1 = {
@@ -282,18 +205,41 @@ t1 = {
 }
 
 # %%
+def to_range(id):
+    if '+' in id:
+        id_range = [77, 79, 80, 81, 82]
+    elif '/' in id:
+        if '-' in id:
+            ranges = [i for i in id.split('/')]
+            print(ranges)
+            id_range = []
+            for r in ranges:
+                print(r)
+                rr = [int(i) for i in r.split('-')]
+                print(rr)
+                id_range.extend(i for i in range(rr[0], rr[-1]+1))
+        else:
+            id_range = [int(i) for i in id.split('/')]
+    elif '-' in id:
+        id_range = [int(i) for i in id.split('-')]
+        id_range = [i for i in range(id_range[0], id_range[-1]+1)]
+        # print(id_range)
+    else:
+        id_range = [int(id)]
+
+    # print(id_range)
+    return id_range
+
+# %%
 th_index = []
 t1_rai_index = []
 t1_hf_index = []
-ta1_index = []
 for id in th_ids:
     th_index.append({"id": id, "index": to_range(id)})
 for id in t1_rai_ids:
     t1_rai_index.append({"id": id, "index": to_range(id)})
 for id in t1_hf_ids:
     t1_hf_index.append({"id": id, "index": to_range(id)})
-for id in ta1_ids:
-    ta1_index.append({"id": id, "index": to_range(id)})
 
 # %%
 t1_index = {
@@ -302,219 +248,649 @@ t1_index = {
     '26 al. 6 RAI': t1_rai_index
 }
 
+# %%
+def get_id(id, index):
+    res = []
+    for i in index:
+        is_in = True
+        for r in to_range(id):
+            if r not in i['index']:
+                is_in = False
+                break
+        if is_in:
+            res.append(i)
+    if len(res) == 0:
+        print(res[0]['id'])
+        return res[0]['id']
+    elif len(res) > 1:
+        final = res[0]
+        for r in res:
+            if len(final['index']) > len(r['index']):
+                final = r
+        # print(final['id'])
+        return final['id']
+    else:
+        print('id not in index')
+        return None
+get_id(beneficiary['branche'], t1_index[beneficiary["sexe"]])
+
 # %% [markdown]
 # ## Fonction de calcul
 
 # %%
-def get_index_from_t1(benef, year, branche):
-    """
-    Récupère l'indice (p. ex. du tableau ESS) pour la branche et l'année spécifiées,
-    en tenant compte du sexe.
-    """
-    sexe = benef["sexe"]
-    df = t1[sexe]  # t1[sexe] = t1_1_10, t1_2_10, etc.
-    
-    branche_finale = get_id(branche, t1_index[sexe])
-    # if branche_finale is None:
-    #     # fallback
-    #     branche_finale = '05-96'
-    
-    row_index = df[df['id'] == branche_finale].index[0]
-    col_idx = df.columns.get_loc(str(year))
-    return df.iloc[row_index, col_idx]
+def calcul_salaire(beneficiary, type_salaire):
+    year = type_salaire['année']
+    salaire = type_salaire['salaire']
+    if salaire not in [False, None, ''] and year not in [False, None, '']:
+        indexation_annees = []
+        base_index = get_indexation_t39(beneficiary, year)
+        print("Indexation T1:")
+        print(f"Année: {year}, Indice: {base_index}")
 
-# %%
-def get_heures_hebdo(branche, year):
-    """
-    Retourne la durée hebdomadaire (ex. 42h) selon la table th,
-    en fonction de la 'branche' du bénéficiaire et de l'année.
-    """
-    # if benef["branche"] == '05-96':
-    #     branche_finale = '01-96'  # par ex. fallback si 05-96 n'existe pas dans th
-    # else:
-    branche_finale = get_id(branche, th_index)
-        # if branche_finale is None:
-        #     branche_finale = '01-96'
-        
-    row_idx = th[th['id'] == branche_finale].index[0]
-    col_idx = th.columns.get_loc(str(year))
-    return th.iloc[row_idx, col_idx]
-
-
-# %%
-def get_salaire_annuel(benef, salaire_mensuel, branche):
-    """
-    Calcule le salaire annuel adapté en fonction de la durée hebdo 
-    trouvée dans 'th' (p. ex. 41 ou 42h).
-    """
-    
-    heures_normales = get_heures_hebdo(branche, benef["ess"])
-    # Si par ex. le salaire_mensuel (OFS) est référencé sur 40h, on ajuste
-    salaire_mensuel_adj = salaire_mensuel * heures_normales / 40
-    print(f"Nombre d'heures hebdomadaires selon la branche économique: {heures_normales} Revenu mensuel: {salaire_mensuel_adj}\n")
-    return salaire_mensuel_adj * 12
-
-
-# %%
-def apply_deduction(benef, montant):
-    """
-    Applique la déduction forfaitaire 
-    si la capacité de travail globale <= 50%.
-    
-    Les règles exemplaires indiquent :
-    - < 2024 => 10% de déduction si <= 50% 
-    - >= 2024 => 20% si <= 50%, sinon 10% ...
-    (Code tel que dans l'exemple, à ajuster selon votre logique réelle.)
-    """
-    annee_ess = benef['ess']
-    abattement = benef['abattement']
-    # Capacité de travail globale = horaire - diminution
-    # ou plus exactement = (horaire% - (horaire% * diminution%)).
-    # Dans votre code, c'était : d31 - (d31*d32).
-    
-    d31 = benef['horaire'] / 100
-    d32 = benef['diminution'] / 100
-    capacite_globale = d31 - (d31 * d32)
-    montant = montant * capacite_globale
-    res = ''
-    print(f"Taux d'activité exigible: {benef['horaire']}%\nDiminution de rendement en pourcent: {benef['diminution']}%\nCapacité fonctionnelle résiduelle: {capacite_globale * 100}%\n Revenu annuel selon capacité: {montant} CHF")
-    
-    if annee_ess < 2024:
-        res = "Déduction supplémentaire au titre de désaventage salarial pour un taux d'activité de 50% ou moins: "
-        if capacite_globale <= 0.5:
-            res += "10%"
-            deduction_rate = 0.1
-        else:
-            deduction_rate = 0
-            res += "0%"
-        deduction_rate += abattement /100
-        res += f"\nAutres déductions supplémentaire au titre de désavantage salarial: {abattement}%"
+        year_index = get_indexation_t39(beneficiary, beneficiary['ess'])
+        indexation_annees.append({
+            'année': beneficiary['ess'],
+            'indice': year_index,
+            'revenu': salaire / base_index * year_index
+        })
+        print(f"Année: {indexation_annees[-1]['année']}, Indice: {round(indexation_annees[-1]['indice'], 2)}, Revenu: {round(indexation_annees[-1]['revenu'], 2)} CHF\n")
+        return indexation_annees
     else:
-        if capacite_globale <= 0.5:
-            deduction_rate = 0.2
-        else:
-            deduction_rate = 0.1
-        res += f"\nDéduction supplémentaire au titre de désaventage salarial: {deduction_rate}%"
-            
-    deducted = montant * (1 - deduction_rate)
-    res += f" Revenu après déduction: {deducted} CHF"
-    print(res)
-    # Application
-    return deducted
+        return [{"revenu": 0}]
+
+# %%
+def calc_salaire_effectif(beneficiary):
+    salef = beneficiary['salaire_effectif']
+    if salef['année'] == '' or salef['salaire'] == '':
+        res = [{"revenu": 0}]
+        print(f"Salaire effectif à prendre en compte? Non\n")
+    else:
+        print(f"Salaire effectif à prendre en compte? Oui: année: {salef['année']}, salaire: {round(salef['salaire'], 2)} CHF")
+        # print(f"Branche économique selon TA1 N° {beneficiary['branche']}   {t1s[beneficiary['branche']]}\nLibellé: {labels[beneficiary['branche']]}")
+        res = calcul_salaire(beneficiary, salef)
+    return res
+
+# %%
+# Function to calculate indexation_annees
+def calculate_indexation(beneficiary, salaire, year):
+    salaire_annuel = calc_salaire_annuel(salaire)
+    # print(f"Branche économique selon TA1 N° {beneficiary['branche']}   \nLibellé: {labels[beneficiary['branche']]}\nNiveau de compétence selon TA1: {beneficiary['niveau_comp']}\n Salaire OFS de la branche (TA1): année: {beneficiary['salaire_ofs']['année']}, salaire: {round(beneficiary['salaire_ofs']['salaire'], 2)} CHF")
+    print((f"Salaire OFS sur xx heures hebdomdaire x 12: {round(salaire_annuel['heures_normales'], 2)}, {round(salaire_annuel['salaire_normal'], 2)} CHF, {round(salaire_annuel['salaire_normal_annuel'], 2)} CHF"))
+    if salaire_annuel['salaire_normal_annuel'] not in [False, None, '']:
+        indexation_annees = []
+        base_index = get_indexation_t39(beneficiary, year)
+        print("Indexation T1:")
+        print(f"Année: {year}, Indice: {base_index}")
+
+        year_index = get_indexation_t39(beneficiary, beneficiary['ess'])
+        indexation_annees.append({
+            'année': beneficiary['ess'],
+            'indice': year_index,
+            'revenu': salaire_annuel['salaire_normal_annuel'] / base_index * year_index
+        })
+        print(f"Année: {round(indexation_annees[-1]['année'], 2)}, Indice: {round(indexation_annees[-1]['indice'], 2)}, Revenu: {round(indexation_annees[-1]['revenu'], 2)} CHF\n")
+        return indexation_annees
+    else:
+        return None
+
+# %%
+### Fonction de calcul
+def calc_salaire_as(beneficiary):
+    salas = beneficiary['salaire_as']
+    if salas['année'] == '' or salas['salaire'] == '':
+        res = [{"revenu": 0}]
+        # print(f"Salaire effectif à prendre en compte? Non\n")
+    else:
+        print(
+            f"RS:\nSalaire avant atteinte à la santé: année: {salas['année']}, salaire: {round(salas['salaire'], 2)} CHF")
+        # print(f"Branche économique selon TA1 N° {beneficiary['branche']}   nLibellé: {labels[beneficiary['branche']]}")
+        res = calcul_salaire(beneficiary, salas)
+    return res
+
+# %%
+def indexation_t39(beneficiary, evo_salaires):
+    # Get the value of C1, which is beneficiary["ess"]
+    c1 = beneficiary["ess"]
+
+    # Get the maximum value from the "année" column in evo_salaires
+    max_annee = evo_salaires["année"].max()
+
+    # Apply the logic based on the Excel formula
+    if c1 == "année":
+        return ""
+    elif c1 > max_annee:
+        return max_annee
+    else:
+        return c1
+
+# %%
+def get_indexation_t39(beneficiary, year):
+    # Extract parameters
+    sexe = beneficiary["sexe"]
+    df = t1[sexe]
+    branche = get_id(beneficiary["branche"], t1_index[sexe]) if beneficiary["branche"] != '05-96' else '05-96'
+    print(branche)
+    row_index = df[df['id'] == branche].index[0]
+
+    column_index = df.columns.get_loc(f"{year}")
+    return df.iloc[row_index, column_index]
 
 
 # %%
-def get_salaire_ta1(sexe, branche, lvl):
-    id = get_id(branche, ta1_index)
-    print(id)
-    column = f"{lvl} {sexe}"
-        
-    row_idx = ta1[ta1['id'] == id].index[0]
-    col_idx = ta1.columns.get_loc(column)
-    return ta1.iloc[row_idx, col_idx]
+def heures_hebdo(beneficiary, th):
+    # Extract parameters
+    year = beneficiary["ess"]
+    branche = get_id(beneficiary["branche"], th_index) if beneficiary["branche"] != '05-96' else '01-96'
 
+    # Find the matching row and column for the INDEX function
+    row_index = th[th['id'] == branche].index[0]
+
+    # Find the column index based on the header matching C11 (index_t39)
+    column_index = th.columns.get_loc(f"{year}")
+
+    # Use row_index and column_index to retrieve the value
+    return th.iloc[row_index, column_index]
+
+# %%
+def calc_salaire_annuel(salaire):
+    heures_normales = heures_hebdo(beneficiary, th)
+    salaire_normal = salaire * heures_normales / 40
+    salaire_normal_annuel = salaire_normal * 12
+    return {'heures_normales': heures_normales, "salaire": salaire, "salaire_normal": salaire_normal, "salaire_normal_annuel": salaire_normal_annuel}
+
+# %%
+def calc_deduction(beneficiary, salaire):
+    annee = int(beneficiary['ess'])
+    d31 = beneficiary['horaire']/100
+    d32 = beneficiary['diminution']/100
+    if annee < 2024 and (d31 - (d31 * d32)) <= 0.5:
+        deduction = 0.1
+    elif annee < 2024 and (d31 - (d31 * d32)) > 0.5:
+        deduction = 0
+    elif annee >= 2024 and (d31 - (d31 * d32)) <= 0.5:
+        deduction = 0.2
+    else:
+        deduction = 0.1
+
+    deducted = salaire - (deduction * salaire)
+
+    print(f"Déduction forfaitaire si CTAA <=50%: {deduction*100}%, {round(deducted, 2)} CHF")
+    return  deducted
+
+# %%
+def calc_salaire_exigible(beneficiary, indexation):
+    d34 = beneficiary['abattement']
+    salaire_base = max([i['revenu'] for i in indexation]) * beneficiary['horaire'] / 100
+    print(f"Horaire et pourcentage: {beneficiary['horaire']}%, {round(salaire_base, 2)} CHF")
+
+    diminution_rendement = salaire_base - salaire_base * beneficiary['diminution'] / 100
+    print(f"Diminution de rendement: {beneficiary['diminution']}%, {round(diminution_rendement, 2)} CHF")
+
+    exigible = calc_deduction(beneficiary, diminution_rendement)
+
+    if d34 not in [False, None, '', 0] and int(beneficiary['ess'] < 2024):
+        exigible -= exigible * d34/100
+        print(f"Prise en compte d'abattements suppl.: oui, {d34}%, {round(exigible, 2)} CHF")
+
+    return exigible
+
+# %%
+def calc_ri(beneficiary, salef, salaire_exigible):
+
+    # si ess < 2024 et max(salef)<
+    c1 = beneficiary['ess']
+
+    max_salef = max([i['revenu'] for i in salef])
+
+    if (c1 < 2024 or c1 > 2023) and max_salef < salaire_exigible:
+        return salaire_exigible
+    else:
+        return max_salef
 
 # %% [markdown]
-# ## Calculs
+# ## Fonction d'execution
+
+# %% [markdown]
+# #### RS
+
+# %% [markdown]
+# ##### Double ESS
 
 # %%
-def get_revenu_effectif(branche, taux, salaire, annee, benef):
-    """
-    Calcul le salaire avant l'atteinte à la santé
-    """
-    
-    ess = benef['ess']
-    salaire100 = 100 * salaire / taux
+def exec_rs(beneficiary):
+    print(f"ESS: {beneficiary['ess']}\nType de calcul: Double ESS\nSexe: {beneficiary['sexe']}\n\nRS:")
+    indexation = calculate_indexation(beneficiary, beneficiary['salaire_ofs']['salaire'], beneficiary['salaire_ofs']['année'])
+    return indexation
 
-    index_ex = get_index_from_t1(benef, ess, branche)
-    index_annee = get_index_from_t1(benef, annee, branche)
-    revenu_effectif = index_ex * salaire100 / index_annee
-    print(f"Activité: {branche}\nTaux d'activité: {taux}%\nAnnée du dernier revenu effectif: {annee}\nRevenu effectif annuel réel: {salaire} CHF  Revenul annuel pour un 100%: {salaire100} CHF\nAnnée d'exigibilité: {ess}\nIndexation du revenu:\n {ess} {index_ex}  {annee} {index_annee}\n salaire indexé: {revenu_effectif} CHF")
-    return revenu_effectif
-
+# %% [markdown]
+# ##### Mise en parallèle des revenus
 
 # %%
-def get_revenu_ess(benef, niveau, revenu, annee, branche):
-    ess = benef['ess']
+def exec_rs_as(beneficiary):
+    print(f"ESS: {beneficiary['ess']}\nType de calcul: Mise en parallèle des revenus\nSexe: {beneficiary['sexe']}\n")
+    rs = calc_salaire_as(beneficiary)
+    return rs
 
-    taux_ess = get_heures_hebdo(branche, annee)
-    print(f"Activité: {branche}\nAnnée d'exigibilité: {ess}\nRevenu mensuel calculé sur 40h: {revenu} CHF")
-
-    revenu_annuel = get_salaire_annuel(benef, revenu, branche)
-
-    index_ex = get_index_from_t1(benef, ess, branche)
-    index_annee = get_index_from_t1(benef, annee, branche)
-
-    revenu_ess = index_ex * revenu_annuel / index_annee
-    print(f"Indexation du revenu:\n {ess} {index_ex} CHF\n {annee} {index_annee}\nRevenu ESS annuel indexé: {revenu_ess} CHF")
-
-    return revenu_ess
+# %% [markdown]
+# #### Parallélisation des revenus
 
 # %%
-def get_parallélisme(revenu_avasta, revenu_ess):
-    print(f"Différence entre le revenu effectif et ESS annuel indexé: {revenu_avasta - revenu_ess} CHF\nDifférence en pourcent: {revenu_avasta * 100 / revenu_ess}%")
-    if revenu_avasta * 100 / revenu_ess > 95:
-        return revenu_avasta
-    else:
-        return revenu_ess * 0.95
+def exec_parallélisation(beneficiary):
+    print(f"Parallélisation des revenus:")
+    print((f"Niveau de compétence selon TA1: {beneficiary['niveau_comp']}"))
+    indexation = calculate_indexation(beneficiary, beneficiary['salaire_ofs']['salaire'], beneficiary['salaire_ofs']['année'])
+
+    mpr = indexation[0]['revenu'] * 0.95
+    print(f"\nMise en parallèle des revenus (95% de l'ESS): {round(mpr, 2)} CHF\n")
+    # return {'indexation': indexation, 'mpr': mpr}
+    return indexation,mpr
+
+# %% [markdown]
+# #### RI
+
+# %% [markdown]
+# ##### Salaire effectif
 
 # %%
-def get_revenu_sans_invalidité(benef):
-    branche = benef['sainv']['branche']
-    sas = benef['salaire_as']
-    had_revenu = sas['année'] and sas['salaire'] != 0 
-    res = ""
-    
-    if had_revenu:
-        print("\nCalcul du revenu avant l'atteinte à la santé:")
-        revenu_avasta = get_revenu_effectif(branche, benef['horaire'], sas['salaire'], sas['année'], benef)
-        print("\nCalcul du revenu exigible selon ESS:")
-        revenu_ess = get_revenu_ess(benef, benef['sainv']['niveau_comp'], benef['sainv']['salaire'], benef['sainv']['année'], branche)
-        print("\nCalcul du revenu après parallélisme:")
-        revenu_sainv = get_parallélisme(revenu_avasta, revenu_ess)
-    else:    
-        print("\nCalcul du revenu exigible selon ESS:")
-        revenu_sainv = get_revenu_ess(benef, benef['sainv']['niveau_comp'], benef['sainv']['salaire'], benef['sainv']['année'], branche)    
-    print(f"\nRevenu avant l'atteinte à la santé: {revenu_sainv} CHF")
+def exec_salef(beneficiary):
+    print('RI:')
+    salef = calc_salaire_effectif(beneficiary)
+    return salef
 
-    return revenu_sainv
+# %% [markdown]
+# ##### Salaire exigible
 
 # %%
-def get_revenu_exigible(benef):
-    ess = benef['ess']
-    annee = benef['ex']['année']
-    diminution = benef['diminution']
-    effectif = benef['salaire_effectif']
-    branche = benef['ex']['branche']
+def exec_salex(beneficiary):
+    print("RI selon base ESS:")
+    salex = calc_salaire_exigible(beneficiary, calculate_indexation(beneficiary, beneficiary['salaire_ofs']['salaire'], beneficiary['salaire_ofs']['année']))
+    return salex
 
-    has_effectif = effectif['salaire'] and effectif['année'] != 0
-    
-    print("\nCalcul du revenu exigible selon ESS:")
-    revenu_annuel = get_revenu_ess(benef, benef['ex']['niveau_comp'], benef['ex']['salaire'], annee, branche)    
-    revenu_ess = apply_deduction(benef, revenu_annuel)
+# %% [markdown]
+# #### Préjudice économique
 
-    if has_effectif:
-        print("\nCalcul du revenu effectif:")
-        revenu_effectif = get_revenu_effectif(branche, benef['horaire'], effectif['salaire'], effectif['année'], benef)
-    else:
-        revenu_effectif = 0
-    print(f"\nRevenu exigible finale: {max([revenu_ess, revenu_effectif])} CHF\n")
-    
-    return max([revenu_ess, revenu_effectif])
-
+# %% [markdown]
+# ##### Double ESS
 
 # %%
-def get_invalidite(benef):
-    beneficiary = benef
-    for d in ['sainv', 'ex']:
-        beneficiary[d]['salaire'] = get_salaire_ta1(benef['sexe'], benef[d]['branche'], benef[d]['niveau_comp'])
+def double_ess(beneficiary):
+    indexation = exec_rs(beneficiary)
+    salef = exec_salef(beneficiary)
+    salex = exec_salex(beneficiary)
+    print("\nPréjudice économique:")
+    rs = max([i['revenu'] for i in indexation])
+    print(f"Revenu sans invalidité RS: {round(rs, 2)} CHF")
 
-    revenu_sainv = get_revenu_sans_invalidité(beneficiary)
-    revenu_ex = get_revenu_exigible(beneficiary)
-    print(f"Revenu sans invalidité: {revenu_sainv}, Revenu exigible: {revenu_ex}")
+    ri = calc_ri(beneficiary, salef, salex)
+    print(f"Salaire exigible RI: {round(ri, 2)} CHF")
 
-    perte_revenu = revenu_sainv - revenu_ex
-    taux_invalidite = perte_revenu * 100 / revenu_sainv
-    print(f"Calcul de l'invalidité:\nPerte de revenu sur 100%: {perte_revenu} CHF\nTaux d'invalidité dans la partie lucrative: {taux_invalidite}\n\n Degré d'invalidité: {round(taux_invalidite, 2)}%")
+    prejudice = rs-ri
+    print(f"Préjudice économique: {round(prejudice, 2)} CHF")
 
-    return f"Revenu sans invalidité: {revenu_sainv}, Revenu exigible: {revenu_ex}\nCalcul de l'invalidité:\nPerte de revenu sur 100%: {perte_revenu} CHF\nTaux d'invalidité dans la partie lucrative: {taux_invalidite}\n\n Degré d'invalidité: {round(taux_invalidite, 2)}%"
+    prejudice_pourcentage = prejudice / rs * 100
+    print(f"Préjudice économique en %: {round(prejudice_pourcentage, 2)}%")
+    return round(prejudice_pourcentage, 2)
+
+# %% [markdown]
+# ##### Mise en parallèle des revenus
+
+# %%
+def mise_en_parallele_des_revenus(beneficiary):
+    rs = exec_rs_as(beneficiary)
+    indexation, mpr = exec_parallélisation(beneficiary)
+    salef = exec_salef(beneficiary)
+    salex = exec_salex(beneficiary)
+    print("\nPréjudice économique:")
+    rs = rs[0]['revenu'] if rs[0]['revenu']>mpr else mpr
+    print(rs)
+    print(f"Revenu sans invalidité RS: {round(rs, 2)} CHF")
+
+    ri = calc_ri(beneficiary, salef, salex)
+    print(f"Salaire exigible RI: {round(ri, 2)} CHF")
+
+    prejudice = rs-ri
+    print(f"Préjudice économique: {round(prejudice, 2)} CHF")
+
+    prejudice_pourcentage = prejudice / rs * 100
+    print(f"Préjudice économique en %: {round(prejudice_pourcentage, 2)}%")
+    return f"\nPréjudice économique:\nRevenu sans invalidité RS: {round(rs, 2)} CHF\nSalaire exigible RI: {round(ri, 2)} CHF\nPréjudice économique: {round(prejudice, 2)} CHF\nPréjudice économique en %: {round(prejudice_pourcentage, 2)}%"
+
+# %% [markdown]
+# ## Calcul
+
+# %% [markdown]
+# ### Double ESS
+
+# %%
+# double_ess(beneficiary)
+
+# %%
+# get_id(beneficiary["branche"], t1_index['homme'])
+
+# %% [markdown]
+# ### Mise en parallèle des revenus
+
+# %%
+mise_en_parallele_des_revenus(beneficiary)
+
+# # %% [markdown]
+# # # Chatgpt function calling
+
+# # %%
+# from openai import OpenAI
+# from dotenv import load_dotenv
+# import os
+
+# # Load environment variables from .env file
+# load_dotenv()
+
+# # %%
+# query = """<context>
+#     L'utilisateur intéragit avec le copilote en lui soumettant des cas de décision de rente assurance. Les cas doivent être reformulé en donné précise afin d'être utilisé pour calculer la rente.
+#     </context>
+
+#     <objectif>
+#         Ecrire des informations claires et précises afin de les réutiliser dans une fonction permettant de déterminer la somme de la rente pour un demandeur de rente assurance invalidité.
+#     </objectif>
+
+#     <instructions>
+#         <instruction>Étant donné la déscription donner par l'utilisateur, extractez les informations pertinentes au <calcul></instruction>
+#         <instruction>L'extraction d'informations suis un processus spécifique: déterminer le sexe du demandeur, la branche économique, le niveau de compétence, le salaire ofs et l'année correspondante, la date d'exigibilité, le salaire effectif et l'année qui correspond (optionnel) , le taux d'activité, la diminution du taux après l'atteinte à la santé et le salaire avant l'atteinte à la santée ainsi que l'année correspondante (optionnel)</instruction>
+#         <instruction>Le niveau de compétence est décris comme suis: 4 = Tâches qui exigent une capacité à résoudre des problèmes complexes et à prendre des décisions fondées sur un vaste ensemble de connaissances théoriques et factuelles dans un domaine spécialisé. 3 = Tâches pratiques complexes nécessitant un vaste ensemble de connaissances dans un domaine spécialisé. 2 = Tâches pratiques telles que la vente/ les soins/ le traitement de données et les tâches administratives/ l'utilisation de machines et d'appareils électroniques/ les services de sécurité/ la conduite de véhicules. 1 = Tâches physiques ou manuelles simples.</instruction>
+#         <instruction> Si une information optionnel n'est pas présente dans la déscription du cas la valeur a attribuer est de 0</instruction>
+#         <instruction>Formulez les informations extraites sous forme d'objet python</instruction>
+
+#     <format_de_réponse>
+#     beneficiary = {
+#         "sexe": str,            # le sexe du demandeur. valeurs acceptée: ["homme","femme","26 al. 6 RAI"]
+#         "branche": str,         # la branche économique.
+#         "niveau_comp": int,     # le niveau de compétence
+#         "salaire_ofs": {
+#             "année": int,       # année de référence
+#             "salaire": double   # salaire OFS
+#         },
+#         "ess": int,             # année d'exigibilité
+#         "salaire_effectif": {
+#             "salaire": int,     # salaire effectif
+#             "année": double     # année correspondante
+#         },
+#         "horaire": int,         # taux d'activité. valeur entre 0-100
+#         "diminution": int,      # réduction du taux d'activité. valeur entre 0-100
+#         "salaire_as": {
+#             "salaire": double   # salaire avant l'atteinte à la santé
+#             "année": int        # année correspondante
+#         }
+#     }
+#     </format_de_réponse>
+
+#     <exemples>
+#     Activité avant atteinte à la santé : Ouvrier de la construction qualifié (CFC)
+#     Taux d’activité : 100% / Revenu sans invalidité effectif 2021: CHF 90'000.00
+#     Activité exigible avec invalidité : Activité légère non qualifiée dans la production ou les services (05-96)
+#     salaire ofs: 5305.00
+#     Taux d’activité : 50%
+#     Date de l’exigibilité : 01.07.2022 -> beneficiary = {
+#         "sexe": "homme",
+#         "branche": "41-43",
+#         "niveau_comp": 1,
+#         "salaire_ofs": {
+#             "année": 2022,
+#             "salaire": 5305
+#         },
+#         "ess": 2022,
+#         "salaire_effectif": {
+#             "salaire": 0,
+#             "année": 0
+#         },
+#         "horaire": 100,
+#         "diminution": 50,
+#         "salaire_as": {
+#             "salaire": 90000,
+#             "année": 2021
+#         }
+#     }
+#     </exemples>
+#     <calcul> 
+#         Système de rentes linéaire(art. 28b LAI)
+#         La quotité de la rente est fixée en pourcentage d’une rente entière.
+#         Pour un taux d’invalidité compris entre 50 et 69%, la quotité de la rente correspond au taux d’invalidité.
+#         Pour un taux d’invalidité supérieur ou égal à 70%, l’assuré a droit à une rente entière.
+#         Pour un taux d’invalidité inférieur à 50 %, la quotité de la rente est la suivante: (Taux d’invalidité -> Quotité de la rente) 49 -> %47.5, %48 -> %45, %47 -> 42.5%, 46% -> 40%, 45% -> 37.5%, 44% -> 35%, 43% -> 32.5%, 42% -> 30%, 41% -> 27.5%, 40% -> 25%.
+#         Évaluation du taux d’invalidité
+#         Détermination du statut(art. 28a LAI, art. 24septies RAI)
+#         3 types de statut:
+#         assurés exerçant une activité lucrative.
+#         assurés sans activité lucrative.
+#         assurés exerçant une activité lucrative à temps partiel
+#         Le statut se fonde sur la situation professionnelle dans laquelle se trouverait l’assuré, s’il n'était pas atteint dans sa santé.
+#         Assurés exerçant une activité lucrative = taux d’occupation de 100 % ou plus, méthode d'évaluation: comparaison des revenus.
+#         Assurés sans activité lucrative = pas d’activité lucrative méthode d'évaluation: comparaison des activités.
+#         Assurés exerçant une activité lucrative à temps partiel = Taux d’occupation inférieur à 100 %, méthode d'évaluation: méthode mixte
+#         Nouveau: lorsque l’assuré exerce une activité lucrative à temps partiel, il existe toujours des travaux habituels. Abandon du statut d'assuré exerçant une activité lucrative à temps partiel sans accomplir de travaux habituels-> abandon de la méthode.
+#         Comparaison des revenus(art. 25 RAI)
+#         Les revenus déterminants doivent être établis sur des périodes identiques et au regard du marché du travail suisse.
+#         Est déterminant le moment où naît le droit à la rente (6 mois au plus tôt après le dépôt de la demande).
+#         Les modifications des revenus à comparer susceptibles d’influencer le droit à la rente survenues jusqu’au moment où la décision est rendue doivent alors être prises en compte.
+#         -> décision de l’OAI FR: maintien de la pratique actuelle jusqu’à injonction différente du TC.
+#         Les revenus déterminants doivent être établis sur des périodes identiques et au regard du marché du travail suisse.
+#         En cas de révision, est déterminant le moment où naît la modification de la rente.
+#         Revenu sans invalidité(art. 26 al. 1 et 4 RAI)
+#         Principe: revenu d’activité effectivement réalisé avant l'atteinte à la santé.
+#         S'il n'est pas possible de le déterminer ou s'il n'est pas possible de le déterminer avec suffisamment de précision, on utilise des valeurs statistiques pour une personne ayant la même formation et dans une situation professionnelle correspondante.
+#         Revenu sans invalidité, Comparaison des revenus(art. 25 al. 3 RAI)
+#         Si les revenus déterminants sont fixés sur la base de valeurs statistiques, les valeurs médianes de l’ESS de l’OFS font foi.
+#         En règle générale: tableau TA1_tirage_skill_level.
+#         Utiliser le tableau de l’ESS le plus actuel (par rapport au début du droit à la rente) au moment où la décision est rendue.
+#         Déterminer la division économique (ou Total de toutes les divisions économiques, selon la situation).
+#         Déterminer le niveau de compétence.
+#         Dans des cas dûment justifiés, il est possible de s’appuyer sur d’autres tableaux de l’ESS.
+#         Les valeurs statistiques utilisées sont indépendantes de l’âge et tiennent compte du sexe.
+#         Les valeurs statistiques sont adaptées au temps de travail usuel des entreprises de la branche.
+#         Statistique «Durée normale du travail dans les entreprises selon la division économique, en heures par semaine » de l’OFS, Selon la division économique ou Total de toutes les divisions économiques
+#         Les valeurs statistiques sont adaptées à l’évolution des salaires nominaux. Indice suisse des salaires de l’OFS.
+#         Selon la division économique ou Total de toutes les divisions économiques.
+#         D’autres valeurs statistiques peuvent être utilisées, pour autant que le revenu en question ne soit pas représenté dans l’ESS (ex. T17).
+#         Revenu sans invalidité, Mise en parallèle des revenus de comparaison(art. 26 al. 2 RAI)
+#         Si le revenu effectivement réalisé est inférieur de 5 % ou plus au revenu médian usuel dans la branche tel qu’il ressort de l’ESS, le revenu sans invalidité correspond à 95 % du revenu médian.
+#         Nouveau: mise en parallèle systématique. il n’est plus nécessaire d’examiner quels sont les facteurs à l’origine d’un revenu inférieur à la moyenne.
+#         Nouveau: Les revenus sont aussi mis en parallèle lorsque l’activité de l’assuré est soumise à une CCT ou un CTT et lorsque l’assuré perçoit le salaire minimum prévu dans cette CCT ou ce CTT.
+#         Mise en parallèle des revenus de comparaison(art. 26 al. 3 RAI)
+#         Pas de mise en parallèle lorsque:
+#         Le revenu avec invalidité (effectif) se situe aussi 5% ou plus en-dessous du revenu médian usuel dans la branche selon l’ESS (cette exception a été mise en remarque pour mémoire dans la fiche d’EXI).
+#         ou
+#         Il s’agit d’un revenu d’une activité indépendante.
+#         Revenu sans invalidité, Cas particuliers(art. 26 al. 6 RAI – ancien 26 al. 1 RAI)
+#         Nouveau: en cas d'invalidité de naissance et d'invalidité précoce (pas de formation ou apprentissage AI / FPra INSOS):
+#         suppression du classement par âge.
+#         valeur médiane de l’ESS TA1_tirage_skill_level (total de toutes les divisions économiques et de tous les niveaux de compétence).
+#         valeurs indépendantes du sexe (tant pour les revenus avec que sans invalidité).
+#         Revenu sans invalidité(art. 26 al. 6 RAI)
+#         Exception:
+#         Nouveau: si l’assuré peut achever une AFP ou un CFC, on prend toujours en compte cette formation (même en cas d'invalidité de naissance et d'invalidité précoce).
+#         § En principe, le revenu sans atteinte à la santé à retenir est celui correspondant au niveau 2 de la branche de l’ESS dans laquelle l’assuré s’est formé.
+#         Revenu sans invalidité Cas particuliers(art. 26 al. 5 RAI – ancien 26 al. 2 RAI)
+#         Valeurs statistiques de la formation prévue ou débutée lorsque la survenance de l’invalidité est postérieure à:
+#         Planification de la formation.
+#         Début effectif de la formation.
+#         Prendre des valeurs statistiques, comme si la personne assurée avait terminé la formation.
+#         Revenu avec invalidité(art. 26bis RAI)
+#         Principe: on prend le revenu d’activité effectivement réalisé, à condition que l’assuré exploite au mieux sa capacité fonctionnelle résiduelle pour exercer une activité rémunérée.
+#         conséquence de l’obligation de réduire le dommage.
+#         Nouveau: même en cas d’un salaire social.
+#         Si l’on ne peut pas prendre en compte un revenu effectivement réalisé, le revenu avec invalidité est déterminé en fonction des valeurs statistiques.
+#         Nouveau: il n’y a plus de désavantage salarial.
+#         les facteurs économiques et personnels sont pris en compte avec la mise en parallèle des revenus.
+#         les facteurs effectivement liés à l’atteinte à la santé (restrictions qualitatives de la capacité de travail) doivent désormais être systématiquement pris en compte lors de la détermination de la capacité fonctionnelle (par le SMR).
+#         Exception: déduction pour capacité de travail de 50% et moins (10%).
+#         Nouveau: déduction de 10% pour travail à temps partiel, lorsque la capacité fonctionnelle résiduelle est de 50% ou moins.
+#         -> horaire et rendement confondus = capacité globale = capacité fonctionnelle.
+#     </calcul>
+# """
+
+# # %%
+# client = OpenAI()
+
+# tools = [{
+#     "type": "function",
+#     "function": {
+#         "name": "mise_en_parallele_des_revenus",
+#         "description": "Defines the properties of a beneficiary in a social assistance context",
+#         "strict": True,
+#         "parameters": {
+#             "type": "object",
+#             "required": [
+#                 "sexe",
+#                 "branche",
+#                 "niveau_comp",
+#                 "salaire_ofs",
+#                 "ess",
+#                 "salaire_effectif",
+#                 "horaire",
+#                 "diminution",
+#                 "salaire_as",
+#                 "abattement"  
+#             ],
+#             "properties": {
+#                 "sexe": {
+#                     "type": "string",
+#                     "description": "Le sexe du demandeur. Valeurs acceptées : ['homme', 'femme', '26 al. 6 RAI']"
+#                 },
+#                 "branche": {
+#                     "type": "string",
+#                     "description": "La branche économique. ex: (05-96)"
+#                 },
+#                 "niveau_comp": {
+#                     "type": "integer",
+#                     "description": "Le niveau de compétence."
+#                 },
+#                 "salaire_ofs": {
+#                     "type": "object",
+#                     "required": [
+#                         "année",
+#                         "salaire"
+#                     ],
+#                     "properties": {
+#                         "année": {
+#                             "type": "integer",
+#                             "description": "Année de référence."
+#                         },
+#                         "salaire": {
+#                             "type": "number",
+#                             "description": "Salaire OFS."
+#                         }
+#                     },
+#                     "additionalProperties": False
+#                 },
+#                 "ess": {
+#                     "type": "integer",
+#                     "description": "Année d'exigibilité."
+#                 },
+#                 "salaire_effectif": {
+#                     "type": "object",
+#                     "required": [
+#                         "salaire",
+#                         "année"
+#                     ],
+#                     "properties": {
+#                         "salaire": {
+#                             "type": "integer",
+#                             "description": "Salaire effectif. ne pas confondre avec revenu sans activité effectif"
+#                         },
+#                         "année": {
+#                             "type": "number",
+#                             "description": "Année correspondante."
+#                         }
+#                     },
+#                     "additionalProperties": False
+#                 },
+#                 "horaire": {
+#                     "type": "integer",
+#                     "description": "Taux d'activité. Valeur entre 0-100."
+#                 },
+#                 "diminution": {
+#                     "type": "integer",
+#                     "description": "Réduction du taux d'activité. Valeur entre 0-100."
+#                 },
+#                 "salaire_as": {
+#                     "type": "object",
+#                     "required": [
+#                         "salaire",
+#                         "année"
+#                     ],
+#                     "properties": {
+#                         "salaire": {
+#                             "type": "number",
+#                             "description": "Salaire avant l'atteinte à la santé ou revenu sans activité effectif."
+#                         },
+#                         "année": {
+#                             "type": "integer",
+#                             "description": "Année correspondante."
+#                         }
+#                     },
+#                     "additionalProperties": False
+#                 },
+#                 "abattement": {
+#                     "type": "number"
+#                 }
+#             },
+#             "additionalProperties": False
+#         }
+#     }
+# }]
+
+# input_messages = [
+#     # {"role": "system", "content": query},
+#     {"role": "user", "content": "Activité avant atteinte à la santé : Ouvrier de la construction qualifié (CFC). Salaire ofs: 5305. Taux d’activité : 100% / Revenu sans invalidité 2021 : CHF 90'000.00. Activité exigible avec invalidité : Activité légère non qualifiée dans la production ou les services (05-96). Taux d’activité : 100%. Date de l’exigibilité : 01.07.2022."}
+# ]
+
+# response = client.chat.completions.create(
+#     model="gpt-4o",
+#     messages=input_messages,
+#     tools=tools,
+# )
+
+# # %%
+# response
+
+# # %%
+# import json
+# tool_call = response.choices[0].message.tool_calls[0]
+# args = json.loads(tool_call.function.arguments)
+# result = mise_en_parallele_des_revenus(args)
+
+# # %%
+# args
+
+# # %%
+# # import { ChatCompletionMessageParam } from "openai/types/chat/chat_completion.py";
+# altered_res = response.choices[0].message
+# if len(altered_res.tool_calls) > 1:
+#     altered_res.tool_calls = [tool_call]
+# # altered_res = {
+# #     'content':res.content,
+# #     'refusal':res.refusal,
+# #     'role':res.role,
+# #     'audio':res.audio,
+# #     'function_call':res.function_call,
+# #     'tool_calls':[tool_call],
+# #     'annotations':res.annotations
+# # }
+
+# # %%
+# input_messages.append(altered_res)  # append model's function call message
+# input_messages.append({                               # append result message
+#     "role": "tool",
+#     "tool_call_id": tool_call.id,
+#     "content": result
+# })
+
+# completion_2 = client.chat.completions.create(
+#     model="gpt-4o",
+#     messages=input_messages,
+#     tools=tools,
+# )
+
+# # %%
+print(completion_2.choices[0].message.content)
+
+

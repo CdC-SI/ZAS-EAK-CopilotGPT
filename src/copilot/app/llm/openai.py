@@ -118,6 +118,41 @@ class OpenAILLM(BaseLLM):
         except Exception as e:
             raise e
 
+    async def tool_called(self, events):
+        res = False
+        async for event in events:
+            logger.info(event.choices[0].delta)
+            if event.choices[0].delta.content is None:
+                if event.choices[0].delta.tool_calls is not None:
+                    res = True
+                    break
+            else:
+                res = False
+                break
+        logger.info(f"\n+-------------\n\ntool is called ? {res}\n\n-------------+\n")
+        return res
+    
+    async def info_complete(self, events):
+        message = ""
+        async for event in events:
+            content = event.choices[0].delta.content
+            message += content if content is not None else ""
+        response = await self.llm_client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "your goal is to determine if the message received from the user indicates that all of the information has been gathered. Your assesment should only focus on the actual information. Don't take into account messages adressed to the user like 'here are the information i've collected so far...' or 'if all the data is correct i will proceed'. if it has simply answer 'yes' else answer with 'no'. you answer should be stritly limited to yes or no and nothing else."},
+                {"role": "user", "content": message}
+                ],
+            stream=False
+        )
+        logger.info(response.choices[0])
+        if response.choices[0].message.content == 'yes':
+            return message
+        elif response.choices[0].message.content == 'no':
+            return None
+        else:
+            return message if 'yes' in response.choices[0].content else None
+
     async def _astream(self, messages: List[Any], tools: list = [], **kwargs):
         """
         Stream responses asynchronously from the LLM model.
@@ -139,48 +174,86 @@ class OpenAILLM(BaseLLM):
         Exception
             If streaming fails or other errors occur
         """
-        logger.info(messages)
         try:
             params = {
                 "model": self.model,
-                "stream": False,
+                "stream": True,
                 "temperature": self.temperature,
                 "top_p": self.top_p,
                 "max_tokens": self.max_tokens,
                 "messages": [messages[-1]],
                 "tools": tools,
+                "tool_choice": 'auto'
             }
             params.update(kwargs)
+
+            logger.info(f"\n+-------------\n\n{messages}\n\n-------------+\n")
+                    
             if tools in [[], None, '']:
-                params['stream'] = True
-                params.update(kwargs)
+                # params['stream'] = True
+                # params.update(kwargs)
                 return await self.llm_client.chat.completions.create(**params)
             else:
-                # params['tools'] = tools
-                # params.update(kwargs)
-                logger.info(f"\n+-------------\n\n{params}\n\n-------------+\n")
+            # is_called = await self.tool_called(response)
+            # should_be_called = await self.info_complete(response)
+            # if not is_called:
+            #     if should_be_called is None:
+            #         return response
+
+            # params['stream'] = False
+            # params['messages'] = should_be_called
+            # params['tool_choice'] = {"type": "function", "function": {"name": "get_invalidite"}}
+            # params.update(kwargs)
                 response = await self.llm_client.chat.completions.create(**params)
-                logger.info(f"-----\n\n{response}\n\n-----")
+                if await self.tool_called(response):
+                    final_tool_calls = {}
 
-                tool_call = response.choices[0].message.tool_calls[0]
-                args = json.loads(tool_call.function.arguments)['benef']
-                logger.info(f"\n+-------------\n\n{args}\n\n-------------+\n")
-                # if tools[0]['function']['name'] == 'get_invalidite':
-                result = get_invalidite(args)
+                    async for chunk in response:
+                        for tool_call in chunk.choices[0].delta.tool_calls or []:
+                            index = tool_call.index
 
-                alt_res = response.choices[0].message
-                if len(alt_res.tool_calls) > 1:
-                    alt_res.tool_calls = [tool_call]
-                
-                params['messages'].append(alt_res) 
-                params['messages'].append({
-                    "role": "tool",
-                    "tool_call_id": tool_call.id,
-                    "content": result
-                })
-                params['stream'] = True
-                params.update(kwargs)
+                            if index not in final_tool_calls:
+                                final_tool_calls[index] = tool_call
 
-                return await self.llm_client.chat.completions.create(**params)
+                            final_tool_calls[index].function.arguments += tool_call.function.arguments if tool_call.function.arguments != final_tool_calls[index].function.arguments else ""
+                    
+                    final_tool_call = final_tool_calls[0]
+                    # params['tools'] = tools
+                    # params.update(kwargs)
+                    logger.info(f"\n+-------------\n\n{len(params['messages'])}\n\n-------------+\n")
+                    # response = await self.llm_client.chat.completions.create(**params)
+                    logger.info(f"-----\n\n{final_tool_call}\n\n-----")
+
+                    args = json.loads(final_tool_call.function.arguments)['benef']
+                    logger.info(f"\n+-------------\n\n{args}\n\n-------------+\n")
+                    # if tools[0]['function']['name'] == 'get_invalidite':
+                    result = get_invalidite(args)
+
+                    # alt_res = response.choices[0].message
+                    # if len(alt_res.tool_calls) > 1:
+                    #     alt_res.tool_calls = [final_tool_call]
+                    
+                    params['messages'].append({
+                        "role": "assistant",
+                        "content": None,
+                        "tool_calls":[{
+                            "id": final_tool_call.id,
+                            "function": {"arguments": args, "name": final_tool_call.function.name},
+                            "type": "function"
+                        }]
+                    }) 
+                    params['messages'].append({
+                        "role": "tool",
+                        "tool_call_id": final_tool_call.id,
+                        "content": result
+                    })
+                    params['stream'] = True
+                    params.update(kwargs)
+
+                    return await self.llm_client.chat.completions.create(**params)
+                else:
+                    async for chunk in response:
+                        logger.info(f"\n+-------------\n\n{chunk.choices[0]}\n\n-------------+\n")                 
+                    return response
         except Exception as e:
             raise e
