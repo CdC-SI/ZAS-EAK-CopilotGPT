@@ -58,20 +58,20 @@ services:
   # For use on ZAS network comment container
   # and run command "ng serve" from copilot-frontend
   # to start the frontend.
-#  zas-copilot:
-#    build:
-#      context: ../copilot-frontend
-#      dockerfile: Dockerfile
-#    image: zas-copilot:latest
-#    environment:
-#      - ENVIRONMENT=development
-#    ports:
-#      - "4200:4200"
-#    networks:
-#      - copilot-network
-#    depends_on:
-#      - zas-security
-#    restart: "no"
+  zas-copilot:
+   build:
+     context: ../copilot-frontend
+     dockerfile: Dockerfile
+   image: zas-copilot:latest
+   environment:
+     - ENVIRONMENT=development
+   ports:
+     - "4200:4200"
+   networks:
+     - copilot-network
+   depends_on:
+     - zas-security
+   restart: "no"
 
   # security service
   zas-security:
@@ -94,6 +94,7 @@ services:
       - HTTPS_PROXY=${PROXY}
       - http_proxy=${PROXY}
       - https_proxy=${PROXY}
+      - SPRING_AI_OPENAI_API_KEY=${OPENAI_API_KEY}
     ports:
       - "8080:8080"
     networks:
@@ -104,34 +105,34 @@ services:
     restart: "no"
 
   # Logging db service for langfuse
-  langfuse-db:
-    image: postgres:16
-    environment:
-      - POSTGRES_USER=langfuse_user
-      - POSTGRES_PASSWORD=langfuse_password
-      - POSTGRES_DB=langfuse_db
-    volumes:
-      - langfuse_db_data:/var/lib/postgresql/data
-    networks:
-      - langfuse-network
-    restart: "always"
+  # langfuse-db:
+  #   image: postgres:16
+  #   environment:
+  #     - POSTGRES_USER=langfuse_user
+  #     - POSTGRES_PASSWORD=langfuse_password
+  #     - POSTGRES_DB=langfuse_db
+  #   volumes:
+  #     - langfuse_db_data:/var/lib/postgresql/data
+  #   networks:
+  #     - langfuse-network
+  #   restart: "always"
 
-  # Langfuse service
-  langfuse:
-    image: langfuse/langfuse:2
-    ports:
-      - "3000:3000"
-    environment:
-      - DATABASE_URL=postgresql://langfuse_user:langfuse_password@langfuse-db:5432/langfuse_db
-      - NEXTAUTH_URL=http://localhost:3000
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-      - SALT=${SALT}
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
-    networks:
-      - langfuse-network
-    depends_on:
-      - langfuse-db
-    restart: "no"
+  # # Langfuse service
+  # langfuse:
+  #   image: langfuse/langfuse:2
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - DATABASE_URL=postgresql://langfuse_user:langfuse_password@langfuse-db:5432/langfuse_db
+  #     - NEXTAUTH_URL=http://localhost:3000
+  #     - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+  #     - SALT=${SALT}
+  #     - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+  #   networks:
+  #     - langfuse-network
+  #   depends_on:
+  #     - langfuse-db
+  #   restart: "no"
 
   # In-memory cache
   redis:
